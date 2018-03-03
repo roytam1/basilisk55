@@ -1,0 +1,8 @@
+{
+    "configure-args": "--enable-stdcxx-compat --enable-ctypes",
+    "optimize": true,
+    "debug": true,
+    "env": {
+        "JSTESTS_EXTRA_ARGS": "--jitflags=debug"
+    }
+}

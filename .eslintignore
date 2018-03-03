@@ -1,0 +1,222 @@
+# Always ignore node_modules.
+**/node_modules/**/*.*
+
+# Exclude expected objdirs.
+obj*/**
+
+# We ignore all these directories by default, until we get them enabled.
+# If you are enabling a directory, please add directory specific exclusions
+# below.
+addon-sdk/**
+build/**
+caps/**
+chrome/**
+config/**
+db/**
+docshell/**
+dom/**
+editor/**
+embedding/**
+extensions/**
+gfx/**
+gradle/**
+hal/**
+image/**
+intl/**
+ipc/**
+js/**
+layout/**
+media/**
+memory/**
+mfbt/**
+modules/**
+mozglue/**
+netwerk/**
+nsprpub/**
+other-licenses/**
+parser/**
+probes/**
+python/**
+rdf/**
+startupcache/**
+testing/**
+tools/update-packaging/**
+uriloader/**
+view/**
+widget/**
+xpcom/**
+xpfe/**
+xulrunner/**
+
+# b2g exclusions (pref files).
+b2g/app/b2g.js
+b2g/graphene/graphene.js
+b2g/locales/en-US/b2g-l10n.js
+
+# browser/ exclusions
+browser/app/**
+browser/branding/**/firefox-branding.js
+browser/base/content/browser-social.js
+browser/base/content/nsContextMenu.js
+browser/base/content/sanitizeDialog.js
+browser/base/content/test/general/file_csp_block_all_mixedcontent.html
+browser/base/content/test/urlbar/file_blank_but_not_blank.html
+browser/base/content/newtab/**
+browser/components/downloads/**
+browser/components/privatebrowsing/**
+browser/components/sessionstore/**
+browser/components/tabview/**
+# generated files in cld2
+browser/components/translation/cld2/cld-worker.js
+browser/extensions/pdfjs/content/**
+# generated or library files in pocket
+browser/extensions/pocket/content/panels/js/tmpl.js
+browser/extensions/pocket/content/panels/js/vendor/**
+browser/locales/**
+# imported from chromium
+browser/extensions/mortar/**
+
+# devtools/ exclusions
+devtools/client/canvasdebugger/**
+devtools/client/commandline/**
+devtools/client/debugger/**
+devtools/client/framework/**
+!devtools/client/framework/selection.js
+!devtools/client/framework/toolbox.js
+devtools/client/netmonitor/test/**
+devtools/client/netmonitor/har/test/**
+devtools/client/projecteditor/**
+devtools/client/responsivedesign/**
+devtools/client/scratchpad/**
+devtools/client/shadereditor/**
+devtools/client/shared/*.jsm
+devtools/client/shared/components/reps/reps.js
+devtools/client/shared/webgl-utils.js
+devtools/client/shared/widgets/*.jsm
+devtools/client/webaudioeditor/**
+devtools/client/webconsole/net/**
+devtools/client/webconsole/test/**
+devtools/client/webconsole/console-output.js
+devtools/client/webconsole/hudservice.js
+devtools/client/webconsole/utils.js
+devtools/client/webconsole/webconsole-connection-proxy.js
+devtools/client/webconsole/webconsole.js
+devtools/client/webide/**
+!devtools/client/webide/components/webideCli.js
+devtools/server/actors/webconsole.js
+devtools/server/actors/object.js
+devtools/server/actors/script.js
+devtools/server/actors/styleeditor.js
+devtools/server/actors/stylesheets.js
+devtools/server/tests/browser/**
+!devtools/server/tests/browser/browser_webextension_inspected_window.js
+devtools/server/tests/mochitest/**
+devtools/server/tests/unit/**
+devtools/shared/heapsnapshot/**
+devtools/shared/transport/tests/unit/**
+devtools/shared/webconsole/test/**
+
+# Ignore devtools pre-processed files
+devtools/client/framework/toolbox-process-window.js
+devtools/client/performance/system.js
+devtools/client/webide/webide-prefs.js
+devtools/client/preferences/**
+
+# Ignore devtools third-party libs
+devtools/shared/jsbeautify/*
+devtools/shared/acorn/*
+devtools/shared/gcli/source/*
+devtools/shared/node-properties/*
+devtools/shared/pretty-fast/*
+devtools/shared/sourcemap/*
+devtools/shared/sprintfjs/*
+devtools/shared/qrcode/decoder/*
+devtools/shared/qrcode/encoder/*
+devtools/client/shared/demangle.js
+devtools/client/shared/vendor/*
+devtools/client/sourceeditor/codemirror/*.js
+devtools/client/sourceeditor/codemirror/**/*.js
+devtools/client/sourceeditor/tern/*
+devtools/client/sourceeditor/test/cm_mode_ruby.js
+devtools/client/sourceeditor/test/codemirror/*
+devtools/client/inspector/markup/test/lib_*
+devtools/client/jsonview/lib/require.js
+devtools/server/actors/utils/automation-timeline.js
+
+# Ignore devtools files testing sourcemaps / code style
+devtools/client/debugger/test/mochitest/code_binary_search.js
+devtools/client/debugger/test/mochitest/code_math.min.js
+devtools/client/debugger/test/mochitest/code_math_bogus_map.js
+devtools/client/debugger/test/mochitest/code_ugly*
+devtools/client/debugger/test/mochitest/code_worker-source-map.js
+devtools/client/framework/test/code_ugly*
+devtools/server/tests/unit/babel_and_browserify_script_with_source_map.js
+devtools/server/tests/unit/setBreakpoint*
+
+# mobile/android/ exclusions
+mobile/android/tests/
+
+# Uses `#filter substitution`
+mobile/android/b2gdroid/app/b2gdroid.js
+mobile/android/app/mobile.js
+mobile/android/chrome/content/healthreport-prefs.js
+
+# Uses `#expand`
+mobile/android/chrome/content/about.js
+
+# Not much JS to lint and non-standard at that
+mobile/android/installer/
+mobile/android/locales/
+
+# Non-standard `(catch ex if ...)`
+mobile/android/chrome/content/browser.js
+mobile/android/components/Snippets.js
+
+# Bug 1178739: Ignore this file as a quick fix for "Illegal yield expression"
+mobile/android/modules/HomeProvider.jsm
+
+# services/ exclusions
+
+# Uses `#filter substitution`
+services/sync/modules/constants.js
+
+# Third party services
+services/sync/tps/extensions/mozmill/resource/stdlib/json2.js
+services/sync/tps/extensions/mozmill
+
+# toolkit/ exclusions
+
+# Not part of the default build
+toolkit/components/help/**
+
+# Intentionally invalid JS
+toolkit/components/workerloader/tests/moduleF-syntax-error.js
+
+# Tests old non-star function generators
+toolkit/modules/tests/xpcshell/test_task.js
+
+# Not yet updated
+toolkit/components/osfile/**
+
+# External code:
+toolkit/components/microformats/test/**
+toolkit/components/reader/Readability.js
+toolkit/components/reader/JSDOMParser.js
+
+# Uses preprocessing
+toolkit/content/widgets/wizard.xml
+toolkit/components/jsdownloads/src/DownloadIntegration.jsm
+toolkit/components/url-classifier/**
+toolkit/components/urlformatter/nsURLFormatter.js
+toolkit/identity/FirefoxAccounts.jsm
+toolkit/modules/AppConstants.jsm
+toolkit/mozapps/downloads/nsHelperAppDlg.js
+toolkit/mozapps/extensions/internal/AddonConstants.jsm
+toolkit/mozapps/update/tests/data/xpcshellConstantsPP.js
+toolkit/webapps/**
+
+# Third party
+toolkit/modules/third_party/**
+
+#NSS
+security/nss/**

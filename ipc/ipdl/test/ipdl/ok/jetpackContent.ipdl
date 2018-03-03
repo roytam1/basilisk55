@@ -1,0 +1,10 @@
+include protocol content;
+include protocol jetpack;
+
+intr protocol jetpackContent {
+    bridges jetpack, content;
+
+child:
+    async __delete__();
+
+};

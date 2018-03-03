@@ -6560,8 +6560,8 @@ js::gc::CheckHashTablesAfterMovingGC(JSRuntime* rt)
         c->dtoaCache.checkCacheAfterMovingGC();
         c->checkWrapperMapAfterMovingGC();
         c->checkScriptMapsAfterMovingGC();
-        if (c->debugEnvs)
-            c->debugEnvs->checkHashTablesAfterMovingGC(rt);
+        /*if (c->debugEnvs)
+            c->debugEnvs->checkHashTablesAfterMovingGC(rt);*/
     }
 }
 #endif

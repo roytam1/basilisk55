@@ -210,7 +210,7 @@ FlagAllOperandsAsHavingRemovedUses(MIRGenerator* mir, MBasicBlock* block)
         if (MResumePoint* rp = ins->resumePoint()) {
             // Note: no need to iterate over the caller's of the resume point as
             // this is the same as the entry resume point.
-            MOZ_ASSERT(&rp->block()->info() == &info);
+            //MOZ_ASSERT(&rp->block()->info() == &info);
             for (size_t i = 0, e = rp->numOperands(); i < e; i++) {
                 if (mir->shouldCancel("FlagAllOperandsAsHavingRemovedUses inner loop"))
                     return false;

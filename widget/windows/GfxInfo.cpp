@@ -235,6 +235,9 @@ ParseIDFromDeviceID(const nsAString &key, const char *prefix, int length)
 // based on http://msdn.microsoft.com/en-us/library/ms724834(VS.85).aspx
 enum {
   kWindowsUnknown = 0,
+  kWindowsXP = 0x50001,
+  kWindowsServer2003 = 0x50002,
+  kWindowsVista = 0x60000,
   kWindows7 = 0x60001,
   kWindows8 = 0x60002,
   kWindows8_1 = 0x60003,
@@ -761,6 +764,10 @@ static OperatingSystem
 WindowsVersionToOperatingSystem(int32_t aWindowsVersion)
 {
   switch(aWindowsVersion) {
+    case kWindowsXP:
+      return OperatingSystem::WindowsXP;
+    case kWindowsServer2003:
+      return OperatingSystem::WindowsServer2003;
     case kWindows7:
       return OperatingSystem::Windows7;
     case kWindows8:
@@ -913,6 +920,22 @@ GfxInfo::GetGfxDriverInfo()
     IMPLEMENT_INTEL_DRIVER_BLOCKLIST_D2D(OperatingSystem::Windows7, IntelGMA3150,  2117, "FEATURE_FAILURE_594877_10");
     IMPLEMENT_INTEL_DRIVER_BLOCKLIST_D2D(OperatingSystem::Windows7, IntelGMAX3000, 1930, "FEATURE_FAILURE_594877_11");
     IMPLEMENT_INTEL_DRIVER_BLOCKLIST_D2D(OperatingSystem::Windows7, IntelHDGraphicsToSandyBridge, 2202, "FEATURE_FAILURE_594877_12");
+
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMA500,   V(3,0,20,3200), "FEATURE_FAILURE_INTEL_XP_1");
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMA900,   V(6,14,10,4764), "FEATURE_FAILURE_INTEL_XP_2");
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMA950,   V(6,14,10,4926), "FEATURE_FAILURE_INTEL_XP_3");
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMA3150,  V(6,14,10,5134), "FEATURE_FAILURE_INTEL_XP_4");
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMAX3000, V(6,14,10,5218), "FEATURE_FAILURE_INTEL_XP_5");
+    IMPLEMENT_INTEL_DRIVER_BLOCKLIST(OperatingSystem::WindowsXP, IntelGMAX4500HD, V(6,14,10,4969), "FEATURE_FAILURE_INTEL_XP_6");
+
+    // StrechRect seems to suffer from precision issues which leads to artifacting
+    // during content drawing starting with at least version 6.14.10.5082
+    // and going until 6.14.10.5218. See bug 919454 and bug 949275 for more info.
+    APPEND_TO_DRIVER_BLOCKLIST_RANGE(OperatingSystem::WindowsXP,
+      (nsAString&) GfxDriverInfo::GetDeviceVendor(VendorIntel),
+      (GfxDeviceFamily*) GfxDriverInfo::GetDeviceFamily(IntelGMAX4500HD),
+      GfxDriverInfo::allFeatures, nsIGfxInfo::FEATURE_BLOCKED_DRIVER_VERSION,
+      DRIVER_BETWEEN_EXCLUSIVE, V(6,14,10,5076), V(6,14,10,5218), "FEATURE_FAILURE_INTEL_XP_7", "6.14.10.5218");
 
     /* Disable Direct2D on Intel GMAX4500 devices because of rendering corruption discovered
      * in bug 1180379. These seems to affect even the most recent drivers. We're black listing
@@ -1175,6 +1198,23 @@ GfxInfo::GetFeatureStatusImpl(int32_t aFeature,
       *aStatus = FEATURE_BLOCKED_DRIVER_VERSION;
       return NS_OK;
     }
+
+    // special-case the WinXP test slaves: they have out-of-date drivers, but we still want to
+    // whitelist them, actually we do know that this combination of device and driver version
+    // works well.
+    if (mWindowsVersion == kWindowsXP &&
+        adapterVendorID.Equals(GfxDriverInfo::GetDeviceVendor(VendorNVIDIA), nsCaseInsensitiveStringComparator()) &&
+        adapterDeviceID.LowerCaseEqualsLiteral("0x0861") && // GeForce 9400
+        driverVersion == V(6,14,11,7756))
+    {
+      *aStatus = FEATURE_STATUS_OK;
+      return NS_OK;
+    }
+
+    // Windows Server 2003 should be just like Windows XP for present purpose, but still has a different version number.
+    // OTOH Windows Server 2008 R1 and R2 already have the same version numbers as Vista and Seven respectively
+    if (os == OperatingSystem::WindowsServer2003)
+      os = OperatingSystem::WindowsXP;
 
     if (mHasDriverVersionMismatch) {
       *aStatus = nsIGfxInfo::FEATURE_BLOCKED_MISMATCHED_VERSION;

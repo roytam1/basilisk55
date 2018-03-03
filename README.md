@@ -1,4 +1,4 @@
-﻿# Unified XUL Platform
+﻿# Unified XUL Platform (UXP)
 ## Codename: Möbius
 
 This repository holds the code for a unified application platform for XUL-based

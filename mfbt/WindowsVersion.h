@@ -84,7 +84,7 @@ IsWindowsBuildOrLater(uint32_t aBuild)
   return false;
 }
 
-#if defined(_M_X64) || defined(_M_AMD64)
+#if 0//defined(_M_X64) || defined(_M_AMD64)
 // We support only Win7 or later on Win64.
 MOZ_ALWAYS_INLINE bool
 IsXPSP3OrLater()

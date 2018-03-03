@@ -321,6 +321,11 @@ GLLibraryEGL::EnsureInitialized(bool forceAccel, nsACString* const out_failureId
             if (LoadLibrarySystem32(L"d3dcompiler_47.dll"))
                 break;
 
+#ifdef MOZ_D3DCOMPILER_XP_DLL
+            if (LoadLibraryForEGLOnWindows(NS_LITERAL_STRING(NS_STRINGIFY(MOZ_D3DCOMPILER_XP_DLL))))
+                break;
+#endif
+
 #ifdef MOZ_D3DCOMPILER_VISTA_DLL
             if (LoadLibraryForEGLOnWindows(NS_LITERAL_STRING(NS_STRINGIFY(MOZ_D3DCOMPILER_VISTA_DLL))))
                 break;

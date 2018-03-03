@@ -1268,7 +1268,7 @@ LoadExtendedValidationInfo()
     nsMyTrustedEVInfo& entry = myTrustedEVInfos[iEV];
 
     SECStatus srv;
-#ifdef DEBUG
+#if 0//def DEBUG
     // This section of code double-checks that we calculated the correct
     // certificate hash given the issuer and serial number and that it is
     // actually present in our loaded root certificates module. It is

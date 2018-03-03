@@ -2389,7 +2389,7 @@ DebugEnvironments::finish()
     proxiedEnvs.clear();
 }
 
-#ifdef JSGC_HASH_TABLE_CHECKS
+#if 0//def JSGC_HASH_TABLE_CHECKS
 void
 DebugEnvironments::checkHashTablesAfterMovingGC(JSRuntime* runtime)
 {

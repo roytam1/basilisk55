@@ -65,7 +65,7 @@ MainThreadRuntime::MainThreadRuntime()
   // Disable COM's catch-all exception handler
   mInitResult = globalOpts->Set(COMGLB_EXCEPTION_HANDLING,
                                 COMGLB_EXCEPTION_DONOT_HANDLE_ANY);
-  MOZ_ASSERT(SUCCEEDED(mInitResult));
+  //MOZ_ASSERT(SUCCEEDED(mInitResult));
 
   // Disable the BSTR cache (as it never invalidates, thus leaking memory)
   ::SetOaNoCache();

@@ -110,6 +110,8 @@ typedef struct internal_state {
     Byte  method;        /* can only be DEFLATED */
     int   last_flush;    /* value of flush param for previous deflate call */
 
+    unsigned zalign(16) crc0[4 * 5];
+
                 /* used by deflate.c: */
 
     uInt  w_size;        /* LZ77 window size (32K by default) */
@@ -280,6 +282,30 @@ typedef struct internal_state {
  */
 #define put_byte(s, c) {s->pending_buf[s->pending++] = (Bytef)(c);}
 
+/* ===========================================================================
+ * Output a short LSB first on the stream.
+ * IN assertion: there is enough room in pendingBuf.
+ */
+#ifdef UNALIGNED_OK
+/* Compared to the else-clause's implementation, there are few advantages:
+ *  - s->pending is loaded only once (else-clause's implementation needs to
+ *    load s->pending twice due to the alias between s->pending and
+ *    s->pending_buf[].
+ *  - no instructions for extracting bytes from short.
+ *  - needs less registers
+ *  - stores to adjacent bytes are merged into a single store, albeit at the
+ *    cost of penalty of potentially unaligned access. 
+ */
+#define put_short(s, w) { \
+    *(ushf*)(&s->pending_buf[s->pending]) = (w) ; \
+    s->pending += 2; \
+}
+#else
+#define put_short(s, w) { \
+    put_byte(s, (uch)((w) & 0xff)); \
+    put_byte(s, (uch)((ush)(w) >> 8)); \
+}
+#endif
 
 #define MIN_LOOKAHEAD (MAX_MATCH+MIN_MATCH+1)
 /* Minimum amount of lookahead, except at the end of the input file.
@@ -344,6 +370,41 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
 # define _tr_tally_lit(s, c, flush) flush = _tr_tally(s, 0, c)
 # define _tr_tally_dist(s, distance, length, flush) \
               flush = _tr_tally(s, distance, length)
+#endif
+
+ /* ===========================================================================
+ * Update a hash value with the given input byte
+ * IN  assertion: all calls to to UPDATE_HASH are made with consecutive
+ *    input characters, so that a running hash key can be computed from the
+ *    previous key instead of complete recalculation each time.
+ */
+#define UPDATE_HASH(s,h,i) \
+    do {\
+        if (s->level < 6) \
+            h = (3483 * (s->window[i]) +\
+                 23081* (s->window[i+1]) +\
+                 6954 * (s->window[i+2]) +\
+                 20947* (s->window[i+3])) & s->hash_mask;\
+        else\
+            h = (25881* (s->window[i]) +\
+                 24674* (s->window[i+1]) +\
+                 25811* (s->window[i+2])) & s->hash_mask;\
+    } while(0)
+#define UPDATE_HASH_C(s,h,i) (h = (((h)<<s->hash_shift) ^ (s->window[i + (MIN_MATCH-1)])) & s->hash_mask)
+
+ /* Functions that are SIMD optimised on x86 */
+void ZLIB_INTERNAL crc_fold_init(unsigned* z_const s);
+void ZLIB_INTERNAL crc_fold_copy(unsigned* z_const s,
+    unsigned char* dst,
+    z_const unsigned char* src,
+    long len);
+void ZLIB_INTERNAL crc_fold(unsigned* z_const s,
+    z_const unsigned char* src,
+    size_t len);
+unsigned ZLIB_INTERNAL crc_fold_512to32(unsigned* z_const s);
+
+#if defined(_M_IX86) || defined(_M_AMD64)
+void ZLIB_INTERNAL fill_window_sse(deflate_state* s);
 #endif
 
 #endif /* DEFLATE_H */

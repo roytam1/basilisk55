@@ -25,6 +25,7 @@ CERT_AddCertToListHead
 CERT_AddCertToListTail
 CERT_AddExtension
 CERT_AddExtensionByOID
+__CERT_AddTempCertToPerm
 CERT_AsciiToName
 CERT_CacheOCSPResponseFromSideChannel
 CERT_CertChainFromCert
@@ -270,6 +271,7 @@ NSS_IsInitialized
 NSS_OptionSet
 NSS_NoDB_Init
 NSS_SecureMemcmp
+NSS_SecureMemcmpZero
 NSS_SetAlgorithmPolicy
 NSS_SetDomesticPolicy
 NSS_Shutdown
@@ -277,6 +279,9 @@ NSSSMIME_GetVersion
 NSS_SMIMESignerInfo_SaveSMIMEProfile
 NSS_SMIMEUtil_FindBulkAlgForRecipients
 NSSSSL_GetVersion
+#ifdef XP_WIN
+_NSSUTIL_Access
+#endif
 NSSUTIL_ArgDecodeNumber
 NSSUTIL_ArgFetchValue
 NSSUTIL_ArgGetLabel
@@ -298,6 +303,9 @@ NSSUTIL_MkModuleSpec
 NSSUTIL_MkNSSString
 NSSUTIL_MkSlotString
 NSSUTIL_Quote
+#ifdef XP_WIN
+_NSSUTIL_UTF8ToWide
+#endif
 PK11_AlgtagToMechanism
 PK11_Authenticate
 PK11_ChangePW
@@ -482,6 +490,7 @@ PORT_UCS2_ASCIIConversion_Util
 PORT_UCS2_UTF8Conversion
 PORT_UCS2_UTF8Conversion_Util
 PORT_ZAlloc
+PORT_ZAllocAlignedOffset_Util
 PORT_ZAlloc_Util
 PORT_ZFree_Util
 SEC_AnyTemplate_Util @DATA@
@@ -722,6 +731,16 @@ __PK11_SetCertificateNickname
 # to make Java code happy.
 NSS_VersionCheck
 NSS_Initialize
+CERT_FindCertByIssuerAndSNCX;
+CERT_FindCertByNicknameOrEmailAddrCX;
+CERT_FindCertByNicknameOrEmailAddrForUsageCX;
+PK11_CreateManagedGenericObject;
+SGN_NewContextWithAlgorithmID;
+SEC_SignDataWithAlgorithmID;
+SEC_DerSignDataWithAlgorithmID;
+SEC_CreateSignatureAlgorithmParameters;
+NSS_OptionGet
+SECKEY_GetPrivateKeyType
 #ifdef NSS_EXTRA_SYMBOLS_FILE
 #include @NSS_EXTRA_SYMBOLS_FILE@
 #endif

@@ -27,7 +27,7 @@ typedef struct DTLSHandshakeRecordEntryStr {
 } DTLSHandshakeRecordEntry;
 
 /* Combine the epoch and sequence number into a single value. */
-static sslSequenceNumber
+static inline sslSequenceNumber
 dtls_CombineSequenceNumber(DTLSEpoch epoch, sslSequenceNumber seqNum)
 {
     PORT_Assert(seqNum <= RECORD_SEQ_MAX);

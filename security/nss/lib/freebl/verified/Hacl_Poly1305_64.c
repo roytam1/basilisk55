@@ -15,14 +15,14 @@
 
 #include "Hacl_Poly1305_64.h"
 
-static void
+inline static void
 Hacl_Bignum_Modulo_reduce(uint64_t *b)
 {
     uint64_t b0 = b[0U];
     b[0U] = (b0 << (uint32_t)4U) + (b0 << (uint32_t)2U);
 }
 
-static void
+inline static void
 Hacl_Bignum_Modulo_carry_top(uint64_t *b)
 {
     uint64_t b2 = b[2U];
@@ -32,7 +32,7 @@ Hacl_Bignum_Modulo_carry_top(uint64_t *b)
     b[0U] = (b2_42 << (uint32_t)2U) + b2_42 + b0;
 }
 
-static void
+inline static void
 Hacl_Bignum_Modulo_carry_top_wide(FStar_UInt128_t *b)
 {
     FStar_UInt128_t b2 = b[2U];
@@ -46,7 +46,7 @@ Hacl_Bignum_Modulo_carry_top_wide(FStar_UInt128_t *b)
     b[0U] = b0_;
 }
 
-static void
+inline static void
 Hacl_Bignum_Fproduct_copy_from_wide_(uint64_t *output, FStar_UInt128_t *input)
 {
     for (uint32_t i = (uint32_t)0U; i < (uint32_t)3U; i = i + (uint32_t)1U) {
@@ -55,7 +55,7 @@ Hacl_Bignum_Fproduct_copy_from_wide_(uint64_t *output, FStar_UInt128_t *input)
     }
 }
 
-static void
+inline static void
 Hacl_Bignum_Fproduct_sum_scalar_multiplication_(
     FStar_UInt128_t *output,
     uint64_t *input,
@@ -68,7 +68,7 @@ Hacl_Bignum_Fproduct_sum_scalar_multiplication_(
     }
 }
 
-static void
+inline static void
 Hacl_Bignum_Fproduct_carry_wide_(FStar_UInt128_t *tmp)
 {
     for (uint32_t i = (uint32_t)0U; i < (uint32_t)2U; i = i + (uint32_t)1U) {
@@ -82,7 +82,7 @@ Hacl_Bignum_Fproduct_carry_wide_(FStar_UInt128_t *tmp)
     }
 }
 
-static void
+inline static void
 Hacl_Bignum_Fproduct_carry_limb_(uint64_t *tmp)
 {
     for (uint32_t i = (uint32_t)0U; i < (uint32_t)2U; i = i + (uint32_t)1U) {
@@ -96,7 +96,7 @@ Hacl_Bignum_Fproduct_carry_limb_(uint64_t *tmp)
     }
 }
 
-static void
+inline static void
 Hacl_Bignum_Fmul_shift_reduce(uint64_t *output)
 {
     uint64_t tmp = output[2U];
@@ -122,7 +122,7 @@ Hacl_Bignum_Fmul_mul_shift_reduce_(FStar_UInt128_t *output, uint64_t *input, uin
     Hacl_Bignum_Fproduct_sum_scalar_multiplication_(output, input, input2i);
 }
 
-static void
+inline static void
 Hacl_Bignum_Fmul_fmul(uint64_t *output, uint64_t *input, uint64_t *input2)
 {
     uint64_t tmp[3U] = { 0U };
@@ -143,7 +143,7 @@ Hacl_Bignum_Fmul_fmul(uint64_t *output, uint64_t *input, uint64_t *input2)
     output[1U] = i1_;
 }
 
-static void
+inline static void
 Hacl_Bignum_AddAndMultiply_add_and_multiply(uint64_t *acc, uint64_t *block, uint64_t *r)
 {
     for (uint32_t i = (uint32_t)0U; i < (uint32_t)3U; i = i + (uint32_t)1U) {
@@ -154,7 +154,7 @@ Hacl_Bignum_AddAndMultiply_add_and_multiply(uint64_t *acc, uint64_t *block, uint
     Hacl_Bignum_Fmul_fmul(acc, acc, r);
 }
 
-static void
+inline static void
 Hacl_Impl_Poly1305_64_poly1305_update(
     Hacl_Impl_Poly1305_64_State_poly1305_state st,
     uint8_t *m)
@@ -181,7 +181,7 @@ Hacl_Impl_Poly1305_64_poly1305_update(
     Hacl_Bignum_AddAndMultiply_add_and_multiply(acc, tmp, r3);
 }
 
-static void
+inline static void
 Hacl_Impl_Poly1305_64_poly1305_process_last_block_(
     uint8_t *block,
     Hacl_Impl_Poly1305_64_State_poly1305_state st,
@@ -205,7 +205,7 @@ Hacl_Impl_Poly1305_64_poly1305_process_last_block_(
     Hacl_Bignum_AddAndMultiply_add_and_multiply(h, tmp, r);
 }
 
-static void
+inline static void
 Hacl_Impl_Poly1305_64_poly1305_process_last_block(
     Hacl_Impl_Poly1305_64_State_poly1305_state st,
     uint8_t *m,

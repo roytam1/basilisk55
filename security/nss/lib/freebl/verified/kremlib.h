@@ -326,7 +326,7 @@ typedef const char *Prims_string;
 /* Loads and stores. These avoid undefined behavior due to unaligned memory
  * accesses, via memcpy. */
 
-static uint16_t
+inline static uint16_t
 load16(uint8_t *b)
 {
     uint16_t x;
@@ -334,7 +334,7 @@ load16(uint8_t *b)
     return x;
 }
 
-static uint32_t
+inline static uint32_t
 load32(uint8_t *b)
 {
     uint32_t x;
@@ -342,7 +342,7 @@ load32(uint8_t *b)
     return x;
 }
 
-static uint64_t
+inline static uint64_t
 load64(uint8_t *b)
 {
     uint64_t x;
@@ -350,19 +350,19 @@ load64(uint8_t *b)
     return x;
 }
 
-static void
+inline static void
 store16(uint8_t *b, uint16_t i)
 {
     memcpy(b, &i, 2);
 }
 
-static void
+inline static void
 store32(uint8_t *b, uint32_t i)
 {
     memcpy(b, &i, 4);
 }
 
-static void
+inline static void
 store64(uint8_t *b, uint64_t i)
 {
     memcpy(b, &i, 8);
@@ -390,25 +390,25 @@ store64(uint8_t *b, uint64_t i)
 typedef int32_t Prims_pos, Prims_nat, Prims_nonzero, Prims_int,
     krml_checked_int_t;
 
-static bool
+inline static bool
 Prims_op_GreaterThanOrEqual(int32_t x, int32_t y)
 {
     return x >= y;
 }
 
-static bool
+inline static bool
 Prims_op_LessThanOrEqual(int32_t x, int32_t y)
 {
     return x <= y;
 }
 
-static bool
+inline static bool
 Prims_op_GreaterThan(int32_t x, int32_t y)
 {
     return x > y;
 }
 
-static bool
+inline static bool
 Prims_op_LessThan(int32_t x, int32_t y)
 {
     return x < y;
@@ -425,79 +425,79 @@ Prims_op_LessThan(int32_t x, int32_t y)
         return (int32_t)__ret;                                                  \
     } while (0)
 
-static int32_t
+inline static int32_t
 Prims_pow2(int32_t x)
 {
     RETURN_OR((int64_t)1 << (int64_t)x);
 }
 
-static int32_t
+inline static int32_t
 Prims_op_Multiply(int32_t x, int32_t y)
 {
     RETURN_OR((int64_t)x * (int64_t)y);
 }
 
-static int32_t
+inline static int32_t
 Prims_op_Addition(int32_t x, int32_t y)
 {
     RETURN_OR((int64_t)x + (int64_t)y);
 }
 
-static int32_t
+inline static int32_t
 Prims_op_Subtraction(int32_t x, int32_t y)
 {
     RETURN_OR((int64_t)x - (int64_t)y);
 }
 
-static int32_t
+inline static int32_t
 Prims_op_Division(int32_t x, int32_t y)
 {
     RETURN_OR((int64_t)x / (int64_t)y);
 }
 
-static int32_t
+inline static int32_t
 Prims_op_Modulus(int32_t x, int32_t y)
 {
     RETURN_OR((int64_t)x % (int64_t)y);
 }
 
-static int8_t
+inline static int8_t
 FStar_UInt8_uint_to_t(int8_t x)
 {
     return x;
 }
-static int16_t
+inline static int16_t
 FStar_UInt16_uint_to_t(int16_t x)
 {
     return x;
 }
-static int32_t
+inline static int32_t
 FStar_UInt32_uint_to_t(int32_t x)
 {
     return x;
 }
-static int64_t
+inline static int64_t
 FStar_UInt64_uint_to_t(int64_t x)
 {
     return x;
 }
 
-static int8_t
+inline static int8_t
 FStar_UInt8_v(int8_t x)
 {
     return x;
 }
-static int16_t
+inline static int16_t
 FStar_UInt16_v(int16_t x)
 {
     return x;
 }
-static int32_t
+inline static int32_t
 FStar_UInt32_v(int32_t x)
 {
     return x;
 }
-static int64_t
+inline static int64_t
 FStar_UInt64_v(int64_t x)
 {
     return x;
@@ -509,14 +509,14 @@ FStar_UInt64_v(int64_t x)
 #ifndef KRML_NOUINT128
 typedef unsigned __int128 FStar_UInt128_t, FStar_UInt128_t_, uint128_t;
 
-static void
+static inline void
 print128(const char *where, uint128_t n)
 {
     KRML_HOST_PRINTF("%s: [%" PRIu64 ",%" PRIu64 "]\n", where,
                      (uint64_t)(n >> 64), (uint64_t)n);
 }
 
-static uint128_t
+static inline uint128_t
 load128_le(uint8_t *b)
 {
     uint128_t l = (uint128_t)load64_le(b);
@@ -524,14 +524,14 @@ load128_le(uint8_t *b)
     return (h << 64 | l);
 }
 
-static void
+static inline void
 store128_le(uint8_t *b, uint128_t n)
 {
     store64_le(b, (uint64_t)n);
     store64_le(b + 8, (uint64_t)(n >> 64));
 }
 
-static uint128_t
+static inline uint128_t
 load128_be(uint8_t *b)
 {
     uint128_t h = (uint128_t)load64_be(b);
@@ -539,7 +539,7 @@ load128_be(uint8_t *b)
     return (h << 64 | l);
 }
 
-static void
+static inline void
 store128_be(uint8_t *b, uint128_t n)
 {
     store64_be(b, (uint64_t)(n >> 64));
@@ -562,7 +562,7 @@ store128_be(uint8_t *b, uint128_t n)
 #define FStar_UInt128_mul_wide(x, y) ((uint128_t)(x) * (y))
 #define FStar_UInt128_op_Hat_Hat(x, y) ((x) ^ (y))
 
-static uint128_t
+static inline uint128_t
 FStar_UInt128_eq_mask(uint128_t x, uint128_t y)
 {
     uint64_t mask =
@@ -571,7 +571,7 @@ FStar_UInt128_eq_mask(uint128_t x, uint128_t y)
     return ((uint128_t)mask) << 64 | mask;
 }
 
-static uint128_t
+static inline uint128_t
 FStar_UInt128_gte_mask(uint128_t x, uint128_t y)
 {
     uint64_t mask =
@@ -589,34 +589,34 @@ FStar_UInt128_gte_mask(uint128_t x, uint128_t y)
 typedef FStar_UInt128_uint128 FStar_UInt128_t_, uint128_t;
 
 /* A series of definitions written using pointers. */
-static void
+static inline void
 print128_(const char *where, uint128_t *n)
 {
     KRML_HOST_PRINTF("%s: [0x%08" PRIx64 ",0x%08" PRIx64 "]\n", where, n->high, n->low);
 }
 
-static void
+static inline void
 load128_le_(uint8_t *b, uint128_t *r)
 {
     r->low = load64_le(b);
     r->high = load64_le(b + 8);
 }
 
-static void
+static inline void
 store128_le_(uint8_t *b, uint128_t *n)
 {
     store64_le(b, n->low);
     store64_le(b + 8, n->high);
 }
 
-static void
+static inline void
 load128_be_(uint8_t *b, uint128_t *r)
 {
     r->high = load64_be(b);
     r->low = load64_be(b + 8);
 }
 
-static void
+static inline void
 store128_be_(uint8_t *b, uint128_t *n)
 {
     store64_be(b, n->high);
@@ -625,13 +625,13 @@ store128_be_(uint8_t *b, uint128_t *n)
 
 #ifndef KRML_NOSTRUCT_PASSING
 
-static void
+static inline void
 print128(const char *where, uint128_t n)
 {
     print128_(where, &n);
 }
 
-static uint128_t
+static inline uint128_t
 load128_le(uint8_t *b)
 {
     uint128_t r;
@@ -639,13 +639,13 @@ load128_le(uint8_t *b)
     return r;
 }
 
-static void
+static inline void
 store128_le(uint8_t *b, uint128_t n)
 {
     store128_le_(b, &n);
 }
 
-static uint128_t
+static inline uint128_t
 load128_be(uint8_t *b)
 {
     uint128_t r;
@@ -653,7 +653,7 @@ load128_be(uint8_t *b)
     return r;
 }
 
-static void
+static inline void
 store128_be(uint8_t *b, uint128_t n)
 {
     store128_be_(b, &n);

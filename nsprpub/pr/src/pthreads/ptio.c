@@ -824,7 +824,7 @@ retry:
         op->arg3.amount -= bytes;  /* and reduce the required count */
         return (0 == op->arg3.amount) ? PR_TRUE : PR_FALSE;
     }
-    else if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
+    if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
     {
         op->result.code = -1;
         return PR_TRUE;
@@ -853,7 +853,7 @@ static PRBool pt_write_cont(pt_Continuation *op, PRInt16 revents)
         op->arg3.amount -= bytes;  /* and reduce the required count */
         return (0 == op->arg3.amount) ? PR_TRUE : PR_FALSE;
     }
-    else if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
+    if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
     {
         op->result.code = -1;
         return PR_TRUE;
@@ -895,7 +895,7 @@ static PRBool pt_writev_cont(pt_Continuation *op, PRInt16 revents)
         op->arg3.amount -= iov_index;  /* and array length */
         return (0 == op->arg3.amount) ? PR_TRUE : PR_FALSE;
     }
-    else if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
+    if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
     {
         op->result.code = -1;
         return PR_TRUE;
@@ -918,7 +918,7 @@ static PRBool pt_sendto_cont(pt_Continuation *op, PRInt16 revents)
         op->arg3.amount -= bytes;  /* and reduce the required count */
         return (0 == op->arg3.amount) ? PR_TRUE : PR_FALSE;
     }
-    else if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
+    if ((EWOULDBLOCK != op->syserrno) && (EAGAIN != op->syserrno))
     {
         op->result.code = -1;
         return PR_TRUE;
@@ -1895,19 +1895,6 @@ static PRInt32 pt_Send(
 	PRInt32 tmp_amount = amount;
 #endif
 
-    /*
-     * Under HP-UX DCE threads, pthread.h includes dce/cma_ux.h,
-     * which has the following:
-     *     #  define send        cma_send
-     *     extern int  cma_send (int , void *, int, int );
-     * So we need to cast away the 'const' of argument #2 for send().
-     */
-#if defined (HPUX) && defined(_PR_DCETHREADS)
-#define PT_SENDBUF_CAST (void *)
-#else
-#define PT_SENDBUF_CAST
-#endif
-
     if (pt_TestAbort()) return bytes;
 
     /*
@@ -1918,9 +1905,9 @@ static PRInt32 pt_Send(
 #if defined(SOLARIS)
     PR_ASSERT(0 == flags);
 retry:
-    bytes = write(fd->secret->md.osfd, PT_SENDBUF_CAST buf, tmp_amount);
+    bytes = write(fd->secret->md.osfd, buf, tmp_amount);
 #else
-    bytes = send(fd->secret->md.osfd, PT_SENDBUF_CAST buf, amount, flags);
+    bytes = send(fd->secret->md.osfd, buf, amount, flags);
 #endif
     syserrno = errno;
 
@@ -2874,22 +2861,21 @@ static PRStatus pt_GetSockName(PRFileDesc *fd, PRNetAddr *addr)
     if (rv == -1) {
         pt_MapError(_PR_MD_MAP_GETSOCKNAME_ERROR, errno);
         return PR_FAILURE;
-    } else {
+    }
 #ifdef _PR_HAVE_SOCKADDR_LEN
-        /* ignore the sa_len field of struct sockaddr */
-        if (addr)
-        {
-            addr->raw.family = ((struct sockaddr*)addr)->sa_family;
-        }
+    /* ignore the sa_len field of struct sockaddr */
+    if (addr)
+    {
+        addr->raw.family = ((struct sockaddr*)addr)->sa_family;
+    }
 #endif /* _PR_HAVE_SOCKADDR_LEN */
 #ifdef _PR_INET6
-		if (AF_INET6 == addr->raw.family)
-			addr->raw.family = PR_AF_INET6;
+    if (AF_INET6 == addr->raw.family)
+        addr->raw.family = PR_AF_INET6;
 #endif
-        PR_ASSERT(IsValidNetAddr(addr) == PR_TRUE);
-        PR_ASSERT(IsValidNetAddrLen(addr, addr_len) == PR_TRUE);
-        return PR_SUCCESS;
-    }
+    PR_ASSERT(IsValidNetAddr(addr) == PR_TRUE);
+    PR_ASSERT(IsValidNetAddrLen(addr, addr_len) == PR_TRUE);
+    return PR_SUCCESS;
 }  /* pt_GetSockName */
 
 static PRStatus pt_GetPeerName(PRFileDesc *fd, PRNetAddr *addr)
@@ -2905,22 +2891,21 @@ static PRStatus pt_GetPeerName(PRFileDesc *fd, PRNetAddr *addr)
     if (rv == -1) {
         pt_MapError(_PR_MD_MAP_GETPEERNAME_ERROR, errno);
         return PR_FAILURE;
-    } else {
+    }
 #ifdef _PR_HAVE_SOCKADDR_LEN
-        /* ignore the sa_len field of struct sockaddr */
-        if (addr)
-        {
-            addr->raw.family = ((struct sockaddr*)addr)->sa_family;
-        }
+    /* ignore the sa_len field of struct sockaddr */
+    if (addr)
+    {
+        addr->raw.family = ((struct sockaddr*)addr)->sa_family;
+    }
 #endif /* _PR_HAVE_SOCKADDR_LEN */
 #ifdef _PR_INET6
-		if (AF_INET6 == addr->raw.family)
-        	addr->raw.family = PR_AF_INET6;
+    if (AF_INET6 == addr->raw.family)
+        addr->raw.family = PR_AF_INET6;
 #endif
-        PR_ASSERT(IsValidNetAddr(addr) == PR_TRUE);
-        PR_ASSERT(IsValidNetAddrLen(addr, addr_len) == PR_TRUE);
-        return PR_SUCCESS;
-    }
+    PR_ASSERT(IsValidNetAddr(addr) == PR_TRUE);
+    PR_ASSERT(IsValidNetAddrLen(addr, addr_len) == PR_TRUE);
+    return PR_SUCCESS;
 }  /* pt_GetPeerName */
 
 static PRStatus pt_GetSocketOption(PRFileDesc *fd, PRSocketOptionData *data)
@@ -3713,8 +3698,8 @@ PR_IMPLEMENT(PRStatus) PR_Delete(const char *name)
     if (rv == -1) {
         pt_MapError(_PR_MD_MAP_UNLINK_ERROR, errno);
         return PR_FAILURE;
-    } else
-        return PR_SUCCESS;
+    }
+    return PR_SUCCESS;
 }  /* PR_Delete */
 
 PR_IMPLEMENT(PRStatus) PR_Access(const char *name, PRAccessHow how)
@@ -3838,11 +3823,10 @@ PR_IMPLEMENT(PRStatus) PR_RmDir(const char *name)
 
     rv = rmdir(name);
     if (0 == rv) {
-    return PR_SUCCESS;
-    } else {
+        return PR_SUCCESS;
+    }
     pt_MapError(_PR_MD_MAP_RMDIR_ERROR, errno);
     return PR_FAILURE;
-    }
 }  /* PR_Rmdir */
 
 

@@ -2854,28 +2854,11 @@ void _PR_UnixInit(void)
 #endif
 #endif  /* !defined(_PR_PTHREADS) */
 
-    /*
-     * Under HP-UX DCE threads, sigaction() installs a per-thread
-     * handler, so we use sigvector() to install a process-wide
-     * handler.
-     */
-#if defined(HPUX) && defined(_PR_DCETHREADS)
-    {
-        struct sigvec vec;
-
-        vec.sv_handler = SIG_IGN;
-        vec.sv_mask = 0;
-        vec.sv_flags = 0;
-        rv = sigvector(SIGPIPE, &vec, NULL);
-        PR_ASSERT(0 == rv);
-    }
-#else
     sigact.sa_handler = SIG_IGN;
     sigemptyset(&sigact.sa_mask);
     sigact.sa_flags = 0;
     rv = sigaction(SIGPIPE, &sigact, 0);
     PR_ASSERT(0 == rv);
-#endif /* HPUX && _PR_DCETHREADS */
 
     _pr_rename_lock = PR_NewLock();
     PR_ASSERT(NULL != _pr_rename_lock);
@@ -3316,11 +3299,11 @@ int _MD_unix_get_nonblocking_connect_error(int osfd)
                 return errno;
             } else {
                 return err;
-            }		
+            }
         }
     } else {
         return ECONNREFUSED;
-    }	
+    }
 #elif defined(UNIXWARE)
     /*
      * getsockopt() fails with EPIPE, so use getmsg() instead.
@@ -3331,17 +3314,17 @@ int _MD_unix_get_nonblocking_connect_error(int osfd)
     rv = getmsg(osfd, NULL, NULL, &flags);
     PR_ASSERT(-1 == rv || 0 == rv);
     if (-1 == rv && errno != EAGAIN && errno != EWOULDBLOCK) {
-        return errno;
+      return errno;
     }
-    return 0;  /* no error */
+    return 0; /* no error */
 #else
-    int err;
-    _PRSockLen_t optlen = sizeof(err);
-    if (getsockopt(osfd, SOL_SOCKET, SO_ERROR, (char *) &err, &optlen) == -1) {
-        return errno;
-    } else {
-        return err;
-    }
+  int err;
+  _PRSockLen_t optlen = sizeof(err);
+  if (getsockopt(osfd, SOL_SOCKET, SO_ERROR, (char*)&err, &optlen) == -1) {
+    return errno;
+  }
+  return err;
+
 #endif
 }
 

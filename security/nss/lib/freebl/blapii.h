@@ -22,8 +22,10 @@ typedef void (*freeblDestroyFunc)(void *cx, PRBool freeit);
 
 SEC_BEGIN_PROTOS
 
+#ifndef NSS_FIPS_DISABLED
 SECStatus BL_FIPSEntryOK(PRBool freeblOnly);
 PRBool BL_POSTRan(PRBool freeblOnly);
+#endif
 
 #if defined(XP_UNIX) && !defined(NO_FORK_CHECK)
 
@@ -49,6 +51,18 @@ SEC_END_PROTOS
 #define HAVE_NO_SANITIZE_ATTR __has_attribute(no_sanitize)
 #else
 #define HAVE_NO_SANITIZE_ATTR 0
+#endif
+
+/* Alignment helpers. */
+#if defined(_WINDOWS) && defined(NSS_X86_OR_X64)
+#define pre_align __declspec(align(16))
+#define post_align
+#elif defined(NSS_X86_OR_X64)
+#define pre_align
+#define post_align __attribute__((aligned(16)))
+#else
+#define pre_align
+#define post_align
 #endif
 
 #if defined(HAVE_UNALIGNED_ACCESS) && HAVE_NO_SANITIZE_ATTR

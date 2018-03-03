@@ -59,7 +59,8 @@
         'lib/smime/smime.gyp:smime',
         'lib/softoken/softoken.gyp:softokn',
         'lib/ssl/ssl.gyp:ssl',
-        'lib/util/util.gyp:nssutil'
+        'lib/util/util.gyp:nssutil',
+        'lib/libpkix/libpkix.gyp:libpkix',
       ],
       'conditions': [
         [ 'OS=="linux"', {
@@ -71,21 +72,6 @@
           'dependencies': [
             'lib/dbm/src/src.gyp:dbm',
             'lib/softoken/legacydb/legacydb.gyp:nssdbm',
-          ],
-        }],
-        [ 'disable_libpkix==0', {
-          'dependencies': [
-            'lib/libpkix/pkix/certsel/certsel.gyp:pkixcertsel',
-            'lib/libpkix/pkix/checker/checker.gyp:pkixchecker',
-            'lib/libpkix/pkix/crlsel/crlsel.gyp:pkixcrlsel',
-            'lib/libpkix/pkix/params/params.gyp:pkixparams',
-            'lib/libpkix/pkix/results/results.gyp:pkixresults',
-            'lib/libpkix/pkix/store/store.gyp:pkixstore',
-            'lib/libpkix/pkix/top/top.gyp:pkixtop',
-            'lib/libpkix/pkix/util/util.gyp:pkixutil',
-            'lib/libpkix/pkix_pl_nss/module/module.gyp:pkixmodule',
-            'lib/libpkix/pkix_pl_nss/pki/pki.gyp:pkixpki',
-            'lib/libpkix/pkix_pl_nss/system/system.gyp:pkixsystem',
           ],
         }],
         [ 'use_system_sqlite==0', {
@@ -145,7 +131,6 @@
             'cmd/digest/digest.gyp:digest',
             'cmd/ecperf/ecperf.gyp:ecperf',
             'cmd/fbectest/fbectest.gyp:fbectest',
-            'cmd/fipstest/fipstest.gyp:fipstest',
             'cmd/httpserv/httpserv.gyp:httpserv',
             'cmd/listsuites/listsuites.gyp:listsuites',
             'cmd/makepqg/makepqg.gyp:makepqg',
@@ -163,6 +148,7 @@
             'cmd/pk1sign/pk1sign.gyp:pk1sign',
             'cmd/pp/pp.gyp:pp',
             'cmd/rsaperf/rsaperf.gyp:rsaperf',
+            'cmd/rsapoptst/rsapoptst.gyp:rsapoptst',
             'cmd/sdrtest/sdrtest.gyp:sdrtest',
             'cmd/selfserv/selfserv.gyp:selfserv',
             'cmd/shlibsign/mangle/mangle.gyp:mangle',
@@ -178,10 +164,13 @@
             'cmd/vfychain/vfychain.gyp:vfychain',
             'cmd/vfyserv/vfyserv.gyp:vfyserv',
             'gtests/certhigh_gtest/certhigh_gtest.gyp:certhigh_gtest',
+            'gtests/cryptohi_gtest/cryptohi_gtest.gyp:cryptohi_gtest',
             'gtests/der_gtest/der_gtest.gyp:der_gtest',
             'gtests/certdb_gtest/certdb_gtest.gyp:certdb_gtest',
             'gtests/freebl_gtest/freebl_gtest.gyp:prng_gtest',
+            'gtests/freebl_gtest/freebl_gtest.gyp:blake2b_gtest',
             'gtests/pk11_gtest/pk11_gtest.gyp:pk11_gtest',
+            'gtests/softoken_gtest/softoken_gtest.gyp:softoken_gtest',
             'gtests/ssl_gtest/ssl_gtest.gyp:ssl_gtest',
             'gtests/util_gtest/util_gtest.gyp:util_gtest',
             'gtests/nss_bogo_shim/nss_bogo_shim.gyp:nss_bogo_shim',
@@ -201,6 +190,11 @@
               'dependencies': [
                 'cmd/mpitests/mpitests.gyp:mpi_tests',
                 'gtests/freebl_gtest/freebl_gtest.gyp:freebl_gtest',
+              ],
+            }],
+            [ 'disable_fips==0', {
+              'dependencies': [
+                'cmd/fipstest/fipstest.gyp:fipstest',
               ],
             }],
           ],

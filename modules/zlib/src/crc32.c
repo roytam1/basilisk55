@@ -1,5 +1,5 @@
 /* crc32.c -- compute the CRC-32 of a data stream
- * Copyright (C) 1995-2006, 2010, 2011, 2012 Mark Adler
+ * Copyright (C) 1995-2006, 2010, 2011, 2012, 2016 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  *
  * Thanks to Rodney Brown <rbrown64@csc.com.au> for his contribution of faster
@@ -8,608 +8,489 @@
  * instead of four steps with four exclusive-ors.  This results in about a
  * factor of two increase in speed on a Power PC G4 (PPC7455) using gcc -O3.
  */
+
+/* @(#) $Id$ */
+
 /*
- * Compute the CRC32 using a parallelized folding approach with the PCLMULQDQ 
- * instruction.
- *
- * A white paper describing this algorithm can be found at:
- * http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/fast-crc-computation-generic-polynomials-pclmulqdq-paper.pdf
- *
- * Copyright (C) 2013 Intel Corporation. All rights reserved.
- * Authors:
- * 	Wajdi Feghali   <wajdi.k.feghali@intel.com>
- * 	Jim Guilford    <james.guilford@intel.com>
- * 	Vinodh Gopal    <vinodh.gopal@intel.com>
- * 	Erdinc Ozturk   <erdinc.ozturk@intel.com>
- * 	Jim Kukunas     <james.t.kukunas@linux.intel.com>
- *
- * For conditions of distribution and use, see copyright notice in zlib.h
+  Note on the use of DYNAMIC_CRC_TABLE: there is no mutex or semaphore
+  protection on the static variables used to control the first-use generation
+  of the crc tables.  Therefore, if you #define DYNAMIC_CRC_TABLE, you should
+  first call get_crc_table() to initialize the tables before allowing more than
+  one thread to use crc32().
+
+  DYNAMIC_CRC_TABLE and MAKECRCH can be #defined to write out crc32.h.
  */
 
-#include "zutil.h"
-
-//#if defined(__GNUC__) && defined(__PCLMUL__)
-
-#include <immintrin.h>
-#include <wmmintrin.h>
-
-#if !defined(CPUID_ECX_BIT_PCLMUL)
-#define CPUID_ECX_BIT_PCLMUL (1u << 1)
-#endif
-
-static uint32_t pclmul_is_supported(void) {
-    static uint32_t cpuid_called;
-    static uint32_t cpuinfo[4];
-    if(!cpuid_called) {
-        __cpuid(cpuinfo, 1);
-        cpuid_called = 1;
-    }
-    return (cpuinfo[2] & CPUID_ECX_BIT_PCLMUL) ? 1 : 0;
-}
-
-#if defined(_MSC_VER)
-#define ALIGNED_(x) __declspec(align(x))
-#else
-#if defined(__GNUC__)
-#define ALIGNED_(x) __attribute__ ((aligned(x)))
-#endif
-#endif
-
-typedef struct internal_state {
-  unsigned ALIGNED_(16) crc0[4 * 5];
-} deflate_state;
-
-#define CRC_LOAD(s) \
-    do { \
-        __m128i xmm_crc0 = _mm_loadu_si128((__m128i *)s->crc0 + 0);\
-        __m128i xmm_crc1 = _mm_loadu_si128((__m128i *)s->crc0 + 1);\
-        __m128i xmm_crc2 = _mm_loadu_si128((__m128i *)s->crc0 + 2);\
-        __m128i xmm_crc3 = _mm_loadu_si128((__m128i *)s->crc0 + 3);\
-        __m128i xmm_crc_part = _mm_loadu_si128((__m128i *)s->crc0 + 4);
-
-#define CRC_SAVE(s) \
-        _mm_storeu_si128((__m128i *)s->crc0 + 0, xmm_crc0);\
-        _mm_storeu_si128((__m128i *)s->crc0 + 1, xmm_crc1);\
-        _mm_storeu_si128((__m128i *)s->crc0 + 2, xmm_crc2);\
-        _mm_storeu_si128((__m128i *)s->crc0 + 3, xmm_crc3);\
-        _mm_storeu_si128((__m128i *)s->crc0 + 4, xmm_crc_part);\
-    } while (0);
-
-static void crc_fold_init(deflate_state* s)
-{
-    CRC_LOAD(s)
-
-    xmm_crc0 = _mm_cvtsi32_si128(0x9db42487);
-    xmm_crc1 = _mm_setzero_si128();
-    xmm_crc2 = _mm_setzero_si128();
-    xmm_crc3 = _mm_setzero_si128();
-
-    CRC_SAVE(s)
-}
-
-static void fold_1(__m128i *xmm_crc0, __m128i *xmm_crc1, __m128i *xmm_crc2, __m128i *xmm_crc3)
-{
-    __m128i xmm_fold4 = _mm_set_epi32(
-            0x00000001, 0x54442bd4,
-            0x00000001, 0xc6e41596);
-    
-    __m128i x_tmp3;
-    __m128 ps_crc0, ps_crc3, ps_res;
-
-    x_tmp3 = *xmm_crc3;
-
-    *xmm_crc3 = *xmm_crc0;
-    *xmm_crc0 = _mm_clmulepi64_si128(*xmm_crc0, xmm_fold4, 0x01);
-    *xmm_crc3 = _mm_clmulepi64_si128(*xmm_crc3, xmm_fold4, 0x10);
-    ps_crc0 = _mm_castsi128_ps(*xmm_crc0);
-    ps_crc3 = _mm_castsi128_ps(*xmm_crc3);
-    ps_res = _mm_xor_ps(ps_crc0, ps_crc3);
-
-    *xmm_crc0 = *xmm_crc1;
-    *xmm_crc1 = *xmm_crc2;
-    *xmm_crc2 = x_tmp3;
-    *xmm_crc3 = _mm_castps_si128(ps_res);
-}
-
-static void fold_2(__m128i *xmm_crc0, __m128i *xmm_crc1, __m128i *xmm_crc2, __m128i *xmm_crc3)
-{
-    __m128i xmm_fold4 = _mm_set_epi32(
-            0x00000001, 0x54442bd4,
-            0x00000001, 0xc6e41596);
-
-    __m128i x_tmp3, x_tmp2;
-    __m128 ps_crc0, ps_crc1, ps_crc2, ps_crc3, ps_res31, ps_res20;
-
-    x_tmp3 = *xmm_crc3;
-    x_tmp2 = *xmm_crc2;
-
-    *xmm_crc3 = *xmm_crc1;
-    *xmm_crc1 = _mm_clmulepi64_si128(*xmm_crc1, xmm_fold4, 0x01);
-    *xmm_crc3 = _mm_clmulepi64_si128(*xmm_crc3, xmm_fold4, 0x10);
-    ps_crc3 = _mm_castsi128_ps(*xmm_crc3);
-    ps_crc1 = _mm_castsi128_ps(*xmm_crc1);
-    ps_res31= _mm_xor_ps(ps_crc3, ps_crc1);
-
-    *xmm_crc2 = *xmm_crc0;
-    *xmm_crc0 = _mm_clmulepi64_si128(*xmm_crc0, xmm_fold4, 0x01);
-    *xmm_crc2 = _mm_clmulepi64_si128(*xmm_crc2, xmm_fold4, 0x10);
-    ps_crc0 = _mm_castsi128_ps(*xmm_crc0);
-    ps_crc2 = _mm_castsi128_ps(*xmm_crc2);
-    ps_res20= _mm_xor_ps(ps_crc0, ps_crc2);
-
-    *xmm_crc0 = x_tmp2;
-    *xmm_crc1 = x_tmp3;
-    *xmm_crc2 = _mm_castps_si128(ps_res20);
-    *xmm_crc3 = _mm_castps_si128(ps_res31);
-}
-
-static void fold_3(__m128i *xmm_crc0, __m128i *xmm_crc1, __m128i *xmm_crc2, __m128i *xmm_crc3)
-{
-    __m128i xmm_fold4 = _mm_set_epi32(
-            0x00000001, 0x54442bd4,
-            0x00000001, 0xc6e41596);
-
-    __m128i x_tmp3;
-    __m128 ps_crc0, ps_crc1, ps_crc2, ps_crc3, ps_res32, ps_res21, ps_res10;
-
-    x_tmp3 = *xmm_crc3;
-
-    *xmm_crc3 = *xmm_crc2;
-    *xmm_crc2 = _mm_clmulepi64_si128(*xmm_crc2, xmm_fold4, 0x01);
-    *xmm_crc3 = _mm_clmulepi64_si128(*xmm_crc3, xmm_fold4, 0x10);
-    ps_crc2 = _mm_castsi128_ps(*xmm_crc2);
-    ps_crc3 = _mm_castsi128_ps(*xmm_crc3);
-    ps_res32 = _mm_xor_ps(ps_crc2, ps_crc3);
-
-    *xmm_crc2 = *xmm_crc1;
-    *xmm_crc1 = _mm_clmulepi64_si128(*xmm_crc1, xmm_fold4, 0x01);
-    *xmm_crc2 = _mm_clmulepi64_si128(*xmm_crc2, xmm_fold4, 0x10);
-    ps_crc1 = _mm_castsi128_ps(*xmm_crc1);
-    ps_crc2 = _mm_castsi128_ps(*xmm_crc2);
-    ps_res21= _mm_xor_ps(ps_crc1, ps_crc2);
-
-    *xmm_crc1 = *xmm_crc0;
-    *xmm_crc0 = _mm_clmulepi64_si128(*xmm_crc0, xmm_fold4, 0x01);
-    *xmm_crc1 = _mm_clmulepi64_si128(*xmm_crc1, xmm_fold4, 0x10);
-    ps_crc0 = _mm_castsi128_ps(*xmm_crc0);
-    ps_crc1 = _mm_castsi128_ps(*xmm_crc1);
-    ps_res10= _mm_xor_ps(ps_crc0, ps_crc1);
-
-    *xmm_crc0 = x_tmp3;
-    *xmm_crc1 = _mm_castps_si128(ps_res10);
-    *xmm_crc2 = _mm_castps_si128(ps_res21);
-    *xmm_crc3 = _mm_castps_si128(ps_res32);
-}
-
-static void fold_4(__m128i *xmm_crc0, __m128i *xmm_crc1, __m128i *xmm_crc2, __m128i *xmm_crc3)
-{
-    __m128i xmm_fold4 = _mm_set_epi32(
-            0x00000001, 0x54442bd4,
-            0x00000001, 0xc6e41596);
-
-    __m128i x_tmp0, x_tmp1, x_tmp2, x_tmp3;
-  
-    x_tmp0 = *xmm_crc0;
-    x_tmp1 = *xmm_crc1;
-    x_tmp2 = *xmm_crc2;
-    x_tmp3 = *xmm_crc3;
-
-    *xmm_crc0 = _mm_clmulepi64_si128(*xmm_crc0, xmm_fold4, 0x01);
-    x_tmp0 = _mm_clmulepi64_si128(x_tmp0, xmm_fold4, 0x10);
-    *xmm_crc0 = _mm_xor_si128(*xmm_crc0, x_tmp0);
-
-    *xmm_crc1 = _mm_clmulepi64_si128(*xmm_crc1, xmm_fold4, 0x01);
-    x_tmp1 = _mm_clmulepi64_si128(x_tmp1, xmm_fold4, 0x10);
-    *xmm_crc1 = _mm_xor_si128(*xmm_crc1, x_tmp1);
-
-    *xmm_crc2 = _mm_clmulepi64_si128(*xmm_crc2, xmm_fold4, 0x01);
-    x_tmp2 = _mm_clmulepi64_si128(x_tmp2, xmm_fold4, 0x10);
-    *xmm_crc2 = _mm_xor_si128(*xmm_crc2, x_tmp2);
-
-    *xmm_crc3 = _mm_clmulepi64_si128(*xmm_crc3, xmm_fold4, 0x01);
-    x_tmp3 = _mm_clmulepi64_si128(x_tmp3, xmm_fold4, 0x10);
-    *xmm_crc3 = _mm_xor_si128(*xmm_crc3, x_tmp3);
-}
-
-static const unsigned ALIGNED_(32) pshufb_shf_table[60] = {
-	0x84838281,0x88878685,0x8c8b8a89,0x008f8e8d, /* shl 15 (16 - 1)/shr1 */
-	0x85848382,0x89888786,0x8d8c8b8a,0x01008f8e, /* shl 14 (16 - 3)/shr2 */
-	0x86858483,0x8a898887,0x8e8d8c8b,0x0201008f, /* shl 13 (16 - 4)/shr3 */
-	0x87868584,0x8b8a8988,0x8f8e8d8c,0x03020100, /* shl 12 (16 - 4)/shr4 */
-	0x88878685,0x8c8b8a89,0x008f8e8d,0x04030201, /* shl 11 (16 - 5)/shr5 */
-	0x89888786,0x8d8c8b8a,0x01008f8e,0x05040302, /* shl 10 (16 - 6)/shr6 */
-	0x8a898887,0x8e8d8c8b,0x0201008f,0x06050403, /* shl  9 (16 - 7)/shr7 */
-	0x8b8a8988,0x8f8e8d8c,0x03020100,0x07060504, /* shl  8 (16 - 8)/shr8 */
-	0x8c8b8a89,0x008f8e8d,0x04030201,0x08070605, /* shl  7 (16 - 9)/shr9 */
-	0x8d8c8b8a,0x01008f8e,0x05040302,0x09080706, /* shl  6 (16 -10)/shr10*/
-	0x8e8d8c8b,0x0201008f,0x06050403,0x0a090807, /* shl  5 (16 -11)/shr11*/
-	0x8f8e8d8c,0x03020100,0x07060504,0x0b0a0908, /* shl  4 (16 -12)/shr12*/
-	0x008f8e8d,0x04030201,0x08070605,0x0c0b0a09, /* shl  3 (16 -13)/shr13*/
-	0x01008f8e,0x05040302,0x09080706,0x0d0c0b0a, /* shl  2 (16 -14)/shr14*/
-	0x0201008f,0x06050403,0x0a090807,0x0e0d0c0b  /* shl  1 (16 -15)/shr15*/
-};
-
-static void partial_fold(size_t len,
-        __m128i *xmm_crc0, __m128i *xmm_crc1,
-        __m128i *xmm_crc2, __m128i *xmm_crc3,
-        __m128i *xmm_crc_part)
-{
-
-    __m128i xmm_fold4 = _mm_set_epi32(
-            0x00000001, 0x54442bd4,
-            0x00000001, 0xc6e41596);
-    __m128i xmm_mask3 = _mm_set1_epi32(0x80808080);
-    
-    __m128i xmm_shl, xmm_shr, xmm_tmp1, xmm_tmp2, xmm_tmp3;
-    __m128i xmm_a0_0, xmm_a0_1;
-    __m128 ps_crc3, psa0_0, psa0_1, ps_res;
-
-    xmm_shl = _mm_load_si128((__m128i *)pshufb_shf_table + (len - 1));
-    xmm_shr = xmm_shl;
-    xmm_shr = _mm_xor_si128(xmm_shr, xmm_mask3);
-
-    xmm_a0_0 = _mm_shuffle_epi8(*xmm_crc0, xmm_shl);
-
-    *xmm_crc0 = _mm_shuffle_epi8(*xmm_crc0, xmm_shr);
-    xmm_tmp1 = _mm_shuffle_epi8(*xmm_crc1, xmm_shl);
-    *xmm_crc0 = _mm_or_si128(*xmm_crc0, xmm_tmp1);
-
-    *xmm_crc1 = _mm_shuffle_epi8(*xmm_crc1, xmm_shr);
-    xmm_tmp2 = _mm_shuffle_epi8(*xmm_crc2, xmm_shl);
-    *xmm_crc1 = _mm_or_si128(*xmm_crc1, xmm_tmp2);
-
-    *xmm_crc2 = _mm_shuffle_epi8(*xmm_crc2, xmm_shr);
-    xmm_tmp3 = _mm_shuffle_epi8(*xmm_crc3, xmm_shl);
-    *xmm_crc2 = _mm_or_si128(*xmm_crc2, xmm_tmp3);
-
-    *xmm_crc3 = _mm_shuffle_epi8(*xmm_crc3, xmm_shr);
-    *xmm_crc_part = _mm_shuffle_epi8(*xmm_crc_part, xmm_shl);
-    *xmm_crc3 = _mm_or_si128(*xmm_crc3, *xmm_crc_part);
-
-    xmm_a0_1 = _mm_clmulepi64_si128(xmm_a0_0, xmm_fold4, 0x10);
-    xmm_a0_0 = _mm_clmulepi64_si128(xmm_a0_0, xmm_fold4, 0x01);
-
-    ps_crc3 = _mm_castsi128_ps(*xmm_crc3);
-    psa0_0 = _mm_castsi128_ps(xmm_a0_0);
-    psa0_1 = _mm_castsi128_ps(xmm_a0_1);
-
-    ps_res = _mm_xor_ps(ps_crc3, psa0_0);
-    ps_res = _mm_xor_ps(ps_res, psa0_1);
-
-    *xmm_crc3 = _mm_castps_si128(ps_res);
-}
-
-static void crc_fold(deflate_state * s,
-        const unsigned char *src, long len)
-{
-    unsigned long algn_diff;
-    __m128i xmm_t0, xmm_t1, xmm_t2, xmm_t3;
-
-    CRC_LOAD(s)
-
-    if (len < 16) {
-      char ALIGNED_(16) partial_buf[16] = { 0 };
-
-      if (len == 0)
-        return;
-
-      memcpy(partial_buf, src, len);
-      xmm_crc_part = _mm_loadu_si128((const __m128i *)partial_buf);
-      goto partial;
-    }
-
-    algn_diff = 0 - (unsigned long)src & 0xF;
-    if (algn_diff) {
-        xmm_crc_part = _mm_loadu_si128((__m128i *)src);
-
-        src += algn_diff;
-        len -= algn_diff;
-
-        partial_fold(algn_diff, &xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3,
-            &xmm_crc_part);
-    }
-
-    while ((len -= 64) >= 0) {
-        xmm_t0 = _mm_load_si128((__m128i *)src);
-        xmm_t1 = _mm_load_si128((__m128i *)src + 1);
-        xmm_t2 = _mm_load_si128((__m128i *)src + 2);
-        xmm_t3 = _mm_load_si128((__m128i *)src + 3);
-
-        fold_4(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3);
-
-
-
-        xmm_crc0 = _mm_xor_si128(xmm_crc0, xmm_t0);
-        xmm_crc1 = _mm_xor_si128(xmm_crc1, xmm_t1);
-        xmm_crc2 = _mm_xor_si128(xmm_crc2, xmm_t2);
-        xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_t3);
-        
-        src += 64;
-    }
-
-    /*
-     * len = num bytes left - 64
-     */
-    if (len + 16 >= 0) {
-        len += 16;
-
-        xmm_t0 = _mm_load_si128((__m128i *)src);
-        xmm_t1 = _mm_load_si128((__m128i *)src + 1);
-        xmm_t2 = _mm_load_si128((__m128i *)src + 2);
-
-        fold_3(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3);
-
-        xmm_crc1 = _mm_xor_si128(xmm_crc1, xmm_t0);
-        xmm_crc2 = _mm_xor_si128(xmm_crc2, xmm_t1);
-        xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_t2);
-
-        if (len == 0)
-            goto done;
-
-        xmm_crc_part = _mm_load_si128((__m128i *)src + 3);
-    } else if (len + 32 >= 0) {
-        len += 32;
-
-        xmm_t0 = _mm_load_si128((__m128i *)src);
-        xmm_t1 = _mm_load_si128((__m128i *)src + 1);
-
-        fold_2(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3);
-
-        xmm_crc2 = _mm_xor_si128(xmm_crc2, xmm_t0);
-        xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_t1);
-
-        if (len == 0)
-            goto done;
-
-        xmm_crc_part = _mm_load_si128((__m128i *)src + 2);
-    } else if (len + 48 >= 0) {
-        len += 48;
-
-        xmm_t0 = _mm_load_si128((__m128i *)src);
-
-        fold_1(&xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3);
-
-        xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_t0);
-
-        if (len == 0)
-            goto done;
-        
-        xmm_crc_part = _mm_load_si128((__m128i *)src + 1);
-    } else {
-        len += 64;
-        if (len == 0)
-            goto done;
-        xmm_crc_part = _mm_load_si128((__m128i *)src);
-    }
-
-partial:
-    partial_fold(len, &xmm_crc0, &xmm_crc1, &xmm_crc2, &xmm_crc3,
-        &xmm_crc_part);
-done:
-    CRC_SAVE(s)
-}
-
-static const unsigned ALIGNED_(16) crc_k[] = {
-    0xccaa009e, 0x00000000, /* rk1 */
-    0x751997d0, 0x00000001, /* rk2 */
-    0xccaa009e, 0x00000000, /* rk5 */
-    0x63cd6124, 0x00000001, /* rk6 */
-    0xf7011640, 0x00000001, /* rk7 */
-    0xdb710640, 0x00000001  /* rk8 */
-};
-
-static const unsigned ALIGNED_(16) crc_mask[4] = {
-    0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000
-};
-
-static const unsigned ALIGNED_(16) crc_mask2[4] = {
-    0x00000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-};
-
-static unsigned crc_fold_512to32(deflate_state* s)
-{
-    __m128i xmm_mask  = _mm_load_si128((__m128i *)crc_mask);
-    __m128i xmm_mask2 = _mm_load_si128((__m128i *)crc_mask2);
-
-    unsigned crc;
-    __m128i x_tmp0, x_tmp1, x_tmp2, crc_fold;
-
-    CRC_LOAD(s)
-
-    /*
-     * k1
-     */
-    crc_fold = _mm_load_si128((__m128i *)crc_k);
-
-    x_tmp0 = _mm_clmulepi64_si128(xmm_crc0, crc_fold, 0x10);
-    xmm_crc0 = _mm_clmulepi64_si128(xmm_crc0, crc_fold, 0x01);
-    xmm_crc1 = _mm_xor_si128(xmm_crc1, x_tmp0);
-    xmm_crc1 = _mm_xor_si128(xmm_crc1, xmm_crc0);
-
-    x_tmp1 = _mm_clmulepi64_si128(xmm_crc1, crc_fold, 0x10);
-    xmm_crc1 = _mm_clmulepi64_si128(xmm_crc1, crc_fold, 0x01);
-    xmm_crc2 = _mm_xor_si128(xmm_crc2, x_tmp1);
-    xmm_crc2 = _mm_xor_si128(xmm_crc2, xmm_crc1);
-
-    x_tmp2 = _mm_clmulepi64_si128(xmm_crc2, crc_fold, 0x10);
-    xmm_crc2 = _mm_clmulepi64_si128(xmm_crc2, crc_fold, 0x01);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, x_tmp2);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc2);
-
-    /*
-     * k5
-     */
-    crc_fold = _mm_load_si128((__m128i *)crc_k + 1);
-
-    xmm_crc0 = xmm_crc3;
-    xmm_crc3 = _mm_clmulepi64_si128(xmm_crc3, crc_fold, 0);
-    xmm_crc0 = _mm_srli_si128(xmm_crc0, 8);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc0);
-
-    xmm_crc0 = xmm_crc3;
-    xmm_crc3 = _mm_slli_si128(xmm_crc3, 4);
-    xmm_crc3 = _mm_clmulepi64_si128(xmm_crc3, crc_fold, 0x10);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc0);
-    xmm_crc3 = _mm_and_si128(xmm_crc3, xmm_mask2);
-
-    /*
-     * k7
-     */
-    xmm_crc1 = xmm_crc3;
-    xmm_crc2 = xmm_crc3;
-    crc_fold = _mm_load_si128((__m128i *)crc_k + 2);
-
-    xmm_crc3 = _mm_clmulepi64_si128(xmm_crc3, crc_fold, 0);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc2);
-    xmm_crc3 = _mm_and_si128(xmm_crc3, xmm_mask);
-
-    xmm_crc2 = xmm_crc3;
-    xmm_crc3 = _mm_clmulepi64_si128(xmm_crc3, crc_fold, 0x10);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc2);
-    xmm_crc3 = _mm_xor_si128(xmm_crc3, xmm_crc1);
-
-    crc = _mm_extract_epi32(xmm_crc3, 2);
-    return ~crc;
-    CRC_SAVE(s)
-}
-
-unsigned long crc32_SSSE3(const unsigned char* buf, unsigned len)
-{
-  deflate_state s;
-  crc_fold_init(&s);
-  crc_fold(&s, buf, len);
-  return crc_fold_512to32(&s);
-}
-//#endif
+#ifdef MAKECRCH
+#  include <stdio.h>
+#  ifndef DYNAMIC_CRC_TABLE
+#    define DYNAMIC_CRC_TABLE
+#  endif /* !DYNAMIC_CRC_TABLE */
+#endif /* MAKECRCH */
+
+#include "deflate.h"
+#include "x86.h"
+#include "crc32_simd.h"
+#include "zutil.h"      /* for STDC and FAR definitions */
 
 /* Definitions for doing the crc four data bytes at a time. */
-#define BYFOUR
+#if !defined(NOBYFOUR) && defined(Z_U4)
+#  define BYFOUR
+#endif
 #ifdef BYFOUR
-static unsigned long crc32_little (unsigned long,
-                                   const unsigned char *, unsigned);
-static unsigned long crc32_big (unsigned long,
-                                const unsigned char *, unsigned);
+   local unsigned long crc32_little OF((unsigned long,
+                        const unsigned char FAR *, z_size_t));
+   local unsigned long crc32_big OF((unsigned long,
+                        const unsigned char FAR *, z_size_t));
+#  define TBLS 8
+#else
+#  define TBLS 1
 #endif /* BYFOUR */
 
-#include "crc32.h"
+/* Local functions for crc concatenation */
+local unsigned long gf2_matrix_times OF((unsigned long *mat,
+                                         unsigned long vec));
+local void gf2_matrix_square OF((unsigned long *square, unsigned long *mat));
+local uLong crc32_combine_ OF((uLong crc1, uLong crc2, z_off64_t len2));
 
+
+#ifdef DYNAMIC_CRC_TABLE
+
+local volatile int crc_table_empty = 1;
+local z_crc_t FAR crc_table[TBLS][256];
+local void make_crc_table OF((void));
+#ifdef MAKECRCH
+   local void write_table OF((FILE *, const z_crc_t FAR *));
+#endif /* MAKECRCH */
+/*
+  Generate tables for a byte-wise 32-bit CRC calculation on the polynomial:
+  x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1.
+
+  Polynomials over GF(2) are represented in binary, one bit per coefficient,
+  with the lowest powers in the most significant bit.  Then adding polynomials
+  is just exclusive-or, and multiplying a polynomial by x is a right shift by
+  one.  If we call the above polynomial p, and represent a byte as the
+  polynomial q, also with the lowest power in the most significant bit (so the
+  byte 0xb1 is the polynomial x^7+x^3+x+1), then the CRC is (q*x^32) mod p,
+  where a mod b means the remainder after dividing a by b.
+
+  This calculation is done using the shift-register method of multiplying and
+  taking the remainder.  The register is initialized to zero, and for each
+  incoming bit, x^32 is added mod p to the register if the bit is a one (where
+  x^32 mod p is p+x^32 = x^26+...+1), and the register is multiplied mod p by
+  x (which is shifting right by one and adding x^32 mod p if the bit shifted
+  out is a one).  We start with the highest power (least significant bit) of
+  q and repeat for all eight bits of q.
+
+  The first table is simply the CRC of all possible eight bit values.  This is
+  all the information needed to generate CRCs on data a byte at a time for all
+  combinations of CRC register values and incoming bytes.  The remaining tables
+  allow for word-at-a-time CRC calculation for both big-endian and little-
+  endian machines, where a word is four bytes.
+*/
+local void make_crc_table()
+{
+    z_crc_t c;
+    int n, k;
+    z_crc_t poly;                       /* polynomial exclusive-or pattern */
+    /* terms of polynomial defining this crc (except x^32): */
+    static volatile int first = 1;      /* flag to limit concurrent making */
+    static const unsigned char p[] = {0,1,2,4,5,7,8,10,11,12,16,22,23,26};
+
+    /* See if another task is already doing this (not thread-safe, but better
+       than nothing -- significantly reduces duration of vulnerability in
+       case the advice about DYNAMIC_CRC_TABLE is ignored) */
+    if (first) {
+        first = 0;
+
+        /* make exclusive-or pattern from polynomial (0xedb88320UL) */
+        poly = 0;
+        for (n = 0; n < (int)(sizeof(p)/sizeof(unsigned char)); n++)
+            poly |= (z_crc_t)1 << (31 - p[n]);
+
+        /* generate a crc for every 8-bit value */
+        for (n = 0; n < 256; n++) {
+            c = (z_crc_t)n;
+            for (k = 0; k < 8; k++)
+                c = c & 1 ? poly ^ (c >> 1) : c >> 1;
+            crc_table[0][n] = c;
+        }
+
+#ifdef BYFOUR
+        /* generate crc for each value followed by one, two, and three zeros,
+           and then the byte reversal of those as well as the first table */
+        for (n = 0; n < 256; n++) {
+            c = crc_table[0][n];
+            crc_table[4][n] = ZSWAP32(c);
+            for (k = 1; k < 4; k++) {
+                c = crc_table[0][c & 0xff] ^ (c >> 8);
+                crc_table[k][n] = c;
+                crc_table[k + 4][n] = ZSWAP32(c);
+            }
+        }
+#endif /* BYFOUR */
+
+        crc_table_empty = 0;
+    }
+    else {      /* not first */
+        /* wait for the other guy to finish (not efficient, but rare) */
+        while (crc_table_empty)
+            ;
+    }
+
+#ifdef MAKECRCH
+    /* write out CRC tables to crc32.h */
+    {
+        FILE *out;
+
+        out = fopen("crc32.h", "w");
+        if (out == NULL) return;
+        fprintf(out, "/* crc32.h -- tables for rapid CRC calculation\n");
+        fprintf(out, " * Generated automatically by crc32.c\n */\n\n");
+        fprintf(out, "local const z_crc_t FAR ");
+        fprintf(out, "crc_table[TBLS][256] =\n{\n  {\n");
+        write_table(out, crc_table[0]);
+#  ifdef BYFOUR
+        fprintf(out, "#ifdef BYFOUR\n");
+        for (k = 1; k < 8; k++) {
+            fprintf(out, "  },\n  {\n");
+            write_table(out, crc_table[k]);
+        }
+        fprintf(out, "#endif\n");
+#  endif /* BYFOUR */
+        fprintf(out, "  }\n};\n");
+        fclose(out);
+    }
+#endif /* MAKECRCH */
+}
+
+#ifdef MAKECRCH
+local void write_table(out, table)
+    FILE *out;
+    const z_crc_t FAR *table;
+{
+    int n;
+
+    for (n = 0; n < 256; n++)
+        fprintf(out, "%s0x%08lxUL%s", n % 5 ? "" : "    ",
+                (unsigned long)(table[n]),
+                n == 255 ? "\n" : (n % 5 == 4 ? ",\n" : ", "));
+}
+#endif /* MAKECRCH */
+
+#else /* !DYNAMIC_CRC_TABLE */
+/* ========================================================================
+ * Tables of CRC-32s of all single-byte values, made by make_crc_table().
+ */
+#include "crc32.h"
+#endif /* DYNAMIC_CRC_TABLE */
+
+/* =========================================================================
+ * This function can be used by asm versions of crc32()
+ */
+const z_crc_t FAR * ZEXPORT get_crc_table()
+{
+#ifdef DYNAMIC_CRC_TABLE
+    if (crc_table_empty)
+        make_crc_table();
+#endif /* DYNAMIC_CRC_TABLE */
+    return (const z_crc_t FAR *)crc_table;
+}
+
+/* ========================================================================= */
 #define DO1 crc = crc_table[0][((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8)
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
-static unsigned long crc32_generic(unsigned long crc, const unsigned char *buf, unsigned len)
+/* ========================================================================= */
+unsigned long ZEXPORT crc32_z(crc, buf, len)
+    unsigned long crc;
+    const unsigned char FAR *buf;
+    z_size_t len;
 {
-  if (!buf) return 0UL;
+#if defined(CRC32_SIMD_SSE42_PCLMUL)
+    /*
+     * Use x86 sse4.2+pclmul SIMD to compute the crc32. Since this
+     * routine can be freely used, check the CPU features here.
+     */
+    if (buf == Z_NULL) {
+        if (!len) /* Assume user is calling crc32(0, NULL, 0); */
+            x86_check_features();
+        return 0UL;
+    }
+
+    if (x86_cpu_enable_simd && len >= Z_CRC32_SSE42_MINIMUM_LENGTH) {
+        /* crc32 16-byte chunks */
+        z_size_t chunk_size = len & ~Z_CRC32_SSE42_CHUNKSIZE_MASK;
+        crc = ~crc32_sse42_simd_(buf, chunk_size, ~(uint32_t)crc);
+        /* check remaining data */
+        len -= chunk_size;
+        if (!len)
+            return crc;
+        /* Fall into the default crc32 for the remaining data. */
+        buf += chunk_size;
+    }
+#else
+    if (buf == Z_NULL) {
+        return 0UL;
+    }
+#endif /* CRC32_SIMD_SSE42_PCLMUL */
+
+#ifdef DYNAMIC_CRC_TABLE
+    if (crc_table_empty)
+        make_crc_table();
+#endif /* DYNAMIC_CRC_TABLE */
 
 #ifdef BYFOUR
-  if (sizeof(void *) == sizeof(ptrdiff_t)) {
-    unsigned endian;
+    if (sizeof(void *) == sizeof(ptrdiff_t)) {
+        z_crc_t endian;
 
-    endian = 1;
-    if (*((unsigned char *)(&endian)))
-      return crc32_little(crc, buf, len);
-    else
-      return crc32_big(crc, buf, len);
-  }
+        endian = 1;
+        if (*((unsigned char *)(&endian)))
+            return crc32_little(crc, buf, len);
+        else
+            return crc32_big(crc, buf, len);
+    }
 #endif /* BYFOUR */
-  crc = crc ^ 0xffffffffUL;
-  while (len >= 8) {
-    DO8;
-    len -= 8;
-  }
-  if (len) do {
-    DO1;
-  } while (--len);
-  return crc ^ 0xffffffffUL;
+    crc = crc ^ 0xffffffffUL;
+    while (len >= 8) {
+        DO8;
+        len -= 8;
+    }
+    if (len) do {
+        DO1;
+    } while (--len);
+    return crc ^ 0xffffffffUL;
 }
 
-uLong crc32(crc, buf, len)
-uLong crc;
-const Bytef *buf;
-uInt len;
+/* ========================================================================= */
+unsigned long ZEXPORT crc32(crc, buf, len)
+    unsigned long crc;
+    const unsigned char FAR *buf;
+    uInt len;
 {
-//#if defined(__GNUC__) && defined(__PCLMUL__)
-  if(pclmul_is_supported() && buf && !crc && len){ // seems not always working
-    return crc32_SSSE3(buf, len);
-  }
-//#endif
-  return crc32_generic(crc, buf, len);
+    return crc32_z(crc, buf, len);
 }
 
 #ifdef BYFOUR
 
+/*
+   This BYFOUR code accesses the passed unsigned char * buffer with a 32-bit
+   integer pointer type. This violates the strict aliasing rule, where a
+   compiler can assume, for optimization purposes, that two pointers to
+   fundamentally different types won't ever point to the same memory. This can
+   manifest as a problem only if one of the pointers is written to. This code
+   only reads from those pointers. So long as this code remains isolated in
+   this compilation unit, there won't be a problem. For this reason, this code
+   should not be copied and pasted into a compilation unit in which other code
+   writes to the buffer that is passed to these routines.
+ */
+
+/* ========================================================================= */
 #define DOLIT4 c ^= *buf4++; \
-c = crc_table[3][c & 0xff] ^ crc_table[2][(c >> 8) & 0xff] ^ \
-crc_table[1][(c >> 16) & 0xff] ^ crc_table[0][c >> 24]
+        c = crc_table[3][c & 0xff] ^ crc_table[2][(c >> 8) & 0xff] ^ \
+            crc_table[1][(c >> 16) & 0xff] ^ crc_table[0][c >> 24]
 #define DOLIT32 DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4
 
-static unsigned long crc32_little(unsigned long crc, const unsigned char *buf, unsigned len)
+/* ========================================================================= */
+local unsigned long crc32_little(crc, buf, len)
+    unsigned long crc;
+    const unsigned char FAR *buf;
+    z_size_t len;
 {
-  register unsigned c;
-  register const unsigned *buf4;
+    register z_crc_t c;
+    register const z_crc_t FAR *buf4;
 
-  c = (unsigned)crc;
-  c = ~c;
-  while (len && ((ptrdiff_t)buf & 3)) {
-    c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
-    len--;
-  }
+    c = (z_crc_t)crc;
+    c = ~c;
+    while (len && ((ptrdiff_t)buf & 3)) {
+        c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
+        len--;
+    }
 
-  buf4 = (const unsigned *)(const void *)buf;
-  while (len >= 32) {
-    DOLIT32;
-    len -= 32;
-  }
-  while (len >= 4) {
-    DOLIT4;
-    len -= 4;
-  }
-  buf = (const unsigned char *)buf4;
+    buf4 = (const z_crc_t FAR *)(const void FAR *)buf;
+    while (len >= 32) {
+        DOLIT32;
+        len -= 32;
+    }
+    while (len >= 4) {
+        DOLIT4;
+        len -= 4;
+    }
+    buf = (const unsigned char FAR *)buf4;
 
-  if (len) do {
-    c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
-  } while (--len);
-  c = ~c;
-  return (unsigned long)c;
+    if (len) do {
+        c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
+    } while (--len);
+    c = ~c;
+    return (unsigned long)c;
 }
 
-#define DOBIG4 c ^= *++buf4; \
-c = crc_table[4][c & 0xff] ^ crc_table[5][(c >> 8) & 0xff] ^ \
-crc_table[6][(c >> 16) & 0xff] ^ crc_table[7][c >> 24]
+/* ========================================================================= */
+#define DOBIG4 c ^= *buf4++; \
+        c = crc_table[4][c & 0xff] ^ crc_table[5][(c >> 8) & 0xff] ^ \
+            crc_table[6][(c >> 16) & 0xff] ^ crc_table[7][c >> 24]
 #define DOBIG32 DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4
 
-static unsigned long crc32_big(crc, buf, len)
-unsigned long crc;
-const unsigned char *buf;
-unsigned len;
+/* ========================================================================= */
+local unsigned long crc32_big(crc, buf, len)
+    unsigned long crc;
+    const unsigned char FAR *buf;
+    z_size_t len;
 {
-  register unsigned c;
-  register const unsigned *buf4;
+    register z_crc_t c;
+    register const z_crc_t FAR *buf4;
 
-  c = ZSWAP32((unsigned)crc);
-  c = ~c;
-  while (len && ((ptrdiff_t)buf & 3)) {
-    c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
-    len--;
-  }
+    c = ZSWAP32((z_crc_t)crc);
+    c = ~c;
+    while (len && ((ptrdiff_t)buf & 3)) {
+        c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
+        len--;
+    }
 
-  buf4 = (const unsigned *)(const void *)buf;
-  buf4--;
-  while (len >= 32) {
-    DOBIG32;
-    len -= 32;
-  }
-  while (len >= 4) {
-    DOBIG4;
-    len -= 4;
-  }
-  buf4++;
-  buf = (const unsigned char *)buf4;
+    buf4 = (const z_crc_t FAR *)(const void FAR *)buf;
+    while (len >= 32) {
+        DOBIG32;
+        len -= 32;
+    }
+    while (len >= 4) {
+        DOBIG4;
+        len -= 4;
+    }
+    buf = (const unsigned char FAR *)buf4;
 
-  if (len) do {
-    c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
-  } while (--len);
-  c = ~c;
-  return (unsigned long)(ZSWAP32(c));
+    if (len) do {
+        c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
+    } while (--len);
+    c = ~c;
+    return (unsigned long)(ZSWAP32(c));
 }
 
 #endif /* BYFOUR */
+
+#define GF2_DIM 32      /* dimension of GF(2) vectors (length of CRC) */
+
+/* ========================================================================= */
+local unsigned long gf2_matrix_times(mat, vec)
+    unsigned long *mat;
+    unsigned long vec;
+{
+    unsigned long sum;
+
+    sum = 0;
+    while (vec) {
+        if (vec & 1)
+            sum ^= *mat;
+        vec >>= 1;
+        mat++;
+    }
+    return sum;
+}
+
+/* ========================================================================= */
+local void gf2_matrix_square(square, mat)
+    unsigned long *square;
+    unsigned long *mat;
+{
+    int n;
+
+    for (n = 0; n < GF2_DIM; n++)
+        square[n] = gf2_matrix_times(mat, mat[n]);
+}
+
+/* ========================================================================= */
+local uLong crc32_combine_(crc1, crc2, len2)
+    uLong crc1;
+    uLong crc2;
+    z_off64_t len2;
+{
+    int n;
+    unsigned long row;
+    unsigned long even[GF2_DIM];    /* even-power-of-two zeros operator */
+    unsigned long odd[GF2_DIM];     /* odd-power-of-two zeros operator */
+
+    /* degenerate case (also disallow negative lengths) */
+    if (len2 <= 0)
+        return crc1;
+
+    /* put operator for one zero bit in odd */
+    odd[0] = 0xedb88320UL;          /* CRC-32 polynomial */
+    row = 1;
+    for (n = 1; n < GF2_DIM; n++) {
+        odd[n] = row;
+        row <<= 1;
+    }
+
+    /* put operator for two zero bits in even */
+    gf2_matrix_square(even, odd);
+
+    /* put operator for four zero bits in odd */
+    gf2_matrix_square(odd, even);
+
+    /* apply len2 zeros to crc1 (first square will put the operator for one
+       zero byte, eight zero bits, in even) */
+    do {
+        /* apply zeros operator for this bit of len2 */
+        gf2_matrix_square(even, odd);
+        if (len2 & 1)
+            crc1 = gf2_matrix_times(even, crc1);
+        len2 >>= 1;
+
+        /* if no more bits set, then done */
+        if (len2 == 0)
+            break;
+
+        /* another iteration of the loop with odd and even swapped */
+        gf2_matrix_square(odd, even);
+        if (len2 & 1)
+            crc1 = gf2_matrix_times(odd, crc1);
+        len2 >>= 1;
+
+        /* if no more bits set, then done */
+    } while (len2 != 0);
+
+    /* return combined crc */
+    crc1 ^= crc2;
+    return crc1;
+}
+
+/* ========================================================================= */
+uLong ZEXPORT crc32_combine(crc1, crc2, len2)
+    uLong crc1;
+    uLong crc2;
+    z_off_t len2;
+{
+    return crc32_combine_(crc1, crc2, len2);
+}
+
+uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
+    uLong crc1;
+    uLong crc2;
+    z_off64_t len2;
+{
+    return crc32_combine_(crc1, crc2, len2);
+}
+
+ZLIB_INTERNAL void crc_reset(deflate_state *const s)
+{
+    if (x86_cpu_enable_simd) {
+        crc_fold_init(s);
+        return;
+    }
+    s->strm->adler = crc32(0L, Z_NULL, 0);
+}
+
+ZLIB_INTERNAL void crc_finalize(deflate_state *const s)
+{
+    if (x86_cpu_enable_simd)
+        s->strm->adler = crc_fold_512to32(s);
+}
+
+ZLIB_INTERNAL void copy_with_crc(z_streamp strm, Bytef *dst, long size)
+{
+    if (x86_cpu_enable_simd) {
+        crc_fold_copy(strm->state, dst, strm->next_in, size);
+        return;
+    }
+    zmemcpy(dst, strm->next_in, size);
+    strm->adler = crc32(strm->adler, dst, size);
+}

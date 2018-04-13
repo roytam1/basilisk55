@@ -2094,14 +2094,14 @@ DocAccessible::DoARIAOwnsRelocation(Accessible* aOwner)
           imut.AfterInsertion(child);
           imut.Done();
 
-          child->SetRelocated(true);
-          owned->InsertElementAt(idx, child);
-          idx++;
-
           // Create subtree before adjusting the insertion index, since subtree
           // creation may alter children in the container.
           CreateSubtree(child);
           FireEventsOnInsertion(aOwner);
+
+          child->SetRelocated(true);
+          owned->InsertElementAt(idx, child);
+          idx++;
         }
       }
       continue;

@@ -859,6 +859,11 @@ public:
     return !!mSelConWeak;
   }
 
+  bool IsModifiable() const
+  {
+    return !IsReadonly();
+  }
+
   /**
    * Get the input event target. This might return null.
    */

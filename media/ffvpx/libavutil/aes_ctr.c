@@ -22,7 +22,7 @@
 #include "common.h"
 #include "aes_ctr.h"
 #include "aes.h"
-/* #include "random_seed.h" */
+#include "ff_random_seed.h"
 
 #define AES_BLOCK_SIZE (16)
 
@@ -54,8 +54,8 @@ void av_aes_ctr_set_random_iv(struct AVAESCTR *a)
 {
     uint32_t iv[2];
 
-    iv[0] = 0xffffffff; /* av_get_random_seed(); */
-    iv[1] = 0xffffffff; /* av_get_random_seed(); */
+    iv[0] = av_get_random_seed();
+    iv[1] = av_get_random_seed();
 
     av_aes_ctr_set_iv(a, (uint8_t*)iv);
 }

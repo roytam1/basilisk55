@@ -81,6 +81,7 @@ av_color_space_name
 av_color_transfer_name
 av_compare_mod
 av_compare_ts
+av_content_light_metadata_create_side_data
 av_cpu_count
 av_crc
 av_crc_get_table
@@ -140,7 +141,9 @@ av_find_info_tag
 av_find_nearest_q_idx
 av_fopen_utf8
 av_force_cpu_flags
+av_fourcc_make_string
 av_frame_alloc
+av_frame_apply_cropping
 av_frame_clone
 av_frame_copy
 av_frame_copy_props
@@ -246,6 +249,7 @@ av_i2int
 av_image_alloc
 av_image_check_sar
 av_image_check_size
+av_image_check_size2
 av_image_copy
 av_image_copy_plane
 av_image_copy_to_buffer
@@ -481,5 +485,8 @@ avutil_configuration
 avutil_license
 avutil_version
 #ifdef XP_WIN
-avpriv_emms_yasm
+avpriv_emms_asm
 #endif
+avpriv_slicethread_create
+avpriv_slicethread_execute
+avpriv_slicethread_free

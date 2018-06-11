@@ -28,7 +28,7 @@
 #include "common.h"
 #include "eval.h"
 #include "log.h"
-/* #include "random_seed.h" */
+#include "ff_random_seed.h"
 #include "time_internal.h"
 #include "parseutils.h"
 #include "fftime.h"
@@ -138,6 +138,11 @@ static const VideoRateAbbr video_rate_abbrs[]= {
     { "spal",      {    25,    1 } }, /* square pixel PAL */
     { "film",      {    24,    1 } },
     { "ntsc-film", { 24000, 1001 } },
+};
+
+static const char *months[12] = {
+    "january", "february", "march", "april", "may", "june", "july", "august",
+    "september", "october", "november", "december"
 };
 
 int av_parse_video_size(int *width_ptr, int *height_ptr, const char *str)
@@ -368,7 +373,7 @@ int av_parse_color(uint8_t *rgba_color, const char *color_string, int slen,
     rgba_color[3] = 255;
 
     if (!av_strcasecmp(color_string2, "random") || !av_strcasecmp(color_string2, "bikeshed")) {
-        int rgba = 0xffffffff; /* av_get_random_seed(); */
+        int rgba = av_get_random_seed();
         rgba_color[0] = rgba >> 24;
         rgba_color[1] = rgba >> 16;
         rgba_color[2] = rgba >> 8;
@@ -466,6 +471,21 @@ static int date_get_num(const char **pp,
     return val;
 }
 
+static int date_get_month(const char **pp) {
+    int i = 0;
+    for (; i < 12; i++) {
+        if (!av_strncasecmp(*pp, months[i], 3)) {
+            const char *mo_full = months[i] + 3;
+            int len = strlen(mo_full);
+            *pp += 3;
+            if (len > 0 && !av_strncasecmp(*pp, mo_full, len))
+                *pp += len;
+            return i;
+        }
+    }
+    return -1;
+}
+
 char *av_small_strptime(const char *p, const char *fmt, struct tm *dt)
 {
     int c, val;
@@ -524,6 +544,14 @@ char *av_small_strptime(const char *p, const char *fmt, struct tm *dt)
             p = av_small_strptime(p, "%H:%M:%S", dt);
             if (!p)
                 return NULL;
+            break;
+        case 'b':
+        case 'B':
+        case 'h':
+            val = date_get_month(&p);
+            if (val == -1)
+                return NULL;
+            dt->tm_mon = val;
             break;
         case '%':
             if (*p++ != '%')

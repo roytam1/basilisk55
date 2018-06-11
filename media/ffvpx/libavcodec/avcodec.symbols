@@ -1,5 +1,9 @@
 audio_resample
 audio_resample_close
+av_bitstream_filter_close
+av_bitstream_filter_filter
+av_bitstream_filter_init
+av_bitstream_filter_next
 av_audio_convert
 av_audio_convert_alloc
 av_audio_convert_free
@@ -93,6 +97,7 @@ av_qsv_alloc_context
 av_rdft_calc
 av_rdft_end
 av_rdft_init
+av_register_bitstream_filter
 av_register_codec_parser
 av_register_hwaccel
 av_resample

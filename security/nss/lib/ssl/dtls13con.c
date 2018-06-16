@@ -11,6 +11,12 @@
 #include "sslimpl.h"
 #include "sslproto.h"
 
+#ifdef _MSC_VER
+#if _MSC_VER < 1900
+#define inline 
+#endif
+#endif
+
 /* DTLS 1.3 Record map for ACK processing.
  * This represents a single fragment, so a record which includes
  * multiple fragments will have one entry for each fragment on the

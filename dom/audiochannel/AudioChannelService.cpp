@@ -202,6 +202,13 @@ AudioChannelService::CreateServiceIfNeeded()
   }
 }
 
+/* static */ bool
+AudioChannelService::IsServiceStarted()
+{
+  // The service would start when the first AudioChannelAgent is created.
+  return !!gAudioChannelService;
+}
+
 /* static */ already_AddRefed<AudioChannelService>
 AudioChannelService::GetOrCreate()
 {
@@ -298,6 +305,19 @@ AudioChannelService::AudioChannelService()
 
 AudioChannelService::~AudioChannelService()
 {
+}
+
+void
+AudioChannelService::NotifyCreatedNewAgent(AudioChannelAgent* aAgent)
+{
+  MOZ_ASSERT(aAgent);
+
+  nsCOMPtr<nsPIDOMWindowOuter> window = aAgent->Window();
+  if (!window) {
+    return;
+  }
+
+  window->NotifyCreatedNewMediaComponent();
 }
 
 void
@@ -1433,7 +1453,18 @@ AudioChannelService::AudioChannelWindow::MaybeNotifyMediaBlocked(AudioChannelAge
   }
 
   MOZ_ASSERT(window->IsOuterWindow());
-  if (window->GetMediaSuspend() != nsISuspendedTypes::SUSPENDED_BLOCK) {
+  nsCOMPtr<nsPIDOMWindowInner> inner = window->GetCurrentInnerWindow();
+  if (!inner) {
+    return;
+  }
+
+  nsCOMPtr<nsIDocument> doc = inner->GetExtantDoc();
+  if (!doc) {
+    return;
+  }
+
+  if (window->GetMediaSuspend() != nsISuspendedTypes::SUSPENDED_BLOCK ||
+      !doc->Hidden()) {
     return;
   }
 

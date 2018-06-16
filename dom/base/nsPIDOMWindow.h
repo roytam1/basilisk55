@@ -945,6 +945,9 @@ public:
   float GetAudioVolume() const;
   nsresult SetAudioVolume(float aVolume);
 
+  void NotifyCreatedNewMediaComponent();
+  void MaybeActiveMediaComponents();
+
   void SetServiceWorkersTestingEnabled(bool aEnabled);
   bool GetServiceWorkersTestingEnabled();
 

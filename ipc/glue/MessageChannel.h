@@ -419,6 +419,7 @@ class MessageChannel : HasResultCodes
 
     bool WasTransactionCanceled(int transaction);
     bool ShouldDeferMessage(const Message& aMsg);
+    bool ShouldDeferInterruptMessage(const Message& aMsg, size_t aStackDepth);
     void OnMessageReceivedFromLink(Message&& aMsg);
     void OnChannelErrorFromLink();
 

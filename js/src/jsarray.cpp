@@ -3689,7 +3689,7 @@ js::MaybeAnalyzeBeforeCreatingLargeArray(ExclusiveContext* cx, HandleObjectGroup
                                                               ShouldUpdateTypes::Update);
                 MOZ_ASSERT(result.value == DenseElementResult::Success);
             }
-            objects->maybeAnalyze(cx, group, /* forceAnalyze = */ true);
+            objects->maybeAnalyze(cx, group, /* force = */ true);
         }
     }
     return true;

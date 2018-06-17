@@ -91,6 +91,7 @@ public:
   }
   MOCK_METHOD3(NotifyAPZStateChange, void(const ScrollableLayerGuid& aGuid, APZStateChange aChange, int aArg));
   MOCK_METHOD0(NotifyFlushComplete, void());
+  MOCK_METHOD1(NotifyAsyncScrollbarDragRejected, void(const FrameMetrics::ViewID&));
 };
 
 class MockContentControllerDelayed : public MockContentController {
@@ -172,6 +173,10 @@ public:
 
   RefPtr<InputQueue> GetInputQueue() const {
     return mInputQueue;
+  }
+
+  void ClearContentController() {
+    mcc = nullptr;
   }
 
 protected:

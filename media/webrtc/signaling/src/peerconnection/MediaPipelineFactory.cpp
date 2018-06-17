@@ -723,11 +723,22 @@ MediaPipelineFactory::GetOrCreateAudioConduit(
       return NS_ERROR_FAILURE;
     }
 
-    if (!aTrackPair.mSending) {
+    if (aTrackPair.mSending) {
+      auto ssrcs = &aTrackPair.mSending->GetSsrcs();
+      if (!ssrcs->empty()) {
+        if (!conduit->SetLocalSSRCs(*ssrcs)) {
+          MOZ_MTLOG(ML_ERROR, "SetLocalSSRCs failed(1)");
+          return NS_ERROR_FAILURE;
+        }
+      } else {
+        MOZ_MTLOG(ML_ERROR, "Sending without an SSRC??");
+        return NS_ERROR_FAILURE;
+      }
+    } else {
       // No send track, but we still need to configure an SSRC for receiver
       // reports.
       if (!conduit->SetLocalSSRCs(std::vector<unsigned int>(1,aTrackPair.mRecvonlySsrc))) {
-        MOZ_MTLOG(ML_ERROR, "SetLocalSSRC failed");
+        MOZ_MTLOG(ML_ERROR, "SetLocalSSRCs failed(2)");
         return NS_ERROR_FAILURE;
       }
     }

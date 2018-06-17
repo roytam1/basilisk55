@@ -2361,7 +2361,7 @@ nsHttpChannel::ContinueProcessResponse3(nsresult rv)
     }
 
     LOG(("ContinueProcessResponse3 got failure result [rv=%x]\n", rv));
-    if (mTransaction->ProxyConnectFailed()) {
+    if (mTransaction && mTransaction->ProxyConnectFailed()) {
         return ProcessFailedProxyConnect(mRedirectType);
     }
     return ProcessNormal();
@@ -5657,6 +5657,25 @@ NS_IMETHODIMP nsHttpChannel::CloseStickyConnection()
     // This turns the IsPersistent() indicator on the connection to false,
     // and makes us throw it away in OnStopRequest.
     conn->DontReuse();
+    return NS_OK;
+}
+
+NS_IMETHODIMP nsHttpChannel::ForceNoSpdy()
+{
+    LOG(("nsHttpChannel::ForceNoSpdy this=%p", this));
+
+    MOZ_ASSERT(mTransaction);
+    if (!mTransaction) {
+        return NS_ERROR_UNEXPECTED;
+    }
+
+    mAllowSpdy = 0;
+    mCaps |= NS_HTTP_DISALLOW_SPDY;
+
+    if (!(mTransaction->Caps() & NS_HTTP_DISALLOW_SPDY)) {
+        mTransaction->DisableSpdy();
+    }
+
     return NS_OK;
 }
 

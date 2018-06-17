@@ -22,6 +22,7 @@
 #include "DriverCrashGuard.h"
 #include "nsPrintfCString.h"
 #include "gfxCrashReporterUtils.h"
+#include "VideoUtils.h"
 
 const CLSID CLSID_VideoProcessorMFT =
 {
@@ -167,6 +168,8 @@ HRESULT ConvertMFTypeToDXVAType(IMFMediaType *pType, DXVA2_VideoDesc *pDesc)
   UINT32 height = 0;
   hr = MFGetAttributeSize(pType, MF_MT_FRAME_SIZE, &width, &height);
   NS_ENSURE_TRUE(SUCCEEDED(hr), hr);
+  NS_ENSURE_TRUE(width <= MAX_VIDEO_WIDTH, E_FAIL);
+  NS_ENSURE_TRUE(height <= MAX_VIDEO_HEIGHT, E_FAIL);
   pDesc->SampleWidth = width;
   pDesc->SampleHeight = height;
 

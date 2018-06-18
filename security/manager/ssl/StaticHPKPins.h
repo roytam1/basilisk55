@@ -731,6 +731,7 @@ static const TransportSecurityPreload kPublicKeyPinningPreloadList[] = {
   { "business.twitter.com", true, false, false, -1, &kPinset_twitterCom },
   { "ca.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
   { "cd.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
+  { "cdn.ampproject.org", true, false, false, -1, &kPinset_google_root_pems },
   { "cdn.mozilla.net", true, false, true, -1, &kPinset_mozilla },
   { "cdn.mozilla.org", true, false, true, -1, &kPinset_mozilla },
   { "cg.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
@@ -746,6 +747,7 @@ static const TransportSecurityPreload kPublicKeyPinningPreloadList[] = {
   { "chromiumbugs.appspot.com", true, false, false, -1, &kPinset_google_root_pems },
   { "chromiumcodereview.appspot.com", true, false, false, -1, &kPinset_google_root_pems },
   { "cl.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
+  { "classroom.google.com", true, false, false, -1, &kPinset_google_root_pems },
   { "cloud.google.com", true, false, false, -1, &kPinset_google_root_pems },
   { "cn.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
   { "co.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
@@ -780,6 +782,7 @@ static const TransportSecurityPreload kPublicKeyPinningPreloadList[] = {
   { "encrypted.google.com", true, false, false, -1, &kPinset_google_root_pems },
   { "es.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
   { "espanol.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
+  { "example.test", true, true, false, -1, &kPinset_test },
   { "exclude-subdomains.pinning.example.com", false, false, false, 0, &kPinset_mozilla_test },
   { "facebook.com", false, false, false, -1, &kPinset_facebook },
   { "fi.google.com", true, false, false, -1, &kPinset_google_root_pems },
@@ -1031,6 +1034,7 @@ static const TransportSecurityPreload kPublicKeyPinningPreloadList[] = {
   { "goto.google.com", true, false, false, -1, &kPinset_google_root_pems },
   { "gr.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
   { "groups.google.com", true, false, false, -1, &kPinset_google_root_pems },
+  { "gstatic.cn", true, false, false, -1, &kPinset_google_root_pems },
   { "gstatic.com", true, false, false, -1, &kPinset_google_root_pems },
   { "gvt1.com", true, false, false, -1, &kPinset_google_root_pems },
   { "gvt2.com", true, false, false, -1, &kPinset_google_root_pems },
@@ -1178,8 +1182,8 @@ static const TransportSecurityPreload kPublicKeyPinningPreloadList[] = {
   { "zh.search.yahoo.com", false, true, false, -1, &kPinset_yahoo },
 };
 
-// Pinning Preload List Length = 476;
+// Pinning Preload List Length = 480;
 
 static const int32_t kUnknownId = -1;
 
-static const PRTime kPreloadPKPinsExpirationTime = INT64_C(1524772960289000);
+static const PRTime kPreloadPKPinsExpirationTime = INT64_C(1537740396790000);

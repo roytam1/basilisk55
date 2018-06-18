@@ -264,6 +264,8 @@ protected:
 
   static bool CreateAndSetFocus(nsWindowBase* aFocusedWidget,
                                 const InputContext& aContext);
+  static void EnsureToDestroyAndReleaseEnabledTextStoreIf(
+                RefPtr<TSFTextStore>& aTextStore);
   static void MarkContextAsKeyboardDisabled(ITfContext* aContext);
   static void MarkContextAsEmpty(ITfContext* aContext);
 

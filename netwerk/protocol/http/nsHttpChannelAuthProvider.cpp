@@ -782,6 +782,11 @@ nsHttpChannelAuthProvider::GetCredentialsForChallenge(const char *challenge,
     if (entry)
         sessionStateGrip = entry->mMetaData;
 
+    // remember if we already had the continuation state.  it means we are in
+    // the middle of the authentication exchange and the connection must be
+    // kept sticky then (and only then).
+    bool authAtProgress = !!*continuationState;
+
     // for digest auth, maybe our cached nonce value simply timed out...
     bool identityInvalid;
     nsISupports *sessionState = sessionStateGrip;
@@ -816,10 +821,15 @@ nsHttpChannelAuthProvider::GetCredentialsForChallenge(const char *challenge,
           //   use of the cached identity and not asking the user again
           mProxyIdent.Clear();
         }
-        mConnectionBased = false;
     }
 
     mConnectionBased = !!(authFlags & nsIHttpAuthenticator::CONNECTION_BASED);
+
+    // It's legal if the peer closes the connection after the first 401/7.
+    // Making the connection sticky will prevent its restart giving the user
+    // a 'network reset' error every time.  Hence, we mark the connection
+    // as restartable.
+    mAuthChannel->ConnectionRestartable(mConnectionBased && !authAtProgress);
 
     if (identityInvalid) {
         if (entry) {

@@ -164,6 +164,10 @@ struct PersistentRootedMarker;
         set(p);                                                                                   \
         return *this;                                                                             \
     }                                                                                             \
+    Wrapper<T>& operator=(T&& p) {                                                                \
+        set(mozilla::Move(p));                                                                    \
+        return *this;                                                                             \
+    }                                                                                             \
     Wrapper<T>& operator=(const Wrapper<T>& other) {                                              \
         set(other.get());                                                                         \
         return *this;                                                                             \
@@ -557,6 +561,9 @@ class MOZ_STACK_CLASS MutableHandle : public js::MutableHandleBase<T, MutableHan
     void set(const T& v) {
         *ptr = v;
     }
+    void set(T&& v) {
+        *ptr = mozilla::Move(v);
+    }
 
     /*
      * This may be called only if the location of the T is guaranteed
@@ -804,6 +811,9 @@ class MOZ_RAII Rooted : public js::RootedBase<T, Rooted<T>>
      */
     void set(const T& value) {
         ptr = value;
+    }
+    void set(T&& value) {
+        ptr = mozilla::Move(value);
     }
 
     DECLARE_POINTER_CONSTREF_OPS(T);
@@ -1251,6 +1261,9 @@ class WrappedPtrOperations<UniquePtr<T, D>, Container>
 
   public:
     explicit operator bool() const { return !!uniquePtr(); }
+    T* get() const { return uniquePtr().get(); }
+    T* operator->() const { return get(); }
+    T& operator*() const { return *uniquePtr(); }
 };
 
 template <typename T, typename D, typename Container>
@@ -1261,6 +1274,7 @@ class MutableWrappedPtrOperations<UniquePtr<T, D>, Container>
 
   public:
     MOZ_MUST_USE typename UniquePtr<T, D>::Pointer release() { return uniquePtr().release(); }
+    void reset(T* ptr = T()) { uniquePtr().reset(ptr); }
 };
 
 namespace gc {

@@ -763,6 +763,7 @@ nsSocketTransport::nsSocketTransport()
     , mKeepaliveIdleTimeS(-1)
     , mKeepaliveRetryIntervalS(-1)
     , mKeepaliveProbeCount(-1)
+    , mDoNotRetryToConnect(false)
 {
     SOCKET_LOG(("creating nsSocketTransport @%p\n", this));
 
@@ -1586,6 +1587,13 @@ nsSocketTransport::RecoverFromError()
     SOCKET_LOG(("nsSocketTransport::RecoverFromError [this=%p state=%x cond=%x]\n",
         this, mState, mCondition));
 
+    if (mDoNotRetryToConnect) {
+        SOCKET_LOG(("nsSocketTransport::RecoverFromError do not retry because "
+                    "mDoNotRetryToConnect is set [this=%p]\n",
+                    this));
+        return false;
+    }
+
 #if defined(XP_UNIX)
     // Unix domain connections don't have multiple addresses to try,
     // so the recovery techniques here don't apply.
@@ -2290,6 +2298,8 @@ nsSocketTransport::Close(nsresult reason)
 {
     if (NS_SUCCEEDED(reason))
         reason = NS_BASE_STREAM_CLOSED;
+
+    mDoNotRetryToConnect = true;
 
     mInput.CloseWithStatus(reason);
     mOutput.CloseWithStatus(reason);

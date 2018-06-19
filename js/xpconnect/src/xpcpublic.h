@@ -439,7 +439,7 @@ Throw(JSContext* cx, nsresult rv);
  * Returns the nsISupports native behind a given reflector (either DOM or
  * XPCWN).
  */
-nsISupports*
+already_AddRefed<nsISupports>
 UnwrapReflectorToISupports(JSObject* reflector);
 
 /**

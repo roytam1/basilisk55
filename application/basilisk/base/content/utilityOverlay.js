@@ -401,7 +401,12 @@ function openLinkIn(url, where, params) {
       flags |= Ci.nsIWebNavigation.LOAD_FLAGS_FORCE_ALLOW_DATA_URI;
     }
 
-    if (aForceAboutBlankViewerInCurrent) {
+    let {URI_INHERITS_SECURITY_CONTEXT} = Ci.nsIProtocolHandler;
+    if (aForceAboutBlankViewerInCurrent &&
+        (!uriObj ||
+         (Services.io.getProtocolFlags(uriObj.scheme) & URI_INHERITS_SECURITY_CONTEXT))) {
+      // Unless we know for sure we're not inheriting principals,
+      // force the about:blank viewer to have the right principal:
       targetBrowser.createAboutBlankContentViewer(aPrincipal);
     }
 

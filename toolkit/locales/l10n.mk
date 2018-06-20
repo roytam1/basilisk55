@@ -190,7 +190,7 @@ ifndef WGET
 endif
 	$(NSINSTALL) -D $(ABS_DIST)/$(PKG_PATH)
 	(cd $(ABS_DIST)/$(PKG_PATH) && \
-        $(WGET) --no-cache -nv --no-iri -N -O $(PACKAGE) '$(EN_US_BINARY_URL)/$(EN_US_PACKAGE_NAME)')
+        $(WGET) --no-cache -nv --no-iri -N -O '$(notdir $(PACKAGE))' '$(EN_US_BINARY_URL)/$(EN_US_PACKAGE_NAME)')
 	@echo 'Downloaded $(EN_US_BINARY_URL)/$(EN_US_PACKAGE_NAME) to $(ABS_DIST)/$(PKG_PATH)/$(PACKAGE)'
 ifdef RETRIEVE_WINDOWS_INSTALLER
 ifeq ($(OS_ARCH), WINNT)

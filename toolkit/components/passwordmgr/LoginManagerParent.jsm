@@ -237,7 +237,6 @@ var LoginManagerParent = {
 
     let logins = this._searchAndDedupeLogins(formOrigin, actionOrigin);
 
-    logins = LoginHelper.dedupeLogins(logins, ["username"], resolveBy, formOrigin);
     log("sendLoginDataToChild:", logins.length, "deduped logins");
     // Convert the array of nsILoginInfo to vanilla JS objects since nsILoginInfo
     // doesn't support structured cloning.

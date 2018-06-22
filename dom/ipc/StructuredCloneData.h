@@ -52,8 +52,8 @@ public:
   static already_AddRefed<SharedJSAllocatedData>
   CreateFromExternalData(const char* aData, size_t aDataLength)
   {
-    JSStructuredCloneData buf;
-    buf.WriteBytes(aData, aDataLength);
+    JSStructuredCloneData buf(JS::StructuredCloneScope::DifferentProcess);
+    buf.AppendBytes(aData, aDataLength);
     RefPtr<SharedJSAllocatedData> sharedData =
       new SharedJSAllocatedData(Move(buf));
     return sharedData.forget();
@@ -62,12 +62,8 @@ public:
   static already_AddRefed<SharedJSAllocatedData>
   CreateFromExternalData(const JSStructuredCloneData& aData)
   {
-    JSStructuredCloneData buf;
-    auto iter = aData.Iter();
-    while (!iter.Done()) {
-      buf.WriteBytes(iter.Data(), iter.RemainingInSegment());
-      iter.Advance(aData, iter.RemainingInSegment());
-    }
+    JSStructuredCloneData buf(aData.scope());
+    buf.Append(aData);
     RefPtr<SharedJSAllocatedData> sharedData =
       new SharedJSAllocatedData(Move(buf));
     return sharedData.forget();
@@ -229,10 +225,9 @@ public:
   // StructuredCloneData instance is destroyed before aData is destroyed.
   bool UseExternalData(const JSStructuredCloneData& aData)
   {
-    auto iter = aData.Iter();
+    auto iter = aData.Start();
     bool success = false;
-    mExternalData =
-      aData.Borrow<js::SystemAllocPolicy>(iter, aData.Size(), &success);
+    mExternalData = aData.Borrow(iter, aData.Size(), &success);
     mInitialized = true;
     return success;
   }
@@ -261,6 +256,11 @@ public:
     return mSharedData ? mSharedData->Data() : mExternalData;
   }
 
+  void InitScope(JS::StructuredCloneScope aScope)
+  {
+    Data().initScope(aScope);
+  }
+
   size_t DataLength() const
   {
     return mSharedData ? mSharedData->DataLength() : mExternalData.Size();
@@ -285,6 +285,7 @@ protected:
     : StructuredCloneHolder(StructuredCloneHolder::CloningSupported,
                             aSupportsTransferring,
                             StructuredCloneHolder::StructuredCloneScope::DifferentProcess)
+    , mExternalData(StructuredCloneHolder::StructuredCloneScope::DifferentProcess)
     , mInitialized(false)
   {}
 

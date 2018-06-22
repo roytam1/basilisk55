@@ -1137,7 +1137,7 @@ js::GCParallelTask::runFromMainThread(JSRuntime* rt)
     MOZ_ASSERT(state == NotStarted);
     MOZ_ASSERT(js::CurrentThreadCanAccessRuntime(rt));
     mozilla::TimeStamp timeStart = mozilla::TimeStamp::Now();
-    run();
+    runTask();
     duration_ = mozilla::TimeStamp::Now() - timeStart;
 }
 
@@ -1148,7 +1148,7 @@ js::GCParallelTask::runFromHelperThread(AutoLockHelperThreadState& locked)
         AutoUnlockHelperThreadState parallelSection(locked);
         gc::AutoSetThreadIsPerformingGC performingGC;
         mozilla::TimeStamp timeStart = mozilla::TimeStamp::Now();
-        run();
+        runTask();
         duration_ = mozilla::TimeStamp::Now() - timeStart;
     }
 

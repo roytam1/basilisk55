@@ -187,7 +187,6 @@ class WidgetRenderingContext;
   float mCumulativeMagnification;
   float mCumulativeRotation;
 
-  BOOL mDidForceRefreshOpenGL;
   BOOL mWaitingForPaint;
 
 #ifdef __LP64__

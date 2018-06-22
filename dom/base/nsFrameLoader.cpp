@@ -668,7 +668,7 @@ nsFrameLoader::FireWillChangeProcessEvent()
   mBrowserChangingProcessBlockers = nullptr;
 
   ErrorResult rv;
-  RefPtr<Promise> allPromise = Promise::All(global, blockers, rv);
+  RefPtr<Promise> allPromise = Promise::All(global.Context(), blockers, rv);
   return allPromise.forget();
 }
 

@@ -335,11 +335,13 @@ MediaDecoder::SetVolume(double aVolume)
 
 void
 MediaDecoder::AddOutputStream(ProcessedMediaStream* aStream,
+                              TrackID aNextAvailableTrackID,
                               bool aFinishWhenEnded)
 {
   MOZ_ASSERT(NS_IsMainThread());
   MOZ_ASSERT(mDecoderStateMachine, "Must be called after Load().");
-  mDecoderStateMachine->AddOutputStream(aStream, aFinishWhenEnded);
+  mDecoderStateMachine->AddOutputStream(
+    aStream, aNextAvailableTrackID, aFinishWhenEnded);
 }
 
 void
@@ -348,6 +350,14 @@ MediaDecoder::RemoveOutputStream(MediaStream* aStream)
   MOZ_ASSERT(NS_IsMainThread());
   MOZ_ASSERT(mDecoderStateMachine, "Must be called after Load().");
   mDecoderStateMachine->RemoveOutputStream(aStream);
+}
+
+TrackID
+MediaDecoder::NextAvailableTrackIDFor(MediaStream* aOutputStream) const
+{
+  MOZ_ASSERT(NS_IsMainThread());
+  MOZ_ASSERT(mDecoderStateMachine, "Must be called after Load().");
+  return mDecoderStateMachine->NextAvailableTrackIDFor(aOutputStream);
 }
 
 double
@@ -1742,6 +1752,8 @@ MediaDecoder::RemoveMediaTracks()
   if (videoList) {
     videoList->RemoveTracks();
   }
+
+  element->EndPreCreatedCapturedDecoderTracks();
 
   mMediaTracksConstructed = false;
 }

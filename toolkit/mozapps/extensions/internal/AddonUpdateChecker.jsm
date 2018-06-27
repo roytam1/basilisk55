@@ -15,16 +15,20 @@ const Cu = Components.utils;
 
 this.EXPORTED_SYMBOLS = [ "AddonUpdateChecker" ];
 
-const TIMEOUT               = 60 * 1000;
-const PREFIX_NS_RDF         = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-const PREFIX_NS_EM          = "http://www.mozilla.org/2004/em-rdf#";
-const PREFIX_ITEM           = "urn:mozilla:item:";
-const PREFIX_EXTENSION      = "urn:mozilla:extension:";
-const PREFIX_THEME          = "urn:mozilla:theme:";
-const TOOLKIT_ID            = "toolkit@mozilla.org"
-const XMLURI_PARSE_ERROR    = "http://www.mozilla.org/newlayout/xml/parsererror.xml"
+const TIMEOUT                         = 60 * 1000;
+const PREFIX_NS_RDF                   = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+const PREFIX_NS_EM                    = "http://www.mozilla.org/2004/em-rdf#";
+const PREFIX_ITEM                     = "urn:mozilla:item:";
+const PREFIX_EXTENSION                = "urn:mozilla:extension:";
+const PREFIX_THEME                    = "urn:mozilla:theme:";
+const XMLURI_PARSE_ERROR              = "http://www.mozilla.org/newlayout/xml/parsererror.xml";
+
+const TOOLKIT_ID                      = "toolkit@mozilla.org";
+const FIREFOX_ID                      = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
+const FIREFOX_APPCOMPATVERSION        = "56.9"
 
 const PREF_UPDATE_REQUIREBUILTINCERTS = "extensions.update.requireBuiltInCerts";
+const PREF_EM_MIN_COMPAT_APP_VERSION  = "extensions.minCompatibleAppVersion";
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -82,7 +86,7 @@ RDFSerializer.prototype = {
    * @return a string with all characters invalid in XML character data
    *         converted to entity references.
    */
-  escapeEntities(aString) {
+  escapeEntities: function(aString) {
     aString = aString.replace(/&/g, "&amp;");
     aString = aString.replace(/</g, "&lt;");
     aString = aString.replace(/>/g, "&gt;");
@@ -100,7 +104,7 @@ RDFSerializer.prototype = {
    *         The current level of indent for pretty-printing
    * @return a string containing the serialized elements.
    */
-  serializeContainerItems(aDs, aContainer, aIndent) {
+  serializeContainerItems: function(aDs, aContainer, aIndent) {
     var result = "";
     var items = aContainer.GetElements();
     while (items.hasMoreElements()) {
@@ -126,7 +130,7 @@ RDFSerializer.prototype = {
    * @return a string containing the serialized properties.
    * @throws if the resource contains a property that cannot be serialized
    */
-  serializeResourceProperties(aDs, aResource, aIndent) {
+  serializeResourceProperties: function(aDs, aResource, aIndent) {
     var result = "";
     var items = [];
     var arcs = aDs.ArcLabelsOut(aResource);
@@ -146,13 +150,16 @@ RDFSerializer.prototype = {
           item += this.serializeResource(aDs, target, aIndent + this.INDENT);
           item += aIndent + "</em:" + prop + ">\n";
           items.push(item);
-        } else if (target instanceof Ci.nsIRDFLiteral) {
+        }
+        else if (target instanceof Ci.nsIRDFLiteral) {
           items.push(aIndent + "<em:" + prop + ">" +
                      this.escapeEntities(target.Value) + "</em:" + prop + ">\n");
-        } else if (target instanceof Ci.nsIRDFInt) {
+        }
+        else if (target instanceof Ci.nsIRDFInt) {
           items.push(aIndent + "<em:" + prop + " NC:parseType=\"Integer\">" +
                      target.Value + "</em:" + prop + ">\n");
-        } else {
+        }
+        else {
           throw Components.Exception("Cannot serialize unknown literal type");
         }
       }
@@ -177,7 +184,7 @@ RDFSerializer.prototype = {
    * @return a string containing the serialized resource.
    * @throws if the RDF data contains multiple references to the same resource.
    */
-  serializeResource(aDs, aResource, aIndent) {
+  serializeResource: function(aDs, aResource, aIndent) {
     if (this.resources.indexOf(aResource) != -1 ) {
       // We cannot output multiple references to the same resource.
       throw Components.Exception("Cannot serialize multiple references to " + aResource.Value);
@@ -191,10 +198,12 @@ RDFSerializer.prototype = {
     if (this.cUtils.IsSeq(aDs, aResource)) {
       type = "Seq";
       container = this.cUtils.MakeSeq(aDs, aResource);
-    } else if (this.cUtils.IsAlt(aDs, aResource)) {
+    }
+    else if (this.cUtils.IsAlt(aDs, aResource)) {
       type = "Alt";
       container = this.cUtils.MakeAlt(aDs, aResource);
-    } else if (this.cUtils.IsBag(aDs, aResource)) {
+    }
+    else if (this.cUtils.IsBag(aDs, aResource)) {
       type = "Bag";
       container = this.cUtils.MakeBag(aDs, aResource);
     }
@@ -272,7 +281,7 @@ function sanitizeUpdateURL(aUpdate, aRequest, aHashPattern, aHashString) {
  */
 function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
   if (aManifestData.documentElement.namespaceURI != PREFIX_NS_RDF) {
-    throw Components.Exception("Update manifest had an unrecognised namespace: " +
+    throw Components.Exception("update.rdf: Update manifest had an unrecognised namespace: " +
                                aManifestData.documentElement.namespaceURI);
   }
 
@@ -304,7 +313,7 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
   function getRequiredProperty(aDs, aSource, aProperty) {
     let value = getProperty(aDs, aSource, aProperty);
     if (!value)
-      throw Components.Exception("Update manifest is missing a required " + aProperty + " property.");
+      throw Components.Exception("update.rdf: Update manifest is missing a required " + aProperty + " property.");
     return value;
   }
 
@@ -330,14 +339,15 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
   if (aUpdateKey) {
     let signature = getProperty(ds, addonRes, "signature");
     if (!signature)
-      throw Components.Exception("Update manifest for " + aId + " does not contain a required signature");
+      throw Components.Exception("update.rdf: Update manifest for " + aId + " does not contain a required signature");
     let serializer = new RDFSerializer();
     let updateString = null;
 
     try {
       updateString = serializer.serializeResource(ds, addonRes);
-    } catch (e) {
-      throw Components.Exception("Failed to generate signed string for " + aId + ". Serializer threw " + e,
+    }
+    catch (e) {
+      throw Components.Exception("update.rdf: Failed to generate signed string for " + aId + ". Serializer threw " + e,
                                  e.result);
     }
 
@@ -347,8 +357,9 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
       let verifier = Cc["@mozilla.org/security/datasignatureverifier;1"].
                      getService(Ci.nsIDataSignatureVerifier);
       result = verifier.verifyData(updateString, signature, aUpdateKey);
-    } catch (e) {
-      throw Components.Exception("The signature or updateKey for " + aId + " is malformed." +
+    }
+    catch (e) {
+      throw Components.Exception("update.rdf: The signature or updateKey for " + aId + " is malformed." +
                                  "Verifier threw " + e, e.result);
     }
 
@@ -361,7 +372,7 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
   // A missing updates property doesn't count as a failure, just as no avialable
   // update information
   if (!updates) {
-    logger.warn("Update manifest for " + aId + " did not contain an updates property");
+    logger.warn("update.rdf: Update manifest for " + aId + " did not contain an updates property");
     return [];
   }
 
@@ -371,7 +382,7 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
   let cu = Cc["@mozilla.org/rdf/container-utils;1"].
            getService(Ci.nsIRDFContainerUtils);
   if (!cu.IsContainer(ds, updates))
-    throw Components.Exception("Updates property was not an RDF container");
+    throw Components.Exception("update.rdf: Updates property was not an RDF container");
 
   let results = [];
   let ctr = Cc["@mozilla.org/rdf/container;1"].
@@ -382,11 +393,11 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
     let item = items.getNext().QueryInterface(Ci.nsIRDFResource);
     let version = getProperty(ds, item, "version");
     if (!version) {
-      logger.warn("Update manifest is missing a required version property.");
+      logger.warn("update.rdf: Update manifest is missing a required version property.");
       continue;
     }
 
-    logger.debug("Found an update entry for " + aId + " version " + version);
+    logger.debug("update.rdf: Found an update entry for " + aId + " version " + version);
 
     let targetApps = ds.GetTargets(item, EM_R("targetApplication"), true);
     while (targetApps.hasMoreElements()) {
@@ -397,14 +408,15 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
         appEntry.id = getRequiredProperty(ds, targetApp, "id");
         appEntry.minVersion = getRequiredProperty(ds, targetApp, "minVersion");
         appEntry.maxVersion = getRequiredProperty(ds, targetApp, "maxVersion");
-      } catch (e) {
+      }
+      catch (e) {
         logger.warn(e);
         continue;
       }
 
       let result = {
         id: aId,
-        version,
+        version: version,
         multiprocessCompatible: getBooleanProperty(ds, item, "multiprocessCompatible"),
         updateURL: getProperty(ds, targetApp, "updateLink"),
         updateHash: getProperty(ds, targetApp, "updateHash"),
@@ -439,7 +451,7 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
  */
 function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
   if (aUpdateKey)
-    throw Components.Exception("Update keys are not supported for JSON update manifests");
+    throw Components.Exception("update.json: Update keys are not supported for JSON update manifests");
 
   let TYPE_CHECK = {
     "array": val => Array.isArray(val),
@@ -454,7 +466,7 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
 
     let matchesType = aType in TYPE_CHECK ? TYPE_CHECK[aType](value) : typeof value == aType;
     if (!matchesType)
-      throw Components.Exception(`Update manifest property '${aProperty}' has incorrect type (expected ${aType})`);
+      throw Components.Exception(`update.json: Update manifest property '${aProperty}' has incorrect type (expected ${aType})`);
 
     return value;
   }
@@ -462,14 +474,14 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
   function getRequiredProperty(aObj, aProperty, aType) {
     let value = getProperty(aObj, aProperty, aType);
     if (value === undefined)
-      throw Components.Exception(`Update manifest is missing a required ${aProperty} property.`);
+      throw Components.Exception(`update.json: Update manifest is missing a required ${aProperty} property.`);
     return value;
   }
 
   let manifest = aManifestData;
 
   if (!TYPE_CHECK["object"](manifest))
-    throw Components.Exception("Root element of update manifest must be a JSON object literal");
+    throw Components.Exception("update.json: Root element of update manifest must be a JSON object literal");
 
   // The set of add-ons this manifest has updates for
   let addons = getRequiredProperty(manifest, "addons", "object");
@@ -480,9 +492,12 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
   // A missing entry doesn't count as a failure, just as no avialable update
   // information
   if (!addon) {
-    logger.warn("Update manifest did not contain an entry for " + aId);
+    logger.warn("update.json: Update manifest did not contain an entry for " + aId);
     return [];
   }
+
+  let appID = Services.appinfo.ID;
+  let platformVersion = Services.appinfo.platformVersion;
 
   // The list of available updates
   let updates = getProperty(addon, "updates", "array", []);
@@ -491,50 +506,79 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
 
   for (let update of updates) {
     let version = getRequiredProperty(update, "version", "string");
+    logger.debug(`update.json: Found an update entry for ${aId} version ${version}`);
 
-    logger.debug(`Found an update entry for ${aId} version ${version}`);
+    let applications = getRequiredProperty(update, "applications", "object");
 
-    let applications = getProperty(update, "applications", "object",
-                                   { gecko: {} });
+    let app;
+    let appEntry;
 
-    // "gecko" is currently the only supported application entry. If
-    // it's missing, skip this update.
-    if (!("gecko" in applications)) {
-      logger.debug("gecko not in application entry, skipping update of ${addon}")
+    if (appID in applications) {
+      logger.debug("update.json: Native targetApplication");
+      app = getProperty(applications, appID, "object");
+      
+      appEntry = {
+        id: appID,
+        minVersion: getRequiredProperty(app, "min_version", "string"),
+        maxVersion: getRequiredProperty(app, "max_version", "string"),
+      }
+    }
+#ifdef MOZ_PHOENIX_EXTENSIONS
+    else if (FIREFOX_ID in applications) {
+      logger.debug("update.json: Dual-GUID targetApplication");
+      app = getProperty(applications, FIREFOX_ID, "object");
+
+      appEntry = {
+        id: FIREFOX_ID,
+        minVersion: getRequiredProperty(app, "min_version", "string"),
+        maxVersion: getRequiredProperty(app, "max_version", "string"),
+      }
+    }
+#endif
+    else if (TOOLKIT_ID in applications) {
+      logger.debug("update.json: Toolkit targetApplication");
+      app = getProperty(applications, TOOLKIT_ID, "object");
+      
+      appEntry = {
+        id: TOOLKIT_ID,
+        minVersion: getRequiredProperty(app, "min_version", "string"),
+        maxVersion: getRequiredProperty(app, "max_version", "string"),
+      }
+    }
+    else if ("gecko" in applications) {
+      logger.debug("update.json: Mozilla Compatiblity Mode");
+      app = getProperty(applications, "gecko", "object");
+
+      appEntry = {
+#ifdef MOZ_PHOENIX
+        id: FIREFOX_ID,
+        minVersion: getProperty(app, "strict_min_version", "string",
+                                Services.prefs.getCharPref(PREF_EM_MIN_COMPAT_APP_VERSION)),
+#else
+        id: TOOLKIT_ID,
+        minVersion: platformVersion,
+#endif
+#if defined(MOZ_PHOENIX) && defined(MOZ_PHOENIX_EXTENSIONS)
+        maxVersion: FIREFOX_APPCOMPATVERSION,
+#else
+        maxVersion: '*',
+#endif
+      };
+    }
+    else {
       continue;
     }
 
-    let app = getProperty(applications, "gecko", "object");
-
-    let appEntry = {
-      id: TOOLKIT_ID,
-      minVersion: getProperty(app, "strict_min_version", "string",
-                              AddonManagerPrivate.webExtensionsMinPlatformVersion),
-      maxVersion: "*",
-    };
-
     let result = {
       id: aId,
-      version,
-      multiprocessCompatible: getProperty(update, "multiprocess_compatible", "boolean", true),
+      version: version,
+      multiprocessCompatible: getProperty(update, "multiprocess_compatible", "boolean", false),
       updateURL: getProperty(update, "update_link", "string"),
       updateHash: getProperty(update, "update_hash", "string"),
       updateInfoURL: getProperty(update, "update_info_url", "string"),
-      strictCompatibility: false,
+      strictCompatibility: getProperty(app, "strict_compatibility", "boolean", false),
       targetApplications: [appEntry],
     };
-
-    if ("strict_max_version" in app) {
-      if ("advisory_max_version" in app) {
-        logger.warn("Ignoring 'advisory_max_version' update manifest property for " +
-                    aId + " property since 'strict_max_version' also present");
-      }
-
-      appEntry.maxVersion = getProperty(app, "strict_max_version", "string");
-      result.strictCompatibility = appEntry.maxVersion != "*";
-    } else if ("advisory_max_version" in app) {
-      appEntry.maxVersion = getProperty(app, "advisory_max_version", "string");
-    }
 
     // The JSON update protocol requires an SHA-2 hash. RDF still
     // supports SHA-1, for compatibility reasons.
@@ -567,7 +611,8 @@ function UpdateParser(aId, aUpdateKey, aUrl, aObserver) {
   let requireBuiltIn = true;
   try {
     requireBuiltIn = Services.prefs.getBoolPref(PREF_UPDATE_REQUIREBUILTINCERTS);
-  } catch (e) {
+  }
+  catch (e) {
   }
 
   logger.debug("Requesting " + aUrl);
@@ -581,11 +626,12 @@ function UpdateParser(aId, aUpdateKey, aUrl, aObserver) {
     this.request.overrideMimeType("text/plain");
     this.request.setRequestHeader("Moz-XPI-Update", "1", true);
     this.request.timeout = TIMEOUT;
-    this.request.addEventListener("load", () => this.onLoad());
-    this.request.addEventListener("error", () => this.onError());
-    this.request.addEventListener("timeout", () => this.onTimeout());
+    this.request.addEventListener("load", () => this.onLoad(), false);
+    this.request.addEventListener("error", () => this.onError(), false);
+    this.request.addEventListener("timeout", () => this.onTimeout(), false);
     this.request.send(null);
-  } catch (e) {
+  }
+  catch (e) {
     logger.error("Failed to request update manifest", e);
   }
 }
@@ -600,7 +646,7 @@ UpdateParser.prototype = {
   /**
    * Called when the manifest has been successfully loaded.
    */
-  onLoad() {
+  onLoad: function() {
     let request = this.request;
     this.request = null;
     this._doneAt = new Error("place holder");
@@ -608,12 +654,14 @@ UpdateParser.prototype = {
     let requireBuiltIn = true;
     try {
       requireBuiltIn = Services.prefs.getBoolPref(PREF_UPDATE_REQUIREBUILTINCERTS);
-    } catch (e) {
+    }
+    catch (e) {
     }
 
     try {
       CertUtils.checkCert(request.channel, !requireBuiltIn);
-    } catch (e) {
+    }
+    catch (e) {
       logger.warn("Request failed: " + this.url + " - " + e);
       this.notifyError(AddonUpdateChecker.ERROR_DOWNLOAD_ERROR);
       return;
@@ -661,7 +709,8 @@ UpdateParser.prototype = {
     let results;
     try {
       results = parser();
-    } catch (e) {
+    }
+    catch (e) {
       logger.warn("onUpdateCheckComplete failed to parse update manifest", e);
       this.notifyError(AddonUpdateChecker.ERROR_PARSE_ERROR);
       return;
@@ -670,10 +719,12 @@ UpdateParser.prototype = {
     if ("onUpdateCheckComplete" in this.observer) {
       try {
         this.observer.onUpdateCheckComplete(results);
-      } catch (e) {
+      }
+      catch (e) {
         logger.warn("onUpdateCheckComplete notification failed", e);
       }
-    } else {
+    }
+    else {
       logger.warn("onUpdateCheckComplete may not properly cancel", new Error("stack marker"));
     }
   },
@@ -681,7 +732,7 @@ UpdateParser.prototype = {
   /**
    * Called when the request times out
    */
-  onTimeout() {
+  onTimeout: function() {
     this.request = null;
     this._doneAt = new Error("Timed out");
     logger.warn("Request for " + this.url + " timed out");
@@ -691,20 +742,23 @@ UpdateParser.prototype = {
   /**
    * Called when the manifest failed to load.
    */
-  onError() {
+  onError: function() {
     if (!Components.isSuccessCode(this.request.status)) {
       logger.warn("Request failed: " + this.url + " - " + this.request.status);
-    } else if (this.request.channel instanceof Ci.nsIHttpChannel) {
+    }
+    else if (this.request.channel instanceof Ci.nsIHttpChannel) {
       try {
         if (this.request.channel.requestSucceeded) {
           logger.warn("Request failed: " + this.url + " - " +
                this.request.channel.responseStatus + ": " +
                this.request.channel.responseStatusText);
         }
-      } catch (e) {
+      }
+      catch (e) {
         logger.warn("HTTP Request failed for an unknown reason");
       }
-    } else {
+    }
+    else {
       logger.warn("Request failed for an unknown reason");
     }
 
@@ -717,11 +771,12 @@ UpdateParser.prototype = {
   /**
    * Helper method to notify the observer that an error occured.
    */
-  notifyError(aStatus) {
+  notifyError: function(aStatus) {
     if ("onUpdateCheckError" in this.observer) {
       try {
         this.observer.onUpdateCheckError(aStatus);
-      } catch (e) {
+      }
+      catch (e) {
         logger.warn("onUpdateCheckError notification failed", e);
       }
     }
@@ -730,7 +785,7 @@ UpdateParser.prototype = {
   /**
    * Called to cancel an in-progress update check.
    */
-  cancel() {
+  cancel: function() {
     if (!this.request) {
       logger.error("Trying to cancel already-complete request", this._doneAt);
       return;
@@ -780,6 +835,12 @@ function matchesVersions(aUpdate, aAppVersion, aPlatformVersion,
       return (Services.vc.compare(aAppVersion, app.minVersion) >= 0) &&
              (aIgnoreMaxVersion || (Services.vc.compare(aAppVersion, app.maxVersion) <= 0));
     }
+#ifdef MOZ_PHOENIX_EXTENSIONS
+    if (app.id == FIREFOX_ID) {
+      return (Services.vc.compare(aAppVersion, app.minVersion) >= 0) &&
+             (aIgnoreMaxVersion || (Services.vc.compare(aAppVersion, app.maxVersion) <= 0));
+    }
+#endif
     if (app.id == TOOLKIT_ID) {
       result = (Services.vc.compare(aPlatformVersion, app.minVersion) >= 0) &&
                (aIgnoreMaxVersion || (Services.vc.compare(aPlatformVersion, app.maxVersion) <= 0));
@@ -824,7 +885,7 @@ this.AddonUpdateChecker = {
    *         Ignore strictCompatibility when testing if an update matches. Optional.
    * @return an update object if one matches or null if not
    */
-  getCompatibilityUpdate(aUpdates, aVersion, aIgnoreCompatibility,
+  getCompatibilityUpdate: function(aUpdates, aVersion, aIgnoreCompatibility,
                                    aAppVersion, aPlatformVersion,
                                    aIgnoreMaxVersion, aIgnoreStrictCompat) {
     if (!aAppVersion)
@@ -837,10 +898,16 @@ this.AddonUpdateChecker = {
         if (aIgnoreCompatibility) {
           for (let targetApp of update.targetApplications) {
             let id = targetApp.id;
+#ifdef MOZ_PHOENIX_EXTENSIONS
+            if (id == Services.appinfo.ID || id == FIREFOX_ID ||
+                id == TOOLKIT_ID)
+#else
             if (id == Services.appinfo.ID || id == TOOLKIT_ID)
+#endif
               return update;
           }
-        } else if (matchesVersions(update, aAppVersion, aPlatformVersion,
+        }
+        else if (matchesVersions(update, aAppVersion, aPlatformVersion,
                                  aIgnoreMaxVersion, aIgnoreStrictCompat)) {
           return update;
         }
@@ -866,7 +933,7 @@ this.AddonUpdateChecker = {
    *         Array of AddonCompatibilityOverride to take into account. Optional.
    * @return an update object if one matches or null if not
    */
-  getNewestCompatibleUpdate(aUpdates, aAppVersion, aPlatformVersion,
+  getNewestCompatibleUpdate: function(aUpdates, aAppVersion, aPlatformVersion,
                                       aIgnoreMaxVersion, aIgnoreStrictCompat,
                                       aCompatOverrides) {
     if (!aAppVersion)
@@ -908,7 +975,18 @@ this.AddonUpdateChecker = {
    * @return UpdateParser so that the caller can use UpdateParser.cancel() to shut
    *         down in-progress update requests
    */
-  checkForUpdates(aId, aUpdateKey, aUrl, aObserver) {
-    return new UpdateParser(aId, aUpdateKey, aUrl, aObserver);
+  checkForUpdates: function(aId, aUpdateKey, aUrl, aObserver) {
+    // Define an array of internally used IDs to NOT send to AUS such as the
+    // Default Theme. Please keep this list in sync with:
+    // toolkit/mozapps/extensions/AddonUpdateChecker.jsm
+    let internalIDS = [
+      '{972ce4c6-7e08-4474-a285-3208198ce6fd}',
+      'modern@themes.mozilla.org'
+    ];
+    
+    // If the ID is not in the array then go ahead and query AUS
+    if (internalIDS.indexOf(aId) == -1) {
+        return new UpdateParser(aId, aUpdateKey, aUrl, aObserver);
+    }
   }
 };

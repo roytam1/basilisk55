@@ -2453,7 +2453,7 @@ pref("layout.css.report_errors", true);
 pref("layout.css.visited_links_enabled", true);
 
 // Pref to control whether @-moz-document rules are enabled in content pages.
-pref("layout.css.moz-document.content.enabled",  false);
+pref("layout.css.moz-document.content.enabled",  true);
 
 // Override DPI. A value of -1 means use the maximum of 96 and the system DPI.
 // A value of 0 means use the system DPI. A positive value is used as the DPI.

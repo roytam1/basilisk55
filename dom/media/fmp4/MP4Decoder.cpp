@@ -16,6 +16,9 @@
 #include "nsMimeTypes.h"
 #include "VideoUtils.h"
 
+#ifdef XP_WIN
+#include "mozilla/WindowsVersion.h"
+#endif
 #ifdef MOZ_WIDGET_ANDROID
 #include "nsIGfxInfo.h"
 #endif
@@ -48,6 +51,14 @@ IsWhitelistedH264Codec(const nsAString& aCodec)
   if (!ExtractH264CodecDetails(aCodec, profile, level)) {
     return false;
   }
+
+#ifdef XP_WIN
+  // Disable 4k video on windows vista since it performs poorly.
+  if (!IsWin7OrLater() &&
+      level >= H264_LEVEL_5) {
+    return false;
+  }
+#endif
 
   // Just assume what we can play on all platforms the codecs/formats that
   // WMF can play, since we don't have documentation about what other
@@ -130,6 +141,12 @@ MP4Decoder::IsSupportedType(const MediaContainerType& aType,
         trackInfos.AppendElement(
           CreateTrackInfoWithMIMETypeAndContainerTypeExtraParameters(
             NS_LITERAL_CSTRING("audio/flac"), aType));
+        continue;
+      }
+      if (codec.EqualsLiteral("vp9") || codec.EqualsLiteral("vp9.0")) {
+        trackInfos.AppendElement(
+          CreateTrackInfoWithMIMETypeAndContainerTypeExtraParameters(
+            NS_LITERAL_CSTRING("video/vp9"), aType));
         continue;
       }
       // Note: Only accept H.264 in a video content type, not in an audio

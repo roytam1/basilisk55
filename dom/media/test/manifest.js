@@ -538,9 +538,15 @@ var gErrorTests = [
   { name:"bogus.duh", type:"bogus/duh" }
 ];
 
+function IsWindowsVistaOrLater() {
+  var re = /Windows NT (\d+.\d)/;
+  var winver = manifestNavigator().userAgent.match(re);
+  return winver && winver.length == 2 && parseFloat(winver[1]) >= 6.0;
+}
+
 // Windows' H.264 decoder cannot handle H.264 streams with resolution
 // less than 48x48 pixels. We refuse to play and error on such streams.
-if (manifestNavigator().userAgent.includes("Windows") &&
+if (IsWindowsVistaOrLater() &&
     manifestVideo().canPlayType('video/mp4; codecs="avc1.42E01E"')) {
   gErrorTests = gErrorTests.concat({name: "red-46x48.mp4", type:"video/mp4"},
                                    {name: "red-48x46.mp4", type:"video/mp4"});
@@ -789,6 +795,29 @@ var gMetadataTests = [
 
 // Test files for Encrypted Media Extensions
 var gEMETests = [
+  {
+    name:"vp9 in mp4",
+    tracks: [
+      {
+          name:"video",
+          type:"video/mp4; codecs=\"vp9.0\"",
+          fragments:[ "short-vp9-encrypted-video.mp4",
+                    ]
+      },
+      {
+          name:"audio",
+          type:"audio/mp4; codecs=\"mp4a.40.2\"",
+          fragments:[ "short-aac-encrypted-audio.mp4",
+                    ]
+      }
+    ],
+    keys: {
+      "2cdb0ed6119853e7850671c3e9906c3c":"808B9ADAC384DE1E4F56140F4AD76194"
+    },
+    sessionType:"temporary",
+    sessionCount:2,
+    duration:0.47
+  },
   {
     name:"video-only with 2 keys",
     tracks: [

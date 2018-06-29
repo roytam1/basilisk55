@@ -1362,6 +1362,12 @@ pref("media.eme.apiVisible", true);
 pref("media.eme.apiVisible", false);
 #endif
 
+#ifdef NIGHTLY_BUILD
+pref("media.eme.vp9-in-mp4.enabled", true);
+#else
+pref("media.eme.vp9-in-mp4.enabled", false);
+#endif
+
 // Whether we should run a test-pattern through EME GMPs before assuming they'll
 // decode H.264.
 pref("media.gmp.trial-create.enabled", true);

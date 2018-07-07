@@ -788,7 +788,7 @@ nsWindow::Create(nsIWidget* aParent,
       parent = nullptr;
     }
 
-    if (!IsWin8OrLater() &&
+    if (IsVistaOrLater() && !IsWin8OrLater() &&
         HasBogusPopupsDropShadowOnMultiMonitor()) {
       extendedStyle |= WS_EX_COMPOSITED;
     }
@@ -1652,10 +1652,9 @@ bool nsWindow::IsVisible() const
 
 // XP and Vista visual styles sometimes require window clipping regions to be applied for proper
 // transparency. These routines are called on size and move operations.
-// XXX this is apparently still needed in Windows 7 and later
 void nsWindow::ClearThemeRegion()
 {
-  if (!HasGlass() &&
+  if (IsVistaOrLater() && !HasGlass() &&
       (mWindowType == eWindowType_popup && !IsPopupWithTitleBar() &&
        (mPopupType == ePopupTypeTooltip || mPopupType == ePopupTypePanel))) {
     SetWindowRgn(mWnd, nullptr, false);
@@ -1669,7 +1668,7 @@ void nsWindow::SetThemeRegion()
   // so default constants are used for part and state. At some point we might need part and
   // state values from nsNativeThemeWin's GetThemePartAndState, but currently windows that
   // change shape based on state haven't come up.
-  if (!HasGlass() &&
+  if (IsVistaOrLater() && !HasGlass() &&
       (mWindowType == eWindowType_popup && !IsPopupWithTitleBar() &&
        (mPopupType == ePopupTypeTooltip || mPopupType == ePopupTypePanel))) {
     HRGN hRgn = nullptr;

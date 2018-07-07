@@ -207,6 +207,8 @@ public:
                      // Native widget quirks
                      eSpecialType_PDF,
                      // Native widget quirks
+                     eSpecialType_RealPlayer,
+                     // Native widget quirks
                      eSpecialType_Unity };
   static SpecialType GetSpecialType(const nsACString & aMIMEType);
 

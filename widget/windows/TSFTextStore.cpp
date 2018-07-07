@@ -4889,7 +4889,14 @@ TSFTextStore::CreateAndSetFocus(nsWindowBase* aFocusedWidget,
 
   HRESULT hr;
   RefPtr<ITfThreadMgr> threadMgr = sThreadMgr;
-  hr = threadMgr->SetFocus(newDocMgr);
+  {
+    // Windows 10's softwware keyboard requires that SetSelection must be
+    // always successful into SetFocus.  If returning error, it might crash
+    // into TextInputFramework.dll.
+    AutoSetTemporarySelection setSelection(textStore->SelectionForTSFRef());
+
+    hr = threadMgr->SetFocus(newDocMgr);
+  }
 
   if (NS_WARN_IF(FAILED(hr))) {
     MOZ_LOG(sTextStoreLog, LogLevel::Error,
@@ -5783,7 +5790,8 @@ TSFTextStore::Initialize()
     return;
   }
 
-  bool enableTsf = Preferences::GetBool(kPrefNameEnableTSF, false);
+  bool enableTsf =
+    IsVistaOrLater() && Preferences::GetBool(kPrefNameEnableTSF, false);
   MOZ_LOG(sTextStoreLog, LogLevel::Info,
     ("  TSFTextStore::Initialize(), TSF is %s",
      enableTsf ? "enabled" : "disabled"));

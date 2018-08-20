@@ -10,12 +10,6 @@
 #include "prnetdb.h"
 #include "secport.h"
 
-#ifdef _MSC_VER
-#if _MSC_VER < 1900
-#define inline 
-#endif
-#endif
-
 static inline unsigned int
 sslBloom_Size(unsigned int bits)
 {

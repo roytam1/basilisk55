@@ -928,6 +928,9 @@ function scheduleTests(task_build, task_cert, test_base) {
   queue.scheduleTask(merge(no_cert_base, {
     name: "SDR tests", symbol: "SDR", tests: "sdr"
   }));
+  queue.scheduleTask(merge(no_cert_base, {
+    name: "Policy tests", symbol: "Policy", tests: "policy"
+  }));
 
   // Schedule tests that need certificates.
   let cert_base = merge(test_base, {parent: task_cert});
@@ -995,13 +998,13 @@ async function scheduleTools() {
   }));
 
   queue.scheduleTask(merge(base, {
-    symbol: "scan-build-5.0",
-    name: "scan-build-5.0",
-    image: LINUX_IMAGE,
+    symbol: "scan-build",
+    name: "scan-build",
+    image: FUZZ_IMAGE,
     env: {
       USE_64: "1",
-      CC: "clang-5.0",
-      CCC: "clang++-5.0",
+      CC: "clang",
+      CCC: "clang++",
     },
     artifacts: {
       public: {
@@ -1089,6 +1092,18 @@ async function scheduleTools() {
       "/bin/bash",
       "-c",
       "bin/checkout.sh && nss/automation/taskcluster/scripts/run_saw.sh poly1305"
+    ]
+  }));
+
+  queue.scheduleTask(merge(base, {
+    symbol: "Coverage",
+    name: "Coverage",
+    image: FUZZ_IMAGE,
+    features: ["allowPtrace"],
+    command: [
+      "/bin/bash",
+      "-c",
+      "bin/checkout.sh && nss/automation/taskcluster/scripts/gen_coverage_report.sh"
     ]
   }));
 

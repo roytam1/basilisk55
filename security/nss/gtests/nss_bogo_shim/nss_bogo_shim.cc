@@ -346,8 +346,41 @@ class TestAgent {
                        PR_TRUE);
     if (rv != SECSuccess) return false;
 
-    if (!EnableNonExportCiphers()) return false;
+    if (!ConfigureCiphers()) return false;
 
+    return true;
+  }
+
+  bool ConfigureCiphers() {
+    auto cipherList = cfg_.get<std::string>("nss-cipher");
+
+    if (cipherList.empty()) {
+      return EnableNonExportCiphers();
+    }
+
+    for (size_t i = 0; i < SSL_NumImplementedCiphers; ++i) {
+      SSLCipherSuiteInfo csinfo;
+      std::string::size_type n;
+      SECStatus rv = SSL_GetCipherSuiteInfo(SSL_ImplementedCiphers[i], &csinfo,
+                                            sizeof(csinfo));
+      if (rv != SECSuccess) {
+        return false;
+      }
+
+      // Check if cipherList contains the name of the Cipher Suite and
+      // enable/disable accordingly.
+      n = cipherList.find(csinfo.cipherSuiteName, 0);
+      if (std::string::npos == n) {
+        rv = SSL_CipherPrefSet(ssl_fd_.get(), SSL_ImplementedCiphers[i],
+                               PR_FALSE);
+      } else {
+        rv = SSL_CipherPrefSet(ssl_fd_.get(), SSL_ImplementedCiphers[i],
+                               PR_TRUE);
+      }
+      if (rv != SECSuccess) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -551,11 +584,14 @@ std::unique_ptr<const Config> ReadConfig(int argc, char** argv) {
   cfg->AddEntry<bool>("write-then-read", false);
   cfg->AddEntry<bool>("require-any-client-certificate", false);
   cfg->AddEntry<bool>("verify-peer", false);
+  cfg->AddEntry<bool>("is-handshaker-supported", false);
+  cfg->AddEntry<std::string>("handshaker-path", "");  // Ignore this
   cfg->AddEntry<std::string>("advertise-alpn", "");
   cfg->AddEntry<std::string>("expect-alpn", "");
   cfg->AddEntry<std::vector<int>>("signing-prefs", std::vector<int>());
   cfg->AddEntry<std::vector<int>>("verify-prefs", std::vector<int>());
   cfg->AddEntry<int>("expect-peer-signature-algorithm", 0);
+  cfg->AddEntry<std::string>("nss-cipher", "");
 
   auto rv = cfg->ParseArgs(argc, argv);
   switch (rv) {
@@ -592,6 +628,11 @@ int main(int argc, char** argv) {
   std::unique_ptr<const Config> cfg = ReadConfig(argc, argv);
   if (!cfg) {
     return GetExitCode(false);
+  }
+
+  if (cfg->get<bool>("is-handshaker-supported")) {
+    std::cout << "No\n";
+    return 0;
   }
 
   if (cfg->get<bool>("server")) {

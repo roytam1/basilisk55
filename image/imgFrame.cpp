@@ -154,13 +154,13 @@ imgFrame::imgFrame()
   : mMonitor("imgFrame")
   , mDecoded(0, 0, 0, 0)
   , mLockCount(0)
+  , mAborted(false)
+  , mFinished(false)
+  , mOptimizable(false)
   , mTimeout(FrameTimeout::FromRawMilliseconds(100))
   , mDisposalMethod(DisposalMethod::NOT_SPECIFIED)
   , mBlendMethod(BlendMethod::OVER)
   , mHasNoAlpha(false)
-  , mAborted(false)
-  , mFinished(false)
-  , mOptimizable(false)
   , mPalettedImageData(nullptr)
   , mPaletteDepth(0)
   , mNonPremult(false)
@@ -185,7 +185,8 @@ imgFrame::InitForDecoder(const nsIntSize& aImageSize,
                          const nsIntRect& aRect,
                          SurfaceFormat aFormat,
                          uint8_t aPaletteDepth /* = 0 */,
-                         bool aNonPremult /* = false */)
+                         bool aNonPremult /* = false */,
+                         const Maybe<AnimationParams>& aAnimParams /* = Nothing() */)
 {
   // Assert for properties that should be verified by decoders,
   // warn for properties related to bad content.
@@ -197,6 +198,15 @@ imgFrame::InitForDecoder(const nsIntSize& aImageSize,
 
   mImageSize = aImageSize;
   mFrameRect = aRect;
+
+  if (aAnimParams) {
+    mBlendRect = aAnimParams->mBlendRect;
+    mTimeout = aAnimParams->mTimeout;
+    mBlendMethod = aAnimParams->mBlendMethod;
+    mDisposalMethod = aAnimParams->mDisposalMethod;
+  } else {
+    mBlendRect = aRect;
+  }
 
   // We only allow a non-trivial frame rect (i.e., a frame rect that doesn't
   // cover the entire image) for paletted animation frames. We never draw those
@@ -601,12 +611,7 @@ imgFrame::ImageUpdatedInternal(const nsIntRect& aUpdateRect)
 }
 
 void
-imgFrame::Finish(Opacity aFrameOpacity /* = Opacity::SOME_TRANSPARENCY */,
-                 DisposalMethod aDisposalMethod /* = DisposalMethod::KEEP */,
-                 FrameTimeout aTimeout
-                   /* = FrameTimeout::FromRawMilliseconds(0) */,
-                 BlendMethod aBlendMethod /* = BlendMethod::OVER */,
-                 const Maybe<IntRect>& aBlendRect /* = Nothing() */)
+imgFrame::Finish(Opacity aFrameOpacity /* = Opacity::SOME_TRANSPARENCY */)
 {
   MonitorAutoLock lock(mMonitor);
   MOZ_ASSERT(mLockCount > 0, "Image data should be locked");
@@ -617,10 +622,6 @@ imgFrame::Finish(Opacity aFrameOpacity /* = Opacity::SOME_TRANSPARENCY */,
                           mFormat == SurfaceFormat::B8G8R8A8);
   }
 
-  mDisposalMethod = aDisposalMethod;
-  mTimeout = aTimeout;
-  mBlendMethod = aBlendMethod;
-  mBlendRect = aBlendRect;
   ImageUpdatedInternal(GetRect());
   mFinished = true;
 
@@ -840,7 +841,7 @@ imgFrame::GetAnimationData() const
   bool hasAlpha = mFormat == SurfaceFormat::B8G8R8A8;
 
   return AnimationData(data, PaletteDataLength(), mTimeout, GetRect(),
-                       mBlendMethod, mBlendRect, mDisposalMethod, hasAlpha);
+                       mBlendMethod, Some(mBlendRect), mDisposalMethod, hasAlpha);
 }
 
 void

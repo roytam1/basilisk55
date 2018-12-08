@@ -8,8 +8,12 @@
 
 #include "nsTArray.h"
 #include "MediaDataDemuxer.h"
+#include "MediaResource.h"
 #include "NesteggPacketHolder.h"
 #include "mozilla/Move.h"
+
+#include <deque>
+#include <stdint.h>
 
 typedef struct nestegg nestegg;
 
@@ -111,7 +115,8 @@ public:
   bool GetOffsetForTime(uint64_t aTime, int64_t* aOffset);
 
   // Demux next WebM packet and append samples to MediaRawDataQueue
-  bool GetNextPacket(TrackInfo::TrackType aType, MediaRawDataQueue *aSamples);
+  nsresult GetNextPacket(TrackInfo::TrackType aType,
+                         MediaRawDataQueue *aSamples);
 
   nsresult Reset(TrackInfo::TrackType aType);
 
@@ -175,11 +180,13 @@ private:
   // Read a packet from the nestegg file. Returns nullptr if all packets for
   // the particular track have been read. Pass TrackInfo::kVideoTrack or
   // TrackInfo::kVideoTrack to indicate the type of the packet we want to read.
-  RefPtr<NesteggPacketHolder> NextPacket(TrackInfo::TrackType aType);
+  nsresult NextPacket(TrackInfo::TrackType aType,
+                      RefPtr<NesteggPacketHolder>& aPacket);
 
   // Internal method that demuxes the next packet from the stream. The caller
   // is responsible for making sure it doesn't get lost.
-  RefPtr<NesteggPacketHolder> DemuxPacket(TrackInfo::TrackType aType);
+  nsresult DemuxPacket(TrackInfo::TrackType aType,
+                       RefPtr<NesteggPacketHolder>& aPacket);
 
   // libnestegg audio and video context for webm container.
   // Access on reader's thread only.
@@ -237,8 +244,7 @@ private:
   int64_t mLastWebMBlockOffset;
   const bool mIsMediaSource;
 
-  Maybe<uint32_t> mLastSeenFrameWidth;
-  Maybe<uint32_t> mLastSeenFrameHeight;
+  Maybe<nsIntSize> mLastSeenFrameSize;
   // This will be populated only if a resolution change occurs, otherwise it
   // will be left as null so the original metadata is used
   RefPtr<SharedTrackInfo> mSharedVideoTrackInfo;
@@ -276,7 +282,7 @@ private:
   ~WebMTrackDemuxer();
   void UpdateSamples(nsTArray<RefPtr<MediaRawData>>& aSamples);
   void SetNextKeyFrameTime();
-  RefPtr<MediaRawData> NextSample ();
+  nsresult NextSample(RefPtr<MediaRawData>& aData);
   RefPtr<WebMDemuxer> mParent;
   TrackInfo::TrackType mType;
   UniquePtr<TrackInfo> mInfo;

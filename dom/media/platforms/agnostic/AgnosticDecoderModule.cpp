@@ -5,12 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "AgnosticDecoderModule.h"
+#include "MediaPrefs.h"
 #include "mozilla/Logging.h"
 #include "OpusDecoder.h"
 #include "VorbisDecoder.h"
 #include "VPXDecoder.h"
 #include "WAVDecoder.h"
 #include "TheoraDecoder.h"
+
+#ifdef MOZ_AV1
+#include "AOMDecoder.h"
+#endif
 
 namespace mozilla {
 
@@ -24,6 +29,11 @@ AgnosticDecoderModule::SupportsMimeType(const nsACString& aMimeType,
     VorbisDataDecoder::IsVorbis(aMimeType) ||
     WaveDataDecoder::IsWave(aMimeType) ||
     TheoraDecoder::IsTheora(aMimeType);
+#ifdef MOZ_AV1
+  if (MediaPrefs::AV1Enabled()) {
+    supports |= AOMDecoder::IsAV1(aMimeType);
+  }
+#endif
   MOZ_LOG(sPDMLog, LogLevel::Debug, ("Agnostic decoder %s requested type",
         supports ? "supports" : "rejects"));
   return supports;
@@ -36,7 +46,14 @@ AgnosticDecoderModule::CreateVideoDecoder(const CreateDecoderParams& aParams)
 
   if (VPXDecoder::IsVPX(aParams.mConfig.mMimeType)) {
     m = new VPXDecoder(aParams);
-  } else if (TheoraDecoder::IsTheora(aParams.mConfig.mMimeType)) {
+  }
+#ifdef MOZ_AV1
+  else if (AOMDecoder::IsAV1(aParams.mConfig.mMimeType) &&
+           MediaPrefs::AV1Enabled()) {
+    m = new AOMDecoder(aParams);
+  }
+#endif
+  else if (TheoraDecoder::IsTheora(aParams.mConfig.mMimeType)) {
     m = new TheoraDecoder(aParams);
   }
 

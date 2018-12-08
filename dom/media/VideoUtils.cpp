@@ -207,8 +207,20 @@ already_AddRefed<SharedThreadPool> GetMediaThreadPool(MediaThreadType aType)
       name = "MediaPlayback";
       break;
   }
-  return SharedThreadPool::
+  RefPtr<SharedThreadPool> pool = SharedThreadPool::
     Get(nsDependentCString(name), MediaPrefs::MediaThreadPoolDefaultCount());
+
+  // Ensure a larger stack for platform decoder threads
+  if (aType == MediaThreadType::PLATFORM_DECODER) {
+    const uint32_t minStackSize = 512*1024;
+    uint32_t stackSize;
+    MOZ_ALWAYS_SUCCEEDS(pool->GetThreadStackSize(&stackSize));
+    if (stackSize < minStackSize) {
+      MOZ_ALWAYS_SUCCEEDS(pool->SetThreadStackSize(minStackSize));
+    }
+  }
+
+  return pool.forget();
 }
 
 bool
@@ -444,6 +456,16 @@ ParseMIMETypeString(const nsAString& aMIMEType,
   return ParseCodecsString(codecsStr, aOutCodecs);
 }
 
+template <int N>
+static bool
+StartsWith(const nsACString& string, const char (&prefix)[N])
+{
+    if (N - 1 > string.Length()) {
+      return false;
+    }
+    return memcmp(string.Data(), prefix, N - 1) == 0;
+}
+
 bool
 IsH264CodecString(const nsAString& aCodec)
 {
@@ -476,15 +498,14 @@ IsVP9CodecString(const nsAString& aCodec)
          aCodec.EqualsLiteral("vp9.0");
 }
 
-template <int N>
-static bool
-StartsWith(const nsACString& string, const char (&prefix)[N])
+#ifdef MOZ_AV1
+bool
+IsAV1CodecString(const nsAString& aCodec)
 {
-    if (N - 1 > string.Length()) {
-      return false;
-    }
-    return memcmp(string.Data(), prefix, N - 1) == 0;
+  return aCodec.EqualsLiteral("av1") ||
+    StartsWith(NS_ConvertUTF16toUTF8(aCodec), "av01");
 }
+#endif
 
 UniquePtr<TrackInfo>
 CreateTrackInfoWithMIMEType(const nsACString& aCodecMIMEType)

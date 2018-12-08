@@ -93,8 +93,8 @@ static ssl3CipherSuiteCfg cipherSuites[ssl_V3_SUITES_IMPLEMENTED] = {
  { TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,   SSL_ALLOWED, PR_TRUE, PR_FALSE},
  { TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, SSL_ALLOWED, PR_TRUE, PR_FALSE},
  { TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,   SSL_ALLOWED, PR_TRUE, PR_FALSE},
- { TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, SSL_ALLOWED, PR_FALSE, PR_FALSE},
- { TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,   SSL_ALLOWED, PR_FALSE, PR_FALSE},
+ { TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, SSL_ALLOWED, PR_TRUE, PR_FALSE},
+ { TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,   SSL_ALLOWED, PR_TRUE, PR_FALSE},
    /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA is out of order to work around
     * bug 946147.
     */
@@ -114,7 +114,7 @@ static ssl3CipherSuiteCfg cipherSuites[ssl_V3_SUITES_IMPLEMENTED] = {
  { TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,     SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,SSL_ALLOWED,PR_TRUE,  PR_FALSE},
  { TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,     SSL_ALLOWED, PR_FALSE, PR_FALSE},
- { TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,     SSL_ALLOWED, PR_FALSE, PR_FALSE},
+ { TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,     SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,     SSL_ALLOWED, PR_FALSE, PR_FALSE},
  { TLS_DHE_RSA_WITH_AES_128_CBC_SHA,        SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_DHE_DSS_WITH_AES_128_CBC_SHA,        SSL_ALLOWED, PR_TRUE,  PR_FALSE},
@@ -143,7 +143,7 @@ static ssl3CipherSuiteCfg cipherSuites[ssl_V3_SUITES_IMPLEMENTED] = {
 
  /* RSA */
  { TLS_RSA_WITH_AES_128_GCM_SHA256,         SSL_ALLOWED, PR_TRUE,  PR_FALSE},
- { TLS_RSA_WITH_AES_256_GCM_SHA384,         SSL_ALLOWED, PR_FALSE, PR_FALSE},
+ { TLS_RSA_WITH_AES_256_GCM_SHA384,         SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_RSA_WITH_AES_128_CBC_SHA,            SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_RSA_WITH_AES_128_CBC_SHA256,         SSL_ALLOWED, PR_TRUE,  PR_FALSE},
  { TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,       SSL_ALLOWED, PR_FALSE, PR_FALSE},
@@ -4771,9 +4771,13 @@ ssl3_SendClientHello(sslSocket *ss, sslClientHelloType type)
      * If we have an sid and it comes from an external cache, we use it. */
     if (ss->sec.ci.sid && ss->sec.ci.sid->cached == in_external_cache) {
         PORT_Assert(!ss->sec.isServer);
-        sid = ss->sec.ci.sid;
+        sid = ssl_ReferenceSID(ss->sec.ci.sid);
         SSL_TRC(3, ("%d: SSL3[%d]: using external resumption token in ClientHello",
                     SSL_GETPID(), ss->fd));
+    } else if (ss->sec.ci.sid && ss->statelessResume && type == client_hello_retry) {
+        /* If we are sending a second ClientHello, reuse the same SID
+         * as the original one. */
+        sid = ssl_ReferenceSID(ss->sec.ci.sid);
     } else if (!ss->opt.noCache) {
         /* We ignore ss->sec.ci.sid here, and use ssl_Lookup because Lookup
          * handles expired entries and other details.
@@ -4919,9 +4923,7 @@ ssl3_SendClientHello(sslSocket *ss, sslClientHelloType type)
     }
     ssl_ReleaseSpecWriteLock(ss);
 
-    if (ss->sec.ci.sid != NULL) {
-        ssl_FreeSID(ss->sec.ci.sid); /* decrement ref count, free if zero */
-    }
+    ssl_FreeSID(ss->sec.ci.sid); /* release the old sid */
     ss->sec.ci.sid = sid;
 
     /* HACK for SCSV in SSL 3.0.  On initial handshake, prepend SCSV,
@@ -6169,15 +6171,11 @@ ssl_PickClientSignatureScheme(sslSocket *ss, const SSLSignatureScheme *schemes,
 
     PORT_Assert(pubKey);
 
-    if (!isTLS13 && numSchemes == 0) {
-        /* If the server didn't provide any signature algorithms
-         * then let's assume they support SHA-1. */
-        rv = ssl_PickFallbackSignatureScheme(ss, pubKey);
-        SECKEY_DestroyPublicKey(pubKey);
-        return rv;
+    if (ss->version >= SSL_LIBRARY_VERSION_TLS_1_2) {
+        /* We should have already checked that a signature scheme was
+         * listed in the request. */
+        PORT_Assert(schemes && numSchemes > 0);
     }
-
-    PORT_Assert(schemes && numSchemes > 0);
 
     if (!isTLS13 &&
         (SECKEY_GetPublicKeyType(pubKey) == rsaKey ||
@@ -6563,9 +6561,20 @@ ssl3_HandleServerHello(sslSocket *ss, PRUint8 *b, PRUint32 length)
         goto alert_loser;
     }
 
-    /* The server didn't pick 1.3 although we either received a
-     * HelloRetryRequest, or we prepared to send early app data. */
+    /* There are three situations in which the server must pick
+     * TLS 1.3.
+     *
+     * 1. We offered ESNI.
+     * 2. We received HRR
+     * 3. We sent early app data.
+     *
+     */
     if (ss->version < SSL_LIBRARY_VERSION_TLS_1_3) {
+        if (ss->xtnData.esniPrivateKey) {
+            desc = protocol_version;
+            errCode = SSL_ERROR_UNSUPPORTED_VERSION;
+            goto alert_loser;
+        }
         if (isHelloRetry || ss->ssl3.hs.helloRetry) {
             /* SSL3_SendAlert() will uncache the SID. */
             desc = illegal_parameter;
@@ -7317,6 +7326,11 @@ ssl3_HandleCertificateRequest(sslSocket *ss, PRUint8 *b, PRUint32 length)
         if (rv != SECSuccess) {
             PORT_SetError(SSL_ERROR_RX_MALFORMED_CERT_REQUEST);
             goto loser; /* malformed, alert has been sent */
+        }
+        if (signatureSchemeCount == 0) {
+            errCode = SSL_ERROR_UNSUPPORTED_SIGNATURE_ALGORITHM;
+            desc = handshake_failure;
+            goto alert_loser;
         }
     }
 
@@ -9765,6 +9779,23 @@ ssl3_GenerateRSAPMS(sslSocket *ss, ssl3CipherSpec *spec,
     return pms;
 }
 
+static void
+ssl3_CSwapPK11SymKey(PK11SymKey **x, PK11SymKey **y, PRBool c)
+{
+    uintptr_t mask = (uintptr_t)c;
+    unsigned int i;
+    for (i = 1; i < sizeof(uintptr_t) * 8; i <<= 1) {
+        mask |= mask << i;
+    }
+    uintptr_t x_ptr = (uintptr_t)*x;
+    uintptr_t y_ptr = (uintptr_t)*y;
+    uintptr_t tmp = (x_ptr ^ y_ptr) & mask;
+    x_ptr = x_ptr ^ tmp;
+    y_ptr = y_ptr ^ tmp;
+    *x = (PK11SymKey *)x_ptr;
+    *y = (PK11SymKey *)y_ptr;
+}
+
 /* Note: The Bleichenbacher attack on PKCS#1 necessitates that we NEVER
  * return any indication of failure of the Client Key Exchange message,
  * where that failure is caused by the content of the client's message.
@@ -9785,9 +9816,9 @@ ssl3_HandleRSAClientKeyExchange(sslSocket *ss,
 {
     SECStatus rv;
     SECItem enc_pms;
-    PK11SymKey *tmpPms[2] = { NULL, NULL };
-    PK11SlotInfo *slot;
-    int useFauxPms = 0;
+    PK11SymKey *pms = NULL;
+    PK11SymKey *fauxPms = NULL;
+    PK11SlotInfo *slot = NULL;
 
     PORT_Assert(ss->opt.noLocks || ssl_HaveRecvBufLock(ss));
     PORT_Assert(ss->opt.noLocks || ssl_HaveSSL3HandshakeLock(ss));
@@ -9807,11 +9838,6 @@ ssl3_HandleRSAClientKeyExchange(sslSocket *ss,
             enc_pms.len = kLen;
         }
     }
-
-#define currentPms tmpPms[!useFauxPms]
-#define unusedPms tmpPms[useFauxPms]
-#define realPms tmpPms[1]
-#define fauxPms tmpPms[0]
 
     /*
      * Get as close to algorithm 2 from RFC 5246; Section 7.4.7.1
@@ -9867,39 +9893,32 @@ ssl3_HandleRSAClientKeyExchange(sslSocket *ss,
      *  the unwrap.  Rather, it is the mechanism with which the
      *      unwrapped pms will be used.
      */
-    realPms = PK11_PubUnwrapSymKey(serverKeyPair->privKey, &enc_pms,
-                                   CKM_SSL3_MASTER_KEY_DERIVE, CKA_DERIVE, 0);
+    pms = PK11_PubUnwrapSymKey(serverKeyPair->privKey, &enc_pms,
+                               CKM_SSL3_MASTER_KEY_DERIVE, CKA_DERIVE, 0);
     /* Temporarily use the PMS if unwrapping the real PMS fails. */
-    useFauxPms |= (realPms == NULL);
+    ssl3_CSwapPK11SymKey(&pms, &fauxPms, pms == NULL);
 
     /* Attempt to derive the MS from the PMS. This is the only way to
      * check the version field in the RSA PMS. If this fails, we
      * then use the faux PMS in place of the PMS. Note that this
      * operation should never fail if we are using the faux PMS
      * since it is correctly formatted. */
-    rv = ssl3_ComputeMasterSecret(ss, currentPms, NULL);
+    rv = ssl3_ComputeMasterSecret(ss, pms, NULL);
 
-    /* If we succeeded, then select the true PMS and discard the
-     * FPMS. Else, select the FPMS and select the true PMS */
-    useFauxPms |= (rv != SECSuccess);
-
-    if (unusedPms) {
-        PK11_FreeSymKey(unusedPms);
-    }
+    /* If we succeeded, then select the true PMS, else select the FPMS. */
+    ssl3_CSwapPK11SymKey(&pms, &fauxPms, (rv != SECSuccess) & (fauxPms != NULL));
 
     /* This step will derive the MS from the PMS, among other things. */
-    rv = ssl3_InitPendingCipherSpecs(ss, currentPms, PR_TRUE);
-    PK11_FreeSymKey(currentPms);
+    rv = ssl3_InitPendingCipherSpecs(ss, pms, PR_TRUE);
+
+    /* Clear both PMS. */
+    PK11_FreeSymKey(pms);
+    PK11_FreeSymKey(fauxPms);
 
     if (rv != SECSuccess) {
         (void)SSL3_SendAlert(ss, alert_fatal, handshake_failure);
         return SECFailure; /* error code set by ssl3_InitPendingCipherSpec */
     }
-
-#undef currentPms
-#undef unusedPms
-#undef realPms
-#undef fauxPms
 
     return SECSuccess;
 }

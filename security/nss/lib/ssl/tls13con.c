@@ -4727,7 +4727,8 @@ tls13_HandleNewSessionTicket(sslSocket *ss, PRUint8 *b, PRUint32 length)
 
         /* Replace a previous session ticket when
          * we receive a second NewSessionTicket message. */
-        if (ss->sec.ci.sid->cached == in_client_cache) {
+        if (ss->sec.ci.sid->cached == in_client_cache ||
+            ss->sec.ci.sid->cached == in_external_cache) {
             /* Create a new session ID. */
             sslSessionID *sid = ssl3_NewSessionID(ss, PR_FALSE);
             if (!sid) {
@@ -5015,16 +5016,6 @@ tls13_UnprotectRecord(sslSocket *ss,
                 SSL_GETPID(), ss->fd, spec, spec->epoch, spec->phase,
                 cText->seqNum, cText->buf->len));
 
-    /* We can perform this test in variable time because the record's total
-     * length and the ciphersuite are both public knowledge. */
-    if (cText->buf->len < cipher_def->tag_size) {
-        SSL_TRC(3,
-                ("%d: TLS13[%d]: record too short to contain valid AEAD data",
-                 SSL_GETPID(), ss->fd));
-        PORT_SetError(SSL_ERROR_BAD_MAC_READ);
-        return SECFailure;
-    }
-
     /* Verify that the content type is right, even though we overwrite it.
      * Also allow the DTLS short header in TLS 1.3. */
     if (!(cText->hdr[0] == ssl_ct_application_data ||
@@ -5034,7 +5025,17 @@ tls13_UnprotectRecord(sslSocket *ss,
         SSL_TRC(3,
                 ("%d: TLS13[%d]: record has invalid exterior type=%2.2x",
                  SSL_GETPID(), ss->fd, cText->hdr[0]));
-        /* Do we need a better error here? */
+        PORT_SetError(SSL_ERROR_RX_UNEXPECTED_RECORD_TYPE);
+        *alert = unexpected_message;
+        return SECFailure;
+    }
+
+    /* We can perform this test in variable time because the record's total
+     * length and the ciphersuite are both public knowledge. */
+    if (cText->buf->len < cipher_def->tag_size) {
+        SSL_TRC(3,
+                ("%d: TLS13[%d]: record too short to contain valid AEAD data",
+                 SSL_GETPID(), ss->fd));
         PORT_SetError(SSL_ERROR_BAD_MAC_READ);
         return SECFailure;
     }

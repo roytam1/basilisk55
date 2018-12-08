@@ -21,13 +21,13 @@
           'cflags': [
             '-no-integrated-as',
           ],
+          'cflags_mozilla': [
+            '-no-integrated-as',
+          ],
+          'asflags_mozilla': [
+            '-no-integrated-as',
+          ],
         }],
-      ],
-      'cflags_mozilla': [
-        '-no-integrated-as',
-      ],
-      'asflags_mozilla': [
-        '-no-integrated-as',
       ],
     },
     {
@@ -40,7 +40,7 @@
         '<(DEPTH)/exports.gyp:nss_exports'
       ],
       'conditions': [
-        [ 'OS=="linux" and target_arch=="x64"', {
+        [ '(OS=="linux" or OS=="android") and target_arch=="x64"', {
           'dependencies': [
             'intel-gcm-s_lib',
           ],

@@ -161,6 +161,8 @@ static INLINE void highbd_inter_predictor(const uint8_t *src, int src_stride,
 void av1_modify_neighbor_predictor_for_obmc(MB_MODE_INFO *mbmi);
 int av1_skip_u4x4_pred_in_obmc(BLOCK_SIZE bsize,
                                const struct macroblockd_plane *pd, int dir);
+int av1_check_identical_obmc_mv_field(const AV1_COMMON *cm, MACROBLOCKD *xd,
+                                      int mi_row, int mi_col);
 
 static INLINE int is_interinter_compound_used(COMPOUND_TYPE type,
                                               BLOCK_SIZE sb_type) {
@@ -355,7 +357,7 @@ void av1_jnt_comp_weight_assign(const AV1_COMMON *cm, const MB_MODE_INFO *mbmi,
 int av1_allow_warp(const MB_MODE_INFO *const mbmi,
                    const WarpTypesAllowed *const warp_types,
                    const WarpedMotionParams *const gm_params,
-                   int build_for_obmc, int x_scale, int y_scale,
+                   int build_for_obmc, const struct scale_factors *const sf,
                    WarpedMotionParams *final_warp_params);
 
 #ifdef __cplusplus

@@ -362,10 +362,10 @@ add_proto qw/void aom_highbd_convolve_copy/, "const uint8_t *src, ptrdiff_t src_
 specialize qw/aom_highbd_convolve_copy sse2 avx2/;
 
 add_proto qw/void aom_highbd_convolve8_horiz/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-specialize qw/aom_highbd_convolve8_horiz avx2/, "$sse2_x86_64";
+specialize qw/aom_highbd_convolve8_horiz sse2 avx2/;
 
 add_proto qw/void aom_highbd_convolve8_vert/, "const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps";
-specialize qw/aom_highbd_convolve8_vert avx2/, "$sse2_x86_64";
+specialize qw/aom_highbd_convolve8_vert sse2 avx2/;
 
 #
 # Loopfilter
@@ -466,10 +466,6 @@ specialize qw/aom_highbd_lpf_horizontal_4 sse2/;
 add_proto qw/void aom_highbd_lpf_horizontal_4_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
 specialize qw/aom_highbd_lpf_horizontal_4_dual sse2 avx2/;
 
-# Helper functions.
-add_proto qw/void av1_round_shift_array/, "int32_t *arr, int size, int bit";
-specialize "av1_round_shift_array", qw/sse4_1 neon/;
-
 #
 # Encoder functions.
 #
@@ -544,7 +540,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 #
 add_proto qw/void aom_lowbd_blend_a64_d16_mask/, "uint8_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0, uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int w, int h, int subx, int suby, ConvolveParams *conv_params";
 specialize qw/aom_lowbd_blend_a64_d16_mask sse4_1 avx2 neon/;
-add_proto qw/void aom_highbd_blend_a64_d16_mask/, "uint8_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0, uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int w, int h, int subx, int suby, ConvolveParams *conv_params, const int bd";
 add_proto qw/void aom_blend_a64_mask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int w, int h, int subx, int suby";
 add_proto qw/void aom_blend_a64_hmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int w, int h";
 add_proto qw/void aom_blend_a64_vmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int w, int h";
@@ -555,9 +550,11 @@ specialize "aom_blend_a64_vmask", qw/sse4_1 neon/;
 add_proto qw/void aom_highbd_blend_a64_mask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int w, int h, int subx, int suby, int bd";
 add_proto qw/void aom_highbd_blend_a64_hmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int w, int h, int bd";
 add_proto qw/void aom_highbd_blend_a64_vmask/, "uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int w, int h, int bd";
+add_proto qw/void aom_highbd_blend_a64_d16_mask/, "uint8_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0, uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int w, int h, int subx, int suby, ConvolveParams *conv_params, const int bd";
 specialize "aom_highbd_blend_a64_mask", qw/sse4_1/;
 specialize "aom_highbd_blend_a64_hmask", qw/sse4_1/;
 specialize "aom_highbd_blend_a64_vmask", qw/sse4_1/;
+specialize "aom_highbd_blend_a64_d16_mask", qw/sse4_1 avx2/;
 
 if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   #
@@ -838,6 +835,21 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_highbd_sad64x16x4d sse2/;
 
   #
+  # hamadard transform and satd for implmenting temporal dependency model
+  #
+  add_proto qw/void aom_hadamard_8x8/, "const int16_t *src_diff, ptrdiff_t src_stride, tran_low_t *coeff";
+  specialize qw/aom_hadamard_8x8 sse2/;
+
+  add_proto qw/void aom_hadamard_16x16/, "const int16_t *src_diff, ptrdiff_t src_stride, tran_low_t *coeff";
+  specialize qw/aom_hadamard_16x16 avx2 sse2/;
+
+  add_proto qw/void aom_hadamard_32x32/, "const int16_t *src_diff, ptrdiff_t src_stride, tran_low_t *coeff";
+  specialize qw/aom_hadamard_32x32 avx2 sse2/;
+
+  add_proto qw/int aom_satd/, "const tran_low_t *coeff, int length";
+  specialize qw/aom_satd avx2 sse2/;
+
+  #
   # Structured Similarity (SSIM)
   #
   if (aom_config("CONFIG_INTERNAL_STATS") eq "yes") {
@@ -915,7 +927,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
                                                        int ref_stride, const uint8_t *mask, int mask_stride, int invert_mask,
                                                        int subpel_search";
   specialize qw/aom_comp_mask_upsampled_pred sse2/;
-
 
   add_proto qw/void aom_highbd_upsampled_pred/, "MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
                                                  const MV *const mv, uint8_t *comp_pred8, int width, int height, int subpel_x_q3,

@@ -5847,11 +5847,8 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);
-#if !CONFIG_GLOBAL_MOTION_SEARCH
-  cpi->global_motion_search_done = 1;
-#endif  // !CONFIG_GLOBAL_MOTION_SEARCH
   if (cpi->common.current_frame.frame_type == INTER_FRAME && cpi->source &&
-      !cpi->global_motion_search_done) {
+      cpi->oxcf.enable_global_motion && !cpi->global_motion_search_done) {
     YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES];
     int frame;
     double params_by_motion[RANSAC_NUM_MOTIONS * (MAX_PARAMDIM - 1)];
@@ -6025,7 +6022,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
   const int num_planes = av1_num_planes(cm);
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
-  cm->reduced_tx_set_used = 0;
+  cm->reduced_tx_set_used = cpi->oxcf.reduced_tx_type_set;
 
   if (cm->show_frame == 0) {
     int arf_offset = AOMMIN(
@@ -6366,8 +6363,10 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
 
     av1_build_inter_predictors_sb(cm, xd, mi_row, mi_col, NULL, bsize);
-    if (mbmi->motion_mode == OBMC_CAUSAL)
+    if (mbmi->motion_mode == OBMC_CAUSAL) {
+      assert(cpi->oxcf.enable_obmc == 1);
       av1_build_obmc_inter_predictors_sb(cm, xd, mi_row, mi_col);
+    }
 
 #if CONFIG_MISMATCH_DEBUG
     if (dry_run == OUTPUT_ENABLED) {

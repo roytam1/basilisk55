@@ -18,6 +18,7 @@
 #include "aom/aom_codec.h"
 #include "aom/aom_image.h"
 #include "aom/aom_integer.h"
+#include "aom_ports/mem.h"
 #include "aom_ports/msvc.h"
 
 #if CONFIG_AV1_ENCODER
@@ -78,11 +79,11 @@ enum VideoFileType {
 };
 
 // Used in lightfield example.
-typedef enum OUTPUT_FORMAT {
+enum {
   YUV1D,  // 1D tile output for conformance test.
   YUV,    // Tile output in YUV format.
   NV12,   // Tile output in NV12 format.
-} OUTPUT_FORMAT;
+} UENUM1BYTE(OUTPUT_FORMAT);
 
 struct FileTypeDetectionBuffer {
   char buf[4];

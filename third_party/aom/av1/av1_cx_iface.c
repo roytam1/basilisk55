@@ -95,8 +95,10 @@ struct av1_extracfg {
   const char *film_grain_table_filename;
   unsigned int motion_vector_unit_test;
   unsigned int cdf_update_mode;
+  int enable_rect_partitions;    // enable rectangular partitions for sequence
   int enable_intra_edge_filter;  // enable intra-edge filter for sequence
   int enable_order_hint;         // enable order hint for sequence
+  int enable_tx64;               // enable 64-pt transform usage for sequence
   int enable_dist_wtd_comp;      // enable dist wtd compound for sequence
   int enable_ref_frame_mvs;      // sequence level
   int allow_ref_frame_mvs;       // frame level
@@ -110,7 +112,13 @@ struct av1_extracfg {
   int enable_warped_motion;      // sequence level
   int allow_warped_motion;       // frame level
   int enable_filter_intra;       // enable filter intra for sequence
+  int enable_smooth_intra;       // enable smooth intra modes for sequence
+  int enable_paeth_intra;        // enable Peeth intra mode for sequence
+  int enable_cfl_intra;          // enable CFL uv intra mode for sequence
   int enable_superres;
+  int enable_palette;
+  int enable_intrabc;
+  int enable_angle_delta;
 #if CONFIG_DENOISE
   float noise_level;
   int noise_block_size;
@@ -181,8 +189,10 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // film_grain_table_filename
   0,                            // motion_vector_unit_test
   1,                            // CDF update mode
+  1,                            // enable rectangular partitions
   1,                            // enable intra edge filter
   1,                            // frame order hint
+  1,                            // enable 64-pt transform usage
   1,                            // dist-wtd compound
   1,                            // enable_ref_frame_mvs sequence level
   1,                            // allow ref_frame_mvs frame level
@@ -196,7 +206,13 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable_warped_motion at sequence level
   1,                            // allow_warped_motion at frame level
   1,                            // enable filter intra at sequence level
+  1,                            // enable smooth intra modes usage for sequence
+  1,                            // enable Paeth intra mode usage for sequence
+  1,                            // enable CFL uv intra mode usage for sequence
   1,                            // superres
+  1,                            // enable palette
+  1,                            // enable intrabc
+  1,                            // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
   32,  // noise_block_size
@@ -548,6 +564,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->enable_cdef = extra_cfg->enable_cdef;
   oxcf->enable_restoration = extra_cfg->enable_restoration;
   oxcf->enable_obmc = extra_cfg->enable_obmc;
+  oxcf->enable_palette = extra_cfg->enable_palette;
+  oxcf->enable_intrabc = extra_cfg->enable_intrabc;
+  oxcf->enable_angle_delta = extra_cfg->enable_angle_delta;
   oxcf->disable_trellis_quant = extra_cfg->disable_trellis_quant;
   oxcf->using_qm = extra_cfg->enable_qm;
   oxcf->qm_y = extra_cfg->qm_y;
@@ -688,7 +707,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->monochrome = cfg->monochrome;
   oxcf->full_still_picture_hdr = cfg->full_still_picture_hdr;
   oxcf->enable_dual_filter = extra_cfg->enable_dual_filter;
+  oxcf->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   oxcf->enable_intra_edge_filter = extra_cfg->enable_intra_edge_filter;
+  oxcf->enable_tx64 = extra_cfg->enable_tx64;
   oxcf->enable_order_hint = extra_cfg->enable_order_hint;
   oxcf->enable_dist_wtd_comp =
       extra_cfg->enable_dist_wtd_comp & extra_cfg->enable_order_hint;
@@ -710,6 +731,9 @@ static aom_codec_err_t set_encoder_config(
   oxcf->allow_warped_motion =
       extra_cfg->allow_warped_motion & extra_cfg->enable_warped_motion;
   oxcf->enable_filter_intra = extra_cfg->enable_filter_intra;
+  oxcf->enable_smooth_intra = extra_cfg->enable_smooth_intra;
+  oxcf->enable_paeth_intra = extra_cfg->enable_paeth_intra;
+  oxcf->enable_cfl_intra = extra_cfg->enable_cfl_intra;
 
   oxcf->enable_superres =
       (oxcf->superres_mode != SUPERRES_NONE) && extra_cfg->enable_superres;
@@ -1062,6 +1086,14 @@ static aom_codec_err_t ctrl_set_enable_dual_filter(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+static aom_codec_err_t ctrl_set_enable_rect_partitions(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_rect_partitions =
+      CAST(AV1E_SET_ENABLE_RECT_PARTITIONS, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 static aom_codec_err_t ctrl_set_enable_intra_edge_filter(
     aom_codec_alg_priv_t *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1074,6 +1106,13 @@ static aom_codec_err_t ctrl_set_enable_order_hint(aom_codec_alg_priv_t *ctx,
                                                   va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_order_hint = CAST(AV1E_SET_ENABLE_ORDER_HINT, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_tx64(aom_codec_alg_priv_t *ctx,
+                                            va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_tx64 = CAST(AV1E_SET_ENABLE_TX64, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -1172,10 +1211,52 @@ static aom_codec_err_t ctrl_set_enable_filter_intra(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+static aom_codec_err_t ctrl_set_enable_smooth_intra(aom_codec_alg_priv_t *ctx,
+                                                    va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_smooth_intra = CAST(AV1E_SET_ENABLE_SMOOTH_INTRA, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_paeth_intra(aom_codec_alg_priv_t *ctx,
+                                                   va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_paeth_intra = CAST(AV1E_SET_ENABLE_PAETH_INTRA, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_cfl_intra(aom_codec_alg_priv_t *ctx,
+                                                 va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_cfl_intra = CAST(AV1E_SET_ENABLE_CFL_INTRA, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 static aom_codec_err_t ctrl_set_enable_superres(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_superres = CAST(AV1E_SET_ENABLE_SUPERRES, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_palette(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_palette = CAST(AV1E_SET_ENABLE_PALETTE, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_intrabc(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_intrabc = CAST(AV1E_SET_ENABLE_INTRABC, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_enable_angle_delta(aom_codec_alg_priv_t *ctx,
+                                                   va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_angle_delta = CAST(AV1E_SET_ENABLE_ANGLE_DELTA, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -1914,9 +1995,11 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_FRAME_PARALLEL_DECODING, ctrl_set_frame_parallel_decoding_mode },
   { AV1E_SET_ERROR_RESILIENT_MODE, ctrl_set_error_resilient_mode },
   { AV1E_SET_S_FRAME_MODE, ctrl_set_s_frame_mode },
+  { AV1E_SET_ENABLE_RECT_PARTITIONS, ctrl_set_enable_rect_partitions },
   { AV1E_SET_ENABLE_DUAL_FILTER, ctrl_set_enable_dual_filter },
   { AV1E_SET_ENABLE_INTRA_EDGE_FILTER, ctrl_set_enable_intra_edge_filter },
   { AV1E_SET_ENABLE_ORDER_HINT, ctrl_set_enable_order_hint },
+  { AV1E_SET_ENABLE_TX64, ctrl_set_enable_tx64 },
   { AV1E_SET_ENABLE_DIST_WTD_COMP, ctrl_set_enable_dist_wtd_comp },
   { AV1E_SET_ENABLE_REF_FRAME_MVS, ctrl_set_enable_ref_frame_mvs },
   { AV1E_SET_ALLOW_REF_FRAME_MVS, ctrl_set_allow_ref_frame_mvs },
@@ -1930,7 +2013,13 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_WARPED_MOTION, ctrl_set_enable_warped_motion },
   { AV1E_SET_ALLOW_WARPED_MOTION, ctrl_set_allow_warped_motion },
   { AV1E_SET_ENABLE_FILTER_INTRA, ctrl_set_enable_filter_intra },
+  { AV1E_SET_ENABLE_SMOOTH_INTRA, ctrl_set_enable_smooth_intra },
+  { AV1E_SET_ENABLE_PAETH_INTRA, ctrl_set_enable_paeth_intra },
+  { AV1E_SET_ENABLE_CFL_INTRA, ctrl_set_enable_cfl_intra },
   { AV1E_SET_ENABLE_SUPERRES, ctrl_set_enable_superres },
+  { AV1E_SET_ENABLE_PALETTE, ctrl_set_enable_palette },
+  { AV1E_SET_ENABLE_INTRABC, ctrl_set_enable_intrabc },
+  { AV1E_SET_ENABLE_ANGLE_DELTA, ctrl_set_enable_angle_delta },
   { AV1E_SET_AQ_MODE, ctrl_set_aq_mode },
   { AV1E_SET_REDUCED_TX_TYPE_SET, ctrl_set_reduced_tx_type_set },
   { AV1E_SET_DELTAQ_MODE, ctrl_set_deltaq_mode },

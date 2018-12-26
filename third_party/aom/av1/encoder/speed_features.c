@@ -131,6 +131,17 @@ static void set_good_speed_feature_framesize_dependent(AV1_COMP *cpi,
 
   if (speed >= 2) {
     if (is_720p_or_larger) {
+      sf->use_square_partition_only_threshold = BLOCK_64X64;
+    } else if (is_480p_or_larger) {
+      sf->use_square_partition_only_threshold = BLOCK_32X32;
+    } else {
+      // TODO(chiyotsai@google.com): Setting the threshold to BLOCK_16X16 incurs
+      // a large loss (about 0.584%). Try increasing the threshold on boosted
+      // frame and see if it improves the performance.
+      sf->use_square_partition_only_threshold = BLOCK_32X32;
+    }
+
+    if (is_720p_or_larger) {
       sf->disable_split_mask =
           cm->show_frame ? DISABLE_ALL_SPLIT : DISABLE_ALL_INTER_SPLIT;
       sf->adaptive_pred_interp_filter = 0;
@@ -189,7 +200,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->ml_prune_ab_partition = 1;
   sf->ml_prune_4_partition = 1;
   sf->adaptive_txb_search_level = 1;
-  sf->use_jnt_comp_flag = JNT_COMP_SKIP_MV_SEARCH;
+  sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
   sf->inter_mode_rd_model_estimation = 1;
@@ -243,6 +254,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_single_motion_modes_by_simple_trans = 1;
 
     sf->full_pixel_motion_search_based_split = 1;
+    sf->simple_motion_search_prune_rect = 1;
+
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
@@ -270,7 +283,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->fast_wedge_sign_estimate = 1;
     sf->disable_dual_filter = 1;
-    sf->use_jnt_comp_flag = JNT_COMP_DISABLED;
+    sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
   }
 
@@ -290,6 +303,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
+    sf->prune_warp_using_wmtype = 1;
   }
 
   if (speed >= 4) {
@@ -475,8 +489,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->use_inter_txb_hash = 0;
   sf->use_mb_rd_hash = 1;
   sf->optimize_b_precheck = 0;
-  sf->jnt_comp_fast_tx_search = 0;
-  sf->use_jnt_comp_flag = JNT_COMP_ENABLED;
+  sf->dist_wtd_comp_fast_tx_search = 0;
+  sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_ENABLED;
   sf->reuse_inter_intra_mode = 0;
   sf->intra_angle_estimation = 0;
   sf->skip_obmc_in_uniform_mv_field = 0;
@@ -506,6 +520,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
   }
   sf->full_pixel_motion_search_based_split = 0;
+  sf->simple_motion_search_prune_rect = 0;
 
   // Set this at the appropriate speed levels
   sf->use_transform_domain_distortion = 0;
@@ -527,6 +542,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->skip_sharp_interp_filter_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
   sf->prune_motion_mode_level = 0;
+  sf->prune_warp_using_wmtype = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);

@@ -710,6 +710,14 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ANS_WINDOW_SIZE_LOG2,
 
+  /*!\brief Codec control function to enable/disable rectangular partitions.
+   *
+   * This will enable or disable usage of rectangular partitions. The default
+   * value is 1.
+   *
+   */
+  AV1E_SET_ENABLE_RECT_PARTITIONS,
+
   /*!\brief Codec control function to turn on / off intra edge filter
    * at sequence level.
    *
@@ -730,6 +738,14 @@ enum aome_enc_control_id {
    *
    */
   AV1E_SET_ENABLE_ORDER_HINT,
+
+  /*!\brief Codec control function to turn on / off 64-length transforms.
+   *
+   * This will enable or disable usage of length 64 transforms in any
+   * direction. The default value is 1.
+   *
+   */
+  AV1E_SET_ENABLE_TX64,
 
   /*!\brief Codec control function to turn on / off dist-wtd compound mode
    * at sequence level.
@@ -856,12 +872,45 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_FILTER_INTRA,
 
+  /*!\brief Codec control function to turn on / off smooth intra modes usage.
+   *
+   * This will enable or disable usage of smooth, smooth_h and smooth_v intra
+   * modes. The default value is 1.
+   *
+   */
+  AV1E_SET_ENABLE_SMOOTH_INTRA,
+
+  /*!\brief Codec control function to turn on / off Paeth intra mode usage.
+   *
+   * This will enable or disable usage of Paeth intra mode. The default value
+   * is 1.
+   *
+   */
+  AV1E_SET_ENABLE_PAETH_INTRA,
+
+  /*!\brief Codec control function to turn on / off CFL uv intra mode usage.
+   *
+   * This will enable or disable usage of chroma-from-luma intra mode. The
+   * default value is 1.
+   *
+   */
+  AV1E_SET_ENABLE_CFL_INTRA,
+
   /*!\brief Codec control function to turn on / off frame superresolution.
    *
    * This will enable or disable frame superresolution. The default value is 1
    * If AV1E_SET_ENABLE_SUPERRES is 0, then this flag is forced to 0.
    */
   AV1E_SET_ENABLE_SUPERRES,
+
+  /*!\brief Codec control function to turn on/off palette mode */
+  AV1E_SET_ENABLE_PALETTE,
+
+  /*!\brief Codec control function to turn on/off intra block copy mode */
+  AV1E_SET_ENABLE_INTRABC,
+
+  /*!\brief Codec control function to turn on/off intra angle delta */
+  AV1E_SET_ENABLE_ANGLE_DELTA,
 
   /*!\brief Codec control function to set the delta q mode
    *
@@ -1131,11 +1180,17 @@ AOM_CTRL_USE_TYPE(AV1E_SET_MTU, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_TIMING_INFO_TYPE, int) /* aom_timing_info_type_t */
 #define AOM_CTRL_AV1E_SET_TIMING_INFO_TYPE
 
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RECT_PARTITIONS, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_RECT_PARTITIONS
+
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_INTRA_EDGE_FILTER, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_INTRA_EDGE_FILTER
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_ORDER_HINT, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_ORDER_HINT
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TX64, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_TX64
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DIST_WTD_COMP, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_DIST_WTD_COMP
@@ -1179,8 +1234,26 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ALLOW_WARPED_MOTION, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_FILTER_INTRA, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_FILTER_INTRA
 
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_SMOOTH_INTRA, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_SMOOTH_INTRA
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_PAETH_INTRA, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_PAETH_INTRA
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CFL_INTRA, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_CFL_INTRA
+
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_SUPERRES, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_SUPERRES
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_PALETTE, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_PALETTE
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_INTRABC, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_INTRABC
+
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_ANGLE_DELTA, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_ANGLE_DELTA
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PARALLEL_DECODING, unsigned int)
 #define AOM_CTRL_AV1E_SET_FRAME_PARALLEL_DECODING

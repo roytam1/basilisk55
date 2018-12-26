@@ -437,6 +437,10 @@ static const arg_def_t enable_restoration =
     ARG_DEF(NULL, "enable-restoration", 1,
             "Enable the loop restoration filter (0: false, "
             "1: true (default))");
+static const arg_def_t enable_rect_partitions =
+    ARG_DEF(NULL, "enable-rect-partitions", 1,
+            "Enable rectangular partitions "
+            "(0: false, 1: true (default))");
 static const arg_def_t enable_dual_filter =
     ARG_DEF(NULL, "enable-dual-filter", 1,
             "Enable dual filter "
@@ -449,6 +453,9 @@ static const arg_def_t enable_order_hint =
     ARG_DEF(NULL, "enable-order-hint", 1,
             "Enable order hint "
             "(0: false, 1: true (default))");
+static const arg_def_t enable_tx64 =
+    ARG_DEF(NULL, "enable-tx64", 1,
+            "Enable 64-pt transform (0: false, 1: true (default))");
 static const arg_def_t enable_dist_wtd_comp =
     ARG_DEF(NULL, "enable-dist-wtd-comp", 1,
             "Enable distance-weighted compound "
@@ -489,8 +496,29 @@ static const arg_def_t enable_filter_intra =
     ARG_DEF(NULL, "enable-filter-intra", 1,
             "Enable filter intra prediction mode "
             "(0: false, 1: true (default))");
+static const arg_def_t enable_smooth_intra =
+    ARG_DEF(NULL, "enable-smooth-intra", 1,
+            "Enable smooth intra prediction modes "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_paeth_intra =
+    ARG_DEF(NULL, "enable-paeth-intra", 1,
+            "Enable Paeth intra prediction mode (0: false, 1: true (default))");
+static const arg_def_t enable_cfl_intra =
+    ARG_DEF(NULL, "enable-cfl-intra", 1,
+            "Enable chroma from luma intra prediction mode "
+            "(0: false, 1: true (default))");
 static const arg_def_t enable_obmc = ARG_DEF(
     NULL, "enable-obmc", 1, "Enable OBMC (0: false, 1: true (default))");
+static const arg_def_t enable_palette =
+    ARG_DEF(NULL, "enable-palette", 1,
+            "Enable palette prediction mode (0: false, 1: true (default))");
+static const arg_def_t enable_intrabc =
+    ARG_DEF(NULL, "enable-intrabc", 1,
+            "Enable intra block copy prediction mode "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_angle_delta =
+    ARG_DEF(NULL, "enable-angle-delta", 1,
+            "Enable intra angle delta (0: false, 1: true (default))");
 static const arg_def_t disable_trellis_quant =
     ARG_DEF(NULL, "disable-trellis-quant", 1,
             "Disable trellis optimization of quantized coefficients (0: false ("
@@ -697,9 +725,11 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &lossless,
                                        &enable_cdef,
                                        &enable_restoration,
+                                       &enable_rect_partitions,
                                        &enable_dual_filter,
                                        &enable_intra_edge_filter,
                                        &enable_order_hint,
+                                       &enable_tx64,
                                        &enable_dist_wtd_comp,
                                        &enable_masked_comp,
                                        &enable_interintra_comp,
@@ -710,7 +740,13 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_global_motion,
                                        &enable_warped_motion,
                                        &enable_filter_intra,
+                                       &enable_smooth_intra,
+                                       &enable_paeth_intra,
+                                       &enable_cfl_intra,
                                        &enable_obmc,
+                                       &enable_palette,
+                                       &enable_intrabc,
+                                       &enable_angle_delta,
                                        &disable_trellis_quant,
                                        &enable_qm,
                                        &qm_min,
@@ -771,9 +807,11 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_LOSSLESS,
                                         AV1E_SET_ENABLE_CDEF,
                                         AV1E_SET_ENABLE_RESTORATION,
+                                        AV1E_SET_ENABLE_RECT_PARTITIONS,
                                         AV1E_SET_ENABLE_DUAL_FILTER,
                                         AV1E_SET_ENABLE_INTRA_EDGE_FILTER,
                                         AV1E_SET_ENABLE_ORDER_HINT,
+                                        AV1E_SET_ENABLE_TX64,
                                         AV1E_SET_ENABLE_DIST_WTD_COMP,
                                         AV1E_SET_ENABLE_MASKED_COMP,
                                         AV1E_SET_ENABLE_INTERINTRA_COMP,
@@ -784,7 +822,13 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_GLOBAL_MOTION,
                                         AV1E_SET_ENABLE_WARPED_MOTION,
                                         AV1E_SET_ENABLE_FILTER_INTRA,
+                                        AV1E_SET_ENABLE_SMOOTH_INTRA,
+                                        AV1E_SET_ENABLE_PAETH_INTRA,
+                                        AV1E_SET_ENABLE_CFL_INTRA,
                                         AV1E_SET_ENABLE_OBMC,
+                                        AV1E_SET_ENABLE_PALETTE,
+                                        AV1E_SET_ENABLE_INTRABC,
+                                        AV1E_SET_ENABLE_ANGLE_DELTA,
                                         AV1E_SET_DISABLE_TRELLIS_QUANT,
                                         AV1E_SET_ENABLE_QM,
                                         AV1E_SET_QM_MIN,

@@ -51,7 +51,7 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
                                                             25,  25,  10 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
-static int comp_type_rd_threshold_mul[3] = { 1, 10, 11 };
+static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
 static int comp_type_rd_threshold_div[3] = { 3, 16, 16 };
 
 // Intra only frames, golden frames (except alt ref overlays) and
@@ -203,12 +203,12 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
-  sf->inter_mode_rd_model_estimation = 1;
+  sf->model_based_motion_mode_rd_breakout = 1;
   sf->prune_ref_frame_for_rect_partitions =
       !(boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame);
   sf->prune_ref_mode_for_partitions = sf->prune_ref_frame_for_rect_partitions;
   sf->less_rectangular_check_level = 1;
-  sf->gm_search_type = GM_REDUCED_REF_SEARCH;
+  sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
   sf->gm_disable_recode = 1;
   sf->use_fast_interpolation_filter_search = 1;
   sf->intra_tx_size_search_init_depth_sqr = 1;
@@ -218,6 +218,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->disable_wedge_search_var_thresh = 0;
   sf->disable_wedge_search_edge_thresh = 0;
   sf->prune_motion_mode_level = 1;
+  sf->cb_pred_filter_search = 0;
 
   if (speed >= 1) {
     sf->gm_erroradv_type = GM_ERRORADV_TR_1;
@@ -236,9 +237,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.skip_tx_search = 1;
     sf->tx_type_search.ml_tx_split_thresh = 40;
     sf->model_based_prune_tx_search_level = 0;
-    // TODO(angiebird): Re-evaluate the impact of inter_mode_rd_model_estimation
-    // on speed 1
-    sf->inter_mode_rd_model_estimation = 0;
     sf->adaptive_txb_search_level = 2;
     sf->use_intra_txb_hash = 1;
     sf->optimize_b_precheck = 1;
@@ -260,6 +258,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_wedge_search_edge_thresh = 0;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
+    sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
+    sf->cb_pred_filter_search = 1;
   }
 
   if (speed >= 2) {
@@ -285,6 +285,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
+    sf->cb_pred_filter_search = 0;
   }
 
   if (speed >= 3) {
@@ -445,6 +446,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->tx_size_search_lgr_block = 0;
   sf->model_based_prune_tx_search_level = 0;
   sf->model_based_post_interp_filter_breakout = 0;
+  sf->model_based_motion_mode_rd_breakout = 0;
   sf->reduce_inter_modes = 0;
   sf->selective_ref_gm = 1;
   sf->adaptive_motion_search = 0;
@@ -537,6 +539,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   // Set decoder side speed feature to use less dual sgr modes
   sf->dual_sgr_penalty_level = 0;
 
+  // TODO(angiebird, debargha): Re-evaluate the impact of
+  // inter_mode_rd_model_estimation in conjunction with
+  // model_based_motion_mode_rd_breakout
   sf->inter_mode_rd_model_estimation = 0;
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;

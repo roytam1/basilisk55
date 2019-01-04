@@ -235,7 +235,8 @@ typedef struct MESH_PATTERN {
 
 enum {
   GM_FULL_SEARCH,
-  GM_REDUCED_REF_SEARCH,
+  GM_REDUCED_REF_SEARCH_SKIP_L2_L3,
+  GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2,
   GM_DISABLE_SEARCH
 } UENUM1BYTE(GM_SEARCH_TYPE);
 
@@ -341,6 +342,11 @@ typedef struct SPEED_FEATURES {
   // 0: no breakout
   // 1: use model based rd breakout
   int model_based_post_interp_filter_breakout;
+
+  // Model based breakout in motion_mode_rd
+  // 0: no breakout
+  // 1: use model based rd breakout
+  int model_based_motion_mode_rd_breakout;
 
   // Used if partition_search_type = FIXED_SIZE_PARTITION
   BLOCK_SIZE always_this_block_size;
@@ -618,6 +624,8 @@ typedef struct SPEED_FEATURES {
   // Perform simple_motion_search on each possible subblock and use it to prune
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;
+
+  int cb_pred_filter_search;
 } SPEED_FEATURES;
 
 struct AV1_COMP;

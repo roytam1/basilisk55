@@ -24,6 +24,8 @@
 #define DISABLE_TRELLISQ_SEARCH 0
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
+// Max speed setting for tx domain evaluation
+#define MAX_TX_DOMAIN_EVAL_SPEED 5
 static MESH_PATTERN
     good_quality_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
       { { 64, 8 }, { 28, 4 }, { 15, 1 }, { 7, 1 } },
@@ -49,6 +51,20 @@ static MESH_PATTERN intrabc_mesh_patterns[MAX_MESH_SPEED + 1][MAX_MESH_STEP] = {
 };
 static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
                                                             25,  25,  10 };
+
+// Threshold values to be used for pruning the txfm_domain_distortion
+// based on block MSE
+// TODO(any): Extend the threshold logic for faster presets and refine the
+// thresholds
+static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
+  UINT_MAX, 162754, 22026, 0, 0, 0
+};
+// Threshold values to be used for disabling coeff RD-optimization
+// based on block MSE
+// TODO(any): Extend the threshold logic for lower presets and refine the
+// thresholds
+static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, UINT_MAX, 162754,
+                                                     22026, 22026 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
 static int comp_type_rd_threshold_mul[3] = { 1, 11, 12 };
@@ -204,6 +220,10 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->model_based_prune_tx_search_level = 1;
   sf->model_based_post_interp_filter_breakout = 1;
   sf->model_based_motion_mode_rd_breakout = 1;
+
+  // TODO(debargha): Test, tweak and turn on either 1 or 2
+  sf->inter_mode_rd_model_estimation = 1;
+
   sf->prune_ref_frame_for_rect_partitions =
       !(boosted || cpi->refresh_bwd_ref_frame || cpi->refresh_alt2_ref_frame);
   sf->prune_ref_mode_for_partitions = sf->prune_ref_frame_for_rect_partitions;
@@ -260,6 +280,8 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->cb_pred_filter_search = 1;
+    sf->use_transform_domain_distortion = boosted ? 0 : 1;
+    sf->perform_coeff_opt = boosted ? 0 : 1;
   }
 
   if (speed >= 2) {
@@ -286,9 +308,12 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
     sf->prune_comp_type_by_comp_avg = 2;
     sf->cb_pred_filter_search = 0;
+    sf->adaptive_interp_filter_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 2;
   }
 
   if (speed >= 3) {
+    sf->selective_ref_frame = 4;
     sf->tx_size_search_method = boosted ? USE_FULL_RD : USE_LARGESTALL;
     sf->less_rectangular_check_level = 2;
     sf->adaptive_pred_interp_filter = 1;
@@ -303,8 +328,14 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
+    // TODO(any): evaluate this speed feature for speed 1 & 2.
+    sf->disable_interinter_wedge_newmv_search = 1;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
+    // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
+    // it with cpi->sf.disable_wedge_search_var_thresh.
+    sf->disable_wedge_interintra_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 3;
   }
 
   if (speed >= 4) {
@@ -322,6 +353,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->cb_partition_search = !boosted;
     sf->alt_ref_search_fp = 1;
     sf->skip_sharp_interp_filter_search = 1;
+    sf->perform_coeff_opt = boosted ? 0 : 4;
   }
 
   if (speed >= 5) {
@@ -497,6 +529,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   sf->intra_angle_estimation = 0;
   sf->skip_obmc_in_uniform_mv_field = 0;
   sf->skip_wm_in_uniform_mv_field = 0;
+  sf->adaptive_interp_filter_search = 0;
 
   for (i = 0; i < TX_SIZES; i++) {
     sf->intra_y_mode_mask[i] = INTRA_ALL;
@@ -543,11 +576,16 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   // inter_mode_rd_model_estimation in conjunction with
   // model_based_motion_mode_rd_breakout
   sf->inter_mode_rd_model_estimation = 0;
+
   sf->obmc_full_pixel_search_level = 0;
   sf->skip_sharp_interp_filter_search = 0;
   sf->prune_comp_type_by_comp_avg = 0;
+  sf->disable_interinter_wedge_newmv_search = 0;
   sf->prune_motion_mode_level = 0;
   sf->prune_warp_using_wmtype = 0;
+
+  sf->disable_wedge_interintra_search = 0;
+  sf->perform_coeff_opt = 0;
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, oxcf->speed);
@@ -627,6 +665,15 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
       comp_type_rd_threshold_mul[sf->prune_comp_type_by_comp_avg];
   cpi->max_comp_type_rd_threshold_div =
       comp_type_rd_threshold_div[sf->prune_comp_type_by_comp_avg];
+  int tx_domain_speed = (oxcf->speed >= MAX_TX_DOMAIN_EVAL_SPEED)
+                            ? MAX_TX_DOMAIN_EVAL_SPEED
+                            : oxcf->speed;
+  cpi->tx_domain_dist_threshold = tx_domain_dist_thresholds[tx_domain_speed];
+
+  // assert ensures that coeff_opt_dist_thresholds is accessed correctly
+  assert(cpi->sf.perform_coeff_opt >= 0 && cpi->sf.perform_coeff_opt < 5);
+  cpi->coeff_opt_dist_threshold =
+      coeff_opt_dist_thresholds[cpi->sf.perform_coeff_opt];
 
 #if CONFIG_DIST_8X8
   if (sf->use_transform_domain_distortion > 0) cpi->oxcf.using_dist_8x8 = 0;
@@ -635,6 +682,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
 #endif  // CONFIG_DIST_8X8
   if (cpi->oxcf.row_mt == 1 && (cpi->oxcf.max_threads > 1)) {
     sf->adaptive_rd_thresh = 0;
-    sf->inter_mode_rd_model_estimation = 0;
+    if (sf->inter_mode_rd_model_estimation == 1)
+      sf->inter_mode_rd_model_estimation = 0;
   }
 }

@@ -1354,15 +1354,15 @@ typedef struct {
   int sort_idx;       // index based on the offset to be used for sorting
 } REF_FRAME_INFO;
 
+// Compares the sort_idx fields. If they are equal, then compares the map_idx
+// fields to break the tie. This ensures a stable sort.
 static int compare_ref_frame_info(const void *arg_a, const void *arg_b) {
   const REF_FRAME_INFO *info_a = (REF_FRAME_INFO *)arg_a;
   const REF_FRAME_INFO *info_b = (REF_FRAME_INFO *)arg_b;
 
-  if (info_a->sort_idx < info_b->sort_idx) return -1;
-  if (info_a->sort_idx > info_b->sort_idx) return 1;
-  return (info_a->map_idx < info_b->map_idx)
-             ? -1
-             : ((info_a->map_idx > info_b->map_idx) ? 1 : 0);
+  const int sort_idx_diff = info_a->sort_idx - info_b->sort_idx;
+  if (sort_idx_diff != 0) return sort_idx_diff;
+  return info_a->map_idx - info_b->map_idx;
 }
 
 static void set_ref_frame_info(AV1_COMMON *const cm, int frame_idx,
@@ -1396,7 +1396,9 @@ void av1_set_frame_refs(AV1_COMMON *const cm, int lst_map_idx,
     ref_frame_info[i].buf = buf;
 
     if (buf == NULL) continue;
-    // TODO(zoeliu@google.com): To verify the checking on ref_count.
+    // If this assertion fails, there is a reference leak.
+    assert(buf->ref_count > 0);
+    // TODO(wtc@google.com): Remove the checking on ref_count after 2019-03-01.
     if (buf->ref_count <= 0) continue;
 
     const int offset = (int)buf->order_hint;

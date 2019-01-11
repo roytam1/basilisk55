@@ -5641,7 +5641,7 @@ static void encode_rd_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 #if CONFIG_COLLECT_INTER_MODE_RD_STATS
     // TODO(angiebird): Let inter_mode_rd_model_estimation support multi-tile.
-    if (cpi->sf.inter_mode_rd_model_estimation && cm->tile_cols == 1 &&
+    if (cpi->sf.inter_mode_rd_model_estimation == 1 && cm->tile_cols == 1 &&
         cm->tile_rows == 1) {
       av1_inter_mode_data_fit(tile_data, x->rdmult);
     }
@@ -6302,6 +6302,9 @@ static void encode_frame_internal(AV1_COMP *cpi) {
   cm->prev_mi = cm->allow_ref_frame_mvs ? cm->prev_mip : NULL;
 
   x->txb_split_count = 0;
+#if CONFIG_SPEED_STATS
+  x->tx_search_count = 0;
+#endif  // CONFIG_SPEED_STATS
 
   av1_zero(rdc->global_motion_used);
   av1_zero(cpi->gmparams_cost);

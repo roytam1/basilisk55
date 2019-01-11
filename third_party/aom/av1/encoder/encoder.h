@@ -357,6 +357,7 @@ typedef struct AV1EncoderConfig {
   unsigned int chroma_subsampling_x;
   unsigned int chroma_subsampling_y;
   int reduced_tx_type_set;
+  int border_in_pixels;
 } AV1EncoderConfig;
 
 static INLINE int is_lossless_requested(const AV1EncoderConfig *cfg) {
@@ -773,6 +774,9 @@ typedef struct AV1_COMP {
   Metrics metrics;
 #endif
   int b_calculate_psnr;
+#if CONFIG_SPEED_STATS
+  unsigned int tx_search_count;
+#endif  // CONFIG_SPEED_STATS
 
   int droppable;
 
@@ -799,7 +803,6 @@ typedef struct AV1_COMP {
 
   TOKENEXTRA *tile_tok[MAX_TILE_ROWS][MAX_TILE_COLS];
   TOKENLIST *tplist[MAX_TILE_ROWS][MAX_TILE_COLS];
-  int largest_tile_id;
 
   int resize_state;
   int resize_avg_qp;
@@ -836,6 +839,12 @@ typedef struct AV1_COMP {
   int max_comp_type_rd_threshold_mul;
   int max_comp_type_rd_threshold_div;
 
+  unsigned int tx_domain_dist_threshold;
+
+  // Factor to control R-D optimization of coeffs based on block
+  // mse.
+  unsigned int coeff_opt_dist_threshold;
+
   AV1LfSync lf_row_sync;
   AV1LrSync lr_row_sync;
   AV1LrStruct lr_ctxt;
@@ -854,6 +863,8 @@ typedef struct AV1_COMP {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *row_mt_mutex_;
 #endif
+  // Set if screen content is set or relevant tools are enabled
+  int is_screen_content_type;
 } AV1_COMP;
 
 // Must not be called more than once.

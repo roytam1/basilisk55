@@ -23,6 +23,7 @@ namespace dom {
 
 class Blob;
 class Directory;
+class HTMLFormElement;
 
 /**
  * Class for form submissions; encompasses the function to call to submit as
@@ -40,7 +41,7 @@ public:
    * @param aFormSubmission the form submission object (out param)
    */
   static nsresult
-  GetFromForm(nsGenericHTMLElement* aForm,
+  GetFromForm(HTMLFormElement* aForm,
               nsGenericHTMLElement* aOriginatingElement,
               HTMLFormSubmission** aFormSubmission);
 
@@ -122,6 +123,22 @@ public:
     return mOriginatingElement.get();
   }
 
+  /**
+   * Get the action URI that will be used for submission.
+   */
+  nsIURI* GetActionURL() const
+  {
+    return mActionURL;
+  }
+
+  /**
+   * Get the target that will be used for submission.
+   */
+  void GetTarget(nsAString& aTarget)
+  {
+    aTarget = mTarget;
+  }
+
 protected:
   /**
    * Can only be constructed by subclasses.
@@ -129,13 +146,23 @@ protected:
    * @param aCharset the charset of the form as a string
    * @param aOriginatingElement the originating element (can be null)
    */
-  HTMLFormSubmission(const nsACString& aCharset,
+  HTMLFormSubmission(nsIURI* aActionURL,
+                     const nsAString& aTarget,
+                     const nsACString& aCharset,
                      nsIContent* aOriginatingElement)
-    : mCharset(aCharset)
+    : mActionURL(aActionURL)
+    , mTarget(aTarget)
+    , mCharset(aCharset)
     , mOriginatingElement(aOriginatingElement)
   {
     MOZ_COUNT_CTOR(HTMLFormSubmission);
   }
+
+  // The action url.
+  nsCOMPtr<nsIURI> mActionURL;
+
+  // The target.
+  nsString mTarget;
 
   // The name of the encoder charset
   nsCString mCharset;
@@ -147,7 +174,9 @@ protected:
 class EncodingFormSubmission : public HTMLFormSubmission
 {
 public:
-  EncodingFormSubmission(const nsACString& aCharset,
+  EncodingFormSubmission(nsIURI* aActionURL,
+                         const nsAString& aTarget,
+                         const nsACString& aCharset,
                          nsIContent* aOriginatingElement);
 
   virtual ~EncodingFormSubmission();
@@ -179,8 +208,11 @@ public:
   /**
    * @param aCharset the charset of the form as a string
    */
-  FSMultipartFormData(const nsACString& aCharset,
+  FSMultipartFormData(nsIURI* aActionURL,
+                      const nsAString& aTarget,
+                      const nsACString& aCharset,
                       nsIContent* aOriginatingElement);
+
   ~FSMultipartFormData();
  
   virtual nsresult

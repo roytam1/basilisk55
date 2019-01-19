@@ -670,6 +670,10 @@ XULTreeAccessible::TreeViewChanged(nsITreeView* aView)
   UnbindCacheEntriesFromDocument(mAccessibleCache);
 
   mTreeView = aView;
+  Accessible* item = CurrentItem();
+  if (item) {
+    FocusMgr()->ActiveItemChanged(item, true);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,9 @@ public:
     // used with the instance after that).
     explicit IMContextWrapper(nsWindow* aOwnerWindow);
 
+    // Called when the process is being shut down.
+    static void Shutdown();
+
     // "Enabled" means the users can use all IMEs.
     // I.e., the focus is in the normal editors.
     bool IsEnabled() const;
@@ -65,6 +68,8 @@ public:
     // in the focused editor.
     void OnSelectionChange(nsWindow* aCaller,
                            const IMENotification& aIMENotification);
+    // OnThemeChanged is called when desktop theme is changed.
+    static void OnThemeChanged();
 
     // OnKeyEvent is called when aWindow gets a native key press event or a
     // native key release event.  If this returns TRUE, the key event was

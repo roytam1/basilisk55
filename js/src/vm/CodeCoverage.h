@@ -88,6 +88,7 @@ class LCovCompartment
 {
   public:
     LCovCompartment();
+    ~LCovCompartment();
 
     // Collect code coverage information for the given source.
     void collectCodeCoverageInfo(JSCompartment* comp, JSObject* sso, JSScript* topLevel);

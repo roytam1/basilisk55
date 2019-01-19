@@ -29,6 +29,9 @@ extern "C" {
 #define AV_CODEC_ID_FLAC CODEC_ID_FLAC
 typedef CodecID AVCodecID;
 #endif
+#if LIBAVCODEC_VERSION_MAJOR <= 55
+#define AV_CODEC_FLAG_LOW_DELAY CODEC_FLAG_LOW_DELAY
+#endif
 
 #ifdef FFVPX_VERSION
 enum { LIBAV_VER = FFVPX_VERSION };

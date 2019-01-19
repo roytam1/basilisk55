@@ -17,7 +17,7 @@ using namespace mozilla;
 using namespace mozilla::dom;
 
 FormData::FormData(nsISupports* aOwner)
-  : HTMLFormSubmission(NS_LITERAL_CSTRING("UTF-8"), nullptr)
+  : HTMLFormSubmission(nullptr, EmptyString(), NS_LITERAL_CSTRING("UTF-8"), nullptr)
   , mOwner(aOwner)
 {
 }
@@ -401,7 +401,7 @@ NS_IMETHODIMP
 FormData::GetSendInfo(nsIInputStream** aBody, uint64_t* aContentLength,
                       nsACString& aContentType, nsACString& aCharset)
 {
-  FSMultipartFormData fs(NS_LITERAL_CSTRING("UTF-8"), nullptr);
+  FSMultipartFormData fs(nullptr, EmptyString(), NS_LITERAL_CSTRING("UTF-8"), nullptr);
 
   for (uint32_t i = 0; i < mFormData.Length(); ++i) {
     if (mFormData[i].wasNullBlob) {

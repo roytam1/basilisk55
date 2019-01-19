@@ -719,16 +719,23 @@ IDBCursor::Update(JSContext* aCx, JS::Handle<JS::Value> aValue,
 
   MOZ_ASSERT(objectStore);
 
+  IDBObjectStore::ValueWrapper valueWrapper(aCx, aValue);
+
   const Key& primaryKey = (mType == Type_ObjectStore) ? mKey : mPrimaryKey;
 
   RefPtr<IDBRequest> request;
 
   if (objectStore->HasValidKeyPath()) {
+    if (!valueWrapper.Clone(aCx)) {
+      aRv.Throw(NS_ERROR_DOM_DATA_CLONE_ERR);
+      return nullptr;
+    }
+
     // Make sure the object given has the correct keyPath value set on it.
     const KeyPath& keyPath = objectStore->GetKeyPath();
     Key key;
 
-    aRv = keyPath.ExtractKey(aCx, aValue, key);
+    aRv = keyPath.ExtractKey(aCx, valueWrapper.Value(), key);
     if (aRv.Failed()) {
       return nullptr;
     }
@@ -739,7 +746,7 @@ IDBCursor::Update(JSContext* aCx, JS::Handle<JS::Value> aValue,
     }
 
     request = objectStore->AddOrPut(aCx,
-                                    aValue,
+                                    valueWrapper,
                                     /* aKey */ JS::UndefinedHandleValue,
                                     /* aOverwrite */ true,
                                     /* aFromCursor */ true,
@@ -756,7 +763,7 @@ IDBCursor::Update(JSContext* aCx, JS::Handle<JS::Value> aValue,
     }
 
     request = objectStore->AddOrPut(aCx,
-                                    aValue,
+                                    valueWrapper,
                                     keyVal,
                                     /* aOverwrite */ true,
                                     /* aFromCursor */ true,

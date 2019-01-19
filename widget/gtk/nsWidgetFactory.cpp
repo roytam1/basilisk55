@@ -17,6 +17,7 @@
 #include "nsWindow.h"
 #include "nsTransferable.h"
 #include "nsHTMLFormatConverter.h"
+#include "IMContextWrapper.h"
 #ifdef MOZ_X11
 #include "nsClipboardHelper.h"
 #include "nsClipboard.h"
@@ -309,6 +310,7 @@ nsWidgetGtk2ModuleDtor()
   nsFilePicker::Shutdown();
   nsSound::Shutdown();
   nsWindow::ReleaseGlobals();
+  IMContextWrapper::Shutdown();
   KeymapWrapper::Shutdown();
   nsGTKToolkit::Shutdown();
   nsAppShellShutdown();

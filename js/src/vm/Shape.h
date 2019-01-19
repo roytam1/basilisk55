@@ -607,6 +607,7 @@ class Shape : public gc::TenuredCell
 
   protected:
     GCPtrBaseShape base_;
+    GCPtrShape parent;
     PreBarrieredId propid_;
 
     enum SlotInfo : uint32_t
@@ -640,7 +641,6 @@ class Shape : public gc::TenuredCell
     uint8_t             attrs;          /* attributes, see jsapi.h JSPROP_* */
     uint8_t             flags;          /* flags, see below for defines */
 
-    GCPtrShape   parent;          /* parent node, reverse for..in order */
     /* kids is valid when !inDictionary(), listp is valid when inDictionary(). */
     union {
         KidsPointer kids;         /* null, single child, or a tagged ptr
@@ -1394,11 +1394,12 @@ class MutableWrappedPtrOperations<StackShape, Wrapper>
 inline
 Shape::Shape(const StackShape& other, uint32_t nfixed)
   : base_(other.base),
+    parent(nullptr),
     propid_(other.propid),
     slotInfo(other.maybeSlot() | (nfixed << FIXED_SLOTS_SHIFT)),
     attrs(other.attrs),
-    flags(other.flags),
-    parent(nullptr)
+    flags(other.flags)
+
 {
 #ifdef DEBUG
     gc::AllocKind allocKind = getAllocKind();
@@ -1455,11 +1456,11 @@ AccessorShape::AccessorShape(const StackShape& other, uint32_t nfixed)
 inline
 Shape::Shape(UnownedBaseShape* base, uint32_t nfixed)
   : base_(base),
+    parent(nullptr),
     propid_(JSID_EMPTY),
     slotInfo(SHAPE_INVALID_SLOT | (nfixed << FIXED_SLOTS_SHIFT)),
     attrs(JSPROP_SHARED),
-    flags(0),
-    parent(nullptr)
+    flags(0)
 {
     MOZ_ASSERT(base);
     kids.setNull();

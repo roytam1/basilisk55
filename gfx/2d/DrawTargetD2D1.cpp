@@ -41,6 +41,7 @@ ID2D1Factory1 *D2DFactory1()
 DrawTargetD2D1::DrawTargetD2D1()
   : mPushedLayers(1)
   , mUsedCommandListsSincePurge(0)
+  , mTransformedGlyphsSinceLastPurge(0)
   , mDidComplexBlendWithListInList(false)
 {
 }
@@ -102,11 +103,15 @@ DrawTargetD2D1::Snapshot()
 // are expensive though, especially relatively when little work is done, so
 // we try to reduce the amount of times we execute these purges.
 static const uint32_t kPushedLayersBeforePurge = 25;
+// Rendering glyphs with different transforms causes the glyph cache to grow
+// very large (see bug 1474883) so we must call EndDraw every so often.
+static const uint32_t kTransformedGlyphsBeforePurge = 1000;
 
 void
 DrawTargetD2D1::Flush()
 {
-  if ((mUsedCommandListsSincePurge >= kPushedLayersBeforePurge) &&
+  if ((mUsedCommandListsSincePurge >= kPushedLayersBeforePurge ||
+       mTransformedGlyphsSinceLastPurge >= kTransformedGlyphsBeforePurge) &&
       mPushedLayers.size() == 1) {
     // It's important to pop all clips as otherwise layers can forget about
     // their clip when doing an EndDraw. When we have layers pushed we cannot
@@ -114,6 +119,7 @@ DrawTargetD2D1::Flush()
     // layers pushed.
     PopAllClips();
     mUsedCommandListsSincePurge = 0;
+    mTransformedGlyphsSinceLastPurge = 0;
     mDC->EndDraw();
     mDC->BeginDraw();
   } else {
@@ -651,6 +657,10 @@ DrawTargetD2D1::FillGlyphs(ScaledFont *aFont,
 
   if (brush) {
     mDC->DrawGlyphRun(D2D1::Point2F(), &autoRun, brush);
+  }
+
+  if (mTransform.HasNonTranslation()) {
+    mTransformedGlyphsSinceLastPurge += aBuffer.mNumGlyphs;
   }
 
   if (needsRepushedLayers) {

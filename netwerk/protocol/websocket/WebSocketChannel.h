@@ -167,6 +167,7 @@ private:
   void     ReportConnectionTelemetry();
 
   void StopSession(nsresult reason);
+  void DoStopSession(nsresult reason);
   void AbortSession(nsresult reason);
   void ReleaseSession();
   void CleanupConnection();
@@ -301,6 +302,8 @@ private:
   bool                            mPrivateBrowsing;
 
   nsCOMPtr<nsIDashboardEventNotifier> mConnectionLogService;
+
+  mozilla::Mutex mMutex;
 };
 
 class WebSocketSSLChannel : public WebSocketChannel

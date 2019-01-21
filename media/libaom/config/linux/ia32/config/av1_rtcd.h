@@ -214,8 +214,7 @@ void av1_highbd_dr_prediction_z1_avx2(uint16_t *dst, ptrdiff_t stride, int bw, i
 RTCD_EXTERN void (*av1_highbd_dr_prediction_z1)(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int dx, int dy, int bd);
 
 void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int upsample_left, int dx, int dy, int bd);
-void av1_highbd_dr_prediction_z2_avx2(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int upsample_left, int dx, int dy, int bd);
-RTCD_EXTERN void (*av1_highbd_dr_prediction_z2)(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_above, int upsample_left, int dx, int dy, int bd);
+#define av1_highbd_dr_prediction_z2 av1_highbd_dr_prediction_z2_c
 
 void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_left, int dx, int dy, int bd);
 void av1_highbd_dr_prediction_z3_avx2(uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_left, int dx, int dy, int bd);
@@ -529,8 +528,6 @@ static void setup_rtcd_internal(void)
     if (flags & HAS_AVX2) av1_highbd_dist_wtd_convolve_y = av1_highbd_dist_wtd_convolve_y_avx2;
     av1_highbd_dr_prediction_z1 = av1_highbd_dr_prediction_z1_c;
     if (flags & HAS_AVX2) av1_highbd_dr_prediction_z1 = av1_highbd_dr_prediction_z1_avx2;
-    av1_highbd_dr_prediction_z2 = av1_highbd_dr_prediction_z2_c;
-    if (flags & HAS_AVX2) av1_highbd_dr_prediction_z2 = av1_highbd_dr_prediction_z2_avx2;
     av1_highbd_dr_prediction_z3 = av1_highbd_dr_prediction_z3_c;
     if (flags & HAS_AVX2) av1_highbd_dr_prediction_z3 = av1_highbd_dr_prediction_z3_avx2;
     av1_highbd_inv_txfm_add = av1_highbd_inv_txfm_add_c;

@@ -2541,7 +2541,7 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   if (rd_stats->invalid_rate) return;
   if (rd_stats->rate == INT_MAX || rd_stats->dist == INT64_MAX) return;
 
-#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+#if 0  // CONFIG_COLLECT_INTER_MODE_RD_STATS
   if (cpi->sf.inter_mode_rd_model_estimation == 1 &&
       !tile_data->inter_mode_rd_models[plane_bsize].ready)
     return;
@@ -2549,7 +2549,10 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   (void)tile_data;
   // Generate small sample to restrict output size.
   static unsigned int seed = 95014;
-  if (lcg_rand16(&seed) % 256 > 0) return;
+
+  if ((lcg_rand16(&seed) % (1 << (14 - num_pels_log2_lookup[plane_bsize]))) !=
+      1)
+    return;
 
   const char output_file[] = "pu_stats.txt";
   FILE *fout = fopen(output_file, "a");
@@ -2621,11 +2624,10 @@ static void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   fprintf(fout, " %g %g %g", model_rate_norm, model_dist_norm,
           model_rdcost_norm);
 
-#if CONFIG_COLLECT_INTER_MODE_RD_STATS
+#if 0  // CONFIG_COLLECT_INTER_MODE_RD_STATS
   if (cpi->sf.inter_mode_rd_model_estimation == 1) {
     assert(tile_data->inter_mode_rd_models[plane_bsize].ready);
     const int64_t overall_sse = get_sse(cpi, x);
-    assert(tile_data->inter_mode_rd_models[plane_bsize].ready);
     int est_residue_cost = 0;
     int64_t est_dist = 0;
     get_est_rate_dist(tile_data, plane_bsize, overall_sse, &est_residue_cost,
@@ -2837,7 +2839,7 @@ static void model_rd_with_surffit(const AV1_COMP *const cpi,
   const double yl = log(sse_norm / qstepsqr) / log(2.0);
   double rate_f, dist_by_sse_norm_f;
 
-  av1_model_rd_surffit(xm, yl, &rate_f, &dist_by_sse_norm_f);
+  av1_model_rd_surffit(plane_bsize, xm, yl, &rate_f, &dist_by_sse_norm_f);
 
   const double dist_f = dist_by_sse_norm_f * sse_norm;
   int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
@@ -2942,7 +2944,7 @@ static void model_rd_with_curvfit(const AV1_COMP *const cpi,
   const double xqr = log(sse_norm / qstepsqr) / log(2.0);
 
   double rate_f, dist_by_sse_norm_f;
-  av1_model_rd_curvfit(xqr, &rate_f, &dist_by_sse_norm_f);
+  av1_model_rd_curvfit(plane_bsize, xqr, &rate_f, &dist_by_sse_norm_f);
 
   const double dist_f = dist_by_sse_norm_f * sse_norm;
   int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
@@ -6951,19 +6953,23 @@ static void setup_buffer_ref_mvs_inter(
     struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE]) {
   const AV1_COMMON *cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
-  const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
+  const YV12_BUFFER_CONFIG *scaled_ref_frame =
+      av1_get_scaled_ref_frame(cpi, ref_frame);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const struct scale_factors *const sf =
-      get_ref_scale_factors_const(cm, ref_frame);
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
 
-  assert(yv12 != NULL);
-
-  // TODO(jkoleszar): Is the UV buffer ever used here? If so, need to make this
-  // use the UV scaling factors.
-  av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, mi_row, mi_col, sf, sf,
-                       num_planes);
+  if (scaled_ref_frame) {
+    av1_setup_pred_block(xd, yv12_mb[ref_frame], scaled_ref_frame, mi_row,
+                         mi_col, NULL, NULL, num_planes);
+  } else {
+    const struct scale_factors *const sf =
+        get_ref_scale_factors_const(cm, ref_frame);
+    const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
+    assert(yv12 != NULL);
+    av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, mi_row, mi_col, sf, sf,
+                         num_planes);
+  }
 
   // Gets an initial list of candidate vectors from neighbours and orders them
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
@@ -6973,9 +6979,8 @@ static void setup_buffer_ref_mvs_inter(
   // Further refinement that is encode side only to test the top few candidates
   // in full and choose the best as the centre point for subsequent searches.
   // The current implementation doesn't support scaling.
-  (void)block_size;
-  av1_mv_pred(cpi, x, yv12_mb[ref_frame][0].buf, yv12->y_stride, ref_frame,
-              block_size);
+  av1_mv_pred(cpi, x, yv12_mb[ref_frame][0].buf, yv12_mb[ref_frame][0].stride,
+              ref_frame, block_size);
 }
 
 static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,

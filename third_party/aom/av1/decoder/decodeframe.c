@@ -2373,7 +2373,7 @@ static void setup_buffer_pool(AV1_COMMON *cm) {
   if (aom_realloc_frame_buffer(
           &cm->cur_frame->buf, cm->width, cm->height, seq_params->subsampling_x,
           seq_params->subsampling_y, seq_params->use_highbitdepth,
-          AOM_BORDER_IN_PIXELS, cm->byte_alignment,
+          AOM_DEC_BORDER_IN_PIXELS, cm->byte_alignment,
           &cm->cur_frame->raw_frame_buffer, pool->get_fb_cb, pool->cb_priv)) {
     unlock_buffer_pool(pool);
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
@@ -4717,6 +4717,7 @@ static void generate_next_ref_frame_map(AV1Decoder *const pbi) {
 // If the refresh_frame_flags bitmask is set, update reference frame id values
 // and mark frames as valid for reference.
 static void update_ref_frame_id(AV1_COMMON *const cm, int frame_id) {
+  assert(cm->seq_params.frame_id_numbers_present_flag);
   int refresh_frame_flags = cm->current_frame.refresh_frame_flags;
   for (int i = 0; i < REF_FRAMES; i++) {
     if ((refresh_frame_flags >> i) & 1) {
@@ -4827,6 +4828,10 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       // Show an existing frame directly.
       const int existing_frame_idx = aom_rb_read_literal(rb, 3);
       RefCntBuffer *const frame_to_show = cm->ref_frame_map[existing_frame_idx];
+      if (frame_to_show == NULL) {
+        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                           "Buffer does not contain a decoded frame");
+      }
       if (seq_params->decoder_model_info_present_flag &&
           cm->timing_info.equal_picture_interval == 0) {
         av1_read_temporal_point_info(cm, rb);
@@ -4842,11 +4847,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                              "Reference buffer frame ID mismatch");
       }
       lock_buffer_pool(pool);
-      if (frame_to_show == NULL || frame_to_show->ref_count < 1) {
-        unlock_buffer_pool(pool);
-        aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                           "Buffer does not contain a decoded frame");
-      }
+      assert(frame_to_show->ref_count > 0);
       // cm->cur_frame should be the buffer referenced by the return value
       // of the get_free_fb() call in av1_receive_compressed_data(), and
       // generate_next_ref_frame_map() has not been called, so ref_count

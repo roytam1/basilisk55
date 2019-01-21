@@ -54,16 +54,14 @@ static uint8_t intrabc_max_mesh_pct[MAX_MESH_SPEED + 1] = { 100, 100, 100,
 
 // Threshold values to be used for pruning the txfm_domain_distortion
 // based on block MSE
-// TODO(any): Extend the threshold logic for faster presets and refine the
-// thresholds
+// TODO(any): Experiment the threshold logic based on variance metric
 static unsigned int tx_domain_dist_thresholds[MAX_TX_DOMAIN_EVAL_SPEED + 1] = {
-  UINT_MAX, 162754, 22026, 0, 0, 0
+  UINT_MAX, 162754, 22026, 22026, 22026, 0
 };
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE
-// TODO(any): Extend the threshold logic for lower presets and refine the
-// thresholds
-static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, UINT_MAX, 162754,
+// TODO(any): Experiment the threshold logic based on variance metric
+static unsigned int coeff_opt_dist_thresholds[5] = { UINT_MAX, 162754, 162754,
                                                      22026, 22026 };
 // scaling values to be used for gating wedge/compound segment based on best
 // approximate rd
@@ -271,11 +269,12 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     // speed.
     sf->prune_single_motion_modes_by_simple_trans = 1;
 
-    sf->full_pixel_motion_search_based_split = 1;
+    sf->simple_motion_search_split_only = 1;
     sf->simple_motion_search_prune_rect = 1;
 
     sf->disable_wedge_search_var_thresh = 0;
     sf->disable_wedge_search_edge_thresh = 0;
+    sf->disable_interinter_wedge_newmv_search = boosted ? 0 : 1;
     sf->prune_comp_type_by_comp_avg = 1;
     sf->prune_motion_mode_level = 2;
     sf->gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
@@ -303,6 +302,7 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->allow_partition_search_skip = 1;
     sf->disable_wedge_search_var_thresh = 100;
     sf->disable_wedge_search_edge_thresh = 0;
+    sf->disable_interinter_wedge_newmv_search = 1;
     sf->fast_wedge_sign_estimate = 1;
     sf->disable_dual_filter = 1;
     sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
@@ -328,8 +328,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_type_search.prune_mode = PRUNE_2D_FAST;
     sf->gm_search_type = GM_DISABLE_SEARCH;
     sf->prune_comp_search_by_single_result = 2;
-    // TODO(any): evaluate this speed feature for speed 1 & 2.
-    sf->disable_interinter_wedge_newmv_search = 1;
     sf->prune_motion_mode_level = boosted ? 2 : 3;
     sf->prune_warp_using_wmtype = 1;
     // TODO(yunqing): evaluate this speed feature for speed 1 & 2, and combine
@@ -342,7 +340,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->use_intra_txb_hash = 0;
     sf->use_mb_rd_hash = 0;
     sf->tx_type_search.fast_intra_tx_type_search = 1;
-    sf->tx_type_search.fast_inter_tx_type_search = 1;
     sf->use_square_partition_only_threshold =
         boosted ? BLOCK_128X128 : BLOCK_4X4;
     sf->tx_size_search_method =
@@ -414,8 +411,6 @@ static void set_good_speed_features_framesize_independent(AV1_COMP *cpi,
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  RD_OPT *const rd = &cpi->rd;
-  int i;
 
   if (oxcf->mode == GOOD) {
     set_good_speed_feature_framesize_dependent(cpi, sf, oxcf->speed);
@@ -423,13 +418,6 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi) {
 
   if (sf->disable_split_mask == DISABLE_ALL_SPLIT) {
     sf->adaptive_pred_interp_filter = 0;
-  }
-
-  // Check for masked out split cases.
-  for (i = 0; i < MAX_REFS; ++i) {
-    if (sf->disable_split_mask & (1 << i)) {
-      rd->thresh_mult_sub8x8[i] = INT_MAX;
-    }
   }
 
   // This is only used in motion vector unit test.
@@ -554,7 +542,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi) {
   for (i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
     sf->ml_partition_search_breakout_thresh[i] = -1;  // -1 means not enabled.
   }
-  sf->full_pixel_motion_search_based_split = 0;
+  sf->simple_motion_search_split_only = 0;
   sf->simple_motion_search_prune_rect = 0;
 
   // Set this at the appropriate speed levels

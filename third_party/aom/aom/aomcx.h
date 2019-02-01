@@ -973,9 +973,22 @@ enum aome_enc_control_id {
   /*!\brief Control to use a reduced tx type set */
   AV1E_SET_REDUCED_TX_TYPE_SET,
 
+  /*!\brief Control to use dct only for intra modes */
+  AV1E_SET_INTRA_DCT_ONLY,
+
+  /*!\brief Control to use dct only for inter modes */
+  AV1E_SET_INTER_DCT_ONLY,
+
+  /*!\brief Control to use adaptive quantize_b */
+  AV1E_SET_QUANT_B_ADAPT,
+
   /*!\brief Control to select maximum height for the GF group pyramid structure
    * (valid values: 1 - 4) */
   AV1E_SET_GF_MAX_PYRAMID_HEIGHT,
+
+  /*!\brief Control to select maximum reference frames allowed per frame
+   * (valid values: 3 - 7) */
+  AV1E_SET_MAX_REFERENCE_FRAMES,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1350,8 +1363,20 @@ AOM_CTRL_USE_TYPE(AV1E_SET_CHROMA_SUBSAMPLING_Y, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_REDUCED_TX_TYPE_SET, unsigned int)
 #define AOM_CTRL_AV1E_SET_REDUCED_TX_TYPE_SET
 
+AOM_CTRL_USE_TYPE(AV1E_SET_INTRA_DCT_ONLY, unsigned int)
+#define AOM_CTRL_AV1E_SET_INTRA_DCT_ONLY
+
+AOM_CTRL_USE_TYPE(AV1E_SET_INTER_DCT_ONLY, unsigned int)
+#define AOM_CTRL_AV1E_SET_INTER_DCT_ONLY
+
+AOM_CTRL_USE_TYPE(AV1E_SET_QUANT_B_ADAPT, unsigned int)
+#define AOM_CTRL_AV1E_SET_QUANT_B_ADAPT
+
 AOM_CTRL_USE_TYPE(AV1E_SET_GF_MAX_PYRAMID_HEIGHT, unsigned int)
 #define AOM_CTRL_AV1E_SET_GF_MAX_PYRAMID_HEIGHT
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MAX_REFERENCE_FRAMES, unsigned int)
+#define AOM_CTRL_AV1E_SET_MAX_REFERENCE_FRAMES
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */

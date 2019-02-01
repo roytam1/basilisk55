@@ -54,10 +54,10 @@ typedef struct macroblock_plane {
 typedef struct {
   int txb_skip_cost[TXB_SKIP_CONTEXTS][2];
   int base_eob_cost[SIG_COEF_CONTEXTS_EOB][3];
-  int base_cost[SIG_COEF_CONTEXTS][4];
+  int base_cost[SIG_COEF_CONTEXTS][8];
   int eob_extra_cost[EOB_COEF_CONTEXTS][2];
   int dc_sign_cost[DC_SIGN_CONTEXTS][2];
-  int lps_cost[LEVEL_CONTEXTS][COEFF_BASE_RANGE + 1];
+  int lps_cost[LEVEL_CONTEXTS][COEFF_BASE_RANGE + 1 + COEFF_BASE_RANGE + 1];
 } LV_MAP_COEFF_COST;
 
 typedef struct {
@@ -192,16 +192,14 @@ typedef struct {
   int32_t rate[COMPOUND_TYPES];
   int64_t dist[COMPOUND_TYPES];
   int_mv mv[2];
-  int8_t ref_frames[2];
+  MV_REFERENCE_FRAME ref_frames[2];
   PREDICTION_MODE mode;
   InterpFilters filter;
   int ref_mv_idx;
   int is_global[2];
 } COMP_RD_STATS;
 
-#if CONFIG_COLLECT_INTER_MODE_RD_STATS
 struct inter_modes_info;
-#endif
 typedef struct macroblock MACROBLOCK;
 struct macroblock {
   struct macroblock_plane plane[MAX_MB_PLANE];
@@ -300,9 +298,7 @@ struct macroblock {
   // to the accurate tile context.
   FRAME_CONTEXT *tile_pb_ctx;
 
-#if CONFIG_COLLECT_INTER_MODE_RD_STATS
   struct inter_modes_info *inter_modes_info;
-#endif
 
   // buffer for hash value calculation of a block
   // used only in av1_get_block_hash_value()

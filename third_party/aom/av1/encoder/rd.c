@@ -508,6 +508,17 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
         av1_cost_tokens_from_cdf(pcost->base_cost[ctx],
                                  fc->coeff_base_cdf[tx_size][plane][ctx], NULL);
 
+      for (int ctx = 0; ctx < SIG_COEF_CONTEXTS; ++ctx) {
+        pcost->base_cost[ctx][4] = 0;
+        pcost->base_cost[ctx][5] = pcost->base_cost[ctx][1] +
+                                   av1_cost_literal(1) -
+                                   pcost->base_cost[ctx][0];
+        pcost->base_cost[ctx][6] =
+            pcost->base_cost[ctx][2] - pcost->base_cost[ctx][1];
+        pcost->base_cost[ctx][7] =
+            pcost->base_cost[ctx][3] - pcost->base_cost[ctx][2];
+      }
+
       for (int ctx = 0; ctx < EOB_COEF_CONTEXTS; ++ctx)
         av1_cost_tokens_from_cdf(pcost->eob_extra_cost[ctx],
                                  fc->eob_extra_cdf[tx_size][plane][ctx], NULL);
@@ -537,6 +548,14 @@ void av1_fill_coeff_costs(MACROBLOCK *x, FRAME_CONTEXT *fc,
         // for (i = 0; i <= COEFF_BASE_RANGE; i++)
         //  printf("%5d ", pcost->lps_cost[ctx][i]);
         // printf("\n");
+      }
+      for (int ctx = 0; ctx < LEVEL_CONTEXTS; ++ctx) {
+        pcost->lps_cost[ctx][0 + COEFF_BASE_RANGE + 1] =
+            pcost->lps_cost[ctx][0];
+        for (int i = 1; i <= COEFF_BASE_RANGE; ++i) {
+          pcost->lps_cost[ctx][i + COEFF_BASE_RANGE + 1] =
+              pcost->lps_cost[ctx][i] - pcost->lps_cost[ctx][i - 1];
+        }
       }
     }
   }
@@ -697,6 +716,10 @@ static double interp_bicubic(const double *p, int p_stride, double x,
 static const uint8_t bsize_model_cat_lookup[BLOCK_SIZES_ALL] = {
   0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2
 };
+
+static int sse_norm_model_cat_lookup(double sse_norm) {
+  return (sse_norm > 16.0);
+}
 
 static const double interp_rgrid_surf[4][33 * 18] = {
   {
@@ -1273,8 +1296,9 @@ static const double interp_dgrid_surf[33 * 18] = {
   0.007205,  0.007205,  0.007203,  0.004341,  0.004340,  0.004338,
 };
 
-void av1_model_rd_surffit(BLOCK_SIZE bsize, double xm, double yl,
-                          double *rate_f, double *dist_f) {
+void av1_model_rd_surffit(BLOCK_SIZE bsize, double sse_norm, double xm,
+                          double yl, double *rate_f, double *dist_f) {
+  (void)sse_norm;
   const double x_start = -0.5;
   const double x_end = 16.5;
   const double x_step = 1.0;
@@ -1283,7 +1307,7 @@ void av1_model_rd_surffit(BLOCK_SIZE bsize, double xm, double yl,
   const double y_step = 1.0;
   const double epsilon = 1e-6;
   const int stride = (int)rint((x_end - x_start) / x_step) + 1;
-  const int cat = bsize_model_cat_lookup[bsize];
+  const int rcat = bsize_model_cat_lookup[bsize];
   (void)y_end;
 
   xm = AOMMAX(xm, x_start + x_step + epsilon);
@@ -1301,7 +1325,7 @@ void av1_model_rd_surffit(BLOCK_SIZE bsize, double xm, double yl,
 
   const double yo = y - yi;
   const double xo = x - xi;
-  const double *prate = &interp_rgrid_surf[cat][(yi - 1) * stride + (xi - 1)];
+  const double *prate = &interp_rgrid_surf[rcat][(yi - 1) * stride + (xi - 1)];
   const double *pdist = &interp_dgrid_surf[(yi - 1) * stride + (xi - 1)];
   *rate_f = interp_bicubic(prate, stride, xo, yo);
   *dist_f = interp_bicubic(pdist, stride, xo, yo);
@@ -1311,85 +1335,102 @@ static const double interp_rgrid_curv[4][65] = {
   {
       0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
       0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
-      0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    23.801499,   28.387688,   33.388795,   42.298282,
       41.525408,   51.597692,   49.566271,   54.632979,   60.321507,
       67.730678,   75.766165,   85.324032,   96.600012,   120.839562,
       173.917577,  255.974908,  354.107573,  458.063476,  562.345966,
       668.568424,  772.072881,  878.598490,  982.202274,  1082.708946,
       1188.037853, 1287.702240, 1395.588773, 1490.825830, 1584.231230,
       1691.386090, 1766.822555, 1869.630904, 1926.743565, 2002.949495,
-      2047.431137, 2138.486068, 2154.743767, 2209.242472, 2278.252010,
-      2298.028834, 2302.326180, 2293.979995, 2275.826226, 2250.700821,
-      2221.439725, 2190.878887, 2161.854252, 2137.201768, 2119.757381,
-      2112.357039, 2117.836689, 2139.032277, 2178.779750, 2239.915056,
-  },
-  {
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      11.561347,    12.578139,    14.205101,    16.770584,    19.094853,
-      21.330863,    23.298907,    26.901921,    34.501017,    57.891733,
-      112.234763,   194.853189,   288.302032,   380.499422,   472.625309,
-      560.226809,   647.928463,   734.155122,   817.489721,   906.265783,
-      999.260562,   1094.489206,  1197.062998,  1293.296825,  1378.926484,
-      1472.760990,  1552.663779,  1635.196884,  1692.451951,  1759.741063,
-      1822.162720,  1916.515921,  1966.686071,  2031.647506,  2031.381029,
-      2067.971335,  2203.662704,  2500.257936,  3019.559830,  3823.371186,
-      4973.494802,  6531.733478,  8559.890013,  11119.767206, 14273.167855,
-      18081.894761, 22607.750723, 27912.538538, 34058.061008, 41106.120930,
+      2047.431137, 2138.486068, 2154.743767, 2209.242472, 2277.593051,
+      2290.996432, 2307.452938, 2343.567091, 2397.654644, 2469.425868,
+      2558.591037, 2664.860422, 2787.944296, 2927.552932, 3083.396602,
+      3255.185579, 3442.630134, 3645.440541, 3863.327072, 4096.000000,
   },
   {
       0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
       0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    8.998436,    9.439592,    9.731837,    10.865931,
+      11.561347,   12.578139,   14.205101,   16.770584,   19.094853,
+      21.330863,   23.298907,   26.901921,   34.501017,   57.891733,
+      112.234763,  194.853189,  288.302032,  380.499422,  472.625309,
+      560.226809,  647.928463,  734.155122,  817.489721,  906.265783,
+      999.260562,  1094.489206, 1197.062998, 1293.296825, 1378.926484,
+      1472.760990, 1552.663779, 1635.196884, 1692.451951, 1759.741063,
+      1822.162720, 1916.515921, 1966.686071, 2031.647506, 2033.700134,
+      2087.847688, 2161.688858, 2242.536028, 2334.023491, 2436.337802,
+      2549.665519, 2674.193198, 2810.107395, 2957.594666, 3116.841567,
+      3288.034655, 3471.360486, 3667.005616, 3875.156602, 4096.000000,
+  },
+  {
       0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    2.377584,    2.557185,    2.732445,    2.851114,
       3.281800,    3.765589,    4.342578,    5.145582,    5.611038,
       6.642238,    7.945977,    11.800522,   17.346624,   37.501413,
       87.216800,   165.860942,  253.865564,  332.039345,  408.518863,
       478.120452,  547.268590,  616.067676,  680.022540,  753.863541,
       834.529973,  919.489191,  1008.264989, 1092.230318, 1173.971886,
       1249.514122, 1330.510941, 1399.523249, 1466.923387, 1530.533471,
-      1586.515722, 1695.197774, 1746.648696, 1837.136959, 1909.056910,
-      1974.948082, 2063.374132, 2178.496387, 2324.476176, 2505.474827,
-      2725.653666, 2989.174023, 3300.197225, 3662.884600, 4081.397476,
-      4559.897180, 5102.545042, 5713.502387, 6396.930546, 7156.990844,
+      1586.515722, 1695.197774, 1746.648696, 1837.136959, 1909.075485,
+      1975.074651, 2060.159200, 2155.335095, 2259.762505, 2373.710437,
+      2497.447898, 2631.243895, 2775.367434, 2930.087523, 3095.673170,
+      3272.393380, 3460.517161, 3660.313520, 3872.051464, 4096.000000,
   },
   {
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      0.000000,     0.000000,     0.000000,     0.000000,     0.000000,
-      0.614483,     0.842937,     1.050824,     1.326663,     1.717750,
-      2.530591,     3.582302,     6.995373,     9.973335,     24.042464,
-      56.598240,    113.680735,   180.018689,   231.050567,   266.101082,
-      294.957934,   323.326511,   349.434429,   380.443211,   408.171987,
-      441.214916,   475.716772,   512.900000,   551.186939,   592.364455,
-      624.527378,   661.940693,   679.185473,   724.800679,   764.781792,
-      873.050019,   950.299001,   939.292954,   1052.406153,  1030.816617,
-      1086.316710,  1275.467594,  1671.923018,  2349.336727,  3381.362469,
-      4841.653990,  6803.865037,  9341.649358,  12528.660698, 16438.552805,
-      21144.979426, 26721.594308, 33242.051197, 40780.003840, 49409.105984,
+      0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    0.000000,    0.000000,    0.000000,    0.000000,
+      0.000000,    0.296997,    0.342545,    0.403097,    0.472889,
+      0.614483,    0.842937,    1.050824,    1.326663,    1.717750,
+      2.530591,    3.582302,    6.995373,    9.973335,    24.042464,
+      56.598240,   113.680735,  180.018689,  231.050567,  266.101082,
+      294.957934,  323.326511,  349.434429,  380.443211,  408.171987,
+      441.214916,  475.716772,  512.900000,  551.186939,  592.364455,
+      624.527378,  661.940693,  679.185473,  724.800679,  764.781792,
+      873.050019,  950.299001,  939.292954,  1052.406153, 1033.893184,
+      1112.182406, 1219.174326, 1337.296681, 1471.648357, 1622.492809,
+      1790.093491, 1974.713858, 2176.617364, 2396.067465, 2633.327614,
+      2888.661266, 3162.331876, 3454.602899, 3765.737789, 4096.000000,
   },
 };
 
-static const double interp_dgrid_curv[65] = {
-  14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.604855,
-  14.604855, 14.604855, 14.604855, 14.604855, 14.604855, 14.555776, 14.533692,
-  14.439920, 14.257791, 13.977230, 13.623229, 13.064884, 12.355411, 11.560773,
-  10.728960, 9.861975,  8.643612,  6.916021,  5.154769,  3.734940,  2.680051,
-  1.925506,  1.408410,  1.042223,  0.767641,  0.565392,  0.420116,  0.310427,
-  0.231711,  0.172999,  0.128293,  0.094992,  0.072171,  0.052972,  0.039354,
-  0.029555,  0.022857,  0.016832,  0.013297,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,  0.000000,
-  0.000000,  0.000000,
+static const double interp_dgrid_curv[2][65] = {
+  {
+      16.000000, 15.962891, 15.925174, 15.886888, 15.848074, 15.808770,
+      15.769015, 15.728850, 15.688313, 15.647445, 15.606284, 15.564870,
+      15.525918, 15.483820, 15.373330, 15.126844, 14.637442, 14.184387,
+      13.560070, 12.880717, 12.165995, 11.378144, 10.438769, 9.130790,
+      7.487633,  5.688649,  4.267515,  3.196300,  2.434201,  1.834064,
+      1.369920,  1.035921,  0.775279,  0.574895,  0.427232,  0.314123,
+      0.233236,  0.171440,  0.128188,  0.092762,  0.067569,  0.049324,
+      0.036330,  0.027008,  0.019853,  0.015539,  0.011093,  0.008733,
+      0.007624,  0.008105,  0.005427,  0.004065,  0.003427,  0.002848,
+      0.002328,  0.001865,  0.001457,  0.001103,  0.000801,  0.000550,
+      0.000348,  0.000193,  0.000085,  0.000021,  0.000000,
+  },
+  {
+      16.000000, 15.996116, 15.984769, 15.966413, 15.941505, 15.910501,
+      15.873856, 15.832026, 15.785466, 15.734633, 15.679981, 15.621967,
+      15.560961, 15.460157, 15.288367, 15.052462, 14.466922, 13.921212,
+      13.073692, 12.222005, 11.237799, 9.985848,  8.898823,  7.423519,
+      5.995325,  4.773152,  3.744032,  2.938217,  2.294526,  1.762412,
+      1.327145,  1.020728,  0.765535,  0.570548,  0.425833,  0.313825,
+      0.232959,  0.171324,  0.128174,  0.092750,  0.067558,  0.049319,
+      0.036330,  0.027008,  0.019853,  0.015539,  0.011093,  0.008733,
+      0.007624,  0.008105,  0.005427,  0.004065,  0.003427,  0.002848,
+      0.002328,  0.001865,  0.001457,  0.001103,  0.000801,  0.000550,
+      0.000348,  0.000193,  0.000085,  0.000021,  -0.000000,
+  },
 };
 
-void av1_model_rd_curvfit(BLOCK_SIZE bsize, double xqr, double *rate_f,
-                          double *distbysse_f) {
+void av1_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
+                          double *rate_f, double *distbysse_f) {
   const double x_start = -15.5;
   const double x_end = 16.5;
   const double x_step = 0.5;
   const double epsilon = 1e-6;
-  const int cat = bsize_model_cat_lookup[bsize];
+  const int rcat = bsize_model_cat_lookup[bsize];
+  const int dcat = sse_norm_model_cat_lookup(sse_norm);
   (void)x_end;
 
   xqr = AOMMAX(xqr, x_start + x_step + epsilon);
@@ -1400,9 +1441,9 @@ void av1_model_rd_curvfit(BLOCK_SIZE bsize, double xqr, double *rate_f,
 
   assert(xi > 0);
 
-  const double *prate = &interp_rgrid_curv[cat][(xi - 1)];
-  const double *pdist = &interp_dgrid_curv[(xi - 1)];
+  const double *prate = &interp_rgrid_curv[rcat][(xi - 1)];
   *rate_f = interp_cubic(prate, xo);
+  const double *pdist = &interp_dgrid_curv[dcat][(xi - 1)];
   *distbysse_f = interp_cubic(pdist, xo);
 }
 
@@ -1565,7 +1606,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   } else {
     rd->thresh_mult[THR_NEARESTMV] = 0;
     rd->thresh_mult[THR_NEARESTL2] = 0;
-    rd->thresh_mult[THR_NEARESTL3] = 0;
+    rd->thresh_mult[THR_NEARESTL3] = 100;
     rd->thresh_mult[THR_NEARESTB] = 0;
     rd->thresh_mult[THR_NEARESTA2] = 0;
     rd->thresh_mult[THR_NEARESTA] = 0;
@@ -1576,7 +1617,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_NEWL2] += 1000;
   rd->thresh_mult[THR_NEWL3] += 1000;
   rd->thresh_mult[THR_NEWB] += 1000;
-  rd->thresh_mult[THR_NEWA2] = 1000;
+  rd->thresh_mult[THR_NEWA2] = 1100;
   rd->thresh_mult[THR_NEWA] += 1000;
   rd->thresh_mult[THR_NEWG] += 1000;
 
@@ -1588,18 +1629,18 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_NEARA] += 1000;
   rd->thresh_mult[THR_NEARG] += 1000;
 
-  rd->thresh_mult[THR_GLOBALMV] += 2000;
+  rd->thresh_mult[THR_GLOBALMV] += 2200;
   rd->thresh_mult[THR_GLOBALL2] += 2000;
   rd->thresh_mult[THR_GLOBALL3] += 2000;
-  rd->thresh_mult[THR_GLOBALB] += 2000;
+  rd->thresh_mult[THR_GLOBALB] += 2400;
   rd->thresh_mult[THR_GLOBALA2] = 2000;
   rd->thresh_mult[THR_GLOBALG] += 2000;
-  rd->thresh_mult[THR_GLOBALA] += 2000;
+  rd->thresh_mult[THR_GLOBALA] += 2400;
 
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTLA] += 1000;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTLA] += 1100;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL2A] += 1000;
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3A] += 1000;
-  rd->thresh_mult[THR_COMP_NEAREST_NEARESTGA] += 1000;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3A] += 800;
+  rd->thresh_mult[THR_COMP_NEAREST_NEARESTGA] += 900;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTLB] += 1000;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL2B] += 1000;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL3B] += 1000;
@@ -1617,17 +1658,17 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEARLA] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLA] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLA] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLA] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEARLA] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWLA] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLA] += 2500;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLA] += 1530;
+  rd->thresh_mult[THR_COMP_NEW_NEARLA] += 1870;
+  rd->thresh_mult[THR_COMP_NEW_NEWLA] += 2400;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLA] += 2750;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL2A] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL2A] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL2A] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWL2A] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWL2A] += 1870;
   rd->thresh_mult[THR_COMP_NEW_NEARL2A] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWL2A] += 2000;
+  rd->thresh_mult[THR_COMP_NEW_NEWL2A] += 1800;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL2A] += 2500;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL3A] += 1200;
@@ -1636,23 +1677,23 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEWL3A] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARL3A] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWL3A] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3A] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3A] += 3000;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARGA] += 1200;
+  rd->thresh_mult[THR_COMP_NEAR_NEARGA] += 1320;
   rd->thresh_mult[THR_COMP_NEAREST_NEWGA] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTGA] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWGA] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWGA] += 2040;
   rd->thresh_mult[THR_COMP_NEW_NEARGA] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWGA] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA] += 2250;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLB] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLB] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLB] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLB] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLB] += 1360;
   rd->thresh_mult[THR_COMP_NEW_NEARLB] += 1700;
-  rd->thresh_mult[THR_COMP_NEW_NEWLB] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLB] += 2500;
+  rd->thresh_mult[THR_COMP_NEW_NEWLB] += 2400;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLB] += 2250;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARL2B] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL2B] += 1500;
@@ -1665,7 +1706,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEARL3B] += 1200;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL3B] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL3B] += 1500;
-  rd->thresh_mult[THR_COMP_NEAR_NEWL3B] += 1700;
+  rd->thresh_mult[THR_COMP_NEAR_NEWL3B] += 1870;
   rd->thresh_mult[THR_COMP_NEW_NEARL3B] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWL3B] += 2000;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL3B] += 2500;
@@ -1679,7 +1720,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGB] += 2500;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLA2] += 1200;
-  rd->thresh_mult[THR_COMP_NEAREST_NEWLA2] += 1500;
+  rd->thresh_mult[THR_COMP_NEAREST_NEWLA2] += 1800;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLA2] += 1500;
   rd->thresh_mult[THR_COMP_NEAR_NEWLA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARLA2] += 1700;
@@ -1694,7 +1735,7 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEW_NEWL2A2] += 2000;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALL2A2] += 2500;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARL3A2] += 1200;
+  rd->thresh_mult[THR_COMP_NEAR_NEARL3A2] += 1440;
   rd->thresh_mult[THR_COMP_NEAREST_NEWL3A2] += 1500;
   rd->thresh_mult[THR_COMP_NEW_NEARESTL3A2] += 1500;
   rd->thresh_mult[THR_COMP_NEAR_NEWL3A2] += 1700;
@@ -1708,29 +1749,29 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAR_NEWGA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEARGA2] += 1700;
   rd->thresh_mult[THR_COMP_NEW_NEWGA2] += 2000;
-  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA2] += 2500;
+  rd->thresh_mult[THR_COMP_GLOBAL_GLOBALGA2] += 2750;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLL2] += 1600;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLL2] += 2000;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLL2] += 2000;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLL2] += 2200;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLL2] += 2640;
   rd->thresh_mult[THR_COMP_NEW_NEARLL2] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEWLL2] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLL2] += 3200;
 
   rd->thresh_mult[THR_COMP_NEAR_NEARLL3] += 1600;
   rd->thresh_mult[THR_COMP_NEAREST_NEWLL3] += 2000;
-  rd->thresh_mult[THR_COMP_NEW_NEARESTLL3] += 2000;
+  rd->thresh_mult[THR_COMP_NEW_NEARESTLL3] += 1800;
   rd->thresh_mult[THR_COMP_NEAR_NEWLL3] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEARLL3] += 2200;
   rd->thresh_mult[THR_COMP_NEW_NEWLL3] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLL3] += 3200;
 
-  rd->thresh_mult[THR_COMP_NEAR_NEARLG] += 1600;
-  rd->thresh_mult[THR_COMP_NEAREST_NEWLG] += 2000;
+  rd->thresh_mult[THR_COMP_NEAR_NEARLG] += 1760;
+  rd->thresh_mult[THR_COMP_NEAREST_NEWLG] += 2400;
   rd->thresh_mult[THR_COMP_NEW_NEARESTLG] += 2000;
-  rd->thresh_mult[THR_COMP_NEAR_NEWLG] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEARLG] += 2200;
+  rd->thresh_mult[THR_COMP_NEAR_NEWLG] += 1760;
+  rd->thresh_mult[THR_COMP_NEW_NEARLG] += 2640;
   rd->thresh_mult[THR_COMP_NEW_NEWLG] += 2400;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALLG] += 3200;
 
@@ -1738,21 +1779,21 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_COMP_NEAREST_NEWBA] += 2000;
   rd->thresh_mult[THR_COMP_NEW_NEARESTBA] += 2000;
   rd->thresh_mult[THR_COMP_NEAR_NEWBA] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEARBA] += 2200;
-  rd->thresh_mult[THR_COMP_NEW_NEWBA] += 2400;
+  rd->thresh_mult[THR_COMP_NEW_NEARBA] += 1980;
+  rd->thresh_mult[THR_COMP_NEW_NEWBA] += 2640;
   rd->thresh_mult[THR_COMP_GLOBAL_GLOBALBA] += 3200;
 
   rd->thresh_mult[THR_DC] += 1000;
   rd->thresh_mult[THR_PAETH] += 1000;
-  rd->thresh_mult[THR_SMOOTH] += 2000;
+  rd->thresh_mult[THR_SMOOTH] += 2200;
   rd->thresh_mult[THR_SMOOTH_V] += 2000;
   rd->thresh_mult[THR_SMOOTH_H] += 2000;
   rd->thresh_mult[THR_H_PRED] += 2000;
-  rd->thresh_mult[THR_V_PRED] += 2000;
+  rd->thresh_mult[THR_V_PRED] += 1800;
   rd->thresh_mult[THR_D135_PRED] += 2500;
-  rd->thresh_mult[THR_D203_PRED] += 2500;
+  rd->thresh_mult[THR_D203_PRED] += 2000;
   rd->thresh_mult[THR_D157_PRED] += 2500;
-  rd->thresh_mult[THR_D67_PRED] += 2500;
+  rd->thresh_mult[THR_D67_PRED] += 2000;
   rd->thresh_mult[THR_D113_PRED] += 2500;
   rd->thresh_mult[THR_D45_PRED] += 2500;
 }

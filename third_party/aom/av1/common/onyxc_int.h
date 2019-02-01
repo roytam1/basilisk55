@@ -378,7 +378,6 @@ typedef struct AV1Common {
   int show_frame;
   int showable_frame;  // frame can be used as show existing frame in future
   int show_existing_frame;
-  int reset_decoder_state;
 
   uint8_t disable_cdf_update;
   int allow_high_precision_mv;
@@ -432,6 +431,7 @@ typedef struct AV1Common {
   int qm_v;
   int min_qmlevel;
   int max_qmlevel;
+  int use_quant_b_adapt;
 
   /* We allocate a MB_MODE_INFO struct for each macroblock, together with
      an extra row on top and column on the left to simplify prediction. */
@@ -501,7 +501,6 @@ typedef struct AV1Common {
   int primary_ref_frame;
 
   int error_resilient_mode;
-  int force_primary_ref_none;
 
   int tile_cols, tile_rows;
 
@@ -642,6 +641,7 @@ static INLINE RefCntBuffer *assign_cur_frame_new_fb(AV1_COMMON *const cm) {
   if (new_fb_idx == INVALID_IDX) return NULL;
 
   cm->cur_frame = &cm->buffer_pool->frame_bufs[new_fb_idx];
+  cm->cur_frame->buf.buf_8bit_valid = 0;
   return cm->cur_frame;
 }
 

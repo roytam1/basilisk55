@@ -16,11 +16,24 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
+#include "aom/aom_encoder.h"
+
+#include "av1/encoder/encoder.h"
+#include "av1/encoder/firstpass.h"
+
 // This function will implement high-level encode strategy, choosing frame type,
 // frame placement, etc.  It populates an EncodeFrameParams struct with the
 // results of these decisions and then calls av1_encode()
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
-                        uint8_t *const dest, unsigned int *frame_flags);
+                        uint8_t *const dest, unsigned int *frame_flags,
+                        int64_t *const time_stamp, int64_t *const time_end,
+                        const aom_rational_t *const timebase, int flush);
+
+// Set individual buffer update flags based on frame reference type
+void av1_configure_buffer_updates(AV1_COMP *const cpi,
+                                  const FRAME_UPDATE_TYPE type);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -12,7 +12,7 @@
 #include "mozilla/TimeStamp.h"
 #include "gfxPrefs.h"
 #include <math.h>
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #define TEST_STEPS 1000
 #define DURATION_THRESHOLD 30

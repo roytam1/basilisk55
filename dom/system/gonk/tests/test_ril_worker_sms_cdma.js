@@ -199,7 +199,7 @@ add_test(function test_processCdmaSmsStatusReport() {
       scts:             null,
       dt:               null,
       encoding:         PDU_CDMA_MSG_CODING_7BITS_ASCII,
-      messageClass:     GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL],
+      messageClass:     GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL],
       messageType:      PDU_CDMA_MSG_TYPE_P2P,
       serviceCategory:  0,
       subMsgType:       PDU_CDMA_MSG_TYPE_DELIVER_ACK,
@@ -224,9 +224,9 @@ add_test(function test_processCdmaSmsStatusReport() {
     } else {
       // Check Delivery Status
       if (errorClass === 0) {
-        equal(postedMessage.deliveryStatus, GOANNA_SMS_DELIVERY_STATUS_SUCCESS);
+        equal(postedMessage.deliveryStatus, GECKO_SMS_DELIVERY_STATUS_SUCCESS);
       } else {
-        equal(postedMessage.deliveryStatus, GOANNA_SMS_DELIVERY_STATUS_ERROR);
+        equal(postedMessage.deliveryStatus, GECKO_SMS_DELIVERY_STATUS_ERROR);
       }
     }
   }

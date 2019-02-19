@@ -46,7 +46,7 @@ class GMPCrashHelper;
 // will stick around forever and leak.
 //
 // In the crashing case, the GMPCrashHelpers are deallocated when the crash
-// report is processed in GoannaMediaPluginService::RunPluginCrashCallbacks().
+// report is processed in GeckoMediaPluginService::RunPluginCrashCallbacks().
 //
 // It's a bit yuck that we have to have two paths for disconnecting the crash
 // helpers, but there aren't really any better options.
@@ -67,7 +67,7 @@ public:
   void MaybeDisconnect(bool aAbnormalShutdown)
   {
     if (!aAbnormalShutdown) {
-      RefPtr<gmp::GoannaMediaPluginService> service(gmp::GoannaMediaPluginService::GetGoannaMediaPluginService());
+      RefPtr<gmp::GeckoMediaPluginService> service(gmp::GeckoMediaPluginService::GetGeckoMediaPluginService());
       service->DisconnectCrashHelper(GetCrashHelper());
     }
   }

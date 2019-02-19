@@ -36,7 +36,7 @@ class CppEclipseBackend(CommonBackend):
         CommonBackend._init(self)
 
         self._paths_to_defines = {}
-        self._project_name = 'Goanna'
+        self._project_name = 'Gecko'
         self._workspace_dir = self._get_workspace_path()
         self._project_dir = os.path.join(self._workspace_dir, self._project_name)
         self._overwriting_workspace = os.path.isdir(self._workspace_dir)
@@ -184,9 +184,9 @@ class CppEclipseBackend(CommonBackend):
         exe_path = os.path.join(exe_path, self._appname + self._bin_suffix)
 
         if self.environment.substs['MOZ_WIDGET_TOOLKIT'] != 'gonk':
-            main_goanna_launch = os.path.join(launch_dir, 'goanna.launch')
-            with open(main_goanna_launch, 'wb') as fh:
-                launch = GOANNA_LAUNCH_CONFIG_TEMPLATE
+            main_gecko_launch = os.path.join(launch_dir, 'gecko.launch')
+            with open(main_gecko_launch, 'wb') as fh:
+                launch = GECKO_LAUNCH_CONFIG_TEMPLATE
                 launch = launch.replace('@LAUNCH_PROGRAM@', exe_path)
                 launch = launch.replace('@LAUNCH_ARGS@', '-P -no-remote')
                 fh.write(launch)
@@ -440,7 +440,7 @@ LANGUAGE_SETTINGS_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone=
 </project>
 """
 
-GOANNA_LAUNCH_CONFIG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+GECKO_LAUNCH_CONFIG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.cdt.launch.applicationLaunchType">
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.AUTO_SOLIB" value="true"/>
 <listAttribute key="org.eclipse.cdt.dsf.gdb.AUTO_SOLIB_LIST"/>
@@ -461,12 +461,12 @@ GOANNA_LAUNCH_CONFIG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standalo
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="@LAUNCH_ARGS@"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="@LAUNCH_PROGRAM@"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Goanna"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Gecko"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
 <booleanAttribute key="org.eclipse.cdt.launch.use_terminal" value="true"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/goanna"/>
+<listEntry value="/gecko"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
@@ -496,13 +496,13 @@ B2GFLASH_LAUNCH_CONFIG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8" standa
 <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="false"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="@LAUNCH_PROGRAM@"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Goanna"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Gecko"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
 <stringAttribute key="org.eclipse.cdt.launch.WORKING_DIRECTORY" value="@OBJDIR@"/>
 <booleanAttribute key="org.eclipse.cdt.launch.use_terminal" value="true"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/goanna"/>
+<listEntry value="/gecko"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>

@@ -21,7 +21,7 @@ StyleSheet::SheetInfo()
   if (IsServo()) {
     return AsServo()->mSheetInfo;
   }
-  return *AsGoanna()->mInner;
+  return *AsGecko()->mInner;
 }
 
 const StyleSheetInfo&
@@ -30,7 +30,7 @@ StyleSheet::SheetInfo() const
   if (IsServo()) {
     return AsServo()->mSheetInfo;
   }
-  return *AsGoanna()->mInner;
+  return *AsGecko()->mInner;
 }
 
 bool
@@ -121,7 +121,7 @@ void
 StyleSheet::AppendStyleSheet(StyleSheet* aSheet)
 {
   MOZ_STYLO_FORWARD_CONCRETE(AppendStyleSheet,
-                             (aSheet->AsGoanna()), (aSheet->AsServo()))
+                             (aSheet->AsGecko()), (aSheet->AsServo()))
 }
 
 nsIPrincipal*

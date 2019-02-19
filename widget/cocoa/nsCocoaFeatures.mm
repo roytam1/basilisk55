@@ -171,7 +171,7 @@ nsCocoaFeatures::OnSierraOrLater()
 
 /* Version of OnSierraOrLater as a global function callable from C (cairo) */
 bool
-Goanna_OnSierraOrLater()
+Gecko_OnSierraOrLater()
 {
     return nsCocoaFeatures::OnSierraOrLater();
 }

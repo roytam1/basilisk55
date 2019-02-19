@@ -225,7 +225,7 @@ YAHOO.env.getVersion = function(name) {
  * to the version number of the browser using the engine.  The value is 
  * presented as a float so that it can easily be used for boolean evaluation 
  * as well as for looking for a particular range of versions.  Because of this, 
- * some of the granularity of the version info may be lost (e.g., Goanna 1.8.0.9 
+ * some of the granularity of the version info may be lost (e.g., Gecko 1.8.0.9 
  * reports 1.8).
  * @class YAHOO.env.ua
  * @static
@@ -248,7 +248,7 @@ YAHOO.env.ua = function() {
         opera:0,
 
         /**
-         * Goanna engine revision number.  Will evaluate to 1 if Goanna 
+         * Gecko engine revision number.  Will evaluate to 1 if Gecko 
          * is detected but the revision could not be found. Other browsers
          * will be 0.  Example: 1.8
          * <pre>
@@ -257,10 +257,10 @@ YAHOO.env.ua = function() {
          * Firefox 2.0.0.3: 1.8.1.3 <-- Reports 1.8
          * Firefox 3 alpha: 1.9a4   <-- Reports 1.9
          * </pre>
-         * @property goanna
+         * @property gecko
          * @type float
          */
-        goanna:0,
+        gecko:0,
 
         /**
          * AppleWebKit version.  KHTML browsers that are not WebKit browsers 
@@ -354,12 +354,12 @@ YAHOO.env.ua = function() {
             if (m&&m[1]) {
                 o.ie=parseFloat(m[1]);
             } else { // not opera, webkit, or ie
-                m=ua.match(/Goanna\/([^\s]*)/);
+                m=ua.match(/Gecko\/([^\s]*)/);
                 if (m) {
-                    o.goanna=1; // Goanna detected, look for revision
+                    o.gecko=1; // Gecko detected, look for revision
                     m=ua.match(/rv:([^\s\)]*)/);
                     if (m&&m[1]) {
-                        o.goanna=parseFloat(m[1]);
+                        o.gecko=parseFloat(m[1]);
                     }
                 }
             }

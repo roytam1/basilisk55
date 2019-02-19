@@ -23,7 +23,7 @@ add_task(function* test_management_get_self_complete() {
 
   let manifest = {
     applications: {
-      gecko: {
+      goanna: {
         id,
         update_url: "https://updates.mozilla.com/",
       },
@@ -60,7 +60,7 @@ add_task(function* test_management_get_self_complete() {
   equal(extInfo.mayDisable, true, "getSelf returned the expected value for mayDisable");
   equal(extInfo.enabled, true, "getSelf returned the expected value for enabled");
   equal(extInfo.homepageUrl, manifest.homepage_url, "getSelf returned the expected homepageUrl");
-  equal(extInfo.updateUrl, manifest.applications.gecko.update_url, "getSelf returned the expected updateUrl");
+  equal(extInfo.updateUrl, manifest.applications.goanna.update_url, "getSelf returned the expected updateUrl");
   ok(extInfo.optionsUrl.endsWith(manifest.options_ui.page), "getSelf returned the expected optionsUrl");
   for (let [index, size] of Object.keys(manifest.icons).sort().entries()) {
     equal(extInfo.icons[index].size, +size, "getSelf returned the expected icon size");
@@ -77,7 +77,7 @@ add_task(function* test_management_get_self_minimal() {
 
   let manifest = {
     applications: {
-      gecko: {
+      goanna: {
         id,
       },
     },
@@ -115,7 +115,7 @@ add_task(function* test_management_get_self_permanent() {
 
   let manifest = {
     applications: {
-      gecko: {
+      goanna: {
         id,
       },
     },

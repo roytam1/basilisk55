@@ -867,7 +867,7 @@ nsSystemInfo::GetAndroidSystemInfo(AndroidSystemInfo* aInfo)
     sdk_version = 0;
   }
   aInfo->sdk_version() = sdk_version;
-  aInfo->isTablet() = java::GoannaAppShell::IsTablet();
+  aInfo->isTablet() = java::GeckoAppShell::IsTablet();
 }
 
 void

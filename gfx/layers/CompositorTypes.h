@@ -9,7 +9,7 @@
 #include <stdint.h>                     // for uint32_t
 #include <sys/types.h>                  // for int32_t
 #include "LayersTypes.h"                // for LayersBackend, etc
-#include "nsXULAppAPI.h"                // for GoannaProcessType, etc
+#include "nsXULAppAPI.h"                // for GeckoProcessType, etc
 #include "mozilla/gfx/Types.h"
 #include "mozilla/EnumSet.h"
 
@@ -166,7 +166,7 @@ typedef uintptr_t SyncHandle;
 struct TextureFactoryIdentifier
 {
   LayersBackend mParentBackend;
-  GoannaProcessType mParentProcessType;
+  GeckoProcessType mParentProcessType;
   int32_t mMaxTextureSize;
   bool mSupportsTextureBlitting;
   bool mSupportsPartialUploads;
@@ -174,7 +174,7 @@ struct TextureFactoryIdentifier
   SyncHandle mSyncHandle;
 
   explicit TextureFactoryIdentifier(LayersBackend aLayersBackend = LayersBackend::LAYERS_NONE,
-                                    GoannaProcessType aParentProcessType = GoannaProcessType_Default,
+                                    GeckoProcessType aParentProcessType = GeckoProcessType_Default,
                                     int32_t aMaxTextureSize = 4096,
                                     bool aSupportsTextureBlitting = false,
                                     bool aSupportsPartialUploads = false,

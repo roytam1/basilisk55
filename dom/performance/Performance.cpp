@@ -6,7 +6,7 @@
 
 #include "Performance.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "PerformanceEntry.h"
 #include "PerformanceMainThread.h"
 #include "PerformanceMark.h"

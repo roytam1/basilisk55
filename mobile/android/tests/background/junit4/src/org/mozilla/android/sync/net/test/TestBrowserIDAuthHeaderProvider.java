@@ -6,8 +6,8 @@ package org.mozilla.android.sync.net.test;
 import ch.boye.httpclientandroidlib.Header;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.net.BrowserIDAuthHeaderProvider;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.net.BrowserIDAuthHeaderProvider;
 
 import static org.junit.Assert.assertEquals;
 

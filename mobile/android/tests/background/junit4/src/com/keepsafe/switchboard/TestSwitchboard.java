@@ -7,9 +7,9 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.Experiments;
-import org.mozilla.goanna.util.IOUtils;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.Experiments;
+import org.mozilla.gecko.util.IOUtils;
 import org.robolectric.RuntimeEnvironment;
 
 import java.io.BufferedInputStream;

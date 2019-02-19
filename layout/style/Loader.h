@@ -285,8 +285,8 @@ public:
    * @param aParentSheet the parent of this child sheet
    * @param aURL the URL of the child sheet
    * @param aMedia the already-parsed media list for the child sheet
-   * @param aGoannaParentRule the @import rule importing this child, when using
-   *                         Goanna's style system. This is used to properly
+   * @param aGeckoParentRule the @import rule importing this child, when using
+   *                         Gecko's style system. This is used to properly
    *                         order the child sheet list of aParentSheet.
    * @param aServoParentRule the @import rule importing this child, when using
    *                         Servo's style system.
@@ -296,7 +296,7 @@ public:
   nsresult LoadChildSheet(StyleSheet* aParentSheet,
                           nsIURI* aURL,
                           nsMediaList* aMedia,
-                          ImportRule* aGoannaParentRule,
+                          ImportRule* aGeckoParentRule,
                           const RawServoImportRule* aServoParentRule,
                           LoaderReusableStyleSheets* aSavedSheets);
 
@@ -488,7 +488,7 @@ private:
 
   nsresult InsertChildSheet(StyleSheet* aSheet,
                             StyleSheet* aParentSheet,
-                            ImportRule* aGoannaParentRule,
+                            ImportRule* aGeckoParentRule,
                             const RawServoImportRule* aServoParentRule);
 
   nsresult InternalLoadNonDocumentSheet(nsIURI* aURL,

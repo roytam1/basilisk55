@@ -619,10 +619,10 @@ DataCallHandler.prototype = {
     let dataInfo = connection && connection.data;
     let isRegistered =
       dataInfo &&
-      dataInfo.state == RIL.GOANNA_MOBILE_CONNECTION_STATE_REGISTERED;
+      dataInfo.state == RIL.GECKO_MOBILE_CONNECTION_STATE_REGISTERED;
     let haveDataConnection =
       dataInfo &&
-      dataInfo.type != RIL.GOANNA_MOBILE_CONNECTION_STATE_UNKNOWN;
+      dataInfo.type != RIL.GECKO_MOBILE_CONNECTION_STATE_UNKNOWN;
     if (!isRegistered || !haveDataConnection) {
       if (DEBUG) {
         this.debug("RIL is not ready for data connection: Phone's not " +
@@ -1037,7 +1037,7 @@ DataCall.prototype = {
     return "identical";
   },
 
-  _getGoannaDataCallState:function (aDataCall) {
+  _getGeckoDataCallState:function (aDataCall) {
     if (aDataCall.active == Ci.nsIDataCallInterface.DATACALL_STATE_ACTIVE_UP ||
         aDataCall.active == Ci.nsIDataCallInterface.DATACALL_STATE_ACTIVE_DOWN) {
       return NETWORK_STATE_CONNECTED;
@@ -1052,7 +1052,7 @@ DataCall.prototype = {
     if (aDataCall.failCause &&
         aDataCall.failCause != Ci.nsIDataCallInterface.DATACALL_FAIL_NONE) {
       errorMsg =
-        RIL.RIL_DATACALL_FAILCAUSE_TO_GOANNA_DATACALL_ERROR[aDataCall.failCause];
+        RIL.RIL_DATACALL_FAILCAUSE_TO_GECKO_DATACALL_ERROR[aDataCall.failCause];
     }
 
     if (errorMsg) {
@@ -1101,7 +1101,7 @@ DataCall.prototype = {
     this.linkInfo.dnses = aDataCall.dnses ? aDataCall.dnses.split(" ") : [];
     this.linkInfo.pcscf = aDataCall.pcscf ? aDataCall.pcscf.split(" ") : [];
     this.linkInfo.mtu = aDataCall.mtu > 0 ? aDataCall.mtu : 0;
-    this.state = this._getGoannaDataCallState(aDataCall);
+    this.state = this._getGeckoDataCallState(aDataCall);
 
     // Notify DataCallHandler about data call connected.
     this.dataCallHandler.notifyDataCallChanged(this);
@@ -1143,7 +1143,7 @@ DataCall.prototype = {
       return;
     }
 
-    let dataCallState = this._getGoannaDataCallState(aUpdatedDataCall);
+    let dataCallState = this._getGeckoDataCallState(aUpdatedDataCall);
     if (this.state == dataCallState &&
         dataCallState != NETWORK_STATE_CONNECTED) {
       return;
@@ -1230,8 +1230,8 @@ DataCall.prototype = {
 
   isPermanentFail: function(aDataFailCause, aErrorMsg) {
     // Check ril.h for 'no retry' data call fail causes.
-    if (aErrorMsg === RIL.GOANNA_ERROR_RADIO_NOT_AVAILABLE ||
-        aErrorMsg === RIL.GOANNA_ERROR_INVALID_PARAMETER ||
+    if (aErrorMsg === RIL.GECKO_ERROR_RADIO_NOT_AVAILABLE ||
+        aErrorMsg === RIL.GECKO_ERROR_INVALID_PARAMETER ||
         aDataFailCause === Ci.nsIDataCallInterface.DATACALL_FAIL_OPERATOR_BARRED ||
         aDataFailCause === Ci.nsIDataCallInterface.DATACALL_FAIL_MISSING_UKNOWN_APN ||
         aDataFailCause === Ci.nsIDataCallInterface.DATACALL_FAIL_UNKNOWN_PDP_ADDRESS_TYPE ||
@@ -1308,7 +1308,7 @@ DataCall.prototype = {
       Services.tm.currentThread.dispatch(() => {
         // Do not notify if state changed while this event was being dispatched,
         // the state probably was notified already or need not to be notified.
-        if (aNetworkInterface.info.state == RIL.GOANNA_NETWORK_STATE_CONNECTED) {
+        if (aNetworkInterface.info.state == RIL.GECKO_NETWORK_STATE_CONNECTED) {
           aNetworkInterface.notifyRILNetworkInterface();
         }
       }, Ci.nsIEventTarget.DISPATCH_NORMAL);
@@ -1334,22 +1334,22 @@ DataCall.prototype = {
       gMobileConnectionService.getItemByServiceId(this.clientId);
     let dataInfo = connection && connection.data;
     if (dataInfo == null ||
-        dataInfo.state != RIL.GOANNA_MOBILE_CONNECTION_STATE_REGISTERED ||
-        dataInfo.type == RIL.GOANNA_MOBILE_CONNECTION_STATE_UNKNOWN) {
+        dataInfo.state != RIL.GECKO_MOBILE_CONNECTION_STATE_REGISTERED ||
+        dataInfo.type == RIL.GECKO_MOBILE_CONNECTION_STATE_UNKNOWN) {
       return;
     }
 
     let radioTechType = dataInfo.type;
-    let radioTechnology = RIL.GOANNA_RADIO_TECH.indexOf(radioTechType);
-    let authType = RIL.RIL_DATACALL_AUTH_TO_GOANNA.indexOf(this.apnProfile.authType);
+    let radioTechnology = RIL.GECKO_RADIO_TECH.indexOf(radioTechType);
+    let authType = RIL.RIL_DATACALL_AUTH_TO_GECKO.indexOf(this.apnProfile.authType);
     // Use the default authType if the value in database is invalid.
     // For the case that user might not select the authentication type.
     if (authType == -1) {
       if (DEBUG) {
         this.debug("Invalid authType '" + this.apnProfile.authtype +
-                   "', using '" + RIL.GOANNA_DATACALL_AUTH_DEFAULT + "'");
+                   "', using '" + RIL.GECKO_DATACALL_AUTH_DEFAULT + "'");
       }
-      authType = RIL.RIL_DATACALL_AUTH_TO_GOANNA.indexOf(RIL.GOANNA_DATACALL_AUTH_DEFAULT);
+      authType = RIL.RIL_DATACALL_AUTH_TO_GECKO.indexOf(RIL.GECKO_DATACALL_AUTH_DEFAULT);
     }
 
     let pdpType = Ci.nsIDataCallInterface.DATACALL_PDP_TYPE_IPV4;
@@ -1362,9 +1362,9 @@ DataCall.prototype = {
           this.debug("Invalid pdpType '" + (!dataInfo.roaming
                      ? this.apnProfile.protocol
                      : this.apnProfile.roaming_protocol) +
-                     "', using '" + RIL.GOANNA_DATACALL_PDP_TYPE_DEFAULT + "'");
+                     "', using '" + RIL.GECKO_DATACALL_PDP_TYPE_DEFAULT + "'");
         }
-        pdpType = RIL.RIL_DATACALL_PDP_TYPES.indexOf(RIL.GOANNA_DATACALL_PDP_TYPE_DEFAULT);
+        pdpType = RIL.RIL_DATACALL_PDP_TYPES.indexOf(RIL.GECKO_DATACALL_PDP_TYPE_DEFAULT);
       }
     }
 
@@ -1439,7 +1439,7 @@ DataCall.prototype = {
       Services.tm.currentThread.dispatch(() => {
         // Do not notify if state changed while this event was being dispatched,
         // the state probably was notified already or need not to be notified.
-        if (aNetworkInterface.info.state == RIL.GOANNA_NETWORK_STATE_DISCONNECTED) {
+        if (aNetworkInterface.info.state == RIL.GECKO_NETWORK_STATE_DISCONNECTED) {
           aNetworkInterface.notifyRILNetworkInterface();
 
           // Clear link info after notifying NetworkManager.

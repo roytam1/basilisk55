@@ -36,7 +36,7 @@ class SpsProfile(object):
 
         sps_profile_interval = test_config.get('sps_profile_interval', 1)
         sps_profile_entries = test_config.get('sps_profile_entries', 1000000)
-        sps_profile_threads = 'GoannaMain,Compositor'
+        sps_profile_threads = 'GeckoMain,Compositor'
 
         # Make sure no archive already exists in the location where
         # we plan to output our profiler archive
@@ -53,7 +53,7 @@ class SpsProfile(object):
             'WINDOWS': tempfile.mkdtemp()
         }
 
-        LOG.info("Activating Goanna Profiling. Temp. profile dir:"
+        LOG.info("Activating Gecko Profiling. Temp. profile dir:"
                  " {0}, interval: {1}, entries: {2}"
                  .format(sps_profile_dir,
                          sps_profile_interval,
@@ -76,7 +76,7 @@ class SpsProfile(object):
         if not self.test_config.get('sps_profile_startup'):
             return
         # Set environment variables which will cause profiling to
-        # start as early as possible. These are consumed by Goanna
+        # start as early as possible. These are consumed by Gecko
         # itself, not by Talos JS code.
         env.update({
             'MOZ_PROFILER_STARTUP': '1',

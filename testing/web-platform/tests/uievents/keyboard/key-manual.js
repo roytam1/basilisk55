@@ -90,7 +90,7 @@ function isModifierKey(e) {
         return true;
     }
     // Windows, Command or Meta key.
-    if (e.keyCode == 224 // Right/Left: Goanna
+    if (e.keyCode == 224 // Right/Left: Gecko
         || e.keyCode == 91    // Left: WebKit/Blink
         || e.keyCode == 93    // Right: WebKit/Blink
         ) {

@@ -12,8 +12,8 @@
     android:layout_height="match_parent">
 
     <!--
-        This layout is quite complex because GoannaApp accesses all view groups
-        in this tree. In a perfect world this should just include a GoannaView.
+        This layout is quite complex because GeckoApp accesses all view groups
+        in this tree. In a perfect world this should just include a GeckoView.
     -->
 
     <android.support.v7.widget.Toolbar
@@ -24,20 +24,20 @@
         android:background="@color/text_and_tabs_tray_grey"
         app:layout_scrollFlags="scroll|enterAlways"/>
 
-    <view class="org.mozilla.goanna.GoannaApp$MainLayout"
+    <view class="org.mozilla.gecko.GeckoApp$MainLayout"
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_below="@+id/toolbar"
         android:layout_height="match_parent"
         android:background="@android:color/transparent">
 
-        <RelativeLayout android:id="@+id/goanna_layout"
+        <RelativeLayout android:id="@+id/gecko_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/tablet_tab_strip"
             android:layout_above="@+id/find_in_page">
 
-            <fragment class="org.mozilla.goanna.GoannaViewFragment"
+            <fragment class="org.mozilla.gecko.GeckoViewFragment"
                 android:id="@+id/layer_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

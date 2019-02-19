@@ -36,11 +36,11 @@ class nsPresContext;
 using mozilla::dom::StyleChildrenIterator;
 using mozilla::ServoElementSnapshot;
 
-typedef nsINode RawGoannaNode;
-typedef mozilla::dom::Element RawGoannaElement;
-typedef nsIDocument RawGoannaDocument;
-typedef nsPresContext RawGoannaPresContext;
-typedef nsTArray<mozilla::PropertyStyleAnimationValuePair> RawGoannaAnimationValueList;
+typedef nsINode RawGeckoNode;
+typedef mozilla::dom::Element RawGeckoElement;
+typedef nsIDocument RawGeckoDocument;
+typedef nsPresContext RawGeckoPresContext;
+typedef nsTArray<mozilla::PropertyStyleAnimationValuePair> RawGeckoAnimationValueList;
 
 // We have these helper types so that we can directly generate
 // things like &T or Borrowed<T> on the Rust side in the function, providing
@@ -94,22 +94,22 @@ DECL_OWNED_REF_TYPE_FOR(ServoElementSnapshot)
 
 // We don't use BorrowedMut because the nodes may alias
 // Servo itself doesn't directly read or mutate these;
-// it only asks Goanna to do so. In case we wish to in
+// it only asks Gecko to do so. In case we wish to in
 // the future, we should ensure that things being mutated
 // are protected from noalias violations by a cell type
-DECL_BORROWED_REF_TYPE_FOR(RawGoannaNode)
-DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGoannaNode)
-DECL_BORROWED_REF_TYPE_FOR(RawGoannaElement)
-DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGoannaElement)
-DECL_BORROWED_REF_TYPE_FOR(RawGoannaDocument)
-DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGoannaDocument)
+DECL_BORROWED_REF_TYPE_FOR(RawGeckoNode)
+DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGeckoNode)
+DECL_BORROWED_REF_TYPE_FOR(RawGeckoElement)
+DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGeckoElement)
+DECL_BORROWED_REF_TYPE_FOR(RawGeckoDocument)
+DECL_NULLABLE_BORROWED_REF_TYPE_FOR(RawGeckoDocument)
 DECL_BORROWED_MUT_REF_TYPE_FOR(StyleChildrenIterator)
 DECL_BORROWED_MUT_REF_TYPE_FOR(ServoElementSnapshot)
 DECL_BORROWED_REF_TYPE_FOR(nsCSSValue)
 DECL_BORROWED_MUT_REF_TYPE_FOR(nsCSSValue)
-DECL_OWNED_REF_TYPE_FOR(RawGoannaPresContext)
-DECL_BORROWED_REF_TYPE_FOR(RawGoannaPresContext)
-DECL_BORROWED_MUT_REF_TYPE_FOR(RawGoannaAnimationValueList)
+DECL_OWNED_REF_TYPE_FOR(RawGeckoPresContext)
+DECL_BORROWED_REF_TYPE_FOR(RawGeckoPresContext)
+DECL_BORROWED_MUT_REF_TYPE_FOR(RawGeckoAnimationValueList)
 
 #undef DECL_ARC_REF_TYPE_FOR
 #undef DECL_OWNED_REF_TYPE_FOR

@@ -37,7 +37,7 @@ class FirefoxMediaTestsJenkins(FirefoxMediaTestsBase):
 
         # configure logging
         log_dir = dirs.get('abs_log_dir')
-        cmd += ['--goanna-log', os.path.join(log_dir, 'goanna.log')]
+        cmd += ['--gecko-log', os.path.join(log_dir, 'gecko.log')]
         cmd += ['--log-html', os.path.join(log_dir, 'media_tests.html')]
         cmd += ['--log-mach', os.path.join(log_dir, 'media_tests_mach.log')]
 

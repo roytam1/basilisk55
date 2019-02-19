@@ -30,7 +30,7 @@ haz_run_schema = Schema({
     Optional('mozconfig'): basestring,
 
     # The set of secret names to which the task has access; these are prefixed
-    # with `project/releng/goanna/{treeherder.kind}/level-{level}/`.   Setting
+    # with `project/releng/gecko/{treeherder.kind}/level-{level}/`.   Setting
     # this will enable any worker features required and set the task's scopes
     # appropriately.  `true` here means ['*'], all secrets.  Not supported on
     # Windows
@@ -77,13 +77,13 @@ def docker_worker_hazard(config, job, taskdesc):
 
     # build-haz-linux.sh needs this otherwise it assumes the checkout is in
     # the workspace.
-    env['GOANNA_DIR'] = '/home/worker/checkouts/goanna'
+    env['GECKO_DIR'] = '/home/worker/checkouts/gecko'
 
     worker['command'] = [
         '/home/worker/bin/run-task',
         '--chown-recursive', '/home/worker/tooltool-cache',
         '--chown-recursive', '/home/worker/workspace',
-        '--vcs-checkout', '/home/worker/checkouts/goanna',
+        '--vcs-checkout', '/home/worker/checkouts/gecko',
         '--',
         '/bin/bash', '-c', run['command']
     ]

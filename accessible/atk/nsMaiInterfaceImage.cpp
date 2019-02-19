@@ -25,16 +25,16 @@ getImagePositionCB(AtkImage* aImage, gint* aAccX, gint* aAccY,
                    AtkCoordType aCoordType)
 {
   nsIntPoint pos;
-  uint32_t goannaCoordType = (aCoordType == ATK_XY_WINDOW) ?
+  uint32_t geckoCoordType = (aCoordType == ATK_XY_WINDOW) ?
     nsIAccessibleCoordinateType::COORDTYPE_WINDOW_RELATIVE :
     nsIAccessibleCoordinateType::COORDTYPE_SCREEN_RELATIVE;
 
   AccessibleWrap* accWrap = GetAccessibleWrap(ATK_OBJECT(aImage));
   if (accWrap && accWrap->IsImage()) {
     ImageAccessible* image = accWrap->AsImage();
-    pos = image->Position(goannaCoordType);
+    pos = image->Position(geckoCoordType);
   } else if (ProxyAccessible* proxy = GetProxy(ATK_OBJECT(aImage))) {
-    pos = proxy->ImagePosition(goannaCoordType);
+    pos = proxy->ImagePosition(geckoCoordType);
   }
 
   *aAccX = pos.x;

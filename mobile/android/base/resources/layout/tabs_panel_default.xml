@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:goanna="http://schemas.android.com/apk/res-auto">
+       xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <!-- The layout_height value is used in TabsPanel.getTabsLayoutContainerHeight
          and as an offset in PrivateTabsPanel: if you change it here,
@@ -13,12 +13,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/browser_toolbar_height">
 
-        <view class="org.mozilla.goanna.tabs.TabsPanel$TabsPanelToolbar"
+        <view class="org.mozilla.gecko.tabs.TabsPanel$TabsPanelToolbar"
               android:layout_width="match_parent"
               android:layout_height="@dimen/browser_toolbar_height"
               android:background="@color/text_and_tabs_tray_grey">
 
-            <org.mozilla.goanna.tabs.TabPanelBackButton
+            <org.mozilla.gecko.tabs.TabPanelBackButton
                 android:id="@+id/nav_back"
                 android:layout_width="@dimen/tabs_panel_button_width"
                 android:layout_height="match_parent"
@@ -26,10 +26,10 @@
                 android:src="@drawable/tabs_panel_nav_back"
                 android:contentDescription="@string/back"
                 android:background="@drawable/action_bar_button_inverse"
-                goanna:dividerVerticalPadding="@dimen/tab_panel_divider_vertical_padding"
-                goanna:rightDivider="@drawable/tab_indicator_divider"/>
+                gecko:dividerVerticalPadding="@dimen/tab_panel_divider_vertical_padding"
+                gecko:rightDivider="@drawable/tab_indicator_divider"/>
 
-            <org.mozilla.goanna.widget.IconTabWidget android:id="@+id/tab_widget"
+            <org.mozilla.gecko.widget.IconTabWidget android:id="@+id/tab_widget"
                                                     android:layout_width="wrap_content"
                                                     android:layout_height="match_parent"
                                                     android:tabStripEnabled="false"
@@ -80,16 +80,16 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent">
 
-        <view class="org.mozilla.goanna.tabs.TabsPanel$TabsLayout"
+        <view class="org.mozilla.gecko.tabs.TabsPanel$TabsLayout"
               android:id="@+id/normal_tabs"
               style="@style/TabsLayout"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:choiceMode="singleChoice"
               android:visibility="gone"
-              goanna:tabs="tabs_normal"/>
+              gecko:tabs="tabs_normal"/>
 
-        <org.mozilla.goanna.tabs.PrivateTabsPanel
+        <org.mozilla.gecko.tabs.PrivateTabsPanel
                 android:id="@+id/private_tabs_panel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

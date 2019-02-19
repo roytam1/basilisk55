@@ -1,8 +1,8 @@
 marionette-harness
 ==================
 
-Marionette is an automation driver for Mozilla's Goanna engine. It can remotely
-control either the UI or the internal JavaScript of a Goanna platform, such as
+Marionette is an automation driver for Mozilla's Gecko engine. It can remotely
+control either the UI or the internal JavaScript of a Gecko platform, such as
 Firefox. It can control both the chrome (i.e. menus and functions) or the
 content (the webpage loaded inside the browsing context), giving a high level
 of control and ability to replicate user actions. In addition to performing
@@ -10,7 +10,7 @@ actions on the browser, Marionette can also read the properties and attributes
 of the DOM.
 
 The marionette_harness package contains the test runner for Marionette, and
-allows you to run automated tests written in Python for Goanna based
+allows you to run automated tests written in Python for Gecko based
 applications. Therefore it offers the necessary testcase classes, which are
 based on the unittest framework.
 

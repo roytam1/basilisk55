@@ -22,7 +22,7 @@
  * @author stevey@google.com (Steve Yegge)
  *
  * TODO(nicksantos): When there are no more occurrences of w3c_range.js and
- * goanna_dom.js being included directly in BUILD files, bug dbeam to split the
+ * gecko_dom.js being included directly in BUILD files, bug dbeam to split the
  * bottom part of this file into a separate externs.
  */
 

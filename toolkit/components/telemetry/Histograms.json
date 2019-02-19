@@ -6549,7 +6549,7 @@
   "FENNEC_RESTORING_ACTIVITY": {
     "expires_in_version": "never",
     "kind": "flag",
-    "description": "Fennec is starting up but the Goanna thread was still running",
+    "description": "Fennec is starting up but the Gecko thread was still running",
     "cpp_guard": "ANDROID"
   },
   "FENNEC_SEARCH_LOADER_TIME_MS": {
@@ -6561,13 +6561,13 @@
     "description": "Time for a URL bar DB search to return (ms)",
     "cpp_guard": "ANDROID"
   },
-  "FENNEC_STARTUP_TIME_GOANNAREADY": {
+  "FENNEC_STARTUP_TIME_GECKOREADY": {
     "expires_in_version": "never",
     "kind": "exponential",
     "low": 500,
     "high": 20000,
     "n_buckets": 20,
-    "description": "Time for the Goanna:Ready message to arrive (ms)",
+    "description": "Time for the Gecko:Ready message to arrive (ms)",
     "cpp_guard": "ANDROID"
   },
   "FENNEC_STARTUP_TIME_JAVAUI": {
@@ -9255,7 +9255,7 @@
     "kind": "count",
     "keyed": true,
     "releaseChannelCollection": "opt-out",
-    "description": "Counts the number of times launching a subprocess fails. Counts are by subprocess-type using the GoannaProcessType enum."
+    "description": "Counts the number of times launching a subprocess fails. Counts are by subprocess-type using the GeckoProcessType enum."
   },
   "PROCESS_CRASH_SUBMIT_ATTEMPT": {
     "expires_in_version": "never",

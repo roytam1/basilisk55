@@ -220,8 +220,8 @@ public:
    * InitKeyEvent() initializes aKeyEvent for aNativeKeyEvent.
    *
    * @param aNativeKeyEvent       A native key event for which you want to
-   *                              dispatch a Goanna key event.
-   * @param aKeyEvent             The result -- a Goanna key event initialized
+   *                              dispatch a Gecko key event.
+   * @param aKeyEvent             The result -- a Gecko key event initialized
    *                              from the native key event.
    * @param aInsertString         If caller expects that the event will cause
    *                              a character to be input (say in an editor),
@@ -238,14 +238,14 @@ public:
    * recompute aKeyEvent.mCharCode if it's necessary.
    *
    * @param aNativeKeyEvent       A native key event for which you want to
-   *                              dispatch a Goanna key event.
+   *                              dispatch a Gecko key event.
    * @param aInsertString         If caller expects that the event will cause
    *                              a character to be input (say in an editor),
    *                              the caller should set this.  Otherwise,
    *                              if caller sets null to this, this method will
    *                              compute the character to be input from
    *                              characters of aNativeKeyEvent.
-   * @param aKeyEvent             The result -- a Goanna key event initialized
+   * @param aKeyEvent             The result -- a Gecko key event initialized
    *                              from the native key event.  This must be
    *                              eKeyPress event.
    */
@@ -254,31 +254,31 @@ public:
                                  WidgetKeyboardEvent& aKeyEvent);
 
   /**
-   * ComputeGoannaKeyCode() returns Goanna keycode for aNativeKeyCode on current
+   * ComputeGeckoKeyCode() returns Gecko keycode for aNativeKeyCode on current
    * keyboard layout.
    *
    * @param aNativeKeyCode        A native keycode.
    * @param aKbType               A native Keyboard Type value.  Typically,
    *                              this is a result of ::LMGetKbdType().
    * @param aCmdIsPressed         TRUE if Cmd key is pressed.  Otherwise, FALSE.
-   * @return                      The computed Goanna keycode.
+   * @return                      The computed Gecko keycode.
    */
-  uint32_t ComputeGoannaKeyCode(UInt32 aNativeKeyCode, UInt32 aKbType,
+  uint32_t ComputeGeckoKeyCode(UInt32 aNativeKeyCode, UInt32 aKbType,
                                bool aCmdIsPressed);
 
   /**
-   * ComputeGoannaKeyNameIndex() returns Goanna key name index for the key.
+   * ComputeGeckoKeyNameIndex() returns Gecko key name index for the key.
    *
    * @param aNativeKeyCode        A native keycode.
    */
-  static KeyNameIndex ComputeGoannaKeyNameIndex(UInt32 aNativeKeyCode);
+  static KeyNameIndex ComputeGeckoKeyNameIndex(UInt32 aNativeKeyCode);
 
   /**
-   * ComputeGoannaCodeNameIndex() returns Goanna code name index for the key.
+   * ComputeGeckoCodeNameIndex() returns Gecko code name index for the key.
    *
    * @param aNativeKeyCode        A native keycode.
    */
-  static CodeNameIndex ComputeGoannaCodeNameIndex(UInt32 aNativeKeyCode);
+  static CodeNameIndex ComputeGeckoCodeNameIndex(UInt32 aNativeKeyCode);
 
 protected:
   /**
@@ -317,7 +317,7 @@ protected:
    *
    * @param aNativeKeyEvent     The native key event which causes our keyboard
    *                            event(s).
-   * @param aKeyEvent           A Goanna key event which was partially
+   * @param aKeyEvent           A Gecko key event which was partially
    *                            initialized with aNativeKeyEvent.
    * @param aInsertString       The string to be inputting by aNativeKeyEvent.
    *                            This should be specified by InsertText().
@@ -394,8 +394,8 @@ public:
    * InitKeyEvent() initializes aKeyEvent for aNativeKeyEvent.
    *
    * @param aNativeKeyEvent       A native key event for which you want to
-   *                              dispatch a Goanna key event.
-   * @param aKeyEvent             The result -- a Goanna key event initialized
+   *                              dispatch a Gecko key event.
+   * @param aKeyEvent             The result -- a Gecko key event initialized
    *                              from the native key event.
    * @param aInsertString         If caller expects that the event will cause
    *                              a character to be input (say in an editor),
@@ -422,27 +422,27 @@ public:
    * Utility method intended for testing. Attempts to construct a native key
    * event that would have been generated during an actual key press. This
    * *does not dispatch* the native event. Instead, it is attached to the
-   * |mNativeKeyEvent| field of the Goanna event that is passed in.
-   * @param aKeyEvent  Goanna key event to attach the native event to
+   * |mNativeKeyEvent| field of the Gecko event that is passed in.
+   * @param aKeyEvent  Gecko key event to attach the native event to
    */
   NS_IMETHOD AttachNativeKeyEvent(WidgetKeyboardEvent& aKeyEvent);
 
   /**
-   * GetWindowLevel() returns the window level of current focused (in Goanna)
+   * GetWindowLevel() returns the window level of current focused (in Gecko)
    * window.  E.g., if an <input> element in XUL panel has focus, this returns
    * the XUL panel's window level.
    */
   NSInteger GetWindowLevel();
 
   /**
-   * IsSpecialGoannaKey() checks whether aNativeKeyCode is mapped to a special
-   * Goanna keyCode.  A key is "special" if it isn't used for text input.
+   * IsSpecialGeckoKey() checks whether aNativeKeyCode is mapped to a special
+   * Gecko keyCode.  A key is "special" if it isn't used for text input.
    *
    * @param aNativeKeyCode        A native keycode.
    * @return                      If the keycode is mapped to a special key,
    *                              TRUE.  Otherwise, FALSE.
    */
-  static bool IsSpecialGoannaKey(UInt32 aNativeKeyCode);
+  static bool IsSpecialGeckoKey(UInt32 aNativeKeyCode);
 
 
   /**
@@ -749,7 +749,7 @@ private:
  * Note that an nsChildView handles one or more NSView's events.  E.g., even if
  * a text editor on XUL panel element, the input events handled on the parent
  * (or its ancestor) widget handles it (the native focus is set to it).  The
- * actual focused view is notified by OnFocusChangeInGoanna.
+ * actual focused view is notified by OnFocusChangeInGecko.
  */
 
 class IMEInputHandler : public TextInputHandlerBase
@@ -769,7 +769,7 @@ public:
 public:
   virtual bool OnDestroyWidget(nsChildView* aDestroyingWidget) override;
 
-  virtual void OnFocusChangeInGoanna(bool aFocus);
+  virtual void OnFocusChangeInGecko(bool aFocus);
 
   void OnSelectionChange(const IMENotification& aIMENotification);
 
@@ -908,7 +908,7 @@ protected:
   // See the comment in nsCocoaTextInputHandler.mm.
   nsCOMPtr<nsITimer> mTimer;
   enum {
-    kNotifyIMEOfFocusChangeInGoanna = 1,
+    kNotifyIMEOfFocusChangeInGecko = 1,
     kDiscardIMEComposition         = 2,
     kSyncASCIICapableOnly          = 4
   };
@@ -948,9 +948,9 @@ private:
   bool mIsIMEEnabled;
   bool mIsASCIICapableOnly;
   bool mIgnoreIMECommit;
-  // This flag is enabled by OnFocusChangeInGoanna, and will be cleared by
+  // This flag is enabled by OnFocusChangeInGecko, and will be cleared by
   // ExecutePendingMethods.  When this is true, IsFocus() returns TRUE.  At
-  // that time, the focus processing in Goanna might not be finished yet.  So,
+  // that time, the focus processing in Gecko might not be finished yet.  So,
   // you cannot use WidgetQueryContentEvent or something.
   bool mIsInFocusProcessing;
   bool mIMEHasFocus;
@@ -960,7 +960,7 @@ private:
   void OpenSystemPreferredLanguageIME();
 
   // Pending methods
-  void NotifyIMEOfFocusChangeInGoanna();
+  void NotifyIMEOfFocusChangeInGecko();
   void DiscardIMEComposition();
   void SyncASCIICapableOnly();
 

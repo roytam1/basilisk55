@@ -41,7 +41,7 @@ def mach_parsed_kwargs(logger):
         'e10s': True,
         'emulator': False,
         'emulator_bin': None,
-        'goanna_log': None,
+        'gecko_log': None,
         'jsdebugger': False,
         'log_errorsummary': None,
         'log_html': None,

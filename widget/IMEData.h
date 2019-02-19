@@ -400,7 +400,7 @@ struct InputContextAction final
 };
 
 // IMEMessage is shared by IMEStateManager and TextComposition.
-// Update values in GoannaEditable.java if you make changes here.
+// Update values in GeckoEditable.java if you make changes here.
 // XXX Negative values are used in Android...
 typedef int8_t IMEMessageType;
 enum IMEMessage : IMEMessageType

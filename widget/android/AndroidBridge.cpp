@@ -158,10 +158,10 @@ AndroidBridge::AndroidBridge()
 {
     ALOG_BRIDGE("AndroidBridge::Init");
 
-    JNIEnv* const jEnv = jni::GetGoannaThreadEnv();
+    JNIEnv* const jEnv = jni::GetGeckoThreadEnv();
     AutoLocalJNIFrame jniFrame(jEnv);
 
-    mMessageQueue = java::GoannaThread::MsgQueue();
+    mMessageQueue = java::GeckoThread::MsgQueue();
     auto msgQueueClass = Class::LocalRef::Adopt(
             jEnv, jEnv->GetObjectClass(mMessageQueue.Get()));
     // mMessageQueueNext must not be null
@@ -270,7 +270,7 @@ AndroidBridge::GetHandlersForMimeType(const nsAString& aMimeType,
 {
     ALOG_BRIDGE("AndroidBridge::GetHandlersForMimeType");
 
-    auto arr = GoannaAppShell::GetHandlersForMimeType(aMimeType, aAction);
+    auto arr = GeckoAppShell::GetHandlersForMimeType(aMimeType, aAction);
     if (!arr)
         return false;
 
@@ -291,7 +291,7 @@ AndroidBridge::GetHWEncoderCapability()
 {
   ALOG_BRIDGE("AndroidBridge::GetHWEncoderCapability");
 
-  bool value = GoannaAppShell::GetHWEncoderCapability();
+  bool value = GeckoAppShell::GetHWEncoderCapability();
 
   return value;
 }
@@ -302,7 +302,7 @@ AndroidBridge::GetHWDecoderCapability()
 {
   ALOG_BRIDGE("AndroidBridge::GetHWDecoderCapability");
 
-  bool value = GoannaAppShell::GetHWDecoderCapability();
+  bool value = GeckoAppShell::GetHWDecoderCapability();
 
   return value;
 }
@@ -315,7 +315,7 @@ AndroidBridge::GetHandlersForURL(const nsAString& aURL,
 {
     ALOG_BRIDGE("AndroidBridge::GetHandlersForURL");
 
-    auto arr = GoannaAppShell::GetHandlersForURL(aURL, aAction);
+    auto arr = GeckoAppShell::GetHandlersForURL(aURL, aAction);
     if (!arr)
         return false;
 
@@ -335,7 +335,7 @@ AndroidBridge::GetMimeTypeFromExtensions(const nsACString& aFileExt, nsCString& 
 {
     ALOG_BRIDGE("AndroidBridge::GetMimeTypeFromExtensions");
 
-    auto jstrType = GoannaAppShell::GetMimeTypeFromExtensions(aFileExt);
+    auto jstrType = GeckoAppShell::GetMimeTypeFromExtensions(aFileExt);
 
     if (jstrType) {
         aMimeType = jstrType->ToCString();
@@ -347,7 +347,7 @@ AndroidBridge::GetExtensionFromMimeType(const nsACString& aMimeType, nsACString&
 {
     ALOG_BRIDGE("AndroidBridge::GetExtensionFromMimeType");
 
-    auto jstrExt = GoannaAppShell::GetExtensionFromMimeType(aMimeType);
+    auto jstrExt = GeckoAppShell::GetExtensionFromMimeType(aMimeType);
 
     if (jstrExt) {
         aFileExt = jstrExt->ToCString();
@@ -376,7 +376,7 @@ AndroidBridge::GetDPI()
 
     const int DEFAULT_DPI = 160;
 
-    sDPI = GoannaAppShell::GetDpi();
+    sDPI = GeckoAppShell::GetDpi();
     if (!sDPI) {
         return DEFAULT_DPI;
     }
@@ -396,7 +396,7 @@ AndroidBridge::GetScreenDepth()
     const int DEFAULT_DEPTH = 16;
 
     if (jni::IsAvailable()) {
-        sDepth = GoannaAppShell::GetScreenDepth();
+        sDepth = GeckoAppShell::GetScreenDepth();
     }
     if (!sDepth)
         return DEFAULT_DEPTH;
@@ -422,14 +422,14 @@ AndroidBridge::Vibrate(const nsTArray<uint32_t>& aPattern)
             ALOG_BRIDGE("  invalid vibration duration < 0");
             return;
         }
-        GoannaAppShell::Vibrate(d);
+        GeckoAppShell::Vibrate(d);
         return;
     }
 
     // First element of the array vibrate() expects is how long to wait
     // *before* vibrating.  For us, this is always 0.
 
-    JNIEnv* const env = jni::GetGoannaThreadEnv();
+    JNIEnv* const env = jni::GetGeckoThreadEnv();
     AutoLocalJNIFrame jniFrame(env, 1);
 
     jlongArray array = env->NewLongArray(len + 1);
@@ -451,7 +451,7 @@ AndroidBridge::Vibrate(const nsTArray<uint32_t>& aPattern)
     }
     env->ReleaseLongArrayElements(array, elts, 0);
 
-    GoannaAppShell::Vibrate(LongArray::Ref::From(array), -1 /* don't repeat */);
+    GeckoAppShell::Vibrate(LongArray::Ref::From(array), -1 /* don't repeat */);
 }
 
 void
@@ -462,7 +462,7 @@ AndroidBridge::GetSystemColors(AndroidSystemColors *aColors)
     if (!aColors)
         return;
 
-    auto arr = GoannaAppShell::GetSystemColors();
+    auto arr = GeckoAppShell::GetSystemColors();
     if (!arr)
         return;
 
@@ -495,7 +495,7 @@ AndroidBridge::GetIconForExtension(const nsACString& aFileExt, uint32_t aIconSiz
     if (!aBuf)
         return;
 
-    auto arr = GoannaAppShell::GetIconForExtension(NS_ConvertUTF8toUTF16(aFileExt), aIconSize);
+    auto arr = GeckoAppShell::GetIconForExtension(NS_ConvertUTF8toUTF16(aFileExt), aIconSize);
 
     NS_ASSERTION(arr != nullptr, "AndroidBridge::GetIconForExtension: Returned pixels array is null!");
     if (!arr)
@@ -522,7 +522,7 @@ AndroidBridge::GetStaticIntField(const char *className, const char *fieldName, i
         if (!jni::IsAvailable()) {
             return false;
         }
-        jEnv = jni::GetGoannaThreadEnv();
+        jEnv = jni::GetGeckoThreadEnv();
     }
 
     AutoJNIClass cls(jEnv, className);
@@ -545,7 +545,7 @@ AndroidBridge::GetStaticStringField(const char *className, const char *fieldName
         if (!jni::IsAvailable()) {
             return false;
         }
-        jEnv = jni::GetGoannaThreadEnv();
+        jEnv = jni::GetGeckoThreadEnv();
     }
 
     AutoLocalJNIFrame jniFrame(jEnv, 1);
@@ -647,7 +647,7 @@ AndroidBridge::GetCurrentBatteryInformation(hal::BatteryInformation* aBatteryInf
 
     // To prevent calling too many methods through JNI, the Java method returns
     // an array of double even if we actually want a double and a boolean.
-    auto arr = GoannaAppShell::GetCurrentBatteryInformation();
+    auto arr = GeckoAppShell::GetCurrentBatteryInformation();
 
     JNIEnv* const env = arr.Env();
     if (!arr || env->GetArrayLength(arr.Get()) != 3) {
@@ -664,12 +664,12 @@ AndroidBridge::GetCurrentBatteryInformation(hal::BatteryInformation* aBatteryInf
 }
 
 void
-AndroidBridge::HandleGoannaMessage(JSContext* cx, JS::HandleObject object)
+AndroidBridge::HandleGeckoMessage(JSContext* cx, JS::HandleObject object)
 {
     ALOG_BRIDGE("%s", __PRETTY_FUNCTION__);
 
     auto message = widget::CreateNativeJSContainer(cx, object);
-    GoannaAppShell::HandleGoannaMessage(message);
+    GeckoAppShell::HandleGeckoMessage(message);
 }
 
 void
@@ -680,7 +680,7 @@ AndroidBridge::GetCurrentNetworkInformation(hal::NetworkInformation* aNetworkInf
     // To prevent calling too many methods through JNI, the Java method returns
     // an array of double even if we actually want an integer, a boolean, and an integer.
 
-    auto arr = GoannaAppShell::GetCurrentNetworkInformation();
+    auto arr = GeckoAppShell::GetCurrentNetworkInformation();
 
     JNIEnv* const env = arr.Env();
     if (!arr || env->GetArrayLength(arr.Get()) != 3) {
@@ -705,7 +705,7 @@ AndroidBridge::GetGlobalContextRef() {
     JNIEnv* const env = GetEnvForThread();
     AutoLocalJNIFrame jniFrame(env, 4);
 
-    auto context = GoannaAppShell::GetContext();
+    auto context = GeckoAppShell::GetContext();
     if (!context) {
         ALOG_BRIDGE("%s: Could not GetContext()", __FUNCTION__);
         return 0;
@@ -754,12 +754,12 @@ nsAndroidBridge::~nsAndroidBridge()
 {
 }
 
-NS_IMETHODIMP nsAndroidBridge::HandleGoannaMessage(JS::HandleValue val,
+NS_IMETHODIMP nsAndroidBridge::HandleGeckoMessage(JS::HandleValue val,
                                                   JSContext *cx)
 {
     if (val.isObject()) {
         JS::RootedObject object(cx, &val.toObject());
-        AndroidBridge::Bridge()->HandleGoannaMessage(cx, object);
+        AndroidBridge::Bridge()->HandleGeckoMessage(cx, object);
         return NS_OK;
     }
 
@@ -777,13 +777,13 @@ NS_IMETHODIMP nsAndroidBridge::HandleGoannaMessage(JS::HandleValue val,
     // Spit out a warning before sending the message.
     nsContentUtils::ReportToConsoleNonLocalized(
         NS_LITERAL_STRING("Use of JSON is deprecated. "
-            "Please pass Javascript objects directly to handleGoannaMessage."),
+            "Please pass Javascript objects directly to handleGeckoMessage."),
         nsIScriptError::warningFlag,
         NS_LITERAL_CSTRING("nsIAndroidBridge"),
         nullptr);
 
     JS::RootedObject object(cx, &jsonVal.toObject());
-    AndroidBridge::Bridge()->HandleGoannaMessage(cx, object);
+    AndroidBridge::Bridge()->HandleGeckoMessage(cx, object);
     return NS_OK;
 }
 
@@ -877,7 +877,7 @@ AndroidBridge::GetScreenOrientation()
 {
     ALOG_BRIDGE("AndroidBridge::GetScreenOrientation");
 
-    int16_t orientation = GoannaAppShell::GetScreenOrientation();
+    int16_t orientation = GeckoAppShell::GetScreenOrientation();
 
     if (!orientation)
         return dom::eScreenOrientation_None;
@@ -888,7 +888,7 @@ AndroidBridge::GetScreenOrientation()
 uint16_t
 AndroidBridge::GetScreenAngle()
 {
-    return GoannaAppShell::GetScreenAngle();
+    return GeckoAppShell::GetScreenAngle();
 }
 
 nsresult
@@ -902,7 +902,7 @@ AndroidBridge::GetProxyForURI(const nsACString & aSpec,
         return NS_ERROR_FAILURE;
     }
 
-    auto jstrRet = GoannaAppShell::GetProxyForURI(aSpec, aScheme, aHost, aPort);
+    auto jstrRet = GeckoAppShell::GetProxyForURI(aSpec, aScheme, aHost, aPort);
 
     if (!jstrRet)
         return NS_ERROR_FAILURE;
@@ -914,7 +914,7 @@ AndroidBridge::GetProxyForURI(const nsACString & aSpec,
 bool
 AndroidBridge::PumpMessageLoop()
 {
-    JNIEnv* const env = jni::GetGoannaThreadEnv();
+    JNIEnv* const env = jni::GetGeckoThreadEnv();
 
     if (mMessageQueueMessages) {
         auto msg = Object::LocalRef::Adopt(env,
@@ -935,7 +935,7 @@ AndroidBridge::PumpMessageLoop()
         return false;
     }
 
-    return GoannaThread::PumpMessageLoop(msg);
+    return GeckoThread::PumpMessageLoop(msg);
 }
 
 NS_IMETHODIMP nsAndroidBridge::GetBrowserApp(nsIAndroidBrowserApp * *aBrowserApp)
@@ -957,9 +957,9 @@ NS_IMETHODIMP nsAndroidBridge::SetBrowserApp(nsIAndroidBrowserApp *aBrowserApp)
 extern "C"
 __attribute__ ((visibility("default")))
 jobject JNICALL
-Java_org_mozilla_goanna_GoannaAppShell_allocateDirectBuffer(JNIEnv *env, jclass, jlong size);
+Java_org_mozilla_gecko_GeckoAppShell_allocateDirectBuffer(JNIEnv *env, jclass, jlong size);
 
-static jni::DependentRef<java::GoannaLayerClient>
+static jni::DependentRef<java::GeckoLayerClient>
 GetJavaLayerClient(mozIDOMWindowProxy* aWindow)
 {
     MOZ_ASSERT(aWindow);

@@ -292,7 +292,7 @@ promise_test(function(t) {
   return animation.ready.then(function() {
     assert_animation_is_running_on_compositor(animation,
        'If an animation has a property that can run on the compositor and a '
-       + 'property that cannot (due to Goanna limitations) but where the latter'
+       + 'property that cannot (due to Gecko limitations) but where the latter'
        + 'property is overridden in the CSS cascade, the animation should '
        + 'still report that it is running on the compositor');
   });

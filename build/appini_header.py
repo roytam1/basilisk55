@@ -24,7 +24,7 @@ def main(output, file):
     appdata['flags'] = ' | '.join(flags) if flags else '0'
     appdata['App:profile'] = '"%s"' % appdata['App:profile'] if 'App:profile' in appdata else 'NULL'
     expected = ('App:vendor', 'App:name', 'App:remotingname', 'App:version', 'App:buildid',
-                'App:id', 'Goanna:minversion', 'Goanna:maxversion')
+                'App:id', 'Gecko:minversion', 'Gecko:maxversion')
     missing = [var for var in expected if var not in appdata]
     if missing:
         print >>sys.stderr, \
@@ -44,8 +44,8 @@ def main(output, file):
                  "%(App:id)s",
                  NULL, // copyright
                  %(flags)s,
-                 "%(Goanna:minversion)s",
-                 "%(Goanna:maxversion)s",
+                 "%(Gecko:minversion)s",
+                 "%(Gecko:maxversion)s",
                  "%(Crash Reporter:serverurl)s",
                  %(App:profile)s
              };''' % appdata)

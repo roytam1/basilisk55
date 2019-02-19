@@ -45,9 +45,9 @@ void Accumulate(const char* name, const nsCString& key, uint32_t sample);
 
 void AccumulateCategorical(mozilla::Telemetry::ID aId, const nsCString& aLabel);
 
-void AccumulateChild(GoannaProcessType aProcessType,
+void AccumulateChild(GeckoProcessType aProcessType,
                      const nsTArray<mozilla::Telemetry::Accumulation>& aAccumulations);
-void AccumulateChildKeyed(GoannaProcessType aProcessType,
+void AccumulateChildKeyed(GeckoProcessType aProcessType,
                           const nsTArray<mozilla::Telemetry::KeyedAccumulation>& aAccumulations);
 
 nsresult

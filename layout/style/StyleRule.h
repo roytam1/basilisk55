@@ -351,7 +351,7 @@ public:
   CSSStyleSheet* GetStyleSheet() const
   {
     StyleSheet* sheet = Rule::GetStyleSheet();
-    return sheet ? sheet->AsGoanna() : nullptr;
+    return sheet ? sheet->AsGecko() : nullptr;
   }
 
   virtual already_AddRefed<Rule> Clone() const override;

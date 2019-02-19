@@ -48,9 +48,9 @@ this.ClientID = Object.freeze({
    * data reporting (FHR & Telemetry). Previously exising FHR client IDs are
    * migrated to this.
    *
-   * WARNING: This functionality is duplicated for Android (see GoannaProfile.getClientId
-   * for more). There are Java tests (TestGoannaProfile) to ensure the functionality is
-   * consistent and Goanna tests to come (bug 1249156). However, THIS IS NOT FOOLPROOF.
+   * WARNING: This functionality is duplicated for Android (see GeckoProfile.getClientId
+   * for more). There are Java tests (TestGeckoProfile) to ensure the functionality is
+   * consistent and Gecko tests to come (bug 1249156). However, THIS IS NOT FOOLPROOF.
    * Be careful when changing this code and, in particular, the underlying file format.
    *
    * @return {Promise<string>} The stable client ID.

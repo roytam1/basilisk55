@@ -15,7 +15,7 @@
 #include "mozilla/UniquePtr.h"
 
 #include "GCHeapProfilerImpl.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "NativeProfilerImpl.h"
 #include "UncensoredAllocator.h"
 #include "js/TypeDecls.h"

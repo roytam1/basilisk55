@@ -49,7 +49,7 @@ using namespace mozilla::a11y;
 // - NSAccessibilityMathPrescriptsAttribute @"AXMathPrescripts"
 // - NSAccessibilityMathPostscriptsAttribute @"AXMathPostscripts"
 
-// convert an array of Goanna accessibles to an NSArray of native accessibles
+// convert an array of Gecko accessibles to an NSArray of native accessibles
 static inline NSMutableArray*
 ConvertToNSArray(nsTArray<Accessible*>& aArray)
 {
@@ -59,7 +59,7 @@ ConvertToNSArray(nsTArray<Accessible*>& aArray)
   size_t totalCount = aArray.Length();
   for (size_t i = 0; i < totalCount; i++) {
     Accessible* curAccessible = aArray.ElementAt(i);
-    mozAccessible* curNative = GetNativeFromGoannaAccessible(curAccessible);
+    mozAccessible* curNative = GetNativeFromGeckoAccessible(curAccessible);
     if (curNative)
       [nativeArray addObject:GetObjectOrRepresentedView(curNative)];
   }
@@ -67,7 +67,7 @@ ConvertToNSArray(nsTArray<Accessible*>& aArray)
   return nativeArray;
 }
 
-// convert an array of Goanna proxy accessibles to an NSArray of native accessibles
+// convert an array of Gecko proxy accessibles to an NSArray of native accessibles
 static inline NSMutableArray*
 ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 {
@@ -89,16 +89,16 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
 @implementation mozAccessible
 
-- (id)initWithAccessible:(uintptr_t)aGoannaAccessible
+- (id)initWithAccessible:(uintptr_t)aGeckoAccessible
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   if ((self = [super init])) {
-    mGoannaAccessible = aGoannaAccessible;
-    if (aGoannaAccessible & IS_PROXY)
+    mGeckoAccessible = aGeckoAccessible;
+    if (aGeckoAccessible & IS_PROXY)
       mRole = [self getProxyAccessible]->Role();
     else
-      mRole = [self getGoannaAccessible]->Role();
+      mRole = [self getGeckoAccessible]->Role();
   }
 
   return self;
@@ -116,22 +116,22 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
 
-- (mozilla::a11y::AccessibleWrap*)getGoannaAccessible
+- (mozilla::a11y::AccessibleWrap*)getGeckoAccessible
 {
-  // Check if mGoannaAccessible points at a proxy
-  if (mGoannaAccessible & IS_PROXY)
+  // Check if mGeckoAccessible points at a proxy
+  if (mGeckoAccessible & IS_PROXY)
     return nil;
 
-  return reinterpret_cast<AccessibleWrap*>(mGoannaAccessible);
+  return reinterpret_cast<AccessibleWrap*>(mGeckoAccessible);
 }
 
 - (mozilla::a11y::ProxyAccessible*)getProxyAccessible
 {
-  // Check if mGoannaAccessible points at a proxy
-  if (!(mGoannaAccessible & IS_PROXY))
+  // Check if mGeckoAccessible points at a proxy
+  if (!(mGeckoAccessible & IS_PROXY))
     return nil;
 
-  return reinterpret_cast<ProxyAccessible*>(mGoannaAccessible & ~IS_PROXY);
+  return reinterpret_cast<ProxyAccessible*>(mGeckoAccessible & ~IS_PROXY);
 }
 
 #pragma mark -
@@ -144,7 +144,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   // as well as expired elements.
 
   bool noRole = [[self role] isEqualToString:NSAccessibilityUnknownRole];
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     return (noRole && !(accWrap->InteractiveState() & states::FOCUSABLE));
 
   if (ProxyAccessible* proxy = [self getProxyAccessible])
@@ -205,7 +205,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   // if we're expired, we don't support any attributes.
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy)
     return [NSArray array];
@@ -250,9 +250,9 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     Accessible* child = accWrap->GetChildAt(i);
-    return child ? GetNativeFromGoannaAccessible(child) : nil;
+    return child ? GetNativeFromGeckoAccessible(child) : nil;
   } else if (ProxyAccessible* proxy = [self getProxyAccessible]) {
     ProxyAccessible* child = proxy->ChildAt(i);
     return child ? GetNativeFromProxy(child) : nil;
@@ -267,7 +267,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy)
     return nil;
@@ -312,7 +312,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
     if (accWrap) {
       Relation rel = accWrap->RelationByType(RelationType::LABELLED_BY);
       Accessible* tempAcc = rel.Next();
-      return tempAcc ? GetNativeFromGoannaAccessible(tempAcc) : nil;
+      return tempAcc ? GetNativeFromGeckoAccessible(tempAcc) : nil;
     }
     nsTArray<ProxyAccessible*> rel = proxy->RelationByType(RelationType::LABELLED_BY);
     ProxyAccessible* tempProxy = rel.SafeElementAt(0);
@@ -472,28 +472,28 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
 - (id)accessibilityHitTest:(NSPoint)point
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy)
     return nil;
 
   // Convert the given screen-global point in the cocoa coordinate system (with
-  // origin in the bottom-left corner of the screen) into point in the Goanna
+  // origin in the bottom-left corner of the screen) into point in the Gecko
   // coordinate system (with origin in a top-left screen point).
   NSScreen* mainView = [[NSScreen screens] objectAtIndex:0];
   NSPoint tmpPoint = NSMakePoint(point.x,
                                  [mainView frame].size.height - point.y);
-  LayoutDeviceIntPoint goannaPoint = nsCocoaUtils::
+  LayoutDeviceIntPoint geckoPoint = nsCocoaUtils::
     CocoaPointsToDevPixels(tmpPoint, nsCocoaUtils::GetBackingScaleFactor(mainView));
 
   mozAccessible* nativeChild = nil;
   if (accWrap) {
-    Accessible* child = accWrap->ChildAtPoint(goannaPoint.x, goannaPoint.y,
+    Accessible* child = accWrap->ChildAtPoint(geckoPoint.x, geckoPoint.y,
                                   Accessible::eDeepestChild);
     if (child)
-      nativeChild = GetNativeFromGoannaAccessible(child);
+      nativeChild = GetNativeFromGeckoAccessible(child);
   } else if (proxy) {
-    ProxyAccessible* child = proxy->ChildAtPoint(goannaPoint.x, goannaPoint.y,
+    ProxyAccessible* child = proxy->ChildAtPoint(geckoPoint.x, geckoPoint.y,
                                   Accessible::eDeepestChild);
     if (child)
       nativeChild = GetNativeFromProxy(child);
@@ -524,20 +524,20 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
 - (id)accessibilityFocusedUIElement
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy)
     return nil;
 
   mozAccessible* focusedChild = nil;
   if (accWrap) {
-    Accessible* focusedGoannaChild = accWrap->FocusedChild();
-    if (focusedGoannaChild)
-      focusedChild = GetNativeFromGoannaAccessible(focusedGoannaChild);
+    Accessible* focusedGeckoChild = accWrap->FocusedChild();
+    if (focusedGeckoChild)
+      focusedChild = GetNativeFromGeckoAccessible(focusedGeckoChild);
   } else if (proxy) {
-    ProxyAccessible* focusedGoannaChild = proxy->FocusedChild();
-    if (focusedGoannaChild)
-      focusedChild = GetNativeFromProxy(focusedGoannaChild);
+    ProxyAccessible* focusedGeckoChild = proxy->FocusedChild();
+    if (focusedGeckoChild)
+      focusedChild = GetNativeFromProxy(focusedGeckoChild);
   }
 
   if (focusedChild)
@@ -554,15 +554,15 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   id nativeParent = nil;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     Accessible* accessibleParent = accWrap->Parent();
     if (accessibleParent)
-      nativeParent = GetNativeFromGoannaAccessible(accessibleParent);
+      nativeParent = GetNativeFromGeckoAccessible(accessibleParent);
     if (nativeParent)
       return GetObjectOrRepresentedView(nativeParent);
 
     // Return native of root accessible if we have no direct parent
-    nativeParent = GetNativeFromGoannaAccessible(accWrap->RootAccessible());
+    nativeParent = GetNativeFromGeckoAccessible(accWrap->RootAccessible());
   } else if (ProxyAccessible* proxy = [self getProxyAccessible]) {
     if (ProxyAccessible* proxyParent = proxy->Parent()) {
       nativeParent = GetNativeFromProxy(proxyParent);
@@ -573,7 +573,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
     Accessible* outerDoc = proxy->OuterDocOfRemoteBrowser();
     nativeParent = outerDoc ?
-      GetNativeFromGoannaAccessible(outerDoc) : nil;
+      GetNativeFromGeckoAccessible(outerDoc) : nil;
   } else {
     return nil;
   }
@@ -612,11 +612,11 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   // get the array of children.
   mChildren = [[NSMutableArray alloc] init];
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   if (accWrap) {
     uint32_t childCount = accWrap->ChildCount();
     for (uint32_t childIdx = 0; childIdx < childCount; childIdx++) {
-      mozAccessible* nativeChild = GetNativeFromGoannaAccessible(accWrap->GetChildAt(childIdx));
+      mozAccessible* nativeChild = GetNativeFromGeckoAccessible(accWrap->GetChildAt(childIdx));
       if (nativeChild)
         [mChildren addObject:nativeChild];
     }
@@ -650,7 +650,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   nsIntRect rect;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     rect = accWrap->Bounds();
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     rect = proxy->Bounds();
@@ -672,7 +672,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   nsIntRect rect;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     rect = accWrap->Bounds();
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     rect = proxy->Bounds();
@@ -689,7 +689,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
 - (NSString*)role
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   if (accWrap) {
     #ifdef DEBUG_A11Y
       NS_ASSERTION(nsAccUtils::IsTextInterfaceSupportCorrect(accWrap),
@@ -699,8 +699,8 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
     return nil;
   }
 
-#define ROLE(goannaRole, stringRole, atkRole, macRole, msaaRole, ia2Role, nameRule) \
-  case roles::goannaRole: \
+#define ROLE(geckoRole, stringRole, atkRole, macRole, msaaRole, ia2Role, nameRule) \
+  case roles::geckoRole: \
     return macRole;
 
   switch (mRole) {
@@ -715,7 +715,7 @@ ConvertToNSArray(nsTArray<ProxyAccessible*>& aArray)
 
 - (NSString*)subrole
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
 
   // Deal with landmarks first
@@ -960,7 +960,7 @@ struct RoleDescrComparator
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   nsAutoString title;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     accWrap->Name(title);
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     proxy->Name(title);
@@ -975,7 +975,7 @@ struct RoleDescrComparator
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   nsAutoString value;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     accWrap->Value(value);
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     proxy->Value(value);
@@ -1018,7 +1018,7 @@ struct RoleDescrComparator
   // What needs to go here is actually the accDescription of an item.
   // The MSAA acc_help method has nothing to do with this one.
   nsAutoString helpText;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     accWrap->Description(helpText);
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     proxy->Description(helpText);
@@ -1040,12 +1040,12 @@ struct RoleDescrComparator
 
 - (BOOL)isFocused
 {
-  return FocusMgr()->IsFocused([self getGoannaAccessible]);
+  return FocusMgr()->IsFocused([self getGeckoAccessible]);
 }
 
 - (BOOL)canBeFocused
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
       return accWrap->InteractiveState() & states::FOCUSABLE;
 
   if (ProxyAccessible* proxy = [self getProxyAccessible])
@@ -1056,7 +1056,7 @@ struct RoleDescrComparator
 
 - (BOOL)focus
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     accWrap->TakeFocus();
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     proxy->TakeFocus();
@@ -1068,7 +1068,7 @@ struct RoleDescrComparator
 
 - (BOOL)isEnabled
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     return ((accWrap->InteractiveState() & states::UNAVAILABLE) == 0);
 
   if (ProxyAccessible* proxy = [self getProxyAccessible])
@@ -1099,7 +1099,7 @@ struct RoleDescrComparator
   // Get a pointer to the native window (NSWindow) we reside in.
   NSWindow *nativeWindow = nil;
   DocAccessible* docAcc = nullptr;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     docAcc = accWrap->Document();
   } else if (ProxyAccessible* proxy = [self getProxyAccessible]) {
     Accessible* outerDoc = proxy->OuterDocOfRemoteBrowser();
@@ -1133,7 +1133,7 @@ struct RoleDescrComparator
   if (!mChildren)
     return;
 
-  mozAccessible *curNative = GetNativeFromGoannaAccessible(aAccessible);
+  mozAccessible *curNative = GetNativeFromGeckoAccessible(aAccessible);
   if (curNative)
     [mChildren addObject:curNative];
 }
@@ -1144,14 +1144,14 @@ struct RoleDescrComparator
 
   [self invalidateChildren];
 
-  mGoannaAccessible = 0;
+  mGeckoAccessible = 0;
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
 
 - (BOOL)isExpired
 {
-  return ![self getGoannaAccessible] && ![self getProxyAccessible];
+  return ![self getGeckoAccessible] && ![self getProxyAccessible];
 }
 
 #pragma mark -

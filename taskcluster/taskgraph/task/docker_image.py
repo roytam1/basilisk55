@@ -18,7 +18,7 @@ from taskgraph.util.docker import (
 from taskgraph.util.templates import Templates
 
 logger = logging.getLogger(__name__)
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
 
 # if running in a task, prefer to use the taskcluster proxy (http://taskcluster/),
 # otherwise hit the services directly
@@ -67,7 +67,7 @@ class DockerImageTask(base.Task):
         templates = Templates(path)
         for image_name, image_symbol in config['images'].iteritems():
             context_path = os.path.join('taskcluster', 'docker', image_name)
-            context_hash = generate_context_hash(GOANNA, context_path, image_name)
+            context_hash = generate_context_hash(GECKO, context_path, image_name)
 
             image_parameters = dict(parameters)
             image_parameters['image_name'] = image_name

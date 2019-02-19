@@ -10,7 +10,7 @@
     <PreferenceCategory android:title="@string/pref_category_home_homepage"
                         android:key="android.not_a_preference.category_homepage">
 
-        <org.mozilla.goanna.preferences.SetHomepagePreference
+        <org.mozilla.gecko.preferences.SetHomepagePreference
                 android:key="android.not_a_preference.homepage"
                 android:title="@string/home_homepage_title"
                 android:persistent="false"
@@ -18,7 +18,7 @@
 
     </PreferenceCategory>
 
-    <org.mozilla.goanna.preferences.PanelsPreferenceCategory
+    <org.mozilla.gecko.preferences.PanelsPreferenceCategory
         android:title="@string/pref_category_home_panels"/>
 
     <PreferenceCategory android:title="@string/pref_category_home_add_ons">

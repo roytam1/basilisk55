@@ -4,15 +4,15 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:goanna="http://schemas.android.com/apk/res-auto"
+                  xmlns:gecko="http://schemas.android.com/apk/res-auto"
                   android:title="@string/pref_category_advanced"
                   android:enabled="false">
 
-    <org.mozilla.goanna.preferences.AndroidImportPreference
+    <org.mozilla.gecko.preferences.AndroidImportPreference
             android:key="android.not_a_preference.import_android"
-            goanna:entries="@array/pref_import_android_entries"
-            goanna:entryValues="@array/pref_import_android_values"
-            goanna:initialValues="@array/pref_import_android_defaults"
+            gecko:entries="@array/pref_import_android_entries"
+            gecko:entryValues="@array/pref_import_android_values"
+            gecko:initialValues="@array/pref_import_android_defaults"
             android:title="@string/pref_import_android"
             android:summary="@string/pref_import_android_summary"
             android:positiveButtonText="@string/bookmarkhistory_button_import"
@@ -74,7 +74,7 @@
         <SwitchPreference android:key="devtools.remote.wifi.enabled"
                           android:title="@string/pref_developer_remotedebugging_wifi" />
 
-        <org.mozilla.goanna.preferences.AlignRightLinkPreference android:key="android.not_a_preference.remote_debugging.link"
+        <org.mozilla.gecko.preferences.AlignRightLinkPreference android:key="android.not_a_preference.remote_debugging.link"
                                                                 android:title="@string/pref_learn_more"
                                                                 android:persistent="false"
                                                                 url="https://developer.mozilla.org/docs/Tools/Remote_Debugging/Debugging_Firefox_for_Android_with_WebIDE" />

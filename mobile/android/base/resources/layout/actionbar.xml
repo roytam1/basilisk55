@@ -8,7 +8,7 @@
     <Button android:id="@+id/actionmode_title"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
-            style="@style/GoannaActionBar.Title"/>
+            style="@style/GeckoActionBar.Title"/>
 
     <!-- Draw a separator to the left of the title -->
     <View android:layout_height="match_parent"
@@ -21,11 +21,11 @@
                   android:layout_height="match_parent"
                   android:layout_width="0dip"
                   android:layout_weight="1"
-                  style="@style/GoannaActionBar.Buttons"/>
+                  style="@style/GeckoActionBar.Buttons"/>
 
     <ImageButton android:id="@+id/actionbar_menu"
                  android:layout_height="match_parent"
                  android:layout_width="@dimen/browser_toolbar_icon_width"
-                 style="@style/GoannaActionBar.Button.MenuButton"/>
+                 style="@style/GeckoActionBar.Button.MenuButton"/>
 
 </merge>

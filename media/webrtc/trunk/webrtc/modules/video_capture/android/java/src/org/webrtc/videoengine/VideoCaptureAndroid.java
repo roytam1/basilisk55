@@ -31,7 +31,7 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
-import org.mozilla.goanna.annotation.WebRTCJNITarget;
+import org.mozilla.gecko.annotation.WebRTCJNITarget;
 
 // Wrapper for android Camera, with support for direct local preview rendering.
 // Threading notes: this class is called from ViE C++ code, and from Camera &

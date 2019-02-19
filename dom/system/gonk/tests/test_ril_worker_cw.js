@@ -34,7 +34,7 @@ add_test(function test_setCallWaiting_generic_failure() {
 
   context.RIL.setCallWaiting = function fakeSetCallWaiting(options) {
     context.RIL[REQUEST_SET_CALL_WAITING](0, {
-      errorMsg: GOANNA_ERROR_GENERIC_FAILURE
+      errorMsg: GECKO_ERROR_GENERIC_FAILURE
     });
   };
 
@@ -44,7 +44,7 @@ add_test(function test_setCallWaiting_generic_failure() {
 
   let postedMessage = workerHelper.postedMessage;
 
-  equal(postedMessage.errorMsg, GOANNA_ERROR_GENERIC_FAILURE);
+  equal(postedMessage.errorMsg, GECKO_ERROR_GENERIC_FAILURE);
 
   run_next_test();
 });

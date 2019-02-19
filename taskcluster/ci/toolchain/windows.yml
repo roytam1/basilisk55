@@ -9,7 +9,7 @@ win32-clang-cl/opt:
         platform: windows-2012-32/opt
         symbol: Cc(ClangCL)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
         implementation: generic-worker
         max-run-time: 36000
@@ -29,7 +29,7 @@ win64-clang-cl/opt:
         platform: windows-2012-64/opt
         symbol: Cc(ClangCL)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
         implementation: generic-worker
         max-run-time: 36000
@@ -52,7 +52,7 @@ win32-clang-tidy/opt:
         platform: windows-2012-32/opt
         symbol: Cc(Clang-Tidy)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
         implementation: generic-worker
         max-run-time: 36000
@@ -75,7 +75,7 @@ win64-clang-tidy/opt:
         platform: windows-2012-64/opt
         symbol: Cc(Clang-Tidy)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+    worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
     worker:
         implementation: generic-worker
         max-run-time: 36000

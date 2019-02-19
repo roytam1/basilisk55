@@ -60,7 +60,7 @@ const WebAudioFront = protocol.FrontClassWithSpec(webAudioSpec, {
   },
 
   /**
-   * If connecting to older goannas (<Fx43), where audio node actor's do not
+   * If connecting to older geckos (<Fx43), where audio node actor's do not
    * contain `type`, `source` and `bypassable` properties, fetch
    * them manually here.
    */

@@ -48,7 +48,7 @@ files to lint.
 Structured log linters are much like external linters, but suitable
 for cases where the linter code is using mozlog and emits
 ``lint_error`` or ``lint_warning`` logging messages when the lint
-fails. This is recommended for writing novel goanna-specific lints. In
+fails. This is recommended for writing novel gecko-specific lints. In
 this case the signature for lint functions is ``lint(files, logger,
 **kwargs)``.
 

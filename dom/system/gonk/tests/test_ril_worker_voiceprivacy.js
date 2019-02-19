@@ -34,7 +34,7 @@ add_test(function test_setVoicePrivacyMode_generic_failure() {
 
   context.RIL.setVoicePrivacyMode = function fakeSetVoicePrivacyMode(options) {
     context.RIL[REQUEST_CDMA_SET_PREFERRED_VOICE_PRIVACY_MODE](0, {
-      errorMsg: GOANNA_ERROR_GENERIC_FAILURE
+      errorMsg: GECKO_ERROR_GENERIC_FAILURE
     });
   };
 
@@ -44,7 +44,7 @@ add_test(function test_setVoicePrivacyMode_generic_failure() {
 
   let postedMessage = workerHelper.postedMessage;
 
-  equal(postedMessage.errorMsg, GOANNA_ERROR_GENERIC_FAILURE);
+  equal(postedMessage.errorMsg, GECKO_ERROR_GENERIC_FAILURE);
 
   run_next_test();
 });

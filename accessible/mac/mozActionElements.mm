@@ -78,7 +78,7 @@ enum CheckboxValue {
 
 - (BOOL)accessibilityIsIgnored
 {
-  return ![self getGoannaAccessible] && ![self getProxyAccessible];
+  return ![self getGeckoAccessible] && ![self getProxyAccessible];
 }
 
 - (NSArray*)accessibilityActionNames
@@ -136,7 +136,7 @@ enum CheckboxValue {
 {
   // both buttons and checkboxes have only one action. we should really stop using arbitrary
   // arrays with actions, and define constants for these actions.
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     accWrap->DoAction(0);
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     proxy->DoAction(0);
@@ -144,7 +144,7 @@ enum CheckboxValue {
 
 - (BOOL)isTab
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     return accWrap->Role() == roles::PAGETAB;
 
   if (ProxyAccessible* proxy = [self getProxyAccessible])
@@ -155,7 +155,7 @@ enum CheckboxValue {
 
 - (BOOL)hasPopup
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     return accWrap->NativeState() & states::HASPOPUP;
 
   if (ProxyAccessible* proxy = [self getProxyAccessible])
@@ -187,7 +187,7 @@ enum CheckboxValue {
 - (int)isChecked
 {
   uint64_t state = 0;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible])
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible])
     state = accWrap->NativeState();
   else if (ProxyAccessible* proxy = [self getProxyAccessible])
     state = proxy->NativeState();
@@ -250,7 +250,7 @@ enum CheckboxValue {
 - (id)value
 {
   mozAccessible* nativeAcc = nil;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     if (Accessible* accTab = accWrap->GetSelectedItem(0)) {
       accTab->GetNativeInterface((void**)&nativeAcc);
     }
@@ -297,7 +297,7 @@ enum CheckboxValue {
 
 - (NSUInteger)accessibilityArrayAttributeCount:(NSString*)attribute
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy)
     return 0;
@@ -316,20 +316,20 @@ enum CheckboxValue {
 
 - (NSArray*)children
 {
-  if (![self getGoannaAccessible])
+  if (![self getGeckoAccessible])
     return nil;
 
-  nsDeckFrame* deckFrame = do_QueryFrame([self getGoannaAccessible]->GetFrame());
+  nsDeckFrame* deckFrame = do_QueryFrame([self getGeckoAccessible]->GetFrame());
   nsIFrame* selectedFrame = deckFrame ? deckFrame->GetSelectedBox() : nullptr;
 
   Accessible* selectedAcc = nullptr;
   if (selectedFrame) {
     nsINode* node = selectedFrame->GetContent();
-    selectedAcc = [self getGoannaAccessible]->Document()->GetAccessible(node);
+    selectedAcc = [self getGeckoAccessible]->Document()->GetAccessible(node);
   }
 
   if (selectedAcc) {
-    mozAccessible *curNative = GetNativeFromGoannaAccessible(selectedAcc);
+    mozAccessible *curNative = GetNativeFromGeckoAccessible(selectedAcc);
     if (curNative)
       return [NSArray arrayWithObjects:GetObjectOrRepresentedView(curNative), nil];
   }

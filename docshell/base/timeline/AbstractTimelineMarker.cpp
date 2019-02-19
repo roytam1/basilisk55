@@ -76,7 +76,7 @@ AbstractTimelineMarker::SetCustomTime(DOMHighResTimeStamp aTime)
 }
 
 void
-AbstractTimelineMarker::SetProcessType(GoannaProcessType aProcessType)
+AbstractTimelineMarker::SetProcessType(GeckoProcessType aProcessType)
 {
   mProcessType = aProcessType;
 }

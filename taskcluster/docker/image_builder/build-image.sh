@@ -27,9 +27,9 @@ CONTEXT_FILE=/home/worker/workspace/context.tar
 # Run ./mach taskcluster-build-image with --context-only to build context
 run-task \
   --chown-recursive "/home/worker/workspace" \
-  --vcs-checkout "/home/worker/checkouts/goanna" \
+  --vcs-checkout "/home/worker/checkouts/gecko" \
   -- \
-  /home/worker/checkouts/goanna/mach taskcluster-build-image \
+  /home/worker/checkouts/gecko/mach taskcluster-build-image \
   --context-only "$CONTEXT_FILE" \
   "$IMAGE_NAME"
 test -f "$CONTEXT_FILE" || raise_error "Context file wasn't created"

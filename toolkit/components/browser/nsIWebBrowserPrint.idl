@@ -12,7 +12,7 @@ interface nsIWebProgressListener;
 
 /**
  * nsIWebBrowserPrint corresponds to the main interface
- * for printing an embedded Goanna web browser window/document
+ * for printing an embedded Gecko web browser window/document
  */
 [scriptable, uuid(c9a934ed-fff1-4971-bfba-6c25ad70e1e6)]
 interface nsIWebBrowserPrint : nsISupports

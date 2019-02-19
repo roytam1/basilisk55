@@ -83,7 +83,7 @@ public:
                  already_AddRefed<nsRuleNode> aRuleNode,
                  bool aSkipParentDisplayBasedStyleFixup);
 
-  // Version of the above that takes a ServoComputedValues instead of a Goanna
+  // Version of the above that takes a ServoComputedValues instead of a Gecko
   // nsRuleNode.
   nsStyleContext(nsStyleContext* aParent,
                  nsPresContext* aPresContext,
@@ -158,7 +158,7 @@ public:
 #ifdef MOZ_STYLO
     return mPresContext;
 #else
-    return mSource.AsGoannaRuleNode()->PresContext();
+    return mSource.AsGeckoRuleNode()->PresContext();
 #endif
   }
 
@@ -313,8 +313,8 @@ public:
   }
 
   nsRuleNode* RuleNode() {
-    MOZ_RELEASE_ASSERT(mSource.IsGoannaRuleNode());
-    return mSource.AsGoannaRuleNode();
+    MOZ_RELEASE_ASSERT(mSource.IsGeckoRuleNode());
+    return mSource.AsGeckoRuleNode();
   }
 
   void AddStyleBit(const uint64_t& aBit) { mBits |= aBit; }
@@ -600,8 +600,8 @@ private:
       /* Have the rulenode deal */                                      \
       AUTO_CHECK_DEPENDENCY(eStyleStruct_##name_);                      \
       const nsStyle##name_ * newData;                                   \
-      if (mSource.IsGoannaRuleNode()) {                                  \
-        newData = mSource.AsGoannaRuleNode()->                           \
+      if (mSource.IsGeckoRuleNode()) {                                  \
+        newData = mSource.AsGeckoRuleNode()->                           \
           GetStyle##name_<aComputeData>(this, mBits);                   \
       } else {                                                          \
         /**                                                             \
@@ -674,8 +674,8 @@ private:
       /* Have the rulenode deal */                                      \
       AUTO_CHECK_DEPENDENCY(eStyleStruct_##name_);                      \
       const nsStyle##name_ * newData;                                   \
-      if (mSource.IsGoannaRuleNode()) {                                  \
-        newData = mSource.AsGoannaRuleNode()->                           \
+      if (mSource.IsGeckoRuleNode()) {                                  \
+        newData = mSource.AsGeckoRuleNode()->                           \
           GetStyle##name_<aComputeData>(this);                          \
       } else {                                                          \
         newData =                                                       \
@@ -744,13 +744,13 @@ private:
   // the relevant atom.
   nsCOMPtr<nsIAtom> mPseudoTag;
 
-  // The source for our style data, either a Goanna nsRuleNode or a Servo
+  // The source for our style data, either a Gecko nsRuleNode or a Servo
   // ComputedValues struct. This never changes after construction, except
   // when it's released and nulled out during teardown.
   const mozilla::OwningStyleContextSource mSource;
 
 #ifdef MOZ_STYLO
-  // In Goanna, we can get this off the rule node. We make this conditional
+  // In Gecko, we can get this off the rule node. We make this conditional
   // on stylo builds to avoid the memory bloat on release.
   nsPresContext* mPresContext;
 #endif

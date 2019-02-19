@@ -25,7 +25,7 @@ class L10n(BaseLib):
     .. deprecated:: 52.2.0
        Use the localization module from :py:mod:`marionette_driver` instead.
 
-    The `localization`_ of UI elements in Goanna based applications is done via
+    The `localization`_ of UI elements in Gecko based applications is done via
     entities and properties. For static values entities are used, which are located
     in .dtd files. Whereby for dynamically updated content the values come from
     .property files. Both types of elements can be identifed via a unique id,

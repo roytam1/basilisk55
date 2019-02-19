@@ -203,13 +203,13 @@ SwipeTracker::CreateSwipeGestureEvent(EventMessage aMsg, nsIWidget* aWidget,
                                       const TimeStamp& aTimeStamp)
 {
   // XXX Why isn't this initialized with nsCocoaUtils::InitInputEvent()?
-  WidgetSimpleGestureEvent goannaEvent(true, aMsg, aWidget);
-  goannaEvent.mModifiers = 0;
-  // XXX How about goannaEvent.mTime?
-  goannaEvent.mTimeStamp = aTimeStamp;
-  goannaEvent.mRefPoint = aPosition;
-  goannaEvent.buttons = 0;
-  return goannaEvent;
+  WidgetSimpleGestureEvent geckoEvent(true, aMsg, aWidget);
+  geckoEvent.mModifiers = 0;
+  // XXX How about geckoEvent.mTime?
+  geckoEvent.mTimeStamp = aTimeStamp;
+  geckoEvent.mRefPoint = aPosition;
+  geckoEvent.buttons = 0;
+  return geckoEvent;
 }
 
 bool
@@ -218,12 +218,12 @@ SwipeTracker::SendSwipeEvent(EventMessage aMsg,
                              double aDelta,
                              const TimeStamp& aTimeStamp)
 {
-  WidgetSimpleGestureEvent goannaEvent =
+  WidgetSimpleGestureEvent geckoEvent =
     CreateSwipeGestureEvent(aMsg, &mWidget, mEventPosition, aTimeStamp);
-  goannaEvent.mDirection = aDirection;
-  goannaEvent.mDelta = aDelta;
-  goannaEvent.mAllowedDirections = mAllowedDirections;
-  return mWidget.DispatchWindowEvent(goannaEvent);
+  geckoEvent.mDirection = aDirection;
+  geckoEvent.mDelta = aDelta;
+  geckoEvent.mAllowedDirections = mAllowedDirections;
+  return mWidget.DispatchWindowEvent(geckoEvent);
 }
 
 } // namespace mozilla

@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 // These types are still used by the Chromium sandbox code. When referencing
-// Chromium sandbox code from Goanna we can't use the normal base/basictypes.h as
+// Chromium sandbox code from Gecko we can't use the normal base/basictypes.h as
 // it clashes with the one from ipc/chromium/src/base/. These types have been
 // removed from the one in ipc/chromium/src/base/.
 typedef int8_t int8;

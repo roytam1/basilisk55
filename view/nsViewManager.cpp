@@ -19,7 +19,7 @@
 #include "nsIPresShell.h"
 #include "nsPresContext.h"
 #include "mozilla/StartupTimeline.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsRefreshDriver.h"
 #include "mozilla/Preferences.h"
 #include "nsContentUtils.h" // for nsAutoScriptBlocker
@@ -405,7 +405,7 @@ nsViewManager::ProcessPendingUpdatesForView(nsView* aView,
     return; // presentation might have been torn down
   }
   if (aFlushDirtyRegion) {
-    GoannaProfilerTracingRAII tracer("Paint", "DisplayList");
+    GeckoProfilerTracingRAII tracer("Paint", "DisplayList");
     nsAutoScriptBlocker scriptBlocker;
     SetPainting(true);
     for (uint32_t i = 0; i < widgets.Length(); ++i) {

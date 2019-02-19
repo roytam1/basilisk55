@@ -188,7 +188,7 @@ DirectoryProvider.prototype = {
     try {
       jenv = JNI.GetForThread();
 
-      let jDistribution = JNI.LoadClass(jenv, "org.mozilla.goanna.distribution.Distribution", {
+      let jDistribution = JNI.LoadClass(jenv, "org.mozilla.gecko.distribution.Distribution", {
         static_methods: [
           { name: "getDistributionDirectories", sig: "()[Ljava/lang/String;" }
         ],

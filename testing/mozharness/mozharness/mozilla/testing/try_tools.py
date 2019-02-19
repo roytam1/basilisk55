@@ -96,12 +96,12 @@ class TryToolsMixin(TransferMixin):
                     repo_path = props['repo_path']
                 else:
                     # In TaskCluster we have no buildbot props, rely on env vars instead
-                    rev = os.environ.get('GOANNA_HEAD_REV')
+                    rev = os.environ.get('GECKO_HEAD_REV')
                     repo_path = self.config.get('branch')
                 if repo_path:
                     repo_url = repo_url % repo_path
                 else:
-                    repo_url = os.environ.get('GOANNA_HEAD_REPOSITORY',
+                    repo_url = os.environ.get('GECKO_HEAD_REPOSITORY',
                                               repo_url % 'try')
                 if not repo_url.endswith('/'):
                     repo_url += '/'

@@ -77,7 +77,7 @@ nsAndroidHistory::RegisterVisitedCallback(nsIURI *aURI, Link *aContent)
   list->AppendElement(aContent);
 
   if (jni::IsAvailable()) {
-    java::GoannaAppShell::CheckURIVisited(uriString);
+    java::GeckoAppShell::CheckURIVisited(uriString);
   }
 
   return NS_OK;
@@ -203,7 +203,7 @@ nsAndroidHistory::SaveVisitURI(nsIURI* aURI) {
     // Save this URI in our history
     nsAutoCString spec;
     (void)aURI->GetSpec(spec);
-    java::GoannaAppShell::MarkURIVisited(NS_ConvertUTF8toUTF16(spec));
+    java::GeckoAppShell::MarkURIVisited(NS_ConvertUTF8toUTF16(spec));
   }
 
   // Finally, notify that we've been visited.
@@ -292,7 +292,7 @@ nsAndroidHistory::SetURITitle(nsIURI *aURI, const nsAString& aTitle)
       SaveVisitURI(aURI);
     }
     NS_ConvertUTF8toUTF16 uriString(uri);
-    java::GoannaAppShell::SetURITitle(uriString, aTitle);
+    java::GeckoAppShell::SetURITitle(uriString, aTitle);
   }
   return NS_OK;
 }

@@ -82,7 +82,7 @@ public:
 
   void PlatformName(nsAString& aName) const
   {
-    aName.AssignLiteral("Goanna");
+    aName.AssignLiteral("Gecko");
   }
 
   void PlatformVersion(nsAString& aVersion) const

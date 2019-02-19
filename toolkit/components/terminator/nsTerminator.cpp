@@ -29,7 +29,7 @@
 
 #include "nsIObserverService.h"
 #include "nsIPrefService.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #if defined(XP_WIN)
 #include <windows.h>

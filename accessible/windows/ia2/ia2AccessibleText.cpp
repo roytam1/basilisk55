@@ -99,7 +99,7 @@ ia2AccessibleText::get_characterExtents(long aOffset,
     return E_INVALIDARG;
   *aX = *aY = *aWidth = *aHeight = 0;
 
-  uint32_t goannaCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
+  uint32_t geckoCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
     nsIAccessibleCoordinateType::COORDTYPE_SCREEN_RELATIVE :
     nsIAccessibleCoordinateType::COORDTYPE_PARENT_RELATIVE;
   nsIntRect rect;
@@ -108,7 +108,7 @@ ia2AccessibleText::get_characterExtents(long aOffset,
   if (textAcc->IsDefunct())
     return CO_E_OBJNOTCONNECTED;
 
-  rect = textAcc->CharBounds(aOffset, goannaCoordType);
+  rect = textAcc->CharBounds(aOffset, geckoCoordType);
 
   *aX = rect.x;
   *aY = rect.y;
@@ -144,7 +144,7 @@ ia2AccessibleText::get_offsetAtPoint(long aX, long aY,
     return E_INVALIDARG;
   *aOffset = 0;
 
-  uint32_t goannaCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
+  uint32_t geckoCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
     nsIAccessibleCoordinateType::COORDTYPE_SCREEN_RELATIVE :
     nsIAccessibleCoordinateType::COORDTYPE_PARENT_RELATIVE;
 
@@ -154,7 +154,7 @@ ia2AccessibleText::get_offsetAtPoint(long aX, long aY,
     return CO_E_OBJNOTCONNECTED;
   }
 
-  *aOffset = textAcc->OffsetAtPoint(aX, aY, goannaCoordType);
+  *aOffset = textAcc->OffsetAtPoint(aX, aY, geckoCoordType);
 
   return *aOffset == -1 ? S_FALSE : S_OK;
 }
@@ -238,7 +238,7 @@ ia2AccessibleText::get_textBeforeOffset(long aOffset,
     endOffset = textAcc->CharacterCount();
     textAcc->TextSubstring(startOffset, endOffset, text);
   } else {
-    AccessibleTextBoundary boundaryType = GetGoannaTextBoundary(aBoundaryType);
+    AccessibleTextBoundary boundaryType = GetGeckoTextBoundary(aBoundaryType);
     if (boundaryType == -1)
       return S_FALSE;
 
@@ -283,7 +283,7 @@ ia2AccessibleText::get_textAfterOffset(long aOffset,
     endOffset = textAcc->CharacterCount();
     textAcc->TextSubstring(startOffset, endOffset, text);
   } else {
-    AccessibleTextBoundary boundaryType = GetGoannaTextBoundary(aBoundaryType);
+    AccessibleTextBoundary boundaryType = GetGeckoTextBoundary(aBoundaryType);
     if (boundaryType == -1)
       return S_FALSE;
     textAcc->TextAfterOffset(aOffset, boundaryType, &startOffset, &endOffset, text);
@@ -325,7 +325,7 @@ ia2AccessibleText::get_textAtOffset(long aOffset,
     endOffset = textAcc->CharacterCount();
     textAcc->TextSubstring(startOffset, endOffset, text);
   } else {
-    AccessibleTextBoundary boundaryType = GetGoannaTextBoundary(aBoundaryType);
+    AccessibleTextBoundary boundaryType = GetGeckoTextBoundary(aBoundaryType);
     if (boundaryType == -1)
       return S_FALSE;
     textAcc->TextAtOffset(aOffset, boundaryType, &startOffset, &endOffset, text);
@@ -423,7 +423,7 @@ ia2AccessibleText::scrollSubstringToPoint(long aStartIndex, long aEndIndex,
                                           enum IA2CoordinateType aCoordType,
                                           long aX, long aY)
 {
-  uint32_t goannaCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
+  uint32_t geckoCoordType = (aCoordType == IA2_COORDTYPE_SCREEN_RELATIVE) ?
     nsIAccessibleCoordinateType::COORDTYPE_SCREEN_RELATIVE :
     nsIAccessibleCoordinateType::COORDTYPE_PARENT_RELATIVE;
 
@@ -437,7 +437,7 @@ ia2AccessibleText::scrollSubstringToPoint(long aStartIndex, long aEndIndex,
     return E_INVALIDARG;
 
   textAcc->ScrollSubstringToPoint(aStartIndex, aEndIndex,
-                                  goannaCoordType, aX, aY);
+                                  geckoCoordType, aX, aY);
   return S_OK;
 }
 
@@ -482,7 +482,7 @@ ia2AccessibleText::GetModifiedText(bool aGetInsertedText,
 }
 
 AccessibleTextBoundary
-ia2AccessibleText::GetGoannaTextBoundary(enum IA2TextBoundaryType aBoundaryType)
+ia2AccessibleText::GetGeckoTextBoundary(enum IA2TextBoundaryType aBoundaryType)
 {
   switch (aBoundaryType) {
     case IA2_TEXT_BOUNDARY_CHAR:

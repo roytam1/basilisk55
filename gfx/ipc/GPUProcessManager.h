@@ -40,7 +40,7 @@ class TabParent;
 class PVideoDecoderManagerChild;
 } // namespace dom
 namespace ipc {
-class GoannaChildProcessHost;
+class GeckoChildProcessHost;
 } // namespace ipc
 namespace gfx {
 

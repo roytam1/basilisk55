@@ -104,9 +104,9 @@ The **CompositorVsyncScheduler::Observer** handles the vsync notifications and i
 When the **Compositor** requires a scheduled composite, it notifies the **CompositorVsyncScheduler::Observer** that it needs to listen to vsync.
 The **CompositorVsyncScheduler::Observer** then observes / unobserves vsync as needed from the **CompositorVsyncDispatcher** to enable composites.
 
-###GoannaTouchDispatcher
-The **GoannaTouchDispatcher** is a singleton that resamples touch events to smooth out jank while tracking a user's finger.
-Because input and composite are linked together, the **CompositorVsyncScheduler::Observer** has a reference to the **GoannaTouchDispatcher** and vice versa.
+###GeckoTouchDispatcher
+The **GeckoTouchDispatcher** is a singleton that resamples touch events to smooth out jank while tracking a user's finger.
+Because input and composite are linked together, the **CompositorVsyncScheduler::Observer** has a reference to the **GeckoTouchDispatcher** and vice versa.
 
 ###Input Events
 One large goal of Silk is to align touch events with vsync events.
@@ -118,19 +118,19 @@ We use [Google Android's touch resampling](http://www.masonchang.com/blog/2014/8
 
 Currently, we have a strict ordering between Composites and touch events.
 When a touch event occurs on the *Touch Input Thread*, we store the touch event in a queue.
-When a vsync event occurs, the **CompositorVsyncDispatcher** notifies the **Compositor** of a vsync event, which notifies the **GoannaTouchDispatcher**.
-The **GoannaTouchDispatcher** processes the touch event first on the *APZ Controller Thread*, which is the same as the *Compositor Thread* on b2g, then the **Compositor** finishes compositing.
-We require this strict ordering because if a vsync notification is dispatched to both the **Compositor** and **GoannaTouchDispatcher** at the same time, a race condition occurs between processing the touch event and therefore position versus compositing.
+When a vsync event occurs, the **CompositorVsyncDispatcher** notifies the **Compositor** of a vsync event, which notifies the **GeckoTouchDispatcher**.
+The **GeckoTouchDispatcher** processes the touch event first on the *APZ Controller Thread*, which is the same as the *Compositor Thread* on b2g, then the **Compositor** finishes compositing.
+We require this strict ordering because if a vsync notification is dispatched to both the **Compositor** and **GeckoTouchDispatcher** at the same time, a race condition occurs between processing the touch event and therefore position versus compositing.
 In practice, this creates very janky scrolling.
 As of this writing, we have not analyzed input events on desktop platforms.
 
 One slight quirk is that input events can start a composite, for example during a scroll and after the **Compositor** is no longer listening to vsync events.
 In these cases, we notify the **Compositor** to observe vsync so that it dispatches touch events.
 If touch events were not dispatched, and since the **Compositor** is not listening to vsync events, the touch events would never be dispatched.
-The **GoannaTouchDispatcher** handles this case by always forcing the **Compositor** to listen to vsync events while touch events are occurring.
+The **GeckoTouchDispatcher** handles this case by always forcing the **Compositor** to listen to vsync events while touch events are occurring.
 
-###Widget, Compositor, CompositorVsyncDispatcher, GoannaTouchDispatcher Shutdown Procedure
-When the [nsBaseWidget shuts down](http://hg.mozilla.org/mozilla-central/file/0df249a0e4d3/widget/nsBaseWidget.cpp#l182) - It calls nsBaseWidget::DestroyCompositor on the *Goanna Main Thread*.
+###Widget, Compositor, CompositorVsyncDispatcher, GeckoTouchDispatcher Shutdown Procedure
+When the [nsBaseWidget shuts down](http://hg.mozilla.org/mozilla-central/file/0df249a0e4d3/widget/nsBaseWidget.cpp#l182) - It calls nsBaseWidget::DestroyCompositor on the *Gecko Main Thread*.
 During nsBaseWidget::DestroyCompositor, it first destroys the CompositorBridgeChild.
 CompositorBridgeChild sends a sync IPC call to CompositorBridgeParent::RecvStop, which calls [CompositorBridgeParent::Destroy](http://hg.mozilla.org/mozilla-central/file/ab0490972e1e/gfx/layers/ipc/CompositorBridgeParent.cpp#l509).
 During this time, the *main thread* is blocked on the parent process.
@@ -152,8 +152,8 @@ Thus, we explicitly shut down vsync events in the **CompositorVsyncDispatcher** 
 
 The **CompositorVsyncDispatcher** may be destroyed on either the *main thread* or *Compositor Thread*, since both the nsBaseWidget and **CompositorVsyncScheduler::Observer** race to destroy on different threads.
 nsBaseWidget is destroyed on the *main thread* and releases a reference to the **CompositorVsyncDispatcher** during destruction.
-The **CompositorVsyncScheduler::Observer** has a race to be destroyed either during CompositorBridgeParent shutdown or from the **GoannaTouchDispatcher** which is destroyed on the main thread with [ClearOnShutdown](http://hg.mozilla.org/mozilla-central/file/21567e9a6e40/xpcom/base/ClearOnShutdown.h#l15).
-Whichever object, the CompositorBridgeParent or the **GoannaTouchDispatcher** is destroyed last will hold the last reference to the **CompositorVsyncDispatcher**, which destroys the object.
+The **CompositorVsyncScheduler::Observer** has a race to be destroyed either during CompositorBridgeParent shutdown or from the **GeckoTouchDispatcher** which is destroyed on the main thread with [ClearOnShutdown](http://hg.mozilla.org/mozilla-central/file/21567e9a6e40/xpcom/base/ClearOnShutdown.h#l15).
+Whichever object, the CompositorBridgeParent or the **GeckoTouchDispatcher** is destroyed last will hold the last reference to the **CompositorVsyncDispatcher**, which destroys the object.
 
 #Refresh Driver
 The Refresh Driver is ticked from a [single active timer](http://hg.mozilla.org/mozilla-central/file/ab0490972e1e/layout/base/nsRefreshDriver.cpp#l11).

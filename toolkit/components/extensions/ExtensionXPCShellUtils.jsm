@@ -29,7 +29,7 @@ XPCOMUtils.defineLazyGetter(this, "Management", () => {
 
 let BASE_MANIFEST = Object.freeze({
   "applications": Object.freeze({
-    "gecko": Object.freeze({
+    "goanna": Object.freeze({
       "id": "test@web.ext",
     }),
   }),

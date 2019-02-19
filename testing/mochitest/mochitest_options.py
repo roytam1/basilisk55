@@ -596,9 +596,9 @@ class MochitestArguments(ArgumentContainer):
     ]
 
     defaults = {
-        # Bug 1065098 - The goannamediaplugin process fails to produce a leak
+        # Bug 1065098 - The geckomediaplugin process fails to produce a leak
         # log for some reason.
-        'ignoreMissingLeaks': ["goannamediaplugin"],
+        'ignoreMissingLeaks': ["geckomediaplugin"],
         'extensionsToExclude': ['specialpowers'],
         # Set server information on the args object
         'webServer': '127.0.0.1',
@@ -732,7 +732,7 @@ class MochitestArguments(ArgumentContainer):
                 "--debugger-args requires --debugger.")
 
         if options.valgrind or options.debugger:
-            # valgrind and some debuggers may cause Goanna to start slowly. Make sure
+            # valgrind and some debuggers may cause Gecko to start slowly. Make sure
             # marionette waits long enough to connect.
             options.marionette_port_timeout = 900
             options.marionette_socket_timeout = 540
@@ -830,7 +830,7 @@ class MochitestArguments(ArgumentContainer):
             "default": options.defaultLeakThreshold,
             "tab": 10000,  # See dependencies of bug 1051230.
             # GMP rarely gets a log, but when it does, it leaks a little.
-            "goannamediaplugin": 20000,
+            "geckomediaplugin": 20000,
         }
 
         # XXX We can't normalize test_paths in the non build_obj case here,

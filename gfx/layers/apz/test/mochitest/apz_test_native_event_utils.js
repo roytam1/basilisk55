@@ -39,7 +39,7 @@ function nativeHorizontalWheelEventMsg() {
 function nativeScrollUnits(aElement, aDimen) {
   switch (getPlatform()) {
     case "linux": {
-      // GTK deltas are treated as line height divided by 3 by goanna.
+      // GTK deltas are treated as line height divided by 3 by gecko.
       var targetWindow = aElement.ownerDocument.defaultView;
       var lineHeight = targetWindow.getComputedStyle(aElement)["font-size"];
       return aDimen / (parseInt(lineHeight) * 3);

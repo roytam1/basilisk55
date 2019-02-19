@@ -355,7 +355,7 @@ macro_rules! define_string_types {
             fn from(s: Box<[$char_t]>) -> $String<'static> {
                 assert!(s.len() < (u32::MAX as usize));
                 // SAFETY NOTE: This method produces an F_OWNED ns[C]String from
-                // a Box<[$char_t]>. this is only safe because in the Goanna
+                // a Box<[$char_t]>. this is only safe because in the Gecko
                 // tree, we use the same allocator for Rust code as for C++
                 // code, meaning that our box can be legally freed with
                 // libc::free().
@@ -569,13 +569,13 @@ impl nsACString {
     /// Should only be used in drop implementations of rust types which wrap
     /// this type.
     unsafe fn finalize(&mut self) {
-        Goanna_FinalizeCString(self);
+        Gecko_FinalizeCString(self);
     }
 
     pub fn assign<T: AsRef<[u8]> + ?Sized>(&mut self, other: &T) {
         let s = nsCString::from(other.as_ref());
         unsafe {
-            Goanna_AssignCString(self, &*s);
+            Gecko_AssignCString(self, &*s);
         }
     }
 
@@ -587,14 +587,14 @@ impl nsACString {
     pub fn append<T: AsRef<[u8]> + ?Sized>(&mut self, other: &T) {
         let s = nsCString::from(other.as_ref());
         unsafe {
-            Goanna_AppendCString(self, &*s);
+            Gecko_AppendCString(self, &*s);
         }
     }
 
     pub fn append_utf16<T: AsRef<[u16]> + ?Sized>(&mut self, other: &T) {
         let s = nsString::from(other.as_ref());
         unsafe {
-            Goanna_AppendUTF16toCString(self, &*s);
+            Gecko_AppendUTF16toCString(self, &*s);
         }
     }
 
@@ -604,7 +604,7 @@ impl nsACString {
 
     pub fn truncate(&mut self) {
         unsafe {
-            Goanna_TruncateCString(self);
+            Gecko_TruncateCString(self);
         }
     }
 }
@@ -682,13 +682,13 @@ impl nsAString {
     /// Should only be used in drop implementations of rust types which wrap
     /// this type.
     unsafe fn finalize(&mut self) {
-        Goanna_FinalizeString(self);
+        Gecko_FinalizeString(self);
     }
 
     pub fn assign<T: AsRef<[u16]> + ?Sized>(&mut self, other: &T) {
         let s = nsString::from(other.as_ref());
         unsafe {
-            Goanna_AssignString(self, &*s);
+            Gecko_AssignString(self, &*s);
         }
     }
 
@@ -700,20 +700,20 @@ impl nsAString {
     pub fn append<T: AsRef<[u16]> + ?Sized>(&mut self, other: &T) {
         let s = nsString::from(other.as_ref());
         unsafe {
-            Goanna_AppendString(self, &*s);
+            Gecko_AppendString(self, &*s);
         }
     }
 
     pub fn append_utf8<T: AsRef<[u8]> + ?Sized>(&mut self, other: &T) {
         let s = nsCString::from(other.as_ref());
         unsafe {
-            Goanna_AppendUTF8toString(self, &*s);
+            Gecko_AppendUTF8toString(self, &*s);
         }
     }
 
     pub fn truncate(&mut self) {
         unsafe {
-            Goanna_TruncateString(self);
+            Gecko_TruncateString(self);
         }
     }
 }
@@ -729,7 +729,7 @@ impl<'a> From<&'a str> for nsString<'static> {
 // Support for the write!() macro for writing to nsStrings
 impl fmt::Write for nsAString {
     fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
-        // Directly invoke goanna's routines for appending utf8 strings to
+        // Directly invoke gecko's routines for appending utf8 strings to
         // nsAString values, to avoid as much overhead as possible
         self.append_utf8(&nsCString::from(s));
         Ok(())
@@ -765,20 +765,20 @@ macro_rules! ns_auto_string {
 // NOTE: These bindings currently only expose infallible operations. Perhaps
 // consider allowing for fallible methods?
 extern "C" {
-    // Goanna implementation in nsSubstring.cpp
-    fn Goanna_FinalizeCString(this: *mut nsACString);
-    fn Goanna_AssignCString(this: *mut nsACString, other: *const nsACString);
-    fn Goanna_AppendCString(this: *mut nsACString, other: *const nsACString);
-    fn Goanna_TruncateCString(this: *mut nsACString);
+    // Gecko implementation in nsSubstring.cpp
+    fn Gecko_FinalizeCString(this: *mut nsACString);
+    fn Gecko_AssignCString(this: *mut nsACString, other: *const nsACString);
+    fn Gecko_AppendCString(this: *mut nsACString, other: *const nsACString);
+    fn Gecko_TruncateCString(this: *mut nsACString);
 
-    fn Goanna_FinalizeString(this: *mut nsAString);
-    fn Goanna_AssignString(this: *mut nsAString, other: *const nsAString);
-    fn Goanna_AppendString(this: *mut nsAString, other: *const nsAString);
-    fn Goanna_TruncateString(this: *mut nsAString);
+    fn Gecko_FinalizeString(this: *mut nsAString);
+    fn Gecko_AssignString(this: *mut nsAString, other: *const nsAString);
+    fn Gecko_AppendString(this: *mut nsAString, other: *const nsAString);
+    fn Gecko_TruncateString(this: *mut nsAString);
 
-    // Goanna implementation in nsReadableUtils.cpp
-    fn Goanna_AppendUTF16toCString(this: *mut nsACString, other: *const nsAString);
-    fn Goanna_AppendUTF8toString(this: *mut nsAString, other: *const nsACString);
+    // Gecko implementation in nsReadableUtils.cpp
+    fn Gecko_AppendUTF16toCString(this: *mut nsACString, other: *const nsAString);
+    fn Gecko_AppendUTF8toString(this: *mut nsAString, other: *const nsACString);
 }
 
 //////////////////////////////////////

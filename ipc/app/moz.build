@@ -14,7 +14,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'android':
 
     DIRS += ['pie']
 else:
-    GoannaProgram(CONFIG['MOZ_CHILD_PROCESS_NAME'], linkage='dependent')
+    GeckoProgram(CONFIG['MOZ_CHILD_PROCESS_NAME'], linkage='dependent')
 
     SOURCES += [
         'MozillaRuntimeMain.cpp',

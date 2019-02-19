@@ -70,7 +70,7 @@ AllocateCodeSegment(JSContext* cx, uint32_t totalLength)
     void* p = AllocateExecutableMemory(totalLength, ProtectionSetting::Writable);
 
     // If the allocation failed and the embedding gives us a last-ditch attempt
-    // to purge all memory (which, in goanna, does a purging GC/CC/GC), do that
+    // to purge all memory (which, in gecko, does a purging GC/CC/GC), do that
     // then retry the allocation.
     if (!p) {
         JSRuntime* rt = cx->runtime();

@@ -66,7 +66,7 @@ if CONFIG['MOZ_HAS_WINSDK_WITH_D3D']:
   OS_LIBS += [ 'd3d9', 'dxguid' ]
 
 
-GoannaSharedLibrary('libEGL', linkage=None)
+GeckoSharedLibrary('libEGL', linkage=None)
 
 RCFILE = SRCDIR + '/libEGL.rc'
 DEFFILE = SRCDIR + '/libEGL.def'

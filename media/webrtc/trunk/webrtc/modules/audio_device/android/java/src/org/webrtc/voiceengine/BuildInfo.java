@@ -13,7 +13,7 @@ package org.webrtc.voiceengine;
 import android.os.Build;
 import android.util.Log;
 
-import org.mozilla.goanna.annotation.WebRTCJNITarget;
+import org.mozilla.gecko.annotation.WebRTCJNITarget;
 
 @WebRTCJNITarget
 public final class BuildInfo {

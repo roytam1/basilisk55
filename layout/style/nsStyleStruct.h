@@ -4001,7 +4001,7 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleEffects
       "Field offset mismatch of " #field " between " #T1 " and " #T2);         \
 
 /**
- * These *_Simple types are used to map Goanna types to layout-equivalent but
+ * These *_Simple types are used to map Gecko types to layout-equivalent but
  * simpler Rust types, to aid Rust binding generation.
  *
  * If something in this types or the assertions below needs to change, ask

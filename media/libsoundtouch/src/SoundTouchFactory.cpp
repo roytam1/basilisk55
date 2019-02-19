@@ -21,7 +21,7 @@ void
 destroySoundTouchObj(soundtouch::SoundTouch* aObj)
 {
   // SoundTouch runs deletes in its destructor, meaning they need to be run in
-  // the DLL context. Goanna should send its SoundTouch obj pointers here to be
+  // the DLL context. Gecko should send its SoundTouch obj pointers here to be
   // cleaned up.
   if (aObj) {
     delete aObj;

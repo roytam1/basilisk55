@@ -32,7 +32,7 @@ DEFINES += \
 
 GARBAGE += \
   classes.dex  \
-  goanna.ap_  \
+  gecko.ap_  \
   res/values/strings.xml \
   res/raw/browsersearch.json \
   res/raw/suggestedsites.json \
@@ -149,24 +149,24 @@ uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 java_bundled_libs := $(call uniq,$(java_bundled_libs))
 java_bundled_libs := $(subst $(NULL) ,:,$(strip $(java_bundled_libs)))
 
-GOANNAVIEW_JARS = \
+GECKOVIEW_JARS = \
   constants.jar \
-  goanna-R.jar \
-  goanna-mozglue.jar \
-  goanna-util.jar \
-  goanna-view.jar \
+  gecko-R.jar \
+  gecko-mozglue.jar \
+  gecko-util.jar \
+  gecko-view.jar \
   sync-thirdparty.jar \
   $(NULL)
 
 ifdef MOZ_INSTALL_TRACKING
-GOANNAVIEW_JARS += goanna-thirdparty-adjust_sdk.jar
+GECKOVIEW_JARS += gecko-thirdparty-adjust_sdk.jar
 endif
 
-goannaview_jars_classpath := $(subst $(NULL) ,:,$(strip $(GOANNAVIEW_JARS)))
+geckoview_jars_classpath := $(subst $(NULL) ,:,$(strip $(GECKOVIEW_JARS)))
 
 FENNEC_JARS = \
-  goanna-browser.jar \
-  goanna-thirdparty.jar \
+  gecko-browser.jar \
+  gecko-thirdparty.jar \
   services.jar \
   ../javaaddons/javaaddons-1.0.jar \
   $(NULL)
@@ -186,7 +186,7 @@ endif
 # All the jars we're compiling from source. (not to be confused with
 # java_bundled_libs, which holds the jars which we're including as binaries).
 ALL_JARS = \
-  $(GOANNAVIEW_JARS) \
+  $(GECKOVIEW_JARS) \
   $(FENNEC_JARS) \
   $(NULL)
 
@@ -258,12 +258,12 @@ endif
 
 proguard_config_dir=$(topsrcdir)/mobile/android/config/proguard
 
-# This stanza ensures that the set of GoannaView classes does not depend on too
+# This stanza ensures that the set of GeckoView classes does not depend on too
 # much of Fennec, where "too much" is defined as the set of potentially
-# non-GoannaView classes that GoannaView already depended on at a certain point in
+# non-GeckoView classes that GeckoView already depended on at a certain point in
 # time.  The idea is to set a high-water mark that is not to be crossed.
 classycle_jar := $(topsrcdir)/mobile/android/build/classycle/classycle-1.4.1.jar
-.goannaview.deps: goannaview.ddf $(classycle_jar) $(ALL_JARS)
+.geckoview.deps: geckoview.ddf $(classycle_jar) $(ALL_JARS)
 	$(JAVA) -cp $(classycle_jar) \
 		classycle.dependency.DependencyChecker \
 		-mergeInnerClasses \
@@ -280,9 +280,9 @@ classycle_jar := $(topsrcdir)/mobile/android/build/classycle/classycle-1.4.1.jar
 # for stack frames inside libraries.
 #
 # This step can occur much earlier than the main Proguard pass: it needs only
-# goanna-R.jar to have been compiled (as that's where the library R.java files
+# gecko-R.jar to have been compiled (as that's where the library R.java files
 # end up), but it does block the main Proguard pass.
-.bundled.proguard.deps: goanna-R.jar $(proguard_config_dir)/strip-libs.cfg
+.bundled.proguard.deps: gecko-R.jar $(proguard_config_dir)/strip-libs.cfg
 	$(REPORT_BUILD)
 	@$(TOUCH) $@
 	$(JAVA) \
@@ -291,13 +291,13 @@ classycle_jar := $(topsrcdir)/mobile/android/build/classycle/classycle-1.4.1.jar
 		@$(proguard_config_dir)/strip-libs.cfg \
 		-injars $(subst ::,:,$(java_bundled_libs))\
 		-outjars bundled-jars-nodebug \
-		-libraryjars $(library_jars):goanna-R.jar
+		-libraryjars $(library_jars):gecko-R.jar
 
 # We touch the target file before invoking Proguard so that Proguard's
 # outputs are fresher than the target, preventing a subsequent
 # invocation from thinking Proguard's outputs are stale.  This is safe
 # because Make removes the target file if any recipe command fails.
-.proguard.deps: .goannaview.deps .bundled.proguard.deps $(ALL_JARS) $(proguard_config_dir)/proguard.cfg
+.proguard.deps: .geckoview.deps .bundled.proguard.deps $(ALL_JARS) $(proguard_config_dir)/proguard.cfg
 	$(REPORT_BUILD)
 	@$(TOUCH) $@
 	$(JAVA) \
@@ -313,16 +313,16 @@ ANNOTATION_PROCESSOR_JAR_FILES := $(DEPTH)/build/annotationProcessors/annotation
 
 # This annotation processing step also generates
 # GeneratedJNIWrappers.h and GeneratedJNINatives.h
-GeneratedJNIWrappers.cpp: $(ANNOTATION_PROCESSOR_JAR_FILES) $(GOANNAVIEW_JARS)
-	$(JAVA) -classpath $(goannaview_jars_classpath):$(JAVA_BOOTCLASSPATH):$(JAVA_CLASSPATH):$(ANNOTATION_PROCESSOR_JAR_FILES) \
-		org.mozilla.goanna.annotationProcessors.AnnotationProcessor \
-		Generated $(GOANNAVIEW_JARS)
+GeneratedJNIWrappers.cpp: $(ANNOTATION_PROCESSOR_JAR_FILES) $(GECKOVIEW_JARS)
+	$(JAVA) -classpath $(geckoview_jars_classpath):$(JAVA_BOOTCLASSPATH):$(JAVA_CLASSPATH):$(ANNOTATION_PROCESSOR_JAR_FILES) \
+		org.mozilla.gecko.annotationProcessors.AnnotationProcessor \
+		Generated $(GECKOVIEW_JARS)
 
 # This annotation processing step also generates
 # FennecJNIWrappers.h and FennecJNINatives.h
 FennecJNIWrappers.cpp: $(ANNOTATION_PROCESSOR_JAR_FILES) $(FENNEC_JARS)
 	$(JAVA) -classpath $(all_jars_classpath):$(JAVA_BOOTCLASSPATH):$(JAVA_CLASSPATH):$(ANNOTATION_PROCESSOR_JAR_FILES) \
-		org.mozilla.goanna.annotationProcessors.AnnotationProcessor \
+		org.mozilla.gecko.annotationProcessors.AnnotationProcessor \
 		Fennec $(FENNEC_JARS)
 
 include $(topsrcdir)/config/rules.mk
@@ -344,12 +344,12 @@ $(ANDROID_GENERATED_RESFILES): $(call mkdir_deps,$(sort $(dir $(ANDROID_GENERATE
 # [Comment 1/3] We don't have correct dependencies for strings.xml at
 # this point, so we always recursively invoke the submake to check the
 # dependencies.  Sigh.  And, with multilocale builds, there will be
-# multiple strings.xml files, and we need to rebuild goanna.ap_ if any
+# multiple strings.xml files, and we need to rebuild gecko.ap_ if any
 # of them change.  But!  mobile/android/base/locales does not have
 # enough information to actually build res/values/strings.xml during a
 # language repack.  So rather than adding rules into the main
 # makefile, and trying to work around the lack of information, we
-# force a rebuild of goanna.ap_ during packaging.  See below.
+# force a rebuild of gecko.ap_ during packaging.  See below.
 
 # Since the sub-Make is forced, it doesn't matter that we touch the
 # target file before the command.  If in the future we stop forcing
@@ -380,13 +380,13 @@ all_resources = \
   $(ANDROID_GENERATED_RESFILES) \
   $(NULL)
 
-# All of generated/org/mozilla/goanna/R.java, goanna.ap_, and R.txt are
+# All of generated/org/mozilla/gecko/R.java, gecko.ap_, and R.txt are
 # produced by aapt; this saves aapt invocations.  The trailing
 # semi-colon defines an empty recipe; defining no recipe at all causes
 # Make to treat the target differently, in a way that defeats our
 # dependencies.
 
-generated/org/mozilla/goanna/R.java: .aapt.deps ;
+generated/org/mozilla/gecko/R.java: .aapt.deps ;
 
 # Only add libraries that contain resources here. We (unecessarily) generate an identical R.java which
 # is copied into each of these locations, and each of these files contains thousands of fields.
@@ -415,17 +415,17 @@ generated/com/google/android/gms/cast/R.java: .aapt.deps ;
 # (no resources) generated/com/google/android/gms/gcm/R.java: .aapt.deps ;
 # (no resources) generated/com/google/android/gms/measurement/R.java: .aapt.deps ;
 
-goanna.ap_: .aapt.deps ;
+gecko.ap_: .aapt.deps ;
 R.txt: .aapt.deps ;
 
 # [Comment 2/3] This tom-foolery provides a target that forces a
-# rebuild of goanna.ap_.  This is used during packaging to ensure that
+# rebuild of gecko.ap_.  This is used during packaging to ensure that
 # resources are fresh.  The alternative would be complicated; see
 # [Comment 1/3].
 
-goanna-nodeps/R.java: .aapt.nodeps ;
-goanna-nodeps.ap_: .aapt.nodeps ;
-goanna-nodeps/R.txt: .aapt.nodeps ;
+gecko-nodeps/R.java: .aapt.nodeps ;
+gecko-nodeps.ap_: .aapt.nodeps ;
+gecko-nodeps/R.txt: .aapt.nodeps ;
 
 # This ignores the default set of resources ignored by aapt, plus
 # files starting with '#'.  (Emacs produces temp files named #temp#.)
@@ -457,7 +457,7 @@ $(1): $$(call mkdir_deps,$(filter-out ./,$(dir $(3) $(4) $(5)))) $(2)
 		$$(addprefix -A ,$$(ANDROID_ASSETS_DIRS)) \
 		$(if $(ANDROID_EXTRA_PACKAGES),--extra-packages $$(subst $$(NULL) ,:,$$(strip $$(ANDROID_EXTRA_PACKAGES)))) \
 		$(if $(ANDROID_EXTRA_RES_DIRS),$$(addprefix -S ,$$(ANDROID_EXTRA_RES_DIRS))) \
-		--custom-package org.mozilla.goanna \
+		--custom-package org.mozilla.gecko \
 		--no-version-vectors \
 		-F $(3) \
 		-J $(4) \
@@ -473,14 +473,14 @@ endef
 # toolkit/mozapps/installer/packager.mk.
 
 # .aapt.deps: $(all_resources)
-$(eval $(call aapt_command,.aapt.deps,$(all_resources),goanna.ap_,generated/,./))
+$(eval $(call aapt_command,.aapt.deps,$(all_resources),gecko.ap_,generated/,./))
 
 ifdef MOZ_BUILD_MOBILE_ANDROID_WITH_GRADLE
 .aapt.nodeps: FORCE
-	cp $(gradle_dir)/app/intermediates/res/resources-automation-debug.ap_ goanna-nodeps.ap_
+	cp $(gradle_dir)/app/intermediates/res/resources-automation-debug.ap_ gecko-nodeps.ap_
 else
 # .aapt.nodeps: $(DEPTH)/mobile/android/base/AndroidManifest.xml FORCE
-$(eval $(call aapt_command,.aapt.nodeps,$(DEPTH)/mobile/android/base/AndroidManifest.xml FORCE,goanna-nodeps.ap_,goanna-nodeps/,goanna-nodeps/))
+$(eval $(call aapt_command,.aapt.nodeps,$(DEPTH)/mobile/android/base/AndroidManifest.xml FORCE,gecko-nodeps.ap_,gecko-nodeps/,gecko-nodeps/))
 endif
 
 # Override the Java settings with some specific android settings
@@ -568,15 +568,15 @@ libs:: classes.dex
 
 # Generate Java binder interfaces from AIDL files.
 aidl_src_path := $(srcdir)/aidl
-aidl_goannaview_src_path := $(srcdir)/../goannaview/src/main/aidl
+aidl_geckoview_src_path := $(srcdir)/../geckoview/src/main/aidl
 aidl_target_path := generated
-media_pkg := org/mozilla/goanna/media
-process_pkg := org/mozilla/goanna/process
+media_pkg := org/mozilla/gecko/media
+process_pkg := org/mozilla/gecko/process
 
 $(aidl_target_path)/$(media_pkg)/%.java:$(aidl_src_path)/$(media_pkg)/%.aidl
 	@echo "Processing AIDL: $< => $@"
 	$(AIDL) -p$(ANDROID_SDK)/framework.aidl -I$(aidl_src_path) -o$(aidl_target_path) $<
 
-$(aidl_target_path)/$(process_pkg)/%.java:$(aidl_goannaview_src_path)/$(process_pkg)/%.aidl
+$(aidl_target_path)/$(process_pkg)/%.java:$(aidl_geckoview_src_path)/$(process_pkg)/%.aidl
 	@echo "Processing AIDL: $< => $@"
-	$(AIDL) -p$(ANDROID_SDK)/framework.aidl -I$(aidl_goannaview_src_path) -o$(aidl_target_path) $<
+	$(AIDL) -p$(ANDROID_SDK)/framework.aidl -I$(aidl_geckoview_src_path) -o$(aidl_target_path) $<

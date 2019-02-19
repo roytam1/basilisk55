@@ -332,12 +332,12 @@ this.Sandboxes = class {
 
 /**
  * Stores scripts imported from the local end through the
- * {@code GoannaDriver#importScript} command.
+ * {@code GeckoDriver#importScript} command.
  *
  * Imported scripts are prepended to the script that is evaluated
- * on each call to {@code GoannaDriver#executeScript},
- * {@code GoannaDriver#executeAsyncScript}, and
- * {@code GoannaDriver#executeJSScript}.
+ * on each call to {@code GeckoDriver#executeScript},
+ * {@code GeckoDriver#executeAsyncScript}, and
+ * {@code GeckoDriver#executeJSScript}.
  *
  * Usage:
  *

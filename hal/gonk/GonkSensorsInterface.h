@@ -119,7 +119,7 @@ public:
 
   /**
    * This method starts the Sensors backend and establishes ad connection
-   * with Goanna. This is a multi-step process and errors are signalled by
+   * with Gecko. This is a multi-step process and errors are signalled by
    * |GonkSensorsNotificationHandler::BackendErrorNotification|. If you see
    * this notification before the connection has been established, it's
    * certainly best to assume the Sensors backend to be not evailable.
@@ -130,7 +130,7 @@ public:
                GonkSensorsResultHandler* aRes);
 
   /**
-   * This method disconnects Goanna from the Sensors backend and frees
+   * This method disconnects Gecko from the Sensors backend and frees
    * the backend's resources. This will invalidate all interfaces and
    * state. Don't use any sensors functionality without reconnecting
    * first.

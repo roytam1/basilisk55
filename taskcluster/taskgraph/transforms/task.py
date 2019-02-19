@@ -19,7 +19,7 @@ from taskgraph.util.schema import validate_schema
 from taskgraph.util.scriptworker import get_release_config
 from voluptuous import Schema, Any, Required, Optional, Extra
 
-from .goanna_v2_whitelist import JOB_NAME_WHITELIST, JOB_NAME_WHITELIST_ERROR
+from .gecko_v2_whitelist import JOB_NAME_WHITELIST, JOB_NAME_WHITELIST_ERROR
 
 
 # shortcut for a string where task references are allowed
@@ -91,7 +91,7 @@ task_description_schema = Schema({
         # the names to use for this job in the TaskCluster index
         'job-name': basestring,
 
-        # Type of goanna v2 index to use
+        # Type of gecko v2 index to use
         'type': Any('generic', 'nightly', 'l10n', 'nightly-with-multi-l10n'),
 
         # The rank that the task will receive in the TaskCluster
@@ -393,22 +393,22 @@ GROUP_NAMES = {
 UNKNOWN_GROUP_NAME = "Treeherder group {} has no name; add it to " + __file__
 
 V2_ROUTE_TEMPLATES = [
-    "index.goanna.v2.{project}.latest.{product}.{job-name}",
-    "index.goanna.v2.{project}.pushdate.{build_date_long}.{product}.{job-name}",
-    "index.goanna.v2.{project}.revision.{head_rev}.{product}.{job-name}",
+    "index.gecko.v2.{project}.latest.{product}.{job-name}",
+    "index.gecko.v2.{project}.pushdate.{build_date_long}.{product}.{job-name}",
+    "index.gecko.v2.{project}.revision.{head_rev}.{product}.{job-name}",
 ]
 
 V2_NIGHTLY_TEMPLATES = [
-    "index.goanna.v2.{project}.nightly.latest.{product}.{job-name}",
-    "index.goanna.v2.{project}.nightly.{build_date}.revision.{head_rev}.{product}.{job-name}",
-    "index.goanna.v2.{project}.nightly.{build_date}.latest.{product}.{job-name}",
-    "index.goanna.v2.{project}.nightly.revision.{head_rev}.{product}.{job-name}",
+    "index.gecko.v2.{project}.nightly.latest.{product}.{job-name}",
+    "index.gecko.v2.{project}.nightly.{build_date}.revision.{head_rev}.{product}.{job-name}",
+    "index.gecko.v2.{project}.nightly.{build_date}.latest.{product}.{job-name}",
+    "index.gecko.v2.{project}.nightly.revision.{head_rev}.{product}.{job-name}",
 ]
 
 V2_L10N_TEMPLATES = [
-    "index.goanna.v2.{project}.revision.{head_rev}.{product}-l10n.{job-name}.{locale}",
-    "index.goanna.v2.{project}.pushdate.{build_date_long}.{product}-l10n.{job-name}.{locale}",
-    "index.goanna.v2.{project}.latest.{product}-l10n.{job-name}.{locale}",
+    "index.gecko.v2.{project}.revision.{head_rev}.{product}-l10n.{job-name}.{locale}",
+    "index.gecko.v2.{project}.pushdate.{build_date_long}.{product}-l10n.{job-name}.{locale}",
+    "index.gecko.v2.{project}.latest.{product}-l10n.{job-name}.{locale}",
 ]
 
 # the roots of the treeherder routes, keyed by treeherder environment

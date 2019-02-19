@@ -683,7 +683,7 @@ static void DrawCellWithScaling(NSCell *cell,
 
   // Only skip the buffer if the area of our cell (in pixels^2) is too large.
   if (drawRect.size.width * drawRect.size.height > BITMAP_MAX_AREA) {
-    // Inflate the rect Goanna gave us by the margin for the control.
+    // Inflate the rect Gecko gave us by the margin for the control.
     InflateControlRect(&drawRect, controlSize, marginSet);
 
     NSGraphicsContext* savedContext = [NSGraphicsContext currentContext];
@@ -981,7 +981,7 @@ static float VerticalAlignFactor(nsIFrame *aFrame)
   }
 }
 
-// These are the sizes that Goanna needs to request to draw if it wants
+// These are the sizes that Gecko needs to request to draw if it wants
 // to get a standard-sized Aqua radio button drawn. Note that the rects
 // that draw these are actually a little bigger.
 static const CellRenderSettings radioSettings = {
@@ -3558,7 +3558,7 @@ nsNativeThemeCocoa::WidgetStateChanged(nsIFrame* aFrame, uint8_t aWidgetType,
 NS_IMETHODIMP
 nsNativeThemeCocoa::ThemeChanged()
 {
-  // This is unimplemented because we don't care if goanna changes its theme
+  // This is unimplemented because we don't care if gecko changes its theme
   // and Mac OS X doesn't have themes.
   return NS_OK;
 }
@@ -3779,7 +3779,7 @@ nsNativeThemeCocoa::IsWindowSheet(nsIFrame* aFrame)
 {
   NSWindow* win = NativeWindowForFrame(aFrame);
   id winDelegate = [win delegate];
-  nsIWidget* widget = [(WindowDelegate *)winDelegate goannaWidget];
+  nsIWidget* widget = [(WindowDelegate *)winDelegate geckoWidget];
   if (!widget) {
     return false;
   }

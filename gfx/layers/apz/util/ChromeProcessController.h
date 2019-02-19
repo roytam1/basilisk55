@@ -6,7 +6,7 @@
 #ifndef mozilla_layers_ChromeProcessController_h
 #define mozilla_layers_ChromeProcessController_h
 
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 #include "nsCOMPtr.h"
 #include "mozilla/RefPtr.h"
 
@@ -25,14 +25,14 @@ class IAPZCTreeManager;
 class APZEventState;
 
 /**
- * ChromeProcessController is a GoannaContentController attached to the root of
+ * ChromeProcessController is a GeckoContentController attached to the root of
  * a compositor's layer tree. It's used directly by APZ by default, and remoted
  * using PAPZ if there is a gpu process.
  *
- * If ChromeProcessController needs to implement a new method on GoannaContentController
+ * If ChromeProcessController needs to implement a new method on GeckoContentController
  * PAPZ, APZChild, and RemoteContentController must be updated to handle it.
  */
-class ChromeProcessController : public mozilla::layers::GoannaContentController
+class ChromeProcessController : public mozilla::layers::GeckoContentController
 {
 protected:
   typedef mozilla::layers::FrameMetrics FrameMetrics;
@@ -43,7 +43,7 @@ public:
   ~ChromeProcessController();
   virtual void Destroy() override;
 
-  // GoannaContentController interface
+  // GeckoContentController interface
   virtual void RequestContentRepaint(const FrameMetrics& aFrameMetrics) override;
   virtual void PostDelayedTask(already_AddRefed<Runnable> aTask, int aDelayMs) override;
   virtual bool IsRepaintThread() override;

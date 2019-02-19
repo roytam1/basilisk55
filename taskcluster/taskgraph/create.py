@@ -43,7 +43,7 @@ def create_tasks(taskgraph, label_to_taskid, params):
     # helpfully placed it in this same taskGroup.  If there is no $TASK_ID,
     # fall back to a slugid
     task_group_id = decision_task_id or slugid()
-    scheduler_id = 'goanna-level-{}'.format(params['level'])
+    scheduler_id = 'gecko-level-{}'.format(params['level'])
 
     with futures.ThreadPoolExecutor(CONCURRENCY) as e:
         fs = {}

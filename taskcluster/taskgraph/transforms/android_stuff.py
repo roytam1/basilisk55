@@ -19,10 +19,10 @@ def setup_task(config, tasks):
         task['label'] = task['name']
         env = task['worker'].setdefault('env', {})
         env.update({
-            'GOANNA_BASE_REPOSITORY': config.params['base_repository'],
-            'GOANNA_HEAD_REF': config.params['head_rev'],
-            'GOANNA_HEAD_REPOSITORY': config.params['head_repository'],
-            'GOANNA_HEAD_REV': config.params['head_rev'],
+            'GECKO_BASE_REPOSITORY': config.params['base_repository'],
+            'GECKO_HEAD_REF': config.params['head_rev'],
+            'GECKO_HEAD_REPOSITORY': config.params['head_repository'],
+            'GECKO_HEAD_REV': config.params['head_rev'],
             'MOZ_BUILD_DATE': config.params['moz_build_date'],
             'MOZ_SCM_LEVEL': config.params['level'],
             'MH_BRANCH': config.params['project'],

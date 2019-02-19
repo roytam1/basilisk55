@@ -127,7 +127,7 @@ SessionStore.prototype = {
       this._updateMaxTabsUndo();
     }, false);
 
-    // Copy changes in Goanna settings to their Java counterparts,
+    // Copy changes in Gecko settings to their Java counterparts,
     // so the startup code can access them
     Services.prefs.addObserver(PREFS_RESTORE_FROM_CRASH, function() {
       SharedPreferences.forApp().setBoolPref(PREFS_RESTORE_FROM_CRASH,
@@ -600,7 +600,7 @@ SessionStore.prototype = {
     // Use load to restore text data
     aBrowser.addEventListener("load", this, true);
 
-    // Goanna might set the initial zoom level after the JS "load" event,
+    // Gecko might set the initial zoom level after the JS "load" event,
     // so we have to restore zoom and scroll position after that.
     aBrowser.addEventListener("pageshow", this, true);
     aBrowser.addEventListener("AboutReaderContentReady", this, true);
@@ -727,7 +727,7 @@ SessionStore.prototype = {
       aBrowser.__SS_data.formdata = formdata;
       aBrowser.__SS_data.scrolldata = scrolldata;
     } else {
-      // When navigating via the forward/back buttons, Goanna restores
+      // When navigating via the forward/back buttons, Gecko restores
       // the form data all by itself and doesn't invoke any input events.
       // As _collectTabData() doesn't save any form data, we need to manually
       // capture it to bridge the time until the next input event arrives.

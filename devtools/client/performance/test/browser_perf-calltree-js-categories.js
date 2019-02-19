@@ -26,7 +26,7 @@ add_task(function* () {
   Services.prefs.setBoolPref(UI_SHOW_PLATFORM_DATA_PREF, true);
 
   yield startRecording(panel);
-  // To show the `Goanna` category in the tree.
+  // To show the `Gecko` category in the tree.
   yield busyWait(100);
   yield stopRecording(panel);
 
@@ -36,23 +36,23 @@ add_task(function* () {
 
   is($(".call-tree-cells-container").hasAttribute("categories-hidden"), false,
     "The call tree cells container should show the categories now.");
-  ok(goannaCategoryPresent($$),
-    "A category node with the text `Goanna` is displayed in the tree.");
+  ok(geckoCategoryPresent($$),
+    "A category node with the text `Gecko` is displayed in the tree.");
 
   // Disable platform data to hide the categories.
   Services.prefs.setBoolPref(UI_SHOW_PLATFORM_DATA_PREF, false);
 
   is($(".call-tree-cells-container").getAttribute("categories-hidden"), "",
     "The call tree cells container should hide the categories now.");
-  ok(!goannaCategoryPresent($$),
-    "A category node with the text `Goanna` doesn't exist in the tree anymore.");
+  ok(!geckoCategoryPresent($$),
+    "A category node with the text `Gecko` doesn't exist in the tree anymore.");
 
   yield teardownToolboxAndRemoveTab(panel);
 });
 
-function goannaCategoryPresent($$) {
+function geckoCategoryPresent($$) {
   for (let elem of $$(".call-tree-category")) {
-    if (elem.textContent.trim() == "Goanna") {
+    if (elem.textContent.trim() == "Gecko") {
       return true;
     }
   }

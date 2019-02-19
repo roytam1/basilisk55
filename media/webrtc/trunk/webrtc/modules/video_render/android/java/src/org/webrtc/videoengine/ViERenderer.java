@@ -17,9 +17,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import org.mozilla.goanna.GoannaApp;
-import org.mozilla.goanna.GoannaAppShell;
-import org.mozilla.goanna.util.ThreadUtils;
+import org.mozilla.gecko.GeckoApp;
+import org.mozilla.gecko.GeckoAppShell;
+import org.mozilla.gecko.util.ThreadUtils;
 
 public class ViERenderer {
     private final static String TAG = "WEBRTC-ViEREnderer";
@@ -38,7 +38,7 @@ public class ViERenderer {
             @Override
             public void run() {
                 try {
-                    GoannaAppShell.getGoannaInterface().enableOrientationListener();
+                    GeckoAppShell.getGeckoInterface().enableOrientationListener();
                 } catch (Exception e) {
                     Log.e(TAG, "enableOrientationListener exception: "
                           + e.getLocalizedMessage());
@@ -52,7 +52,7 @@ public class ViERenderer {
             @Override
             public void run() {
                 try {
-                    GoannaAppShell.getGoannaInterface().disableOrientationListener();
+                    GeckoAppShell.getGeckoInterface().disableOrientationListener();
                 } catch (Exception e) {
                     Log.e(TAG,
                           "disableOrientationListener exception: " +

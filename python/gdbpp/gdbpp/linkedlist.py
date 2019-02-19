@@ -6,7 +6,7 @@
 
 import gdb
 import itertools
-from gdbpp import GoannaPrettyPrinter
+from gdbpp import GeckoPrettyPrinter
 
 # mfbt's LinkedList<T> is a doubly-linked list where the items in the list store
 # the next/prev pointers as part of themselves rather than the list structure be
@@ -15,7 +15,7 @@ from gdbpp import GoannaPrettyPrinter
 # - For our pretty printer, we only want to pretty-print the LinkedList object
 #   itself.  We do not want to start printing every item in the list whenever
 #   we run into a LinkedListElement<T>.
-@GoannaPrettyPrinter('mozilla::LinkedList', '^mozilla::LinkedList<.*>$')
+@GeckoPrettyPrinter('mozilla::LinkedList', '^mozilla::LinkedList<.*>$')
 class linkedlist_printer(object):
     def __init__(self, value):
         self.value = value

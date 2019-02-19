@@ -38,7 +38,7 @@ Cu.import("chrome://marionette/content/session.js");
 Cu.import("chrome://marionette/content/simpletest.js");
 Cu.import("chrome://marionette/content/wait.js");
 
-this.EXPORTED_SYMBOLS = ["GoannaDriver", "Context"];
+this.EXPORTED_SYMBOLS = ["GeckoDriver", "Context"];
 
 var FRAME_SCRIPT = "chrome://marionette/content/listener.js";
 
@@ -84,7 +84,7 @@ this.Context.fromString = function (s) {
 };
 
 /**
- * Implements (parts of) the W3C WebDriver protocol.  GoannaDriver lives
+ * Implements (parts of) the W3C WebDriver protocol.  GeckoDriver lives
  * in chrome space and mediates calls to the message listener of the current
  * browsing context's content frame message listener via ListenerProxy.
  *
@@ -97,7 +97,7 @@ this.Context.fromString = function (s) {
  * @param {MarionetteServer} server
  *     The instance of Marionette server.
  */
-this.GoannaDriver = function (appName, server) {
+this.GeckoDriver = function (appName, server) {
   this.appName = appName;
   this._server = server;
 
@@ -143,25 +143,25 @@ this.GoannaDriver = function (appName, server) {
   this.dialogHandler = this.globalModalDialogHandler.bind(this);
 };
 
-Object.defineProperty(GoannaDriver.prototype, "a11yChecks", {
+Object.defineProperty(GeckoDriver.prototype, "a11yChecks", {
   get: function () {
     return this.capabilities.get("moz:accessibilityChecks");
   }
 });
 
-Object.defineProperty(GoannaDriver.prototype, "proxy", {
+Object.defineProperty(GeckoDriver.prototype, "proxy", {
   get: function () {
     return this.capabilities.get("proxy");
   }
 });
 
-Object.defineProperty(GoannaDriver.prototype, "secureTLS", {
+Object.defineProperty(GeckoDriver.prototype, "secureTLS", {
   get: function () {
     return !this.capabilities.get("acceptInsecureCerts");
   }
 });
 
-Object.defineProperty(GoannaDriver.prototype, "timeouts", {
+Object.defineProperty(GeckoDriver.prototype, "timeouts", {
   get: function () {
     return this.capabilities.get("timeouts");
   },
@@ -171,7 +171,7 @@ Object.defineProperty(GoannaDriver.prototype, "timeouts", {
   },
 });
 
-Object.defineProperty(GoannaDriver.prototype, "windowHandles", {
+Object.defineProperty(GeckoDriver.prototype, "windowHandles", {
   get: function () {
     let hs = [];
     let winEn = Services.wm.getEnumerator(null);
@@ -197,7 +197,7 @@ Object.defineProperty(GoannaDriver.prototype, "windowHandles", {
   },
 });
 
-Object.defineProperty(GoannaDriver.prototype, "chromeWindowHandles", {
+Object.defineProperty(GeckoDriver.prototype, "chromeWindowHandles", {
   get : function () {
     let hs = [];
     let winEn = Services.wm.getEnumerator(null);
@@ -210,7 +210,7 @@ Object.defineProperty(GoannaDriver.prototype, "chromeWindowHandles", {
   },
 });
 
-GoannaDriver.prototype.QueryInterface = XPCOMUtils.generateQI([
+GeckoDriver.prototype.QueryInterface = XPCOMUtils.generateQI([
   Ci.nsIMessageListener,
   Ci.nsIObserver,
   Ci.nsISupportsWeakReference,
@@ -220,7 +220,7 @@ GoannaDriver.prototype.QueryInterface = XPCOMUtils.generateQI([
  * Callback used to observe the creation of new modal or tab modal dialogs
  * during the session's lifetime.
  */
-GoannaDriver.prototype.globalModalDialogHandler = function (subject, topic) {
+GeckoDriver.prototype.globalModalDialogHandler = function (subject, topic) {
   let winr;
   if (topic === modal.COMMON_DIALOG_LOADED) {
     // Always keep a weak reference to the current dialog
@@ -237,7 +237,7 @@ GoannaDriver.prototype.globalModalDialogHandler = function (subject, topic) {
  * from that sender, and then puts the corresponding frame script "to
  * sleep", which removes most of the message listeners from it as well.
  */
-GoannaDriver.prototype.switchToGlobalMessageManager = function() {
+GeckoDriver.prototype.switchToGlobalMessageManager = function() {
   if (this.curBrowser && this.curBrowser.frameManager.currentRemoteFrame !== null) {
     this.curBrowser.frameManager.removeMessageManagerListeners(this.mm);
     this.sendAsync("sleepSession");
@@ -260,7 +260,7 @@ GoannaDriver.prototype.switchToGlobalMessageManager = function() {
  * @param {number=} commandID
  *     Optional command ID to ensure synchronisity.
  */
-GoannaDriver.prototype.sendAsync = function (name, data, commandID) {
+GeckoDriver.prototype.sendAsync = function (name, data, commandID) {
   name = "Marionette:" + name;
   let payload = copy(data);
 
@@ -278,7 +278,7 @@ GoannaDriver.prototype.sendAsync = function (name, data, commandID) {
   }
 };
 
-GoannaDriver.prototype.broadcastDelayedAsyncMessage_ = function (name, payload) {
+GeckoDriver.prototype.broadcastDelayedAsyncMessage_ = function (name, payload) {
   this.curBrowser.executeWhenReady(() => {
     if (this.curBrowser.curFrameId) {
       const target = name + this.curBrowser.curFrameId;
@@ -290,7 +290,7 @@ GoannaDriver.prototype.broadcastDelayedAsyncMessage_ = function (name, payload) 
   });
 };
 
-GoannaDriver.prototype.sendTargettedAsyncMessage_ = function (name, payload) {
+GeckoDriver.prototype.sendTargettedAsyncMessage_ = function (name, payload) {
   const curRemoteFrame = this.curBrowser.frameManager.currentRemoteFrame;
   const target = name + curRemoteFrame.targetFrameId;
 
@@ -322,7 +322,7 @@ GoannaDriver.prototype.sendTargettedAsyncMessage_ = function (name, payload) {
  * @return {ChromeWindow}
  *     The current top-level browsing context.
  */
-GoannaDriver.prototype.getCurrentWindow = function (forcedContext = undefined) {
+GeckoDriver.prototype.getCurrentWindow = function (forcedContext = undefined) {
   let context = typeof forcedContext == "undefined" ? this.context : forcedContext;
   let win = null;
 
@@ -359,7 +359,7 @@ GoannaDriver.prototype.getCurrentWindow = function (forcedContext = undefined) {
   return win;
 };
 
-GoannaDriver.prototype.addFrameCloseListener = function (action) {
+GeckoDriver.prototype.addFrameCloseListener = function (action) {
   let win = this.getCurrentWindow();
   this.mozBrowserClose = e => {
     if (e.target.id == this.oopFrameId) {
@@ -380,7 +380,7 @@ GoannaDriver.prototype.addFrameCloseListener = function (action) {
  * @return {string}
  *     Returns the unique server-assigned ID of the window.
  */
-GoannaDriver.prototype.addBrowser = function (win) {
+GeckoDriver.prototype.addBrowser = function (win) {
   let bc = new browser.Context(win, this);
   let winId = getOuterWindowId(win);
 
@@ -405,7 +405,7 @@ GoannaDriver.prototype.addBrowser = function (win) {
  * @param {boolean=false} isNewSession
  *     True if this is the first time we're talking to this browser.
  */
-GoannaDriver.prototype.startBrowser = function (win, isNewSession = false) {
+GeckoDriver.prototype.startBrowser = function (win, isNewSession = false) {
   this.mainFrame = win;
   this.curFrame = null;
   this.addBrowser(win);
@@ -422,7 +422,7 @@ GoannaDriver.prototype.startBrowser = function (win, isNewSession = false) {
  * @param {boolean} isNewSession
  *     True if this is the first time we're talking to this browser.
  */
-GoannaDriver.prototype.whenBrowserStarted = function (win, isNewSession) {
+GeckoDriver.prototype.whenBrowserStarted = function (win, isNewSession) {
   let mm = win.window.messageManager;
   if (mm) {
     if (!isNewSession) {
@@ -465,7 +465,7 @@ GoannaDriver.prototype.whenBrowserStarted = function (win, isNewSession) {
  * @param {Array.<string>} lines
  *      Array that holds the text lines.
  */
-GoannaDriver.prototype.getVisibleText = function (el, lines) {
+GeckoDriver.prototype.getVisibleText = function (el, lines) {
   try {
     if (atom.isElementDisplayed(el, this.getCurrentWindow())) {
       if (el.value) {
@@ -486,7 +486,7 @@ GoannaDriver.prototype.getVisibleText = function (el, lines) {
  * Handles registration of new content listener browsers.  Depending on
  * their type they are either accepted or ignored.
  */
-GoannaDriver.prototype.registerBrowser = function (id, be) {
+GeckoDriver.prototype.registerBrowser = function (id, be) {
   let nullPrevious = this.curBrowser.curFrameId === null;
   let listenerWindow = Services.wm.getOuterWindowWithId(id);
 
@@ -545,7 +545,7 @@ GoannaDriver.prototype.registerBrowser = function (id, be) {
   return [reg, mainContent, this.capabilities.toJSON()];
 };
 
-GoannaDriver.prototype.registerPromise = function () {
+GeckoDriver.prototype.registerPromise = function () {
   const li = "Marionette:register";
 
   return new Promise(resolve => {
@@ -570,7 +570,7 @@ GoannaDriver.prototype.registerPromise = function () {
   });
 };
 
-GoannaDriver.prototype.listeningPromise = function () {
+GeckoDriver.prototype.listeningPromise = function () {
   const li = "Marionette:listenersAttached";
   return new Promise(resolve => {
     let cb = () => {
@@ -582,7 +582,7 @@ GoannaDriver.prototype.listeningPromise = function () {
 };
 
 /** Create a new session. */
-GoannaDriver.prototype.newSession = function* (cmd, resp) {
+GeckoDriver.prototype.newSession = function* (cmd, resp) {
   if (this.sessionId) {
     throw new SessionNotCreatedError("Maximum number of active sessions");
   }
@@ -690,7 +690,7 @@ GoannaDriver.prototype.newSession = function* (cmd, resp) {
  * ("capabilities") to values, which may be of types boolean,
  * numerical or string.
  */
-GoannaDriver.prototype.getSessionCapabilities = function (cmd, resp) {
+GeckoDriver.prototype.getSessionCapabilities = function (cmd, resp) {
   resp.body.capabilities = this.capabilities;
 };
 
@@ -702,7 +702,7 @@ GoannaDriver.prototype.getSessionCapabilities = function (cmd, resp) {
  * @param {string} level
  *     Arbitrary log level.
  */
-GoannaDriver.prototype.log = function (cmd, resp) {
+GeckoDriver.prototype.log = function (cmd, resp) {
   // if level is null, we want to use ContentLogger#send's default
   this.marionetteLog.log(
       cmd.parameters.value,
@@ -710,7 +710,7 @@ GoannaDriver.prototype.log = function (cmd, resp) {
 };
 
 /** Return all logged messages. */
-GoannaDriver.prototype.getLogs = function (cmd, resp) {
+GeckoDriver.prototype.getLogs = function (cmd, resp) {
   resp.body = this.marionetteLog.get();
 };
 
@@ -722,7 +722,7 @@ GoannaDriver.prototype.getLogs = function (cmd, resp) {
  *     Name of the context to be switched to.  Must be one of "chrome" or
  *     "content".
  */
-GoannaDriver.prototype.setContext = function (cmd, resp) {
+GeckoDriver.prototype.setContext = function (cmd, resp) {
   let val = cmd.parameters.value;
   let ctx = Context.fromString(val);
   if (ctx === null) {
@@ -732,7 +732,7 @@ GoannaDriver.prototype.setContext = function (cmd, resp) {
 };
 
 /** Gets the context of the server, either "chrome" or "content". */
-GoannaDriver.prototype.getContext = function (cmd, resp) {
+GeckoDriver.prototype.getContext = function (cmd, resp) {
   resp.body.value = this.context.toString();
 };
 
@@ -785,7 +785,7 @@ GoannaDriver.prototype.getContext = function (cmd, resp) {
  * @throws JavaScriptError
  *     If an Error was thrown whilst evaluating the script.
  */
-GoannaDriver.prototype.executeScript = function*(cmd, resp) {
+GeckoDriver.prototype.executeScript = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let {script, args, scriptTimeout} = cmd.parameters;
@@ -860,7 +860,7 @@ GoannaDriver.prototype.executeScript = function*(cmd, resp) {
  * @throws JavaScriptError
  *     If an Error was thrown whilst evaluating the script.
  */
-GoannaDriver.prototype.executeAsyncScript = function* (cmd, resp) {
+GeckoDriver.prototype.executeAsyncScript = function* (cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let {script, args, scriptTimeout} = cmd.parameters;
@@ -879,7 +879,7 @@ GoannaDriver.prototype.executeAsyncScript = function* (cmd, resp) {
   resp.body.value = yield this.execute_(script, args, scriptTimeout, opts);
 };
 
-GoannaDriver.prototype.execute_ = function (script, args, timeout, opts = {}) {
+GeckoDriver.prototype.execute_ = function (script, args, timeout, opts = {}) {
   switch (this.context) {
     case Context.CONTENT:
       // evaluate in content with lasting side-effects
@@ -912,7 +912,7 @@ GoannaDriver.prototype.execute_ = function (script, args, timeout, opts = {}) {
  *
  * Scripts are expected to call the {@code finish} global when done.
  */
-GoannaDriver.prototype.executeJSScript = function* (cmd, resp) {
+GeckoDriver.prototype.executeJSScript = function* (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {script, args, scriptTimeout} = cmd.parameters;
@@ -972,7 +972,7 @@ GoannaDriver.prototype.executeJSScript = function* (cmd, resp) {
  * @param {string} url
  *     URL to navigate to.
  */
-GoannaDriver.prototype.get = function* (cmd, resp) {
+GeckoDriver.prototype.get = function* (cmd, resp) {
   assert.content(this.context);
   assert.window(this.getCurrentWindow());
 
@@ -1010,7 +1010,7 @@ GoannaDriver.prototype.get = function* (cmd, resp) {
  * When in the context of the chrome, this returns the canonical URL
  * of the current resource.
  */
-GoannaDriver.prototype.getCurrentUrl = function (cmd) {
+GeckoDriver.prototype.getCurrentUrl = function (cmd) {
   let win = assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1023,7 +1023,7 @@ GoannaDriver.prototype.getCurrentUrl = function (cmd) {
 };
 
 /** Gets the current title of the window. */
-GoannaDriver.prototype.getTitle = function* (cmd, resp) {
+GeckoDriver.prototype.getTitle = function* (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1038,14 +1038,14 @@ GoannaDriver.prototype.getTitle = function* (cmd, resp) {
 };
 
 /** Gets the current type of the window. */
-GoannaDriver.prototype.getWindowType = function (cmd, resp) {
+GeckoDriver.prototype.getWindowType = function (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   resp.body.value = win.document.documentElement.getAttribute("windowtype");
 };
 
 /** Gets the page source of the content document. */
-GoannaDriver.prototype.getPageSource = function* (cmd, resp) {
+GeckoDriver.prototype.getPageSource = function* (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1064,7 +1064,7 @@ GoannaDriver.prototype.getPageSource = function* (cmd, resp) {
  * Cause the browser to traverse one step backward in the joint history
  * of the current browsing context.
  */
-GoannaDriver.prototype.goBack = function* (cmd, resp) {
+GeckoDriver.prototype.goBack = function* (cmd, resp) {
   assert.content(this.context);
   assert.window(this.getCurrentWindow());
 
@@ -1103,7 +1103,7 @@ GoannaDriver.prototype.goBack = function* (cmd, resp) {
  * Cause the browser to traverse one step forward in the joint history
  * of the current browsing context.
  */
-GoannaDriver.prototype.goForward = function* (cmd, resp) {
+GeckoDriver.prototype.goForward = function* (cmd, resp) {
   assert.content(this.context);
   assert.window(this.getCurrentWindow());
 
@@ -1141,7 +1141,7 @@ GoannaDriver.prototype.goForward = function* (cmd, resp) {
 /**
  * Causes the browser to reload the page in in current top-level browsing context.
  */
-GoannaDriver.prototype.refresh = function* (cmd, resp) {
+GeckoDriver.prototype.refresh = function* (cmd, resp) {
   assert.content(this.context);
   assert.window(this.getCurrentWindow());
 
@@ -1151,7 +1151,7 @@ GoannaDriver.prototype.refresh = function* (cmd, resp) {
 /**
  * Forces an update for the given browser's id.
  */
-GoannaDriver.prototype.updateIdForBrowser = function (browser, newId) {
+GeckoDriver.prototype.updateIdForBrowser = function (browser, newId) {
   this._browserIds.set(browser.permanentKey, newId);
 };
 
@@ -1160,7 +1160,7 @@ GoannaDriver.prototype.updateIdForBrowser = function (browser, newId) {
  * the browser is not known, an attempt is made to retrieve the id from
  * a CPOW, and null is returned if this fails.
  */
-GoannaDriver.prototype.getIdForBrowser = function (browser) {
+GeckoDriver.prototype.getIdForBrowser = function (browser) {
   if (browser === null) {
     return null;
   }
@@ -1189,7 +1189,7 @@ GoannaDriver.prototype.getIdForBrowser = function (browser) {
  * @return {string}
  *     Unique window handle.
  */
-GoannaDriver.prototype.getWindowHandle = function (cmd, resp) {
+GeckoDriver.prototype.getWindowHandle = function (cmd, resp) {
   assert.window(this.getCurrentWindow(Context.CONTENT));
 
   // curFrameId always holds the current tab.
@@ -1217,7 +1217,7 @@ GoannaDriver.prototype.getWindowHandle = function (cmd, resp) {
  * @return {Array.<string>}
  *     Unique window handles.
  */
-GoannaDriver.prototype.getWindowHandles = function (cmd, resp) {
+GeckoDriver.prototype.getWindowHandles = function (cmd, resp) {
   return this.windowHandles;
 }
 
@@ -1232,7 +1232,7 @@ GoannaDriver.prototype.getWindowHandles = function (cmd, resp) {
  * @return {string}
  *     Unique window handle.
  */
-GoannaDriver.prototype.getChromeWindowHandle = function (cmd, resp) {
+GeckoDriver.prototype.getChromeWindowHandle = function (cmd, resp) {
   assert.window(this.getCurrentWindow(Context.CHROME));
 
   for (let i in this.browsers) {
@@ -1250,7 +1250,7 @@ GoannaDriver.prototype.getChromeWindowHandle = function (cmd, resp) {
  * @return {Array.<string>}
  *     Unique window handles.
  */
-GoannaDriver.prototype.getChromeWindowHandles = function (cmd, resp) {
+GeckoDriver.prototype.getChromeWindowHandles = function (cmd, resp) {
   return this.chromeWindowHandles;
 }
 
@@ -1265,7 +1265,7 @@ GoannaDriver.prototype.getChromeWindowHandles = function (cmd, resp) {
  *     Object with |x| and |y| coordinates, and |width| and |height|
  *     of browser window.
  */
-GoannaDriver.prototype.getWindowRect = function (cmd, resp) {
+GeckoDriver.prototype.getWindowRect = function (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
   return {
     x: win.screenX,
@@ -1293,7 +1293,7 @@ GoannaDriver.prototype.getWindowRect = function (cmd, resp) {
  *     and |width| and |height| dimensions
  *
  */
-GoannaDriver.prototype.setWindowRect = function* (cmd, resp) {
+GeckoDriver.prototype.setWindowRect = function* (cmd, resp) {
   assert.firefox()
 
   let win = assert.window(this.getCurrentWindow());
@@ -1354,7 +1354,7 @@ GoannaDriver.prototype.setWindowRect = function* (cmd, resp) {
  *      A boolean value which determines whether to focus
  *      the window. Defaults to true.
  */
-GoannaDriver.prototype.switchToWindow = function* (cmd, resp) {
+GeckoDriver.prototype.switchToWindow = function* (cmd, resp) {
   let switchTo = cmd.parameters.name;
   let focus = (cmd.parameters.focus !== undefined) ? cmd.parameters.focus : true;
   let found;
@@ -1426,7 +1426,7 @@ GoannaDriver.prototype.switchToWindow = function* (cmd, resp) {
   }
 };
 
-GoannaDriver.prototype.getActiveFrame = function (cmd, resp) {
+GeckoDriver.prototype.getActiveFrame = function (cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1451,7 +1451,7 @@ GoannaDriver.prototype.getActiveFrame = function (cmd, resp) {
   }
 };
 
-GoannaDriver.prototype.switchToParentFrame = function*(cmd, resp) {
+GeckoDriver.prototype.switchToParentFrame = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let res = yield this.listener.switchToParentFrame();
@@ -1466,7 +1466,7 @@ GoannaDriver.prototype.switchToParentFrame = function*(cmd, resp) {
  *     If element is not defined, then this holds either the id, name,
  *     or index of the frame to switch to.
  */
-GoannaDriver.prototype.switchToFrame = function* (cmd, resp) {
+GeckoDriver.prototype.switchToFrame = function* (cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let {id, element, focus} = cmd.parameters;
@@ -1625,7 +1625,7 @@ GoannaDriver.prototype.switchToFrame = function* (cmd, resp) {
   }
 };
 
-GoannaDriver.prototype.getTimeouts = function (cmd, resp) {
+GeckoDriver.prototype.getTimeouts = function (cmd, resp) {
   return this.timeouts;
 };
 
@@ -1640,7 +1640,7 @@ GoannaDriver.prototype.getTimeouts = function (cmd, resp) {
  *     If timeout type key is unknown, or the value provided with it is
  *     not an integer.
  */
-GoannaDriver.prototype.setTimeouts = function (cmd, resp) {
+GeckoDriver.prototype.setTimeouts = function (cmd, resp) {
   // backwards compatibility with old API
   // that accepted a dictionary {type: <string>, ms: <number>}
   let json = {};
@@ -1659,7 +1659,7 @@ GoannaDriver.prototype.setTimeouts = function (cmd, resp) {
 };
 
 /** Single tap. */
-GoannaDriver.prototype.singleTap = function*(cmd, resp) {
+GeckoDriver.prototype.singleTap = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let {id, x, y} = cmd.parameters;
@@ -1685,7 +1685,7 @@ GoannaDriver.prototype.singleTap = function*(cmd, resp) {
  * @throws {UnsupportedOperationError}
  *     If the command is made in chrome context.
  */
-GoannaDriver.prototype.performActions = function(cmd, resp) {
+GeckoDriver.prototype.performActions = function(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1701,7 +1701,7 @@ GoannaDriver.prototype.performActions = function(cmd, resp) {
 /**
  * Release all the keys and pointer buttons that are currently depressed.
  */
-GoannaDriver.prototype.releaseActions = function(cmd, resp) {
+GeckoDriver.prototype.releaseActions = function(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1724,7 +1724,7 @@ GoannaDriver.prototype.releaseActions = function(cmd, resp) {
  * @return {number}
  *     Last touch ID.
  */
-GoannaDriver.prototype.actionChain = function*(cmd, resp) {
+GeckoDriver.prototype.actionChain = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {chain, nextId} = cmd.parameters;
@@ -1754,7 +1754,7 @@ GoannaDriver.prototype.actionChain = function*(cmd, resp) {
  *     the middle array represents a collection of events for each
  *     finger, and the outer array represents all fingers.
  */
-GoannaDriver.prototype.multiAction = function*(cmd, resp) {
+GeckoDriver.prototype.multiAction = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1777,7 +1777,7 @@ GoannaDriver.prototype.multiAction = function*(cmd, resp) {
  * @param {string} value
  *     Value the client is looking for.
  */
-GoannaDriver.prototype.findElement = function*(cmd, resp) {
+GeckoDriver.prototype.findElement = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let strategy = cmd.parameters.using;
@@ -1822,7 +1822,7 @@ GoannaDriver.prototype.findElement = function*(cmd, resp) {
  * @param {string} value
  *     Value the client is looking for.
  */
-GoannaDriver.prototype.findElements = function*(cmd, resp) {
+GeckoDriver.prototype.findElements = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let strategy = cmd.parameters.using;
@@ -1860,7 +1860,7 @@ GoannaDriver.prototype.findElements = function*(cmd, resp) {
 };
 
 /** Return the active element on the page. */
-GoannaDriver.prototype.getActiveElement = function*(cmd, resp) {
+GeckoDriver.prototype.getActiveElement = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -1880,7 +1880,7 @@ GoannaDriver.prototype.getActiveElement = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be clicked.
  */
-GoannaDriver.prototype.clickElement = function*(cmd, resp) {
+GeckoDriver.prototype.clickElement = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -1913,7 +1913,7 @@ GoannaDriver.prototype.clickElement = function*(cmd, resp) {
  * @return {string}
  *     Value of the attribute.
  */
-GoannaDriver.prototype.getElementAttribute = function*(cmd, resp) {
+GeckoDriver.prototype.getElementAttribute = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {id, name} = cmd.parameters;
@@ -1942,7 +1942,7 @@ GoannaDriver.prototype.getElementAttribute = function*(cmd, resp) {
  * @return {string}
  *     Value of the property.
  */
-GoannaDriver.prototype.getElementProperty = function*(cmd, resp) {
+GeckoDriver.prototype.getElementProperty = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {id, name} = cmd.parameters;
@@ -1966,7 +1966,7 @@ GoannaDriver.prototype.getElementProperty = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be inspected.
  */
-GoannaDriver.prototype.getElementText = function*(cmd, resp) {
+GeckoDriver.prototype.getElementText = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -1992,7 +1992,7 @@ GoannaDriver.prototype.getElementText = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be inspected.
  */
-GoannaDriver.prototype.getElementTagName = function*(cmd, resp) {
+GeckoDriver.prototype.getElementTagName = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2015,7 +2015,7 @@ GoannaDriver.prototype.getElementTagName = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be inspected.
  */
-GoannaDriver.prototype.isElementDisplayed = function*(cmd, resp) {
+GeckoDriver.prototype.isElementDisplayed = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2041,7 +2041,7 @@ GoannaDriver.prototype.isElementDisplayed = function*(cmd, resp) {
  * @param {string} propertyName
  *     CSS rule that is being requested.
  */
-GoannaDriver.prototype.getElementValueOfCssProperty = function*(cmd, resp) {
+GeckoDriver.prototype.getElementValueOfCssProperty = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {id, propertyName: prop} = cmd.parameters;
@@ -2065,7 +2065,7 @@ GoannaDriver.prototype.getElementValueOfCssProperty = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be checked.
  */
-GoannaDriver.prototype.isElementEnabled = function*(cmd, resp) {
+GeckoDriver.prototype.isElementEnabled = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2090,7 +2090,7 @@ GoannaDriver.prototype.isElementEnabled = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be checked.
  */
-GoannaDriver.prototype.isElementSelected = function*(cmd, resp) {
+GeckoDriver.prototype.isElementSelected = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2109,7 +2109,7 @@ GoannaDriver.prototype.isElementSelected = function*(cmd, resp) {
   }
 };
 
-GoannaDriver.prototype.getElementRect = function*(cmd, resp) {
+GeckoDriver.prototype.getElementRect = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2140,7 +2140,7 @@ GoannaDriver.prototype.getElementRect = function*(cmd, resp) {
  * @param {string} value
  *     Value to send to the element.
  */
-GoannaDriver.prototype.sendKeysToElement = function*(cmd, resp) {
+GeckoDriver.prototype.sendKeysToElement = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
   let {id, text} = cmd.parameters;
   assert.string(text);
@@ -2159,7 +2159,7 @@ GoannaDriver.prototype.sendKeysToElement = function*(cmd, resp) {
 };
 
 /** Sets the test name.  The test name is used for logging purposes. */
-GoannaDriver.prototype.setTestName = function*(cmd, resp) {
+GeckoDriver.prototype.setTestName = function*(cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let val = cmd.parameters.value;
@@ -2173,7 +2173,7 @@ GoannaDriver.prototype.setTestName = function*(cmd, resp) {
  * @param {string} id
  *     Reference ID to the element that will be cleared.
  */
-GoannaDriver.prototype.clearElement = function*(cmd, resp) {
+GeckoDriver.prototype.clearElement = function*(cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let id = cmd.parameters.id;
@@ -2200,7 +2200,7 @@ GoannaDriver.prototype.clearElement = function*(cmd, resp) {
  *
  * @param {string} id element id.
  */
-GoannaDriver.prototype.switchToShadowRoot = function*(cmd, resp) {
+GeckoDriver.prototype.switchToShadowRoot = function*(cmd, resp) {
   assert.content(this.context)
   assert.window(this.getCurrentWindow());
 
@@ -2210,7 +2210,7 @@ GoannaDriver.prototype.switchToShadowRoot = function*(cmd, resp) {
 };
 
 /** Add a cookie to the document. */
-GoannaDriver.prototype.addCookie = function*(cmd, resp) {
+GeckoDriver.prototype.addCookie = function*(cmd, resp) {
   assert.content(this.context)
   assert.window(this.getCurrentWindow());
 
@@ -2240,7 +2240,7 @@ GoannaDriver.prototype.addCookie = function*(cmd, resp) {
  * This is the equivalent of calling {@code document.cookie} and parsing
  * the result.
  */
-GoannaDriver.prototype.getCookies = function*(cmd, resp) {
+GeckoDriver.prototype.getCookies = function*(cmd, resp) {
   assert.content(this.context)
   assert.window(this.getCurrentWindow());
 
@@ -2248,7 +2248,7 @@ GoannaDriver.prototype.getCookies = function*(cmd, resp) {
 };
 
 /** Delete all cookies that are visible to a document. */
-GoannaDriver.prototype.deleteAllCookies = function*(cmd, resp) {
+GeckoDriver.prototype.deleteAllCookies = function*(cmd, resp) {
   assert.content(this.context)
   assert.window(this.getCurrentWindow());
 
@@ -2269,7 +2269,7 @@ GoannaDriver.prototype.deleteAllCookies = function*(cmd, resp) {
 };
 
 /** Delete a cookie by name. */
-GoannaDriver.prototype.deleteCookie = function*(cmd, resp) {
+GeckoDriver.prototype.deleteCookie = function*(cmd, resp) {
   assert.content(this.context)
   assert.window(this.getCurrentWindow());
 
@@ -2300,7 +2300,7 @@ GoannaDriver.prototype.deleteCookie = function*(cmd, resp) {
  * @return {Array.<string>}
  *     Unique window handles of remaining windows.
  */
-GoannaDriver.prototype.close = function (cmd, resp) {
+GeckoDriver.prototype.close = function (cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   let nwins = 0;
@@ -2319,7 +2319,7 @@ GoannaDriver.prototype.close = function (cmd, resp) {
   }
 
   // If there is only 1 window left, do not close it. Instead return a faked
-  // empty array of window handles. This will instruct goannadriver to terminate
+  // empty array of window handles. This will instruct geckodriver to terminate
   // the application.
   if (nwins == 1) {
     return [];
@@ -2342,7 +2342,7 @@ GoannaDriver.prototype.close = function (cmd, resp) {
  * @return {Array.<string>}
  *     Unique chrome window handles of remaining chrome windows.
  */
-GoannaDriver.prototype.closeChromeWindow = function (cmd, resp) {
+GeckoDriver.prototype.closeChromeWindow = function (cmd, resp) {
   assert.firefox();
   assert.window(this.getCurrentWindow(Context.CHROME));
 
@@ -2355,7 +2355,7 @@ GoannaDriver.prototype.closeChromeWindow = function (cmd, resp) {
   }
 
   // If there is only 1 window left, do not close it. Instead return a faked
-  // empty array of window handles. This will instruct goannadriver to terminate
+  // empty array of window handles. This will instruct geckodriver to terminate
   // the application.
   if (nwins == 1) {
     return [];
@@ -2372,7 +2372,7 @@ GoannaDriver.prototype.closeChromeWindow = function (cmd, resp) {
 };
 
 /** Delete Marionette session. */
-GoannaDriver.prototype.deleteSession = function (cmd, resp) {
+GeckoDriver.prototype.deleteSession = function (cmd, resp) {
   if (this.curBrowser !== null) {
     // frame scripts can be safely reused
     Preferences.set(CONTENT_LISTENER_PREF, false);
@@ -2430,7 +2430,7 @@ GoannaDriver.prototype.deleteSession = function (cmd, resp) {
 };
 
 /** Returns the current status of the Application Cache. */
-GoannaDriver.prototype.getAppCacheStatus = function* (cmd, resp) {
+GeckoDriver.prototype.getAppCacheStatus = function* (cmd, resp) {
   assert.window(this.getCurrentWindow());
 
   switch (this.context) {
@@ -2457,7 +2457,7 @@ GoannaDriver.prototype.getAppCacheStatus = function* (cmd, resp) {
  *     Script to include.  If the script is byte-by-byte equal to an
  *     existing imported script, it is not imported.
  */
-GoannaDriver.prototype.importScript = function*(cmd, resp) {
+GeckoDriver.prototype.importScript = function*(cmd, resp) {
   let script = cmd.parameters.script;
   this.importedScripts.for(this.context).add(script);
 };
@@ -2467,7 +2467,7 @@ GoannaDriver.prototype.importScript = function*(cmd, resp) {
  *
  * Scripts can be imported using the {@code importScript} command.
  */
-GoannaDriver.prototype.clearImportedScripts = function*(cmd, resp) {
+GeckoDriver.prototype.clearImportedScripts = function*(cmd, resp) {
   this.importedScripts.for(this.context).clear();
 };
 
@@ -2504,7 +2504,7 @@ GoannaDriver.prototype.clearImportedScripts = function*(cmd, resp) {
  *     'hash' is True, hex digest of the SHA-256 hash of the base64 encoded
  *     string.
  */
-GoannaDriver.prototype.takeScreenshot = function (cmd, resp) {
+GeckoDriver.prototype.takeScreenshot = function (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
 
   let {id, highlights, full, hash, scroll} = cmd.parameters;
@@ -2556,7 +2556,7 @@ GoannaDriver.prototype.takeScreenshot = function (cmd, resp) {
  * portrait-primary, landscape-primary, portrait-secondary, or
  * landscape-secondary.
  */
-GoannaDriver.prototype.getScreenOrientation = function (cmd, resp) {
+GeckoDriver.prototype.getScreenOrientation = function (cmd, resp) {
   assert.fennec();
   let win = assert.window(this.getCurrentWindow());
 
@@ -2574,7 +2574,7 @@ GoannaDriver.prototype.getScreenOrientation = function (cmd, resp) {
  * back to "portrait-primary" and "landscape-primary" respectively,
  * and "portrait-secondary" as well as "landscape-secondary".
  */
-GoannaDriver.prototype.setScreenOrientation = function (cmd, resp) {
+GeckoDriver.prototype.setScreenOrientation = function (cmd, resp) {
   assert.fennec();
   let win = assert.window(this.getCurrentWindow());
 
@@ -2602,7 +2602,7 @@ GoannaDriver.prototype.setScreenOrientation = function (cmd, resp) {
  *
  * Not Supported on B2G or Fennec.
  */
-GoannaDriver.prototype.maximizeWindow = function (cmd, resp) {
+GeckoDriver.prototype.maximizeWindow = function (cmd, resp) {
   assert.firefox()
   let win = assert.window(this.getCurrentWindow());
 
@@ -2613,7 +2613,7 @@ GoannaDriver.prototype.maximizeWindow = function (cmd, resp) {
  * Dismisses a currently displayed tab modal, or returns no such alert if
  * no modal is displayed.
  */
-GoannaDriver.prototype.dismissDialog = function (cmd, resp) {
+GeckoDriver.prototype.dismissDialog = function (cmd, resp) {
   assert.window(this.getCurrentWindow());
   this._checkIfAlertIsPresent();
 
@@ -2626,7 +2626,7 @@ GoannaDriver.prototype.dismissDialog = function (cmd, resp) {
  * Accepts a currently displayed tab modal, or returns no such alert if
  * no modal is displayed.
  */
-GoannaDriver.prototype.acceptDialog = function (cmd, resp) {
+GeckoDriver.prototype.acceptDialog = function (cmd, resp) {
   assert.window(this.getCurrentWindow());
   this._checkIfAlertIsPresent();
 
@@ -2639,7 +2639,7 @@ GoannaDriver.prototype.acceptDialog = function (cmd, resp) {
  * Returns the message shown in a currently displayed modal, or returns a no such
  * alert error if no modal is currently displayed.
  */
-GoannaDriver.prototype.getTextFromDialog = function (cmd, resp) {
+GeckoDriver.prototype.getTextFromDialog = function (cmd, resp) {
   assert.window(this.getCurrentWindow());
   this._checkIfAlertIsPresent();
 
@@ -2666,7 +2666,7 @@ GoannaDriver.prototype.getTextFromDialog = function (cmd, resp) {
  *     If the current user prompt is something other than an alert,
  *     confirm, or a prompt.
  */
-GoannaDriver.prototype.sendKeysToDialog = function (cmd, resp) {
+GeckoDriver.prototype.sendKeysToDialog = function (cmd, resp) {
   let win = assert.window(this.getCurrentWindow());
   this._checkIfAlertIsPresent();
 
@@ -2684,7 +2684,7 @@ GoannaDriver.prototype.sendKeysToDialog = function (cmd, resp) {
       this.dialog.window ? this.dialog.window : win);
 };
 
-GoannaDriver.prototype._checkIfAlertIsPresent = function () {
+GeckoDriver.prototype._checkIfAlertIsPresent = function () {
   if (!this.dialog || !this.dialog.ui) {
     throw new NoAlertOpenError("No modal dialog is currently open");
   }
@@ -2706,7 +2706,7 @@ GoannaDriver.prototype._checkIfAlertIsPresent = function () {
  * @param {boolean} state
  *     True if the server should accept new socket connections.
  */
-GoannaDriver.prototype.acceptConnections = function (cmd, resp) {
+GeckoDriver.prototype.acceptConnections = function (cmd, resp) {
   assert.boolean(cmd.parameters.value);
   this._server.acceptConnections = cmd.parameters.value;
 }
@@ -2715,7 +2715,7 @@ GoannaDriver.prototype.acceptConnections = function (cmd, resp) {
  * Quits Firefox with the provided flags and tears down the current
  * session.
  */
-GoannaDriver.prototype.quitApplication = function (cmd, resp) {
+GeckoDriver.prototype.quitApplication = function (cmd, resp) {
   assert.firefox("Bug 1298921 - In app initiated quit not yet available beside Firefox")
 
   let flags = Ci.nsIAppStartup.eAttemptQuit;
@@ -2730,7 +2730,7 @@ GoannaDriver.prototype.quitApplication = function (cmd, resp) {
   Services.startup.quit(flags);
 };
 
-GoannaDriver.prototype.installAddon = function (cmd, resp) {
+GeckoDriver.prototype.installAddon = function (cmd, resp) {
   assert.firefox()
 
   let path = cmd.parameters.path;
@@ -2743,7 +2743,7 @@ GoannaDriver.prototype.installAddon = function (cmd, resp) {
   return addon.install(path, temp);
 };
 
-GoannaDriver.prototype.uninstallAddon = function (cmd, resp) {
+GeckoDriver.prototype.uninstallAddon = function (cmd, resp) {
   assert.firefox()
 
   let id = cmd.parameters.id;
@@ -2758,13 +2758,13 @@ GoannaDriver.prototype.uninstallAddon = function (cmd, resp) {
  * Helper function to convert an outerWindowID into a UID that Marionette
  * tracks.
  */
-GoannaDriver.prototype.generateFrameId = function (id) {
+GeckoDriver.prototype.generateFrameId = function (id) {
   let uid = id + (this.appName == "B2G" ? "-b2g" : "");
   return uid;
 };
 
 /** Receives all messages from content messageManager. */
-GoannaDriver.prototype.receiveMessage = function (message) {
+GeckoDriver.prototype.receiveMessage = function (message) {
   switch (message.name) {
     case "Marionette:ok":
     case "Marionette:done":
@@ -2862,7 +2862,7 @@ GoannaDriver.prototype.receiveMessage = function (message) {
   }
 };
 
-GoannaDriver.prototype.responseCompleted = function () {
+GeckoDriver.prototype.responseCompleted = function () {
   if (this.curBrowser !== null) {
     this.curBrowser.pendingCommands = [];
   }
@@ -2882,7 +2882,7 @@ GoannaDriver.prototype.responseCompleted = function () {
  * @return {string}
  *     The localized string for the requested entity.
  */
-GoannaDriver.prototype.localizeEntity = function (cmd, resp) {
+GeckoDriver.prototype.localizeEntity = function (cmd, resp) {
   let {urls, id} = cmd.parameters;
 
   if (!Array.isArray(urls)) {
@@ -2909,7 +2909,7 @@ GoannaDriver.prototype.localizeEntity = function (cmd, resp) {
  * @return {string}
  *     The localized string for the requested property.
  */
-GoannaDriver.prototype.localizeProperty = function (cmd, resp) {
+GeckoDriver.prototype.localizeProperty = function (cmd, resp) {
   let {urls, id} = cmd.parameters;
 
   if (!Array.isArray(urls)) {
@@ -2922,92 +2922,92 @@ GoannaDriver.prototype.localizeProperty = function (cmd, resp) {
   resp.body.value = l10n.localizeProperty(urls, id);
 }
 
-GoannaDriver.prototype.commands = {
-  "getMarionetteID": GoannaDriver.prototype.getMarionetteID,
-  "sayHello": GoannaDriver.prototype.sayHello,
-  "newSession": GoannaDriver.prototype.newSession,
-  "getSessionCapabilities": GoannaDriver.prototype.getSessionCapabilities,
-  "log": GoannaDriver.prototype.log,
-  "getLogs": GoannaDriver.prototype.getLogs,
-  "setContext": GoannaDriver.prototype.setContext,
-  "getContext": GoannaDriver.prototype.getContext,
-  "executeScript": GoannaDriver.prototype.executeScript,
-  "getTimeouts": GoannaDriver.prototype.getTimeouts,
-  "timeouts": GoannaDriver.prototype.setTimeouts,  // deprecated until Firefox 55
-  "setTimeouts": GoannaDriver.prototype.setTimeouts,
-  "singleTap": GoannaDriver.prototype.singleTap,
-  "performActions": GoannaDriver.prototype.performActions,
-  "releaseActions": GoannaDriver.prototype.releaseActions,
-  "actionChain": GoannaDriver.prototype.actionChain, // deprecated
-  "multiAction": GoannaDriver.prototype.multiAction, // deprecated
-  "executeAsyncScript": GoannaDriver.prototype.executeAsyncScript,
-  "executeJSScript": GoannaDriver.prototype.executeJSScript,
-  "findElement": GoannaDriver.prototype.findElement,
-  "findElements": GoannaDriver.prototype.findElements,
-  "clickElement": GoannaDriver.prototype.clickElement,
-  "getElementAttribute": GoannaDriver.prototype.getElementAttribute,
-  "getElementProperty": GoannaDriver.prototype.getElementProperty,
-  "getElementText": GoannaDriver.prototype.getElementText,
-  "getElementTagName": GoannaDriver.prototype.getElementTagName,
-  "isElementDisplayed": GoannaDriver.prototype.isElementDisplayed,
-  "getElementValueOfCssProperty": GoannaDriver.prototype.getElementValueOfCssProperty,
-  "getElementRect": GoannaDriver.prototype.getElementRect,
-  "isElementEnabled": GoannaDriver.prototype.isElementEnabled,
-  "isElementSelected": GoannaDriver.prototype.isElementSelected,
-  "sendKeysToElement": GoannaDriver.prototype.sendKeysToElement,
-  "clearElement": GoannaDriver.prototype.clearElement,
-  "getTitle": GoannaDriver.prototype.getTitle,
-  "getWindowType": GoannaDriver.prototype.getWindowType,
-  "getPageSource": GoannaDriver.prototype.getPageSource,
-  "get": GoannaDriver.prototype.get,
-  "getCurrentUrl": GoannaDriver.prototype.getCurrentUrl,
-  "goBack": GoannaDriver.prototype.goBack,
-  "goForward": GoannaDriver.prototype.goForward,
-  "refresh":  GoannaDriver.prototype.refresh,
-  "getWindowHandle": GoannaDriver.prototype.getWindowHandle,
-  "getChromeWindowHandle": GoannaDriver.prototype.getChromeWindowHandle,
-  "getCurrentChromeWindowHandle": GoannaDriver.prototype.getChromeWindowHandle,
-  "getWindowHandles": GoannaDriver.prototype.getWindowHandles,
-  "getChromeWindowHandles": GoannaDriver.prototype.getChromeWindowHandles,
-  "getWindowPosition": GoannaDriver.prototype.getWindowRect, // Redirecting for compatibility
-  "setWindowPosition": GoannaDriver.prototype.setWindowRect, // Redirecting for compatibility
-  "setWindowRect": GoannaDriver.prototype.setWindowRect,
-  "getWindowRect": GoannaDriver.prototype.getWindowRect,
-  "getActiveFrame": GoannaDriver.prototype.getActiveFrame,
-  "switchToFrame": GoannaDriver.prototype.switchToFrame,
-  "switchToParentFrame": GoannaDriver.prototype.switchToParentFrame,
-  "switchToWindow": GoannaDriver.prototype.switchToWindow,
-  "switchToShadowRoot": GoannaDriver.prototype.switchToShadowRoot,
-  "deleteSession": GoannaDriver.prototype.deleteSession,
-  "importScript": GoannaDriver.prototype.importScript,
-  "clearImportedScripts": GoannaDriver.prototype.clearImportedScripts,
-  "getAppCacheStatus": GoannaDriver.prototype.getAppCacheStatus,
-  "close": GoannaDriver.prototype.close,
-  "closeChromeWindow": GoannaDriver.prototype.closeChromeWindow,
-  "setTestName": GoannaDriver.prototype.setTestName,
-  "takeScreenshot": GoannaDriver.prototype.takeScreenshot,
-  "addCookie": GoannaDriver.prototype.addCookie,
-  "getCookies": GoannaDriver.prototype.getCookies,
-  "deleteAllCookies": GoannaDriver.prototype.deleteAllCookies,
-  "deleteCookie": GoannaDriver.prototype.deleteCookie,
-  "getActiveElement": GoannaDriver.prototype.getActiveElement,
-  "getScreenOrientation": GoannaDriver.prototype.getScreenOrientation,
-  "setScreenOrientation": GoannaDriver.prototype.setScreenOrientation,
-  "getWindowSize": GoannaDriver.prototype.getWindowRect, // Redirecting for compatibility
-  "setWindowSize": GoannaDriver.prototype.setWindowRect, // Redirecting for compatibility
-  "maximizeWindow": GoannaDriver.prototype.maximizeWindow,
-  "dismissDialog": GoannaDriver.prototype.dismissDialog,
-  "acceptDialog": GoannaDriver.prototype.acceptDialog,
-  "getTextFromDialog": GoannaDriver.prototype.getTextFromDialog,
-  "sendKeysToDialog": GoannaDriver.prototype.sendKeysToDialog,
-  "acceptConnections": GoannaDriver.prototype.acceptConnections,
-  "quitApplication": GoannaDriver.prototype.quitApplication,
+GeckoDriver.prototype.commands = {
+  "getMarionetteID": GeckoDriver.prototype.getMarionetteID,
+  "sayHello": GeckoDriver.prototype.sayHello,
+  "newSession": GeckoDriver.prototype.newSession,
+  "getSessionCapabilities": GeckoDriver.prototype.getSessionCapabilities,
+  "log": GeckoDriver.prototype.log,
+  "getLogs": GeckoDriver.prototype.getLogs,
+  "setContext": GeckoDriver.prototype.setContext,
+  "getContext": GeckoDriver.prototype.getContext,
+  "executeScript": GeckoDriver.prototype.executeScript,
+  "getTimeouts": GeckoDriver.prototype.getTimeouts,
+  "timeouts": GeckoDriver.prototype.setTimeouts,  // deprecated until Firefox 55
+  "setTimeouts": GeckoDriver.prototype.setTimeouts,
+  "singleTap": GeckoDriver.prototype.singleTap,
+  "performActions": GeckoDriver.prototype.performActions,
+  "releaseActions": GeckoDriver.prototype.releaseActions,
+  "actionChain": GeckoDriver.prototype.actionChain, // deprecated
+  "multiAction": GeckoDriver.prototype.multiAction, // deprecated
+  "executeAsyncScript": GeckoDriver.prototype.executeAsyncScript,
+  "executeJSScript": GeckoDriver.prototype.executeJSScript,
+  "findElement": GeckoDriver.prototype.findElement,
+  "findElements": GeckoDriver.prototype.findElements,
+  "clickElement": GeckoDriver.prototype.clickElement,
+  "getElementAttribute": GeckoDriver.prototype.getElementAttribute,
+  "getElementProperty": GeckoDriver.prototype.getElementProperty,
+  "getElementText": GeckoDriver.prototype.getElementText,
+  "getElementTagName": GeckoDriver.prototype.getElementTagName,
+  "isElementDisplayed": GeckoDriver.prototype.isElementDisplayed,
+  "getElementValueOfCssProperty": GeckoDriver.prototype.getElementValueOfCssProperty,
+  "getElementRect": GeckoDriver.prototype.getElementRect,
+  "isElementEnabled": GeckoDriver.prototype.isElementEnabled,
+  "isElementSelected": GeckoDriver.prototype.isElementSelected,
+  "sendKeysToElement": GeckoDriver.prototype.sendKeysToElement,
+  "clearElement": GeckoDriver.prototype.clearElement,
+  "getTitle": GeckoDriver.prototype.getTitle,
+  "getWindowType": GeckoDriver.prototype.getWindowType,
+  "getPageSource": GeckoDriver.prototype.getPageSource,
+  "get": GeckoDriver.prototype.get,
+  "getCurrentUrl": GeckoDriver.prototype.getCurrentUrl,
+  "goBack": GeckoDriver.prototype.goBack,
+  "goForward": GeckoDriver.prototype.goForward,
+  "refresh":  GeckoDriver.prototype.refresh,
+  "getWindowHandle": GeckoDriver.prototype.getWindowHandle,
+  "getChromeWindowHandle": GeckoDriver.prototype.getChromeWindowHandle,
+  "getCurrentChromeWindowHandle": GeckoDriver.prototype.getChromeWindowHandle,
+  "getWindowHandles": GeckoDriver.prototype.getWindowHandles,
+  "getChromeWindowHandles": GeckoDriver.prototype.getChromeWindowHandles,
+  "getWindowPosition": GeckoDriver.prototype.getWindowRect, // Redirecting for compatibility
+  "setWindowPosition": GeckoDriver.prototype.setWindowRect, // Redirecting for compatibility
+  "setWindowRect": GeckoDriver.prototype.setWindowRect,
+  "getWindowRect": GeckoDriver.prototype.getWindowRect,
+  "getActiveFrame": GeckoDriver.prototype.getActiveFrame,
+  "switchToFrame": GeckoDriver.prototype.switchToFrame,
+  "switchToParentFrame": GeckoDriver.prototype.switchToParentFrame,
+  "switchToWindow": GeckoDriver.prototype.switchToWindow,
+  "switchToShadowRoot": GeckoDriver.prototype.switchToShadowRoot,
+  "deleteSession": GeckoDriver.prototype.deleteSession,
+  "importScript": GeckoDriver.prototype.importScript,
+  "clearImportedScripts": GeckoDriver.prototype.clearImportedScripts,
+  "getAppCacheStatus": GeckoDriver.prototype.getAppCacheStatus,
+  "close": GeckoDriver.prototype.close,
+  "closeChromeWindow": GeckoDriver.prototype.closeChromeWindow,
+  "setTestName": GeckoDriver.prototype.setTestName,
+  "takeScreenshot": GeckoDriver.prototype.takeScreenshot,
+  "addCookie": GeckoDriver.prototype.addCookie,
+  "getCookies": GeckoDriver.prototype.getCookies,
+  "deleteAllCookies": GeckoDriver.prototype.deleteAllCookies,
+  "deleteCookie": GeckoDriver.prototype.deleteCookie,
+  "getActiveElement": GeckoDriver.prototype.getActiveElement,
+  "getScreenOrientation": GeckoDriver.prototype.getScreenOrientation,
+  "setScreenOrientation": GeckoDriver.prototype.setScreenOrientation,
+  "getWindowSize": GeckoDriver.prototype.getWindowRect, // Redirecting for compatibility
+  "setWindowSize": GeckoDriver.prototype.setWindowRect, // Redirecting for compatibility
+  "maximizeWindow": GeckoDriver.prototype.maximizeWindow,
+  "dismissDialog": GeckoDriver.prototype.dismissDialog,
+  "acceptDialog": GeckoDriver.prototype.acceptDialog,
+  "getTextFromDialog": GeckoDriver.prototype.getTextFromDialog,
+  "sendKeysToDialog": GeckoDriver.prototype.sendKeysToDialog,
+  "acceptConnections": GeckoDriver.prototype.acceptConnections,
+  "quitApplication": GeckoDriver.prototype.quitApplication,
 
-  "localization:l10n:localizeEntity": GoannaDriver.prototype.localizeEntity,
-  "localization:l10n:localizeProperty": GoannaDriver.prototype.localizeProperty,
+  "localization:l10n:localizeEntity": GeckoDriver.prototype.localizeEntity,
+  "localization:l10n:localizeProperty": GeckoDriver.prototype.localizeProperty,
 
-  "addon:install": GoannaDriver.prototype.installAddon,
-  "addon:uninstall": GoannaDriver.prototype.uninstallAddon,
+  "addon:install": GeckoDriver.prototype.installAddon,
+  "addon:uninstall": GeckoDriver.prototype.uninstallAddon,
 };
 
 function copy (obj) {

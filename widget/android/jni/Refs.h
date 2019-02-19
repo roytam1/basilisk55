@@ -65,8 +65,8 @@ class Ref
 protected:
     static JNIEnv* FindEnv()
     {
-        return Cls::callingThread == CallingThread::GOANNA ?
-                GetGoannaThreadEnv() : GetEnvForThread();
+        return Cls::callingThread == CallingThread::GECKO ?
+                GetGeckoThreadEnv() : GetEnvForThread();
     }
 
     Type mInstance;

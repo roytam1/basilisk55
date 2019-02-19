@@ -158,8 +158,8 @@ fi
 # For telemetry purposes, the build process wants information about the
 # source it is running; tc-vcs obscures this a little, but we can provide
 # it directly.
-export MOZ_SOURCE_REPO="${GOANNA_HEAD_REPOSITORY}"
-export MOZ_SOURCE_CHANGESET="${GOANNA_HEAD_REV}"
+export MOZ_SOURCE_REPO="${GECKO_HEAD_REPOSITORY}"
+export MOZ_SOURCE_CHANGESET="${GECKO_HEAD_REV}"
 
 # support multiple, space delimited, config files
 config_cmds=""

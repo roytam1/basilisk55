@@ -283,7 +283,7 @@ nsHTMLFramesetFrame::Init(nsIContent*       aContent,
       for (uint32_t i = childX; i < numChildren; i++) {
         nsIContent *child = mContent->GetChildAt(i);
         child->UnsetFlags(NODE_DESCENDANTS_NEED_FRAMES | NODE_NEEDS_FRAME);
-        child->UnsetRestyleFlagsIfGoanna();
+        child->UnsetRestyleFlagsIfGecko();
       }
       break;
     }
@@ -291,7 +291,7 @@ nsHTMLFramesetFrame::Init(nsIContent*       aContent,
     child->UnsetFlags(NODE_DESCENDANTS_NEED_FRAMES | NODE_NEEDS_FRAME);
     // Also clear the restyle flags in the child like
     // nsCSSFrameConstructor::ProcessChildren does.
-    child->UnsetRestyleFlagsIfGoanna();
+    child->UnsetRestyleFlagsIfGecko();
 
     // IMPORTANT: This must match the conditions in
     // nsCSSFrameConstructor::ContentAppended/Inserted/Removed

@@ -200,7 +200,7 @@ TelemetryIPCAccumulator::IPCTimerFired(nsITimer* aTimer, void* aClosure)
 
   // Send the accumulated data to the parent process.
   switch (XRE_GetProcessType()) {
-    case GoannaProcessType_Content: {
+    case GeckoProcessType_Content: {
       mozilla::dom::ContentChild* contentChild = mozilla::dom::ContentChild::GetSingleton();
       mozilla::Unused << NS_WARN_IF(!contentChild);
       if (contentChild) {
@@ -223,7 +223,7 @@ TelemetryIPCAccumulator::IPCTimerFired(nsITimer* aTimer, void* aClosure)
       }
       break;
     }
-    case GoannaProcessType_GPU: {
+    case GeckoProcessType_GPU: {
       if (mozilla::gfx::GPUParent* gpu = mozilla::gfx::GPUParent::GetSingleton()) {
         if (accumulationsToSend.Length()) {
           mozilla::Unused << gpu->SendAccumulateChildHistogram(accumulationsToSend);

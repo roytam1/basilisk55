@@ -29,14 +29,14 @@ if (json.substs.MOZ_BUILD_APP != 'mobile/android') {
 System.setProperty('android.home', json.substs.ANDROID_SDK_ROOT)
 
 include ':app'
-include ':goannaview'
-include ':goannaview_example'
+include ':geckoview'
+include ':geckoview_example'
 include ':omnijar'
 include ':thirdparty'
 
 project(':app').projectDir = new File("${json.topsrcdir}/mobile/android/app")
-project(':goannaview').projectDir = new File("${json.topsrcdir}/mobile/android/goannaview")
-project(':goannaview_example').projectDir = new File("${json.topsrcdir}/mobile/android/goannaview_example")
+project(':geckoview').projectDir = new File("${json.topsrcdir}/mobile/android/geckoview")
+project(':geckoview_example').projectDir = new File("${json.topsrcdir}/mobile/android/geckoview_example")
 project(':omnijar').projectDir = new File("${json.topsrcdir}/mobile/android/app/omnijar")
 project(':thirdparty').projectDir = new File("${json.topsrcdir}/mobile/android/thirdparty")
 

@@ -136,7 +136,7 @@ var ContentPolicyParent = {
       try {
         policy = Cc[policyCID].getService(Ci.nsIContentPolicy);
       } catch (e) {
-        // Current Goanna behavior is to ignore entries that don't QI.
+        // Current Gecko behavior is to ignore entries that don't QI.
         continue;
       }
       try {

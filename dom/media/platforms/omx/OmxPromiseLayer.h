@@ -164,7 +164,7 @@ public:
     //     (OmxDataDecoder)
     //
     //   OMX_CLIENT_OUTPUT:
-    //     used by client to output decoded data (for example, Goanna layer in
+    //     used by client to output decoded data (for example, Gecko layer in
     //     this case)
     //
     // For output port buffer, the status transition is:

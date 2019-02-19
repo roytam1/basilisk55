@@ -19,7 +19,7 @@ const TELEMETRY_TAP_TO_LOAD_ENABLED = "TAP_TO_LOAD_ENABLED";
 const TELEMETRY_SHOW_IMAGE_SIZE = "TAP_TO_LOAD_IMAGE_SIZE";
 const TOPIC_GATHER_TELEMETRY = "gather-telemetry";
 
-//// Goanna preference
+//// Gecko preference
 const PREF_IMAGEBLOCKING = "browser.image_blocking";
 
 //// Enabled options

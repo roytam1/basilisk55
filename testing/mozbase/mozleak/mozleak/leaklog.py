@@ -168,9 +168,9 @@ def process_leak_log(leak_log_file, leak_thresholds=None,
     leakThresholds = leak_thresholds or {}
     ignoreMissingLeaks = ignore_missing_leaks or []
 
-    # This list is based on kGoannaProcessTypeString. ipdlunittest processes likely
+    # This list is based on kGeckoProcessTypeString. ipdlunittest processes likely
     # are not going to produce leak logs we will ever see.
-    knownProcessTypes = ["default", "plugin", "tab", "goannamediaplugin", "gpu"]
+    knownProcessTypes = ["default", "plugin", "tab", "geckomediaplugin", "gpu"]
 
     for processType in knownProcessTypes:
         log.info("TEST-INFO | leakcheck | %s process: leak threshold set at %d bytes"

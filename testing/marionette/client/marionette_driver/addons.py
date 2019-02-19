@@ -12,8 +12,8 @@ class AddonInstallException(errors.MarionetteException):
 
 
 class Addons(object):
-    """An API for installing and inspecting addons during Goanna
-    runtime. This is a partially implemented wrapper around Goanna's
+    """An API for installing and inspecting addons during Gecko
+    runtime. This is a partially implemented wrapper around Gecko's
     `AddonManager API`_.
 
     For example::

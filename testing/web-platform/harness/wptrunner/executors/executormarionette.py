@@ -33,7 +33,7 @@ from .base import (ExecutorException,
                    strip_server,
                    WdspecExecutor)
 from ..testrunner import Stop
-from ..webdriver_server import GoannaDriverServer
+from ..webdriver_server import GeckoDriverServer
 
 # Extra timeout to use after internal test timeout at which the harness
 # should force a timeout
@@ -278,7 +278,7 @@ class RemoteMarionetteProtocol(Protocol):
     def setup(self, runner):
         """Connect to browser via the Marionette HTTP server."""
         try:
-            self.server = GoannaDriverServer(
+            self.server = GeckoDriverServer(
                 self.logger, self.marionette_port, binary=self.webdriver_binary)
             self.server.start(block=False)
             self.logger.info(

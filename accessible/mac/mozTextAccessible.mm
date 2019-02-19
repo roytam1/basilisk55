@@ -55,7 +55,7 @@ ToNSString(id aValue)
 
 - (BOOL)accessibilityIsIgnored
 {
-  return ![self getGoannaAccessible] && ![self getProxyAccessible];
+  return ![self getGeckoAccessible] && ![self getProxyAccessible];
 }
 
 - (NSArray*)accessibilityAttributeNames
@@ -114,7 +114,7 @@ ToNSString(id aValue)
     return [self text];
   }
 
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     if ([attribute isEqualToString:@"AXRequired"]) {
       return [NSNumber numberWithBool:!!(accWrap->State() & states::REQUIRED)];
     }
@@ -166,7 +166,7 @@ ToNSString(id aValue)
 
 - (id)accessibilityAttributeValue:(NSString*)attribute forParameter:(id)parameter
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
 
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
@@ -227,7 +227,7 @@ ToNSString(id aValue)
         DesktopIntRect::FromUnknownRect(proxy->TextBounds(start, end));
     }
 
-    return [NSValue valueWithRect:nsCocoaUtils::GoannaRectToCocoaRect(bounds)];
+    return [NSValue valueWithRect:nsCocoaUtils::GeckoRectToCocoaRect(bounds)];
   }
 
 #if DEBUG
@@ -258,7 +258,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
 
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
@@ -344,7 +344,7 @@ ToNSString(id aValue)
   if ([[self role] isEqualToString:NSAccessibilityStaticTextRole])
     return YES;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (textAcc)
     return (accWrap->State() & states::READONLY) == 0;
@@ -359,7 +359,7 @@ ToNSString(id aValue)
 
 - (NSNumber*)caretLineNumber
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
 
   int32_t lineNumber = -1;
@@ -376,7 +376,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
 
   nsString text;
@@ -392,7 +392,7 @@ ToNSString(id aValue)
 
 - (NSString*)text
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -416,7 +416,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_RETURN;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -431,7 +431,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_RETURN;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -453,7 +453,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -479,7 +479,7 @@ ToNSString(id aValue)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
 
@@ -518,7 +518,7 @@ ToNSString(id aValue)
 {
   // XXX this won't work with Textarea and such as we actually don't give
   // the visible character range.
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -549,7 +549,7 @@ ToNSString(id aValue)
 {
   NS_PRECONDITION(range, "no range");
 
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   HyperTextAccessible* textAcc = accWrap? accWrap->AsHyperText() : nullptr;
   if (!textAcc && !proxy)
@@ -595,7 +595,7 @@ ToNSString(id aValue)
 
 - (NSString*)text
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     return nsCocoaUtils::ToNSString(accWrap->AsTextLeaf()->Text());
   }
 
@@ -610,7 +610,7 @@ ToNSString(id aValue)
 
 - (long)textLength
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     return accWrap->AsTextLeaf()->Text().Length();
   }
 

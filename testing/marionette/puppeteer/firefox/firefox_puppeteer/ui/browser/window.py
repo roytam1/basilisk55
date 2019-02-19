@@ -152,7 +152,7 @@ class BrowserWindow(BaseWindow):
          be a string with one of `menu` or `shortcut`, or a callback which gets triggered
          with the current :class:`BrowserWindow` as parameter. Defaults to `menu`.
 
-        :param force: Optional, forces the closing of the window by using the Goanna API.
+        :param force: Optional, forces the closing of the window by using the Gecko API.
          Defaults to `False`.
         """
         def callback(win):

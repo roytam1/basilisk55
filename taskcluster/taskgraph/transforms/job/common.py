@@ -9,7 +9,7 @@ consistency.
 
 from __future__ import absolute_import, print_function, unicode_literals
 
-SECRET_SCOPE = 'secrets:get:project/releng/goanna/{}/level-{}/{}'
+SECRET_SCOPE = 'secrets:get:project/releng/gecko/{}/level-{}/{}'
 
 
 def docker_worker_add_workspace_cache(config, job, taskdesc):
@@ -46,14 +46,14 @@ def docker_worker_add_public_artifacts(config, job, taskdesc):
     })
 
 
-def docker_worker_add_goanna_vcs_env_vars(config, job, taskdesc):
-    """Add the GOANNA_BASE_* and GOANNA_HEAD_* env vars to the worker."""
+def docker_worker_add_gecko_vcs_env_vars(config, job, taskdesc):
+    """Add the GECKO_BASE_* and GECKO_HEAD_* env vars to the worker."""
     env = taskdesc['worker'].setdefault('env', {})
     env.update({
-        'GOANNA_BASE_REPOSITORY': config.params['base_repository'],
-        'GOANNA_HEAD_REF': config.params['head_rev'],
-        'GOANNA_HEAD_REPOSITORY': config.params['head_repository'],
-        'GOANNA_HEAD_REV': config.params['head_rev'],
+        'GECKO_BASE_REPOSITORY': config.params['base_repository'],
+        'GECKO_HEAD_REF': config.params['head_rev'],
+        'GECKO_HEAD_REPOSITORY': config.params['head_repository'],
+        'GECKO_HEAD_REV': config.params['head_rev'],
     })
 
 
@@ -80,15 +80,15 @@ def docker_worker_support_vcs_checkout(config, job, taskdesc):
     })
 
     taskdesc['worker'].setdefault('env', {}).update({
-        'GOANNA_BASE_REPOSITORY': config.params['base_repository'],
-        'GOANNA_HEAD_REPOSITORY': config.params['head_repository'],
-        'GOANNA_HEAD_REV': config.params['head_rev'],
+        'GECKO_BASE_REPOSITORY': config.params['base_repository'],
+        'GECKO_HEAD_REPOSITORY': config.params['head_repository'],
+        'GECKO_HEAD_REV': config.params['head_rev'],
         'HG_STORE_PATH': '/home/worker/checkouts/hg-store',
     })
 
     # Give task access to hgfingerprint secret so it can pin the certificate
     # for hg.mozilla.org.
-    taskdesc['scopes'].append('secrets:get:project/taskcluster/goanna/hgfingerprint')
+    taskdesc['scopes'].append('secrets:get:project/taskcluster/gecko/hgfingerprint')
     taskdesc['worker']['taskcluster-proxy'] = True
 
 

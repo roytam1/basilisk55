@@ -63,8 +63,8 @@
    fun:FcConfigAppFontAddDir
    ...
 }
-# Leaks due to either Gtk+3 or cairo, but Goanna is not directly involved with
-# those cairo interactions.  One suspected cause is Goanna not closing the
+# Leaks due to either Gtk+3 or cairo, but Gecko is not directly involved with
+# those cairo interactions.  One suspected cause is Gecko not closing the
 # display to work around a bug in old Gtk+3 versions.  See also bug 1228724.
 {
    Bug 1187649
@@ -79,7 +79,7 @@
 # The following leak is deep in Gtk+3, and it doesn't seem we're doing
 # anything wrong on our end with the container objects. This suppression
 # is purposefully verbose so as to avoid catching actual leaks due to
-# Goanna code.
+# Gecko code.
 # Note: valgrind doesn't support more than 24 elements in a suppression stack.
 {
    Bug 1187649

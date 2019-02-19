@@ -1,6 +1,6 @@
 #include "TestSyncHang.h"
 #include "base/task.h"
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 
 #include "IPDLUnitTests.h"      // fail etc.
 
@@ -13,7 +13,7 @@ namespace _ipdltest {
 //-----------------------------------------------------------------------------
 // parent
 
-mozilla::ipc::GoannaChildProcessHost* gSyncHangSubprocess;
+mozilla::ipc::GeckoChildProcessHost* gSyncHangSubprocess;
 
 TestSyncHangParent::TestSyncHangParent()
 {
@@ -44,7 +44,7 @@ TestSyncHangParent::Main()
 {
   vector<string> args;
   args.push_back("fake/path");
-  gSyncHangSubprocess = new mozilla::ipc::GoannaChildProcessHost(GoannaProcessType_Plugin);
+  gSyncHangSubprocess = new mozilla::ipc::GeckoChildProcessHost(GeckoProcessType_Plugin);
   bool launched = gSyncHangSubprocess->SyncLaunch(args, 2);
   if (launched)
     fail("Calling SyncLaunch with an invalid path should return false");

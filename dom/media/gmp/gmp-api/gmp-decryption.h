@@ -192,7 +192,7 @@ public:
                             const char* aMessage,
                             uint32_t aMessageLength) = 0;
 
-  // Notifies the status of a key. Goanna will not call into the CDM to decrypt
+  // Notifies the status of a key. Gecko will not call into the CDM to decrypt
   // or decode content encrypted with a key unless the CDM has marked it
   // usable first. So a CDM *MUST* mark its usable keys as usable!
   virtual void KeyStatusChanged(const char* aSessionId,
@@ -204,7 +204,7 @@ public:
   // DEPRECATED; this function has no affect.
   virtual void SetCapabilities(uint64_t aCaps) = 0;
 
-  // Returns decrypted buffer to Goanna, or reports failure.
+  // Returns decrypted buffer to Gecko, or reports failure.
   virtual void Decrypted(GMPBuffer* aBuffer, GMPErr aResult) = 0;
 
   // To aggregate KeyStatusChanged into single callback per session id.
@@ -232,7 +232,7 @@ class GMPDecryptor {
 public:
 
   // Sets the callback to use with the decryptor to return results
-  // to Goanna.
+  // to Gecko.
   virtual void Init(GMPDecryptorCallback* aCallback,
                     bool aDistinctiveIdentifierRequired,
                     bool aPersistentStateRequired) = 0;
@@ -317,7 +317,7 @@ public:
 
   // Asynchronously decrypts aBuffer in place. When the decryption is
   // complete, GMPDecryptor should write the decrypted data back into the
-  // same GMPBuffer object and return it to Goanna by calling Decrypted(),
+  // same GMPBuffer object and return it to Gecko by calling Decrypted(),
   // with the GMPNoErr successcode. If decryption fails, call Decrypted()
   // with a failure code, and an error event will fire on the media element.
   // Note: When Decrypted() is called and aBuffer is passed back, aBuffer

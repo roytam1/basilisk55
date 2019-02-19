@@ -107,7 +107,7 @@ private:
 /*
  * Simple test that the plugin is deleted when forcibly removed and deleted.
  */
-TEST(GoannaMediaPlugins, RemoveAndDeleteForcedSimple)
+TEST(GeckoMediaPlugins, RemoveAndDeleteForcedSimple)
 {
   RefPtr<GMPRemoveTest> test(new GMPRemoveTest());
 
@@ -119,7 +119,7 @@ TEST(GoannaMediaPlugins, RemoveAndDeleteForcedSimple)
 /*
  * Simple test that the plugin is deleted when deferred deletion is allowed.
  */
-TEST(GoannaMediaPlugins, RemoveAndDeleteDeferredSimple)
+TEST(GeckoMediaPlugins, RemoveAndDeleteDeferredSimple)
 {
   RefPtr<GMPRemoveTest> test(new GMPRemoveTest());
 
@@ -132,7 +132,7 @@ TEST(GoannaMediaPlugins, RemoveAndDeleteDeferredSimple)
  * Test that the plugin is unavailable immediately after a forced
  * RemoveAndDelete, and that the plugin is deleted afterwards.
  */
-TEST(GoannaMediaPlugins, RemoveAndDeleteForcedInUse)
+TEST(GeckoMediaPlugins, RemoveAndDeleteForcedInUse)
 {
   RefPtr<GMPRemoveTest> test(new GMPRemoveTest());
 
@@ -157,7 +157,7 @@ TEST(GoannaMediaPlugins, RemoveAndDeleteForcedInUse)
  * Test that the plugin is still usable after a deferred RemoveAndDelete, and
  * that the plugin is deleted afterwards.
  */
-TEST(GoannaMediaPlugins, RemoveAndDeleteDeferredInUse)
+TEST(GeckoMediaPlugins, RemoveAndDeleteDeferredInUse)
 {
   RefPtr<GMPRemoveTest> test(new GMPRemoveTest());
 
@@ -181,27 +181,27 @@ TEST(GoannaMediaPlugins, RemoveAndDeleteDeferredInUse)
   test->Wait();
 }
 
-static StaticRefPtr<GoannaMediaPluginService> gService;
-static StaticRefPtr<GoannaMediaPluginServiceParent> gServiceParent;
+static StaticRefPtr<GeckoMediaPluginService> gService;
+static StaticRefPtr<GeckoMediaPluginServiceParent> gServiceParent;
 
-static GoannaMediaPluginService*
+static GeckoMediaPluginService*
 GetService()
 {
   if (!gService) {
-    RefPtr<GoannaMediaPluginService> service =
-      GoannaMediaPluginService::GetGoannaMediaPluginService();
+    RefPtr<GeckoMediaPluginService> service =
+      GeckoMediaPluginService::GetGeckoMediaPluginService();
     gService = service;
   }
 
   return gService.get();
 }
 
-static GoannaMediaPluginServiceParent*
+static GeckoMediaPluginServiceParent*
 GetServiceParent()
 {
   if (!gServiceParent) {
-    RefPtr<GoannaMediaPluginServiceParent> parent =
-      GoannaMediaPluginServiceParent::GetSingleton();
+    RefPtr<GeckoMediaPluginServiceParent> parent =
+      GeckoMediaPluginServiceParent::GetSingleton();
     gServiceParent = parent;
   }
 

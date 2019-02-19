@@ -24,7 +24,7 @@ class GPUProcessManager;
 } // namespace gfx
 namespace layers {
 
-class GoannaContentController;
+class GeckoContentController;
 class IAPZCTreeManager;
 class CompositorBridgeParent;
 class CompositorBridgeChild;
@@ -53,8 +53,8 @@ public:
   // This returns a CompositorBridgeParent if the compositor resides in the same process.
   virtual CompositorBridgeParent* GetInProcessBridge() const = 0;
 
-  // Set the GoannaContentController for the root of the layer tree.
-  virtual void SetContentController(GoannaContentController* aController) = 0;
+  // Set the GeckoContentController for the root of the layer tree.
+  virtual void SetContentController(GeckoContentController* aController) = 0;
 
   // Return the Async Pan/Zoom Tree Manager for this compositor.
   virtual RefPtr<IAPZCTreeManager> GetAPZCTreeManager() const = 0;

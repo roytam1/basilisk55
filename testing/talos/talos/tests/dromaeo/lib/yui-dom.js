@@ -24,7 +24,7 @@ version: 2.6.0
     // brower detection
     var isOpera = YAHOO.env.ua.opera,
         isSafari = YAHOO.env.ua.webkit, 
-        isGoanna = YAHOO.env.ua.goanna,
+        isGecko = YAHOO.env.ua.gecko,
         isIE = YAHOO.env.ua.ie; 
     
     // regex cache
@@ -563,7 +563,7 @@ version: 2.6.0
                 if (haystack.contains && haystack !== needle) { // contains returns true when equal
                     ret = haystack.contains(needle);
                 }
-                else if (haystack.compareDocumentPosition) { // goanna
+                else if (haystack.compareDocumentPosition) { // gecko
                     ret = !!(haystack.compareDocumentPosition(needle) & 16);
                 }
             } else {
@@ -682,7 +682,7 @@ version: 2.6.0
             var height = self.innerHeight; // Safari, Opera
             var mode = document.compatMode;
         
-            if ( (mode || isIE) && !isOpera ) { // IE, Goanna
+            if ( (mode || isIE) && !isOpera ) { // IE, Gecko
                 height = (mode == 'CSS1Compat') ?
                         document.documentElement.clientHeight : // Standards
                         document.body.clientHeight; // Quirks
@@ -701,7 +701,7 @@ version: 2.6.0
             var width = self.innerWidth;  // Safari
             var mode = document.compatMode;
             
-            if (mode || isIE) { // IE, Goanna, Opera
+            if (mode || isIE) { // IE, Gecko, Opera
                 width = (mode == 'CSS1Compat') ?
                         document.documentElement.clientWidth : // Standards
                         document.body.clientWidth; // Quirks

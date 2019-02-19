@@ -10,7 +10,7 @@ function* generateAddon(data) {
   let id = uuidGenerator.generateUUID().number;
 
   data = Object.assign({embedded: true}, data);
-  data.manifest = Object.assign({applications: {gecko: {id}}}, data.manifest);
+  data.manifest = Object.assign({applications: {goanna: {id}}}, data.manifest);
 
   let xpi = Extension.generateXPI(data);
   do_register_cleanup(() => {

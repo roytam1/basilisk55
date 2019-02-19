@@ -3,7 +3,7 @@
             android:label="@string/fxaccount_status_activity_label"
             android:clearTaskOnLaunch="true"
             android:taskAffinity="@ANDROID_PACKAGE_NAME@.FXA"
-            android:name="org.mozilla.goanna.fxa.activities.FxAccountStatusActivity"
+            android:name="org.mozilla.gecko.fxa.activities.FxAccountStatusActivity"
             android:configChanges="locale|layoutDirection"
             android:windowSoftInputMode="adjustResize">
             <!-- Adding a launcher will make this activity appear on the
@@ -19,7 +19,7 @@
         </activity>
 
         <receiver
-            android:name="org.mozilla.goanna.fxa.receivers.FxAccountUpgradeReceiver">
+            android:name="org.mozilla.gecko.fxa.receivers.FxAccountUpgradeReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package"/>
@@ -28,7 +28,7 @@
 
         <activity
             android:exported="false"
-            android:name="org.mozilla.goanna.fxa.activities.FxAccountGetStartedActivityWeb">
+            android:name="org.mozilla.gecko.fxa.activities.FxAccountGetStartedActivityWeb">
             <intent-filter>
                 <action android:name="@ANDROID_PACKAGE_NAME@.ACTION_FXA_GET_STARTED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -37,7 +37,7 @@
 
         <activity
             android:exported="false"
-            android:name="org.mozilla.goanna.fxa.activities.FxAccountUpdateCredentialsActivityWeb">
+            android:name="org.mozilla.gecko.fxa.activities.FxAccountUpdateCredentialsActivityWeb">
             <intent-filter>
                 <action android:name="@ANDROID_PACKAGE_NAME@.ACTION_FXA_UPDATE_CREDENTIALS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -46,7 +46,7 @@
 
         <activity
             android:exported="false"
-            android:name="org.mozilla.goanna.fxa.activities.FxAccountFinishMigratingActivityWeb">
+            android:name="org.mozilla.gecko.fxa.activities.FxAccountFinishMigratingActivityWeb">
             <intent-filter>
                 <action android:name="@ANDROID_PACKAGE_NAME@.ACTION_FXA_FINISH_MIGRATING"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -55,7 +55,7 @@
 
         <activity
             android:exported="false"
-            android:name="org.mozilla.goanna.fxa.activities.FxAccountConfirmAccountActivityWeb">
+            android:name="org.mozilla.gecko.fxa.activities.FxAccountConfirmAccountActivityWeb">
             <intent-filter>
                 <action android:name="@ANDROID_PACKAGE_NAME@.ACTION_FXA_CONFIRM_ACCOUNT"/>
                 <category android:name="android.intent.category.DEFAULT"/>

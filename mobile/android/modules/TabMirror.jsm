@@ -144,7 +144,7 @@ TabMirror.prototype = {
         type: "MediaPlayer:End",
         id: this.deviceId
       };
-      Services.androidBridge.handleGoannaMessage(obj);
+      Services.androidBridge.handleGeckoMessage(obj);
     }
   },
 };

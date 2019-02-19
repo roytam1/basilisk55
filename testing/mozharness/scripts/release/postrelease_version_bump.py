@@ -125,7 +125,7 @@ class PostReleaseVersionBump(MercurialScript, BuildbotMixin,
         if self.abs_dirs:
             return self.abs_dirs
         self.abs_dirs = super(PostReleaseVersionBump, self).query_abs_dirs()
-        self.abs_dirs["abs_goanna_dir"] = os.path.join(
+        self.abs_dirs["abs_gecko_dir"] = os.path.join(
                 self.abs_dirs['abs_work_dir'], self.config["repo"]["dest"])
         return self.abs_dirs
 
@@ -134,7 +134,7 @@ class PostReleaseVersionBump(MercurialScript, BuildbotMixin,
         return [self.config["repo"]]
 
     def query_commit_dirs(self):
-        return [self.query_abs_dirs()["abs_goanna_dir"]]
+        return [self.query_abs_dirs()["abs_gecko_dir"]]
 
     def query_commit_message(self):
         return "Automatic version bump. CLOSED TREE NO BUG a=release"
@@ -158,7 +158,7 @@ class PostReleaseVersionBump(MercurialScript, BuildbotMixin,
         """Bump version"""
         dirs = self.query_abs_dirs()
         for f in self.config["version_files"]:
-            curr_version = self.get_version(dirs['abs_goanna_dir'], f["file"])
+            curr_version = self.get_version(dirs['abs_gecko_dir'], f["file"])
             next_version = self.config['next_version'].split('.')
 
             if next_version <= curr_version:
@@ -167,7 +167,7 @@ class PostReleaseVersionBump(MercurialScript, BuildbotMixin,
             else:
                 curr_version = ".".join(curr_version)
                 next_version = ".".join(next_version)
-                self.replace(os.path.join(dirs['abs_goanna_dir'], f["file"]),
+                self.replace(os.path.join(dirs['abs_gecko_dir'], f["file"]),
                              curr_version, self.config["next_version"])
 
     def tag(self):
@@ -182,7 +182,7 @@ class PostReleaseVersionBump(MercurialScript, BuildbotMixin,
         message = message.format(
             revision=self.config["revision"],
             tags=', '.join(tags))
-        self.hg_tag(cwd=dirs["abs_goanna_dir"], tags=tags,
+        self.hg_tag(cwd=dirs["abs_gecko_dir"], tags=tags,
                     revision=self.config["revision"], message=message,
                     user=self.config["hg_user"], force=True)
 

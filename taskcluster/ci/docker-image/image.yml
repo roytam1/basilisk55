@@ -12,7 +12,7 @@ task:
   tags:
     createdForUser: '{{owner}}'
 
-  workerType: goanna-images
+  workerType: gecko-images
   provisionerId: aws-provisioner-v1
   schedulerId: task-graph-scheduler
 
@@ -26,7 +26,7 @@ task:
       - tc-treeherder-stage.v2.{{project}}.{{head_rev}}.{{pushlog_id}}
 
   scopes:
-      - secrets:get:project/taskcluster/goanna/hgfingerprint
+      - secrets:get:project/taskcluster/gecko/hgfingerprint
       - docker-worker:cache:level-{{level}}-imagebuilder-v1
 
   payload:
@@ -35,9 +35,9 @@ task:
       PROJECT: '{{project}}'
       CONTEXT_URL: '{{context_url}}'
       IMAGE_NAME: '{{image_name}}'
-      GOANNA_BASE_REPOSITORY: '{{base_repository}}'
-      GOANNA_HEAD_REPOSITORY: '{{head_repository}}'
-      GOANNA_HEAD_REV: '{{head_rev}}'
+      GECKO_BASE_REPOSITORY: '{{base_repository}}'
+      GECKO_HEAD_REPOSITORY: '{{head_repository}}'
+      GECKO_HEAD_REV: '{{head_rev}}'
       HG_STORE_PATH: '/home/worker/checkouts/hg-store'
     cache:
       'level-{{level}}-imagebuilder-v1': '/home/worker/checkouts'

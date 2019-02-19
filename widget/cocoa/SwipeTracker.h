@@ -22,7 +22,7 @@ class PanGestureInput;
 
 /**
  * SwipeTracker turns PanGestureInput events into swipe events
- * (WidgetSimpleGestureEvent) and dispatches them into Goanna.
+ * (WidgetSimpleGestureEvent) and dispatches them into Gecko.
  * The swiping behavior mirrors the behavior of the Cocoa API
  * -[NSEvent trackSwipeEventWithOptions:dampenAmountThresholdMin:max:usingHandler:].
  * The advantage of using this class over the Cocoa API is that this class

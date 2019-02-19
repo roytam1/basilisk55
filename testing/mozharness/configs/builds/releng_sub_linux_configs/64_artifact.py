@@ -20,10 +20,10 @@ config = {
     'enable_signing': False,
     'secret_files': [
         {'filename': '/builds/gapi.data',
-         'secret_name': 'project/releng/goanna/build/level-%(scm-level)s/gapi.data',
+         'secret_name': 'project/releng/gecko/build/level-%(scm-level)s/gapi.data',
          'min_scm_level': 2, 'default': 'try-build-has-no-secrets'},
         {'filename': '/builds/mozilla-desktop-geoloc-api.key',
-         'secret_name': 'project/releng/goanna/build/level-%(scm-level)s/mozilla-desktop-geoloc-api.key',
+         'secret_name': 'project/releng/gecko/build/level-%(scm-level)s/mozilla-desktop-geoloc-api.key',
          'min_scm_level': 2, 'default': 'try-build-has-no-secrets'},
     ],
     'enable_ccache': True,

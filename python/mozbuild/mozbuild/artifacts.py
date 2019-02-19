@@ -299,19 +299,19 @@ class MacArtifactJob(ArtifactJob):
 
             # InstallError: Failed to install "/Users/nalexander/.mozbuild/package-frontend/b38eeeb54cdcf744-firefox-44.0a1.en-US.mac.dmg (local variable 'appDir' referenced before assignment)"
 
-            #   File "/Users/nalexander/Mozilla/goanna/mobile/android/mach_commands.py", line 250, in artifact_install
+            #   File "/Users/nalexander/Mozilla/gecko/mobile/android/mach_commands.py", line 250, in artifact_install
             #     return artifacts.install_from(source, self.distdir)
-            #   File "/Users/nalexander/Mozilla/goanna/python/mozbuild/mozbuild/artifacts.py", line 457, in install_from
+            #   File "/Users/nalexander/Mozilla/gecko/python/mozbuild/mozbuild/artifacts.py", line 457, in install_from
             #     return self.install_from_hg(source, distdir)
-            #   File "/Users/nalexander/Mozilla/goanna/python/mozbuild/mozbuild/artifacts.py", line 445, in install_from_hg
+            #   File "/Users/nalexander/Mozilla/gecko/python/mozbuild/mozbuild/artifacts.py", line 445, in install_from_hg
             #     return self.install_from_url(url, distdir)
-            #   File "/Users/nalexander/Mozilla/goanna/python/mozbuild/mozbuild/artifacts.py", line 418, in install_from_url
+            #   File "/Users/nalexander/Mozilla/gecko/python/mozbuild/mozbuild/artifacts.py", line 418, in install_from_url
             #     return self.install_from_file(filename, distdir)
-            #   File "/Users/nalexander/Mozilla/goanna/python/mozbuild/mozbuild/artifacts.py", line 336, in install_from_file
+            #   File "/Users/nalexander/Mozilla/gecko/python/mozbuild/mozbuild/artifacts.py", line 336, in install_from_file
             #     mozinstall.install(filename, tempdir)
-            #   File "/Users/nalexander/Mozilla/goanna/objdir-dce/_virtualenv/lib/python2.7/site-packages/mozinstall/mozinstall.py", line 117, in install
+            #   File "/Users/nalexander/Mozilla/gecko/objdir-dce/_virtualenv/lib/python2.7/site-packages/mozinstall/mozinstall.py", line 117, in install
             #     install_dir = _install_dmg(src, dest)
-            #   File "/Users/nalexander/Mozilla/goanna/objdir-dce/_virtualenv/lib/python2.7/site-packages/mozinstall/mozinstall.py", line 261, in _install_dmg
+            #   File "/Users/nalexander/Mozilla/gecko/objdir-dce/_virtualenv/lib/python2.7/site-packages/mozinstall/mozinstall.py", line 261, in _install_dmg
             #     subprocess.call('hdiutil detach %s -quiet' % appDir,
 
             bundle_dirs = glob.glob(mozpath.join(tempdir, '*.app'))
@@ -435,7 +435,7 @@ class WinArtifactJob(ArtifactJob):
 
 # Keep the keys of this map in sync with the |mach artifact| --job
 # options.  The keys of this map correspond to entries at
-# https://tools.taskcluster.net/index/artifacts/#goanna.v2.mozilla-central.latest/goanna.v2.mozilla-central.latest
+# https://tools.taskcluster.net/index/artifacts/#gecko.v2.mozilla-central.latest/gecko.v2.mozilla-central.latest
 # The values correpsond to a pair of (<package regex>, <test archive regex>).
 JOB_DETAILS = {
     'android-api-15-opt': (AndroidArtifactJob, (r'(public/build/fennec-(.*)\.android-arm.apk|public/build/target\.apk)',
@@ -637,7 +637,7 @@ class TaskCache(CacheManager):
         # 'mozilla-inbound'
         tree = tree.split('/')[1] if '/' in tree else tree
 
-        namespace = 'goanna.v2.{tree}.revision.{rev}.{product}.{job}'.format(
+        namespace = 'gecko.v2.{tree}.revision.{rev}.{product}.{job}'.format(
             rev=rev,
             tree=tree,
             product=artifact_job.product,

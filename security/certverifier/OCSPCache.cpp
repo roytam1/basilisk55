@@ -305,7 +305,7 @@ OCSPCache::Put(const CertID& aCertID,
 
   Entry* newEntry = new (std::nothrow) Entry(aResult, aThisUpdate,
                                              aValidThrough);
-  // Normally we don't have to do this in Goanna, because OOM is fatal.
+  // Normally we don't have to do this in Gecko, because OOM is fatal.
   // However, if we want to embed this in another project, OOM might not
   // be fatal, so handle this case.
   if (!newEntry) {

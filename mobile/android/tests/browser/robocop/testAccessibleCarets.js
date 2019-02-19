@@ -158,7 +158,7 @@ add_task(function* testAccessibleCarets() {
   let BrowserApp = gChromeWin.BrowserApp;
   yield do_promiseTabChangeEvent(BrowserApp.selectedTab.id, TAB_STOP_EVENT);
 
-  // Ensure Goanna Selection and Touch carets are enabled.
+  // Ensure Gecko Selection and Touch carets are enabled.
   Services.prefs.setBoolPref(ACCESSIBLECARET_PREF, true);
 
   // Load test page, wait for load completion, register cleanup.

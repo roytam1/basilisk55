@@ -128,7 +128,7 @@ add_task(function*() {
     version: "1.0",
     manifest_version: 2,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     }
@@ -193,7 +193,7 @@ add_task(function*() {
     name: "Web Extension Name",
     manifest_version: 2,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     }
@@ -217,7 +217,7 @@ add_task(function*() {
     version: "1.0",
     manifest_version: 1,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     }
@@ -264,7 +264,7 @@ add_task(function* test_options_ui() {
   const extensionId = "webextension@tests.mozilla.org";
   yield promiseInstallWebExtension({
     manifest: {
-      applications: {gecko: {id: extensionId}},
+      applications: {goanna: {id: extensionId}},
       "options_ui": {
         "page": "options.html",
       },
@@ -283,7 +283,7 @@ add_task(function* test_options_ui() {
   const ID2 = "webextension2@tests.mozilla.org";
   yield promiseInstallWebExtension({
     manifest: {
-      applications: {gecko: {id: ID2}},
+      applications: {goanna: {id: ID2}},
       "options_ui": {
         "page": "options.html",
         "open_in_tab": true,
@@ -309,7 +309,7 @@ add_task(function* test_experiments_dependencies() {
 
   let addonFile = createTempWebExtensionFile({
     manifest: {
-      applications: {gecko: {id: "meh@experiment"}},
+      applications: {goanna: {id: "meh@experiment"}},
       "permissions": ["experiments.meh"],
     },
   });

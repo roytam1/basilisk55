@@ -3499,7 +3499,7 @@ XULDocument::ExecuteScript(nsXULPrototypeScript *aScript)
     nsAutoMicroTask mt;
 
     // We're about to run script via JS::CloneAndExecuteScript, so we need an
-    // AutoEntryScript. This is Goanna specific and not in any spec.
+    // AutoEntryScript. This is Gecko specific and not in any spec.
     AutoEntryScript aes(mScriptGlobalObject, "precompiled XUL <script> element");
     JSContext* cx = aes.cx();
 

@@ -10,11 +10,11 @@
 * unsigned short processType;
 * boolean isOffMainThread;
 
-The `processType` a GoannaProcessType enum listed in xpcom/build/nsXULAppAPI.h,
+The `processType` a GeckoProcessType enum listed in xpcom/build/nsXULAppAPI.h,
 specifying if this marker originates in a content, chrome, plugin etc. process.
 Additionally, markers may be created from any thread on those processes, and
 `isOffMainThread` highights whether or not they're from the main thread. The most
-common type of marker is probably going to be from a GoannaProcessType_Content's
+common type of marker is probably going to be from a GeckoProcessType_Content's
 main thread when debugging content.
 
 ## DOMEvent
@@ -39,7 +39,7 @@ elements. Fired via `PresShell::DoReflow`
 
 ## Styles
 
-Style markers (labeled as "Recalculating Styles") are triggered when Goanna
+Style markers (labeled as "Recalculating Styles") are triggered when Gecko
 needs to figure out the computational style of an element. Fired via
 `RestyleTracker::DoProcessRestyles` when there are elements to restyle.
 
@@ -82,7 +82,7 @@ a setTimeout.
 
   There are also many more potential JS causes, some which are just internally
   used and won't emit a marker, but the below ones are only of interest to
-  Goanna hackers, most likely
+  Gecko hackers, most likely
 
   * "promise thenable"
   * "worker runnable"
@@ -181,7 +181,7 @@ serializing/deserializing data off the main thread.
 
 Composite markers trace the actual time an inner composite operation
 took on the compositor thread. Currently, these markers are only especially
-interesting for Goanna platform developers, and thus disabled by default.
+interesting for Gecko platform developers, and thus disabled by default.
 
 ## CompositeForwardTransaction
 

@@ -36,7 +36,7 @@ exports.ProfilerFront = FrontClassWithSpec(profilerSpec, {
   /**
    * If using the protocol.js Fronts, then make stringify default,
    * since the read/write mechanisms will expose it as an object anyway, but
-   * this lets other consumers who connect directly (xpcshell tests, Goanna Profiler) to
+   * this lets other consumers who connect directly (xpcshell tests, Gecko Profiler) to
    * have unchanged behaviour.
    */
   getProfile: custom(function (options) {
@@ -56,13 +56,13 @@ exports.ProfilerFront = FrontClassWithSpec(profilerSpec, {
     data.relayed = true;
 
     if (eventName === "eventNotification") {
-      // If this is `eventNotification`, this is coming from an older Goanna (<Fx42)
+      // If this is `eventNotification`, this is coming from an older Gecko (<Fx42)
       // that doesn't use protocol.js style events. Massage it to emit a protocol.js
       // style event as well.
       events.emit(this, data.topic, data);
     } else {
       // Otherwise if a modern protocol.js event, emit it also as `eventNotification`
-      // for compatibility reasons on the client (like for any add-ons/Goanna Profiler
+      // for compatibility reasons on the client (like for any add-ons/Gecko Profiler
       // using this event) and log a deprecation message if there is a listener.
       this.conn.emit("eventNotification", {
         subject: data.subject,

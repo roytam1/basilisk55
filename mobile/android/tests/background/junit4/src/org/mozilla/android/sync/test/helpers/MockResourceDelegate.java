@@ -7,11 +7,11 @@ import ch.boye.httpclientandroidlib.HttpResponse;
 import ch.boye.httpclientandroidlib.client.ClientProtocolException;
 import ch.boye.httpclientandroidlib.client.methods.HttpRequestBase;
 import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.net.AuthHeaderProvider;
-import org.mozilla.goanna.sync.net.BaseResource;
-import org.mozilla.goanna.sync.net.BasicAuthHeaderProvider;
-import org.mozilla.goanna.sync.net.ResourceDelegate;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.net.AuthHeaderProvider;
+import org.mozilla.gecko.sync.net.BaseResource;
+import org.mozilla.gecko.sync.net.BasicAuthHeaderProvider;
+import org.mozilla.gecko.sync.net.ResourceDelegate;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

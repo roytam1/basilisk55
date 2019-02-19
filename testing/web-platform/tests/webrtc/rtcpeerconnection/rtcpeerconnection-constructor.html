@@ -55,7 +55,7 @@ const testArgs = {
   '{ iceServers: [{ urls: [], credentialType: "password" }] }': false,
   '{ iceServers: [{ urls: [], credentialType: "token" }] }': false,
   '{ iceServers: [{ urls: [], credentialType: "invalid" }] }': new TypeError,
-  // Blink and Goanna fall back to url, but it's not in the spec.
+  // Blink and Gecko fall back to url, but it's not in the spec.
   '{ iceServers: [{ url: "stun:stun1.example.net" }] }': new TypeError,
 
   // iceTransportPolicy
@@ -64,7 +64,7 @@ const testArgs = {
   '{ iceTransportPolicy: "relay" }': false,
   '{ iceTransportPolicy: "all" }': false,
   '{ iceTransportPolicy: "invalid" }': new TypeError,
-  // "none" is in Blink and Goanna's IDL, but not in the spec.
+  // "none" is in Blink and Gecko's IDL, but not in the spec.
   '{ iceTransportPolicy: "none" }': new TypeError,
   // iceTransportPolicy is called iceTransports in Blink.
   '{ iceTransports: "invalid" }': false,

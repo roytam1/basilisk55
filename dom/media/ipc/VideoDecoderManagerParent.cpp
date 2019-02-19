@@ -128,7 +128,7 @@ VideoDecoderManagerParent::OnManagerThread()
 bool
 VideoDecoderManagerParent::CreateForContent(Endpoint<PVideoDecoderManagerParent>&& aEndpoint)
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_GPU);
   MOZ_ASSERT(NS_IsMainThread());
 
   StartupThreads();

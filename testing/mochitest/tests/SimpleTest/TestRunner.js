@@ -212,7 +212,7 @@ TestRunner.generateFailureList = function () {
  * If logEnabled is true, this is the logger that will be used.
  **/
 
-// This delimiter is used to avoid interleaving Mochitest/Goanna logs.
+// This delimiter is used to avoid interleaving Mochitest/Gecko logs.
 var LOG_DELIMITER = String.fromCharCode(0xe175) + String.fromCharCode(0xee31) + String.fromCharCode(0x2c32) + String.fromCharCode(0xacbf);
 
 // A log callback for StructuredLog.jsm

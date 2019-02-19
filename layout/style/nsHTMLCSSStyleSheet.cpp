@@ -69,20 +69,20 @@ nsHTMLCSSStyleSheet::ElementRulesMatching(nsPresContext* aPresContext,
   DeclarationBlock* declaration = aElement->GetInlineStyleDeclaration();
   if (declaration) {
     declaration->SetImmutable();
-    aRuleWalker->Forward(declaration->AsGoanna());
+    aRuleWalker->Forward(declaration->AsGecko());
   }
 
   declaration = aElement->GetSMILOverrideStyleDeclaration();
   if (declaration) {
-    MOZ_ASSERT(aPresContext->RestyleManager()->IsGoanna(),
+    MOZ_ASSERT(aPresContext->RestyleManager()->IsGecko(),
                "stylo: ElementRulesMatching must not be called when we have "
                "a Servo-backed style system");
-    RestyleManager* restyleManager = aPresContext->RestyleManager()->AsGoanna();
+    RestyleManager* restyleManager = aPresContext->RestyleManager()->AsGecko();
     if (!restyleManager->SkipAnimationRules()) {
       // Animation restyle (or non-restyle traversal of rules)
       // Now we can walk SMIL overrride style, without triggering transitions.
       declaration->SetImmutable();
-      aRuleWalker->Forward(declaration->AsGoanna());
+      aRuleWalker->Forward(declaration->AsGecko());
     }
   }
 }
@@ -101,7 +101,7 @@ nsHTMLCSSStyleSheet::PseudoElementRulesMatching(Element* aPseudoElement,
   DeclarationBlock* declaration = aPseudoElement->GetInlineStyleDeclaration();
   if (declaration) {
     declaration->SetImmutable();
-    aRuleWalker->Forward(declaration->AsGoanna());
+    aRuleWalker->Forward(declaration->AsGecko());
   }
 }
 

@@ -43,7 +43,7 @@
 #include "mozilla/GenericRefCounted.h"
 #include "mozilla/WeakPtr.h"
 #include "gfx2DGlue.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 class nsIWidget;
 

@@ -12,7 +12,7 @@
 #include "mozilla/layers/CompositorThread.h"
 
 #ifdef MOZ_ENABLE_PROFILER_SPS
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "ProfilerMarkers.h"
 #endif
 

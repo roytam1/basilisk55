@@ -260,7 +260,7 @@ OnStatsReport_m(WebrtcGlobalChild* aThisChild,
     return;
   }
 
-  // This is the last stats report to be collected. (Must be the goanna process).
+  // This is the last stats report to be collected. (Must be the gecko process).
   MOZ_ASSERT(XRE_IsParentProcess());
 
   StatsRequest* request = StatsRequest::Get(aRequestId);
@@ -331,7 +331,7 @@ static void OnGetLogging_m(WebrtcGlobalChild* aThisChild,
     return;
   }
 
-  // This is the last log to be collected. (Must be the goanna process).
+  // This is the last log to be collected. (Must be the gecko process).
   MOZ_ASSERT(XRE_IsParentProcess());
 
   LogRequest* request = LogRequest::Get(aRequestId);
@@ -776,7 +776,7 @@ WebrtcGlobalParent::RecvGetLogResult(const int& aRequestId,
   nsresult rv = RunLogQuery(request->mPattern, nullptr, aRequestId);
 
   if (NS_FAILED(rv)) {
-    //Unable to get goanna process log. Return what has been collected.
+    //Unable to get gecko process log. Return what has been collected.
     CSFLogError(logTag, "Unable to extract chrome process log");
     request->Complete();
     LogRequest::Delete(aRequestId);

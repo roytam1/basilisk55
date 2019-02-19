@@ -174,13 +174,13 @@ class WebPlatformTestsCreator(MozbuildObject):
         if self.rel_url(path) is None:
             print("""Test path %s is not in wpt directories:
 testing/web-platform/tests for tests that may be shared
-testing/web-platform/mozilla/tests for Goanna-only tests""" % path)
+testing/web-platform/mozilla/tests for Gecko-only tests""" % path)
             return 1
 
         if ref_path and self.rel_url(ref_path) is None:
             print("""Reference path %s is not in wpt directories:
 testing/web-platform/tests for tests that may be shared
-            testing/web-platform/mozilla/tests for Goanna-only tests""" % ref_path)
+            testing/web-platform/mozilla/tests for Gecko-only tests""" % ref_path)
             return 1
 
 

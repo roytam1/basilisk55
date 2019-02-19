@@ -584,7 +584,7 @@ FetchDriver::OnStartRequest(nsIRequest* aRequest,
   // Propagate any tainting from the channel back to our response here.  This
   // step is not reflected in the spec because the spec is written such that
   // FetchEvent.respondWith() just passes the already-tainted Response back to
-  // the outer fetch().  In goanna, however, we serialize the Response through
+  // the outer fetch().  In gecko, however, we serialize the Response through
   // the channel and must regenerate the tainting from the channel in the
   // interception case.
   mRequest->MaybeIncreaseResponseTainting(loadInfo->GetTainting());

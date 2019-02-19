@@ -13,7 +13,7 @@
               android:layout_height="wrap_content"
               android:layout="@layout/home_suggestion_prompt" />
 
-    <view class="org.mozilla.goanna.home.BrowserSearch$HomeSearchListView"
+    <view class="org.mozilla.gecko.home.BrowserSearch$HomeSearchListView"
             android:id="@+id/home_list_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -21,7 +21,7 @@
 
     <!-- listSelector is too slow for showing pressed state
          so we set the pressed colors on the child. -->
-    <org.mozilla.goanna.home.SearchEngineBar
+    <org.mozilla.gecko.home.SearchEngineBar
           android:id="@+id/search_engine_bar"
           android:layout_width="match_parent"
           android:layout_height="48dp"

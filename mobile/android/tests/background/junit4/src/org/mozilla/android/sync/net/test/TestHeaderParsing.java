@@ -5,8 +5,8 @@ package org.mozilla.android.sync.net.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.Utils;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.Utils;
 
 import static org.junit.Assert.assertEquals;
 

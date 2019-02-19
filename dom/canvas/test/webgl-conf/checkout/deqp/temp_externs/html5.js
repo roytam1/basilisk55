@@ -1129,7 +1129,7 @@ HTMLElement.prototype.dropzone;
  * @nosideeffects
  */
 HTMLElement.prototype.getElementsByClassName = function(classNames) {};
-// NOTE: Document.prototype.getElementsByClassName is in goanna_dom.js
+// NOTE: Document.prototype.getElementsByClassName is in gecko_dom.js
 
 /** @type {boolean} */
 HTMLElement.prototype.hidden;

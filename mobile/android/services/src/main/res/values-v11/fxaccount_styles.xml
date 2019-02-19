@@ -12,9 +12,9 @@
          <item name="android:displayOptions">showHome|homeAsUp|showTitle</item>
     </style>
 
-    <style name="FxAccountTheme" parent="Goanna.Preferences" />
+    <style name="FxAccountTheme" parent="Gecko.Preferences" />
 
-    <style name="FxAccountTheme.FxAccountStatusActivity" parent="Goanna.Preferences">
+    <style name="FxAccountTheme.FxAccountStatusActivity" parent="Gecko.Preferences">
          <item name="android:actionBarStyle">@style/ActionBar.FxAccountStatusActivity</item>
     </style>
 

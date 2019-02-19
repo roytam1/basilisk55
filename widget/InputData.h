@@ -487,7 +487,7 @@ public:
     TAPGESTURE_UP,
     TAPGESTURE_CONFIRMED,
     TAPGESTURE_DOUBLE,
-    TAPGESTURE_SECOND, // See GoannaContentController::TapType::eSecondTap
+    TAPGESTURE_SECOND, // See GeckoContentController::TapType::eSecondTap
     TAPGESTURE_CANCEL,
 
     // Used as an upper bound for ContiguousEnumSerializer
@@ -535,7 +535,7 @@ public:
     // Warning, this enum is serialized and sent over IPC. If you reorder, add,
     // or remove a value, you need to update its ParamTraits<> in nsGUIEventIPC.h
 
-    // There are three kinds of scroll delta modes in Goanna: "page", "line" and
+    // There are three kinds of scroll delta modes in Gecko: "page", "line" and
     // "pixel".
     SCROLLDELTA_LINE,
     SCROLLDELTA_PAGE,

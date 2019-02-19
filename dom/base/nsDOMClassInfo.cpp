@@ -1772,7 +1772,7 @@ nsWindowSH::GlobalResolve(nsGlobalWindow *aWin, JSContext *cx,
 }
 
 struct InterfaceShimEntry {
-  const char *goannaName;
+  const char *geckoName;
   const char *domName;
 };
 
@@ -1834,7 +1834,7 @@ LookupComponentsShim(JSContext *cx, JS::Handle<JSObject*> global,
   for (uint32_t i = 0; i < ArrayLength(kInterfaceShimMap); ++i) {
 
     // Grab the names from the table.
-    const char *goannaName = kInterfaceShimMap[i].goannaName;
+    const char *geckoName = kInterfaceShimMap[i].geckoName;
     const char *domName = kInterfaceShimMap[i].domName;
 
     // Look up the appopriate interface object on the global.
@@ -1847,7 +1847,7 @@ LookupComponentsShim(JSContext *cx, JS::Handle<JSObject*> global,
     }
 
     // Define the shim on the interfaces object.
-    ok = JS_DefineProperty(cx, interfaces, goannaName, v,
+    ok = JS_DefineProperty(cx, interfaces, geckoName, v,
                            JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY,
                            JS_STUBGETTER, JS_STUBSETTER);
     NS_ENSURE_TRUE(ok, NS_ERROR_OUT_OF_MEMORY);

@@ -246,7 +246,7 @@ TCPSocket::InitWithUnconnectedTransport(nsISocketTransport* aTransport)
   mReadyState = TCPReadyState::Connecting;
   mTransport = aTransport;
 
-  MOZ_ASSERT(XRE_GetProcessType() != GoannaProcessType_Content);
+  MOZ_ASSERT(XRE_GetProcessType() != GeckoProcessType_Content);
 
   nsCOMPtr<nsIThread> mainThread;
   NS_GetMainThread(getter_AddRefs(mainThread));
@@ -268,7 +268,7 @@ TCPSocket::Init()
     obs->AddObserver(this, "profile-change-net-teardown", true); // weak ref
   }
 
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     mReadyState = TCPReadyState::Connecting;
     mSocketBridgeChild = new TCPSocketChild(mHost, mPort);
     mSocketBridgeChild->SendOpen(this, mSsl, mUseArrayBuffers);

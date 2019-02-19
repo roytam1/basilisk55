@@ -15,7 +15,7 @@
 # limitations under the License.
 
 EXPORTS += [
-    'GoannaTouchDispatcher.h',
+    'GeckoTouchDispatcher.h',
     'GonkPermission.h',
     'OrientationObserver.h',
 ]
@@ -52,7 +52,7 @@ if CONFIG['ANDROID_VERSION'] >= '17':
     ]
 
 SOURCES += [
-    'GoannaTouchDispatcher.cpp',
+    'GeckoTouchDispatcher.cpp',
     'GfxInfo.cpp',
     'GonkClipboardData.cpp',
     'GonkMemoryPressureMonitoring.cpp',

@@ -172,7 +172,7 @@ protected:
     uint8_t* mMappedBuffer;
     // If we're using a BasicCompositor, this is our window back
     // buffer.  The gralloc framebuffer driver expects us to draw the
-    // entire framebuffer on every frame, but goanna expects the
+    // entire framebuffer on every frame, but gecko expects the
     // windowing system to be tracking buffer updates for invalidated
     // regions.  We get stuck holding that bag.
     //

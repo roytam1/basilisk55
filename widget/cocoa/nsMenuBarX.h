@@ -44,7 +44,7 @@ protected:
 
 // Objective-C class used to allow us to intervene with keyboard event handling.
 // We allow mouse actions to work normally.
-@interface GoannaNSMenu : NSMenu
+@interface GeckoNSMenu : NSMenu
 {
 }
 @end
@@ -56,10 +56,10 @@ protected:
 -(IBAction)menuItemHit:(id)sender;
 @end
 
-// Objective-C class used for menu items on the Services menu to allow Goanna
+// Objective-C class used for menu items on the Services menu to allow Gecko
 // to override their standard behavior in order to stop key equivalents from
 // firing in certain instances.
-@interface GoannaServicesNSMenuItem : NSMenuItem
+@interface GeckoServicesNSMenuItem : NSMenuItem
 {
 }
 - (id) target;
@@ -67,10 +67,10 @@ protected:
 - (void) _doNothing:(id)sender;
 @end
 
-// Objective-C class used as the Services menu so that Goanna can override the
+// Objective-C class used as the Services menu so that Gecko can override the
 // standard behavior of the Services menu in order to stop key equivalents
 // from firing in certain instances.
-@interface GoannaServicesNSMenu : NSMenu
+@interface GeckoServicesNSMenu : NSMenu
 {
 }
 - (void)addItem:(NSMenuItem *)newItem;
@@ -89,7 +89,7 @@ public:
   virtual ~nsMenuBarX();
 
   static NativeMenuItemTarget* sNativeEventTarget;
-  static nsMenuBarX*           sLastGoannaMenuBarPainted;
+  static nsMenuBarX*           sLastGeckoMenuBarPainted;
 
   // The following content nodes have been removed from the menu system.
   // We save them here for use in command handling.
@@ -133,7 +133,7 @@ protected:
 
   nsTArray<mozilla::UniquePtr<nsMenuX>> mMenuArray;
   nsIWidget*         mParentWindow;        // [weak]
-  GoannaNSMenu*       mNativeMenu;            // root menu, representing entire menu bar
+  GeckoNSMenu*       mNativeMenu;            // root menu, representing entire menu bar
   bool               mNeedsRebuild;
   ApplicationMenuDelegate* mApplicationMenuDelegate;
 };

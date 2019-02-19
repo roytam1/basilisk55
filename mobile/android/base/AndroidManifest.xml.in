@@ -43,12 +43,12 @@
 #ifdef MOZ_NATIVE_DEVICES
         <!-- This resources comes from Google Play Services. Required for casting support. -->
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
-        <service android:name="org.mozilla.goanna.RemotePresentationService" android:exported="false"/>
+        <service android:name="org.mozilla.gecko.RemotePresentationService" android:exported="false"/>
 
 #endif
 
         <!-- This activity handles all incoming Intents and dispatches them to other activities. -->
-        <activity android:name="org.mozilla.goanna.LauncherActivity"
+        <activity android:name="org.mozilla.gecko.LauncherActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:relinquishTaskIdentity="true"
             android:taskAffinity=""
@@ -58,7 +58,7 @@
              org.mozilla.{fennec,firefox,firefox_beta}.  The internal Java
              package hierarchy inside the Android package used to have an
              org.mozilla.{fennec,firefox,firefox_beta} subtree *and* an
-             org.mozilla.goanna subtree; it now only has org.mozilla.goanna. -->
+             org.mozilla.gecko subtree; it now only has org.mozilla.gecko. -->
         <activity android:name="@MOZ_ANDROID_BROWSER_INTENT_CLASS@"
                   android:label="@string/moz_app_displayname"
                   android:taskAffinity="@ANDROID_PACKAGE_NAME@.BROWSER"
@@ -67,14 +67,14 @@
                   android:windowSoftInputMode="stateUnspecified|adjustResize"
                   android:launchMode="singleTask"
                   android:exported="true"
-                  android:theme="@style/Goanna.App" />
+                  android:theme="@style/Gecko.App" />
 
         <!-- Bug 1256615 / Bug 1268455: We published an .App alias and we need to maintain it
              forever.  If we don't, home screen shortcuts will disappear because the intent
              filter details change. -->
         <activity-alias android:name=".App"
                         android:label="@MOZ_APP_DISPLAYNAME@"
-                        android:targetActivity="org.mozilla.goanna.LauncherActivity">
+                        android:targetActivity="org.mozilla.gecko.LauncherActivity">
 
             <!-- android:priority ranges between -1000 and 1000.  We never want
                  another activity to usurp the MAIN action, so we ratchet our
@@ -115,16 +115,16 @@
                        android:resource="@drawable/icon" />
 
             <intent-filter>
-                <action android:name="org.mozilla.goanna.ACTION_ALERT_CALLBACK" />
+                <action android:name="org.mozilla.gecko.ACTION_ALERT_CALLBACK" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="org.mozilla.goanna.GUEST_SESSION_INPROGRESS" />
+                <action android:name="org.mozilla.gecko.GUEST_SESSION_INPROGRESS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="org.mozilla.goanna.UPDATE"/>
+                <action android:name="org.mozilla.gecko.UPDATE"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -167,35 +167,35 @@
 
             <!-- For debugging -->
             <intent-filter>
-                <action android:name="org.mozilla.goanna.DEBUG" />
+                <action android:name="org.mozilla.gecko.DEBUG" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
 
-        <service android:name="org.mozilla.goanna.GoannaService" />
+        <service android:name="org.mozilla.gecko.GeckoService" />
 
-        <activity android:name="org.mozilla.goanna.trackingprotection.TrackingProtectionPrompt"
+        <activity android:name="org.mozilla.gecko.trackingprotection.TrackingProtectionPrompt"
                   android:launchMode="singleTop"
                   android:theme="@style/OverlayActivity" />
 
-        <activity android:name="org.mozilla.goanna.promotion.SimpleHelperUI"
+        <activity android:name="org.mozilla.gecko.promotion.SimpleHelperUI"
                   android:launchMode="singleTop"
                   android:theme="@style/OverlayActivity" />
 
-        <activity android:name="org.mozilla.goanna.promotion.HomeScreenPrompt"
+        <activity android:name="org.mozilla.gecko.promotion.HomeScreenPrompt"
                   android:launchMode="singleTop"
                   android:theme="@style/OverlayActivity" />
 
         <!-- The main reason for the Tab Queue build flag is to not mess with the VIEW intent filter
              before the rest of the plumbing is in place -->
 
-        <service android:name="org.mozilla.goanna.tabqueue.TabQueueService" />
+        <service android:name="org.mozilla.gecko.tabqueue.TabQueueService" />
 
-        <activity android:name="org.mozilla.goanna.tabqueue.TabQueuePrompt"
+        <activity android:name="org.mozilla.gecko.tabqueue.TabQueuePrompt"
                   android:launchMode="singleTop"
                   android:theme="@style/OverlayActivity" />
 
-        <receiver android:name="org.mozilla.goanna.restrictions.RestrictionProvider">
+        <receiver android:name="org.mozilla.gecko.restrictions.RestrictionProvider">
           <intent-filter>
             <action android:name="android.intent.action.GET_RESTRICTION_ENTRIES" />
           </intent-filter>
@@ -207,47 +207,47 @@
             android:targetActivity="@MOZ_ANDROID_BROWSER_INTENT_CLASS@"
             android:exported="true" />
 
-        <receiver android:name="org.mozilla.goanna.GoannaUpdateReceiver">
+        <receiver android:name="org.mozilla.gecko.GeckoUpdateReceiver">
             <intent-filter>
                 <action android:name="@ANDROID_PACKAGE_NAME@.CHECK_UPDATE_RESULT" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.mozilla.goanna.GoannaMessageReceiver"
+        <receiver android:name="org.mozilla.gecko.GeckoMessageReceiver"
                   android:exported="false">
         </receiver>
 
         <!-- Catch install referrer so we can do post-install work. -->
-        <receiver android:name="org.mozilla.goanna.distribution.ReferrerReceiver"
+        <receiver android:name="org.mozilla.gecko.distribution.ReferrerReceiver"
                   android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
 
-        <service android:name="org.mozilla.goanna.Restarter"
+        <service android:name="org.mozilla.gecko.Restarter"
                  android:exported="false"
                  android:process="@MANGLED_ANDROID_PACKAGE_NAME@.Restarter">
         </service>
 
-        <service android:name="org.mozilla.goanna.media.MediaControlService"
+        <service android:name="org.mozilla.gecko.media.MediaControlService"
                  android:exported="false">
         </service>
 
-        <receiver android:name="org.mozilla.goanna.AlarmReceiver" >
+        <receiver android:name="org.mozilla.gecko.AlarmReceiver" >
         </receiver>
 
         <receiver
-            android:name="org.mozilla.goanna.notifications.WhatsNewReceiver"
+            android:name="org.mozilla.gecko.notifications.WhatsNewReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <data android:scheme="package" android:path="org.mozilla.goanna" />
+                <data android:scheme="package" android:path="org.mozilla.gecko" />
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name="org.mozilla.goanna.notifications.NotificationReceiver"
+            android:name="org.mozilla.gecko.notifications.NotificationReceiver"
             android:exported="false">
             <!-- Notification API V2 -->
             <intent-filter>
@@ -264,16 +264,16 @@
 #include ../search/manifests/SearchAndroidManifest_activities.xml.in
 #endif
 
-        <activity android:name="org.mozilla.goanna.preferences.GoannaPreferences"
-                  android:theme="@style/Goanna.Preferences"
+        <activity android:name="org.mozilla.gecko.preferences.GeckoPreferences"
+                  android:theme="@style/Gecko.Preferences"
                   android:configChanges="orientation|screenSize|locale|layoutDirection"
                   android:excludeFromRecents="true"/>
 
-        <provider android:name="org.mozilla.goanna.db.BrowserProvider"
+        <provider android:name="org.mozilla.gecko.db.BrowserProvider"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.browser"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.distribution.PartnerBookmarksProviderProxy"
+        <provider android:name="org.mozilla.gecko.distribution.PartnerBookmarksProviderProxy"
                   android:authorities="@ANDROID_PACKAGE_NAME@.partnerbookmarks"
                   android:exported="false"/>
 
@@ -281,7 +281,7 @@
 
              Setting launchMode="singleTop" ensures onNewIntent is called when the Activity is
              reused. Ideally we create a new instance but Android L breaks this (bug 1137928). -->
-        <activity android:name="org.mozilla.goanna.overlays.ui.ShareDialog"
+        <activity android:name="org.mozilla.gecko.overlays.ui.ShareDialog"
                   android:label="@string/overlay_share_label"
                   android:theme="@style/OverlayActivity"
                   android:configChanges="keyboard|keyboardHidden|mcc|mnc|locale|layoutDirection"
@@ -297,12 +297,12 @@
         </activity>
 
 #ifdef MOZ_ANDROID_CUSTOM_TABS
-        <activity android:name="org.mozilla.goanna.customtabs.CustomTabsActivity"
+        <activity android:name="org.mozilla.gecko.customtabs.CustomTabsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 #endif
 
         <!-- Service to handle requests from overlays. -->
-        <service android:name="org.mozilla.goanna.overlays.service.OverlayActionService" />
+        <service android:name="org.mozilla.gecko.overlays.service.OverlayActionService" />
 
         <!--
           Ensure that passwords provider runs in its own process. (Bug 718760.)
@@ -310,72 +310,72 @@
           Fennec versions into the same process. (Bug 749727.)
           Process name is a mangled version to avoid a Talos bug. (Bug 750548.)
           -->
-        <provider android:name="org.mozilla.goanna.db.PasswordsProvider"
+        <provider android:name="org.mozilla.gecko.db.PasswordsProvider"
                   android:label="@string/sync_configure_engines_title_passwords"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.passwords"
                   android:exported="false"
                   android:process="@MANGLED_ANDROID_PACKAGE_NAME@.PasswordsProvider"/>
 
-        <provider android:name="org.mozilla.goanna.db.LoginsProvider"
+        <provider android:name="org.mozilla.gecko.db.LoginsProvider"
                   android:label="@string/sync_configure_engines_title_passwords"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.logins"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.db.FormHistoryProvider"
+        <provider android:name="org.mozilla.gecko.db.FormHistoryProvider"
                   android:label="@string/sync_configure_engines_title_history"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.formhistory"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.GoannaProfilesProvider"
+        <provider android:name="org.mozilla.gecko.GeckoProfilesProvider"
                   android:authorities="@ANDROID_PACKAGE_NAME@.profiles"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.db.TabsProvider"
+        <provider android:name="org.mozilla.gecko.db.TabsProvider"
                   android:label="@string/sync_configure_engines_title_tabs"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.tabs"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.db.HomeProvider"
+        <provider android:name="org.mozilla.gecko.db.HomeProvider"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.home"
                   android:exported="false"/>
 
-        <provider android:name="org.mozilla.goanna.db.SearchHistoryProvider"
+        <provider android:name="org.mozilla.gecko.db.SearchHistoryProvider"
                   android:authorities="@ANDROID_PACKAGE_NAME@.db.searchhistory"
                   android:exported="false"/>
 
         <service
             android:exported="false"
-            android:name="org.mozilla.goanna.updater.UpdateService"
+            android:name="org.mozilla.gecko.updater.UpdateService"
             android:process="@MANGLED_ANDROID_PACKAGE_NAME@.UpdateService">
         </service>
 
         <service
             android:exported="false"
-            android:name="org.mozilla.goanna.notifications.NotificationService">
+            android:name="org.mozilla.gecko.notifications.NotificationService">
         </service>
 
         <service
             android:exported="false"
-            android:name="org.mozilla.goanna.dlc.DownloadContentService">
+            android:name="org.mozilla.gecko.dlc.DownloadContentService">
         </service>
 
         <service
             android:exported="false"
-            android:name="org.mozilla.goanna.feeds.FeedService">
+            android:name="org.mozilla.gecko.feeds.FeedService">
         </service>
 
         <!-- DON'T EXPORT THIS, please! An attacker could delete arbitrary files. -->
         <service
             android:exported="false"
-            android:name="org.mozilla.goanna.cleanup.FileCleanupService">
+            android:name="org.mozilla.gecko.cleanup.FileCleanupService">
         </service>
 
         <receiver
-            android:name="org.mozilla.goanna.feeds.FeedAlarmReceiver"
+            android:name="org.mozilla.gecko.feeds.FeedAlarmReceiver"
             android:exported="false" />
 
         <receiver
-            android:name="org.mozilla.goanna.BootReceiver"
+            android:name="org.mozilla.gecko.BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"></action>
@@ -383,7 +383,7 @@
         </receiver>
 
         <receiver
-            android:name="org.mozilla.goanna.PackageReplacedReceiver"
+            android:name="org.mozilla.gecko.PackageReplacedReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"></action>
@@ -391,12 +391,12 @@
         </receiver>
 
         <service
-          android:name="org.mozilla.goanna.telemetry.TelemetryUploadService"
+          android:name="org.mozilla.gecko.telemetry.TelemetryUploadService"
           android:exported="false"/>
 
 #ifdef MOZ_ANDROID_CUSTOM_TABS
         <service
-            android:name="org.mozilla.goanna.customtabs.GoannaCustomTabsService"
+            android:name="org.mozilla.gecko.customtabs.GeckoCustomTabsService"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.support.customtabs.action.CustomTabsService" />
@@ -407,7 +407,7 @@
 #include ../services/manifests/FxAccountAndroidManifest_services.xml.in
 
         <service
-            android:name="org.mozilla.goanna.tabqueue.TabReceivedService"
+            android:name="org.mozilla.gecko.tabqueue.TabReceivedService"
             android:exported="false" />
 
 
@@ -423,24 +423,24 @@
 #endif
 
         <service
-            android:name="org.mozilla.goanna.media.MediaManager"
+            android:name="org.mozilla.gecko.media.MediaManager"
             android:enabled="true"
             android:exported="false"
             android:process=":media"
             android:isolatedProcess="false">
         </service>
 
-        <!-- New child services must also be added to the GoannaView AndroidManifest.xml -->
+        <!-- New child services must also be added to the GeckoView AndroidManifest.xml -->
         <service
-            android:name="org.mozilla.goanna.process.GoannaServiceChildProcess$goannamediaplugin"
+            android:name="org.mozilla.gecko.process.GeckoServiceChildProcess$geckomediaplugin"
             android:enabled="true"
             android:exported="false"
-            android:process=":goannamediaplugin"
+            android:process=":geckomediaplugin"
             android:isolatedProcess="false">
         </service>
 
         <service
-            android:name="org.mozilla.goanna.process.GoannaServiceChildProcess$tab"
+            android:name="org.mozilla.gecko.process.GeckoServiceChildProcess$tab"
             android:enabled="true"
             android:exported="false"
             android:process=":tab"

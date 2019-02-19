@@ -34,7 +34,7 @@
 #include <stack>
 #include "TextRenderer.h"               // for TextRenderer
 #include <vector>
-#include "GoannaProfiler.h"              // for GoannaProfiler
+#include "GeckoProfiler.h"              // for GeckoProfiler
 #ifdef MOZ_ENABLE_PROFILER_SPS
 #include "ProfilerMarkers.h"            // for ProfilerMarkers
 #endif

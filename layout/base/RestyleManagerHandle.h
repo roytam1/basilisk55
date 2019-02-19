@@ -50,7 +50,7 @@ public:
   public:
     friend class ::mozilla::RestyleManagerHandle;
 
-    bool IsGoanna() const { return !IsServo(); }
+    bool IsGecko() const { return !IsServo(); }
     bool IsServo() const
     {
       MOZ_ASSERT(mValue, "RestyleManagerHandle null pointer dereference");
@@ -63,13 +63,13 @@ public:
 
     StyleBackendType BackendType() const
     {
-      return IsGoanna() ? StyleBackendType::Goanna :
+      return IsGecko() ? StyleBackendType::Gecko :
                          StyleBackendType::Servo;
     }
 
-    RestyleManager* AsGoanna()
+    RestyleManager* AsGecko()
     {
-      MOZ_ASSERT(IsGoanna());
+      MOZ_ASSERT(IsGecko());
       return reinterpret_cast<RestyleManager*>(mValue);
     }
 
@@ -79,12 +79,12 @@ public:
       return reinterpret_cast<ServoRestyleManager*>(mValue & ~SERVO_BIT);
     }
 
-    RestyleManager* GetAsGoanna() { return IsGoanna() ? AsGoanna() : nullptr; }
+    RestyleManager* GetAsGecko() { return IsGecko() ? AsGecko() : nullptr; }
     ServoRestyleManager* GetAsServo() { return IsServo() ? AsServo() : nullptr; }
 
-    const RestyleManager* AsGoanna() const
+    const RestyleManager* AsGecko() const
     {
-      return const_cast<Ptr*>(this)->AsGoanna();
+      return const_cast<Ptr*>(this)->AsGecko();
     }
 
     const ServoRestyleManager* AsServo() const
@@ -93,7 +93,7 @@ public:
       return const_cast<Ptr*>(this)->AsServo();
     }
 
-    const RestyleManager* GetAsGoanna() const { return IsGoanna() ? AsGoanna() : nullptr; }
+    const RestyleManager* GetAsGecko() const { return IsGecko() ? AsGecko() : nullptr; }
     const ServoRestyleManager* GetAsServo() const { return IsServo() ? AsServo() : nullptr; }
 
     const mozilla::RestyleManagerBase* AsBase() const {

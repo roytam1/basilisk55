@@ -117,8 +117,8 @@ def build_dict(config, env=os.environ):
                 return 'emulator'
 
             if d['bits'] == 64:
-                return 'linux64_goanna'
-            return 'linux32_goanna'
+                return 'linux64_gecko'
+            return 'linux32_gecko'
 
         if d['buildapp'] == 'mobile/android':
             if d['processor'] == 'x86':

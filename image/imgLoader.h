@@ -247,19 +247,19 @@ public:
   NS_DECL_NSIOBSERVER
 
   /**
-   * Get the normal image loader instance that is used by goanna code, creating
+   * Get the normal image loader instance that is used by gecko code, creating
    * it if necessary.
    */
   static imgLoader* NormalLoader();
 
   /**
-   * Get the Private Browsing image loader instance that is used by goanna code,
+   * Get the Private Browsing image loader instance that is used by gecko code,
    * creating it if necessary.
    */
   static imgLoader* PrivateBrowsingLoader();
 
   /**
-   * Goanna code should use NormalLoader() or PrivateBrowsingLoader() to get the
+   * Gecko code should use NormalLoader() or PrivateBrowsingLoader() to get the
    * appropriate image loader.
    *
    * This constructor is public because the XPCOM module code that creates

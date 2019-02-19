@@ -31,7 +31,7 @@ public:
   typedef mozilla::Mutex Mutex;
 
   nsresult Init();
-  void DoProcessMoreGoannaEvents();
+  void DoProcessMoreGeckoEvents();
 
   static UINT GetTaskbarButtonCreatedMessage();
 

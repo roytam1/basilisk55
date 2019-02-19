@@ -12,7 +12,7 @@ from voluptuous import Schema, Required, Any
 from taskgraph.transforms.job import run_job_using
 from taskgraph.transforms.job.common import (
     docker_worker_add_tc_vcs_cache,
-    docker_worker_add_goanna_vcs_env_vars
+    docker_worker_add_gecko_vcs_env_vars
 )
 
 toolchain_run_schema = Schema({
@@ -46,7 +46,7 @@ def docker_worker_toolchain(config, job, taskdesc):
     })
 
     docker_worker_add_tc_vcs_cache(config, job, taskdesc)
-    docker_worker_add_goanna_vcs_env_vars(config, job, taskdesc)
+    docker_worker_add_gecko_vcs_env_vars(config, job, taskdesc)
 
     env = worker['env']
     env.update({
@@ -95,7 +95,7 @@ def windows_toolchain(config, job, taskdesc):
         'type': 'directory',
     }]
 
-    docker_worker_add_goanna_vcs_env_vars(config, job, taskdesc)
+    docker_worker_add_gecko_vcs_env_vars(config, job, taskdesc)
 
     # We fetch LLVM SVN into this.
     svn_cache = 'level-{}-toolchain-clang-cl-build-svn'.format(config.params['level'])
@@ -119,8 +119,8 @@ def windows_toolchain(config, job, taskdesc):
     hg_command.extend(['--sharebase', 'y:\\hg-shared'])
     hg_command.append('--purge')
     hg_command.extend(['--upstream', 'https://hg.mozilla.org/mozilla-unified'])
-    hg_command.extend(['--revision', '%GOANNA_HEAD_REV%'])
-    hg_command.append('%GOANNA_HEAD_REPOSITORY%')
+    hg_command.extend(['--revision', '%GECKO_HEAD_REV%'])
+    hg_command.append('%GECKO_HEAD_REPOSITORY%')
     hg_command.append('.\\build\\src')
 
     bash = r'c:\mozilla-build\msys\bin\bash'

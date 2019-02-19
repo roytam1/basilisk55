@@ -62,7 +62,7 @@ ProxyCreated(ProxyAccessible* aProxy, uint32_t)
     // will be a non-remote accessible.
     Accessible* outerDoc = aProxy->OuterDocOfRemoteBrowser();
     if (outerDoc) {
-      nativeParent = GetNativeFromGoannaAccessible(outerDoc);
+      nativeParent = GetNativeFromGeckoAccessible(outerDoc);
     }
   } else {
     // Non-top level proxies need proxy parents' children invalidated.
@@ -84,7 +84,7 @@ ProxyDestroyed(ProxyAccessible* aProxy)
     // Invalidate native parent in parent process's children on proxy destruction
     Accessible* outerDoc = aProxy->OuterDocOfRemoteBrowser();
     if (outerDoc) {
-      nativeParent = GetNativeFromGoannaAccessible(outerDoc);
+      nativeParent = GetNativeFromGeckoAccessible(outerDoc);
     }
   } else {
     if (!aProxy->Document()->IsShutdown()) {
@@ -157,11 +157,11 @@ ProxySelectionEvent(ProxyAccessible*, ProxyAccessible*, uint32_t)
 } // namespace a11y
 } // namespace mozilla
 
-@interface GoannaNSApplication(a11y)
+@interface GeckoNSApplication(a11y)
 -(void)accessibilitySetValue:(id)value forAttribute:(NSString*)attribute;
 @end
 
-@implementation GoannaNSApplication(a11y)
+@implementation GeckoNSApplication(a11y)
 
 -(void)accessibilitySetValue:(id)value forAttribute:(NSString*)attribute
 {

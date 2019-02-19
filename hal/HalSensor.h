@@ -15,7 +15,7 @@ namespace hal {
 /**
  * Enumeration of sensor types.  They are used to specify type while
  * register or unregister an observer for a sensor of given type.
- * If you add or change any here, do the same in GoannaHalDefines.java.
+ * If you add or change any here, do the same in GeckoHalDefines.java.
  */
 enum SensorType {
   SENSOR_UNKNOWN = -1,

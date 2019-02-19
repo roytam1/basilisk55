@@ -122,7 +122,7 @@ class AccessibleCaretSelectionModeTestCase(MarionetteTestCase):
 
         If no (x, y) are given, it will be targeted at the center of the
         element. On Windows, those spaces after the word will also be selected.
-        This function sends synthesized eMouseLongTap to goanna.
+        This function sends synthesized eMouseLongTap to gecko.
 
         '''
         rect = self.rect_relative_to_window(el)

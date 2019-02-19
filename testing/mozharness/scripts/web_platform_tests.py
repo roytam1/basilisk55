@@ -59,7 +59,7 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
                 'clobber',
                 'read-buildbot-config',
                 'download-and-extract',
-                'fetch-goannadriver',
+                'fetch-geckodriver',
                 'create-virtualenv',
                 'pull',
                 'install',
@@ -76,7 +76,7 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
         self.installer_path = c.get('installer_path')
         self.binary_path = c.get('binary_path')
         self.abs_app_dir = None
-        self.goannadriver_path = None
+        self.geckodriver_path = None
 
     def query_abs_app_dir(self):
         """We can't set this in advance, because OSX install directories
@@ -156,8 +156,8 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
                 cmd.append("--%s=%s" % (opt.replace("_", "-"), val))
 
         if "wdspec" in c.get("test_type", []):
-            assert self.goannadriver_path is not None
-            cmd.append("--webdriver-binary=%s" % self.goannadriver_path)
+            assert self.geckodriver_path is not None
+            cmd.append("--webdriver-binary=%s" % self.geckodriver_path)
 
         options = list(c.get("options", []))
 
@@ -189,7 +189,7 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
                           "web-platform/*"],
             suite_categories=["web-platform"])
 
-    def fetch_goannadriver(self):
+    def fetch_geckodriver(self):
         c = self.config
         dirs = self.query_abs_dirs()
 
@@ -199,20 +199,20 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
             return
 
         if platform_name != "linux64":
-            self.fatal("Don't have a goannadriver for %s" % platform_name)
+            self.fatal("Don't have a geckodriver for %s" % platform_name)
 
         tooltool_path = os.path.join(dirs["abs_test_install_dir"],
                                      "config",
                                      "tooltool-manifests",
                                      TOOLTOOL_PLATFORM_DIR[platform_name],
-                                     "goannadriver.manifest")
+                                     "geckodriver.manifest")
 
         with open(tooltool_path) as f:
             manifest = json.load(f)
 
         assert len(manifest) == 1
-        goannadriver_filename = manifest[0]["filename"]
-        assert goannadriver_filename.endswith(".tar.gz")
+        geckodriver_filename = manifest[0]["filename"]
+        assert geckodriver_filename.endswith(".tar.gz")
 
         self.tooltool_fetch(
             manifest=tooltool_path,
@@ -220,11 +220,11 @@ class WebPlatformTest(TestingMixin, MercurialScript, BlobUploadMixin):
             cache=c.get('tooltool_cache')
         )
 
-        compressed_path = os.path.join(dirs['abs_work_dir'], goannadriver_filename)
+        compressed_path = os.path.join(dirs['abs_work_dir'], geckodriver_filename)
         tar = self.query_exe('tar', return_type="list")
         self.run_command(tar + ["xf", compressed_path], cwd=dirs['abs_work_dir'],
                          halt_on_failure=True, fatal_exit_code=3)
-        self.goannadriver_path = os.path.join(dirs['abs_work_dir'], "goannadriver")
+        self.geckodriver_path = os.path.join(dirs['abs_work_dir'], "geckodriver")
 
     def run_tests(self):
         dirs = self.query_abs_dirs()

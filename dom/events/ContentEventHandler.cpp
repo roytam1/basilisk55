@@ -613,7 +613,7 @@ ContentEventHandler::ShouldBreakLineBefore(nsIContent* aContent,
   }
 
   // If the element is <br>, we need to check if the <br> is caused by web
-  // content.  Otherwise, i.e., it's caused by internal reason of Goanna,
+  // content.  Otherwise, i.e., it's caused by internal reason of Gecko,
   // it shouldn't be exposed as a line break to flatten text.
   if (aContent->IsHTMLElement(nsGkAtoms::br)) {
     return IsContentBR(aContent);

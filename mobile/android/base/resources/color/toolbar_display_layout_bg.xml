@@ -2,9 +2,9 @@
 
 <!-- These colors are defined from the drawables url_bar_entry_default_* -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
-    <item goanna:state_private="true" android:color="@color/placeholder_active_grey"/>
+    <item gecko:state_private="true" android:color="@color/placeholder_active_grey"/>
 
     <item android:color="#FFFFFF"/>
 

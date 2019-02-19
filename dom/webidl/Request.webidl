@@ -49,7 +49,7 @@ dictionary RequestInit {
   DOMString integrity;
 };
 
-// Goanna currently does not ship RequestContext, so please don't use it in IDL
+// Gecko currently does not ship RequestContext, so please don't use it in IDL
 // that is exposed to script.
 enum RequestContext {
   "audio", "beacon", "cspreport", "download", "embed", "eventsource", "favicon", "fetch",

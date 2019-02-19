@@ -57,7 +57,7 @@ def browser_kwargs(**kwargs):
             "stackwalk_binary": kwargs["stackwalk_binary"],
             "certutil_binary": kwargs["certutil_binary"],
             "ca_certificate_path": kwargs["ssl_env"].ca_cert_path(),
-            "e10s": kwargs["goanna_e10s"],
+            "e10s": kwargs["gecko_e10s"],
             "stackfix_dir": kwargs["stackfix_dir"]}
 
 
@@ -88,7 +88,7 @@ def env_options():
 
 
 def run_info_extras(**kwargs):
-    return {"e10s": kwargs["goanna_e10s"]}
+    return {"e10s": kwargs["gecko_e10s"]}
 
 
 def update_properties():

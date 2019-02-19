@@ -5749,7 +5749,7 @@ GCRuntime::scanZonesBeforeGC()
 // The GC can only clean up scheduledForDestruction compartments that were
 // marked live by a barrier (e.g. by RemapWrappers from a navigation event).
 // It is also common to have compartments held live because they are part of a
-// cycle in goanna, e.g. involving the HTMLDocument wrapper. In this case, we
+// cycle in gecko, e.g. involving the HTMLDocument wrapper. In this case, we
 // need to run the CycleCollector in order to remove these edges before the
 // compartment can be freed.
 void

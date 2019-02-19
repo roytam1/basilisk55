@@ -145,7 +145,7 @@ add_task(function* test_bss_id() {
     version: "1.0",
 
     browser_specific_settings: {
-      gecko: {
+      goanna: {
         id: ID
       }
     }
@@ -179,13 +179,13 @@ add_task(function* test_two_ids() {
     version: "1.0",
 
     applications: {
-      gecko: {
+      goanna: {
         id: BAD_ID
       }
     },
 
     browser_specific_settings: {
-      gecko: {
+      goanna: {
         id: GOOD_ID
       }
     }
@@ -220,7 +220,7 @@ add_task(function* test_strict_min_max() {
   // bad max good min
   let apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_min_version: "1",
         strict_max_version: "1"
@@ -246,7 +246,7 @@ add_task(function* test_strict_min_max() {
   // bad min good max
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_min_version: "2",
         strict_max_version: "2"
@@ -272,7 +272,7 @@ add_task(function* test_strict_min_max() {
   // bad both
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_min_version: "2",
         strict_max_version: "1"
@@ -298,7 +298,7 @@ add_task(function* test_strict_min_max() {
   // bad only min
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_min_version: "2"
       },
@@ -323,7 +323,7 @@ add_task(function* test_strict_min_max() {
   // bad only max
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_max_version: "1"
       },
@@ -348,7 +348,7 @@ add_task(function* test_strict_min_max() {
   // good both
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: addonId,
         strict_min_version: "1",
         strict_max_version: "2"
@@ -373,7 +373,7 @@ add_task(function* test_strict_min_max() {
   let newId = "strict_min_only@tests.mozilla.org";
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: newId,
         strict_min_version: "1",
       },
@@ -398,7 +398,7 @@ add_task(function* test_strict_min_max() {
   newId = "strict_max_only@tests.mozilla.org";
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: newId,
         strict_max_version: "2",
       },
@@ -424,7 +424,7 @@ add_task(function* test_strict_min_max() {
     newId = "strict_min_star@tests.mozilla.org";
     let minStarApps = {
       applications: {
-        gecko: {
+        goanna: {
           id: newId,
           strict_min_version: version,
         },
@@ -451,7 +451,7 @@ add_task(function* test_strict_min_max() {
   newId = "checkCompatibility@tests.mozilla.org";
   apps = {
     applications: {
-      gecko: {
+      goanna: {
         id: newId,
         strict_max_version: "1",
       },

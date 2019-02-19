@@ -105,7 +105,7 @@ private:
 };
 
 // A widget-specific overscroll effect, implemented by the widget via
-// GoannaContentController.
+// GeckoContentController.
 class WidgetOverscrollEffect : public OverscrollEffectBase {
 public:
   explicit WidgetOverscrollEffect(AsyncPanZoomController& aApzc) : mApzc(aApzc) {}
@@ -113,7 +113,7 @@ public:
   void ConsumeOverscroll(ParentLayerPoint& aOverscroll,
                          bool aShouldOverscrollX,
                          bool aShouldOverscrollY) override {
-    RefPtr<GoannaContentController> controller = mApzc.GetGoannaContentController();
+    RefPtr<GeckoContentController> controller = mApzc.GetGeckoContentController();
     if (controller && (aShouldOverscrollX || aShouldOverscrollY)) {
       controller->UpdateOverscrollOffset(aOverscroll.x, aOverscroll.y, mApzc.IsRootContent());
       aOverscroll = ParentLayerPoint();
@@ -121,7 +121,7 @@ public:
   }
 
   void HandleFlingOverscroll(const ParentLayerPoint& aVelocity) override {
-    RefPtr<GoannaContentController> controller = mApzc.GetGoannaContentController();
+    RefPtr<GeckoContentController> controller = mApzc.GetGeckoContentController();
     if (controller) {
       controller->UpdateOverscrollVelocity(aVelocity.x, aVelocity.y, mApzc.IsRootContent());
     }

@@ -54,7 +54,7 @@ this.accessibility = {
 /**
  * Accessible states used to check element"s state from the accessiblity API
  * perspective.
- * Note: if goanna is built with --disable-accessibility, the interfaces are not
+ * Note: if gecko is built with --disable-accessibility, the interfaces are not
  * defined. This is why we use getters instead to be able to use these
  * statically.
  */

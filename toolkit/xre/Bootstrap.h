@@ -20,7 +20,7 @@
 #include "jni.h"
 
 extern "C" NS_EXPORT
-void GoannaStart(JNIEnv* aEnv, char** argv, int argc, const mozilla::StaticXREAppData& aAppData);
+void GeckoStart(JNIEnv* aEnv, char** argv, int argc, const mozilla::StaticXREAppData& aAppData);
 #endif
 
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
@@ -95,7 +95,7 @@ public:
 
   virtual int XRE_XPCShellMain(int argc, char** argv, char** envp, const XREShellData* aShellData) = 0;
 
-  virtual GoannaProcessType XRE_GetProcessType() = 0;
+  virtual GeckoProcessType XRE_GetProcessType() = 0;
 
   virtual void XRE_SetProcessType(const char* aProcessTypeString) = 0;
 
@@ -104,7 +104,7 @@ public:
   virtual void XRE_EnableSameExecutableForContentProc() = 0;
 
 #ifdef MOZ_WIDGET_ANDROID
-  virtual void GoannaStart(JNIEnv* aEnv, char** argv, int argc, const StaticXREAppData& aAppData) = 0;
+  virtual void GeckoStart(JNIEnv* aEnv, char** argv, int argc, const StaticXREAppData& aAppData) = 0;
 
   virtual void XRE_SetAndroidChildFds(int aCrashFd, int aIPCFd) = 0;
 #endif

@@ -283,7 +283,7 @@ function allocationsWithSchema(data) {
  * Deduplicates a profile by deduplicating stacks, frames, and strings.
  *
  * This is used to adapt version 2 profiles from the backend to version 3, for
- * use with older Goannas (like B2G).
+ * use with older Geckos (like B2G).
  *
  * Note that the schemas used by this must be kept in sync with schemas used
  * by the C++ UniqueStacks class in tools/profiler/ProfileEntry.cpp.

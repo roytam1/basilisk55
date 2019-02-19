@@ -40,7 +40,7 @@ class WorkerPrivate;
 //
 //   2. Create a PromiseWorkerProxy wrapping the Promise. If this fails, the
 //      worker is shutting down and you should fail the original call. This is
-//      only likely to happen in (Goanna-specific) worker onclose handlers.
+//      only likely to happen in (Gecko-specific) worker onclose handlers.
 //
 //        RefPtr<PromiseWorkerProxy> proxy =
 //          PromiseWorkerProxy::Create(workerPrivate, promise);

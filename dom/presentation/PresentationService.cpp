@@ -1175,7 +1175,7 @@ NS_CreatePresentationService()
   MOZ_ASSERT(NS_IsMainThread());
 
   nsCOMPtr<nsIPresentationService> service;
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     service = new mozilla::dom::PresentationIPCService();
   } else {
     service = new PresentationService();

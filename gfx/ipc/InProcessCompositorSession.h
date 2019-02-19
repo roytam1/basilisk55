@@ -30,7 +30,7 @@ public:
     const gfx::IntSize& aSurfaceSize);
 
   CompositorBridgeParent* GetInProcessBridge() const override;
-  void SetContentController(GoannaContentController* aController) override;
+  void SetContentController(GeckoContentController* aController) override;
   RefPtr<IAPZCTreeManager> GetAPZCTreeManager() const override;
   bool Reset(const nsTArray<LayersBackend>& aBackendHints,
              uint64_t aSeqNo,

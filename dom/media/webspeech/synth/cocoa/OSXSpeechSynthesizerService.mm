@@ -459,7 +459,7 @@ OSXSpeechSynthesizerService*
 OSXSpeechSynthesizerService::GetInstance()
 {
   MOZ_ASSERT(NS_IsMainThread());
-  if (XRE_GetProcessType() != GoannaProcessType_Default) {
+  if (XRE_GetProcessType() != GeckoProcessType_Default) {
     return nullptr;
   }
 

@@ -34,7 +34,7 @@ var DEFAULT_PROFILER_OPTIONS = {
   // by the pref `devtools.performance.profiler.sample-rate-khz`.
   interval: 1,
   features: ["js"],
-  threadFilters: ["GoannaMain"]
+  threadFilters: ["GeckoMain"]
 };
 
 /**

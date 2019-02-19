@@ -11,7 +11,7 @@
 #include "mozilla/dom/ContentParent.h"
 #include "mozilla/dom/ContentChild.h"
 #include "mozilla/dom/PCrashReporterParent.h"
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 #include "mozilla/ipc/MessageChannel.h"
 #include "mozilla/ipc/ProtocolUtils.h"
 #include "mozilla/plugins/BrowserStreamParent.h"
@@ -35,7 +35,7 @@
 #include "nsPrintfCString.h"
 #include "prsystem.h"
 #include "PluginQuirks.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsPluginTags.h"
 #include "nsUnicharUtils.h"
 #include "mozilla/layers/TextureClientRecycleAllocator.h"
@@ -66,7 +66,7 @@ using mozilla::PluginLibrary;
 using mozilla::ProfileGatherer;
 #endif
 using mozilla::ipc::MessageChannel;
-using mozilla::ipc::GoannaChildProcessHost;
+using mozilla::ipc::GeckoChildProcessHost;
 using mozilla::dom::PCrashReporterParent;
 using mozilla::dom::CrashReporterParent;
 
@@ -648,7 +648,7 @@ PluginModuleChromeParent::PluginModuleChromeParent(const char* aFilePath,
     NS_ASSERTION(mSubprocess, "Out of memory!");
     sInstantiated = true;
     mSandboxLevel = aSandboxLevel;
-    mRunID = GoannaChildProcessHost::GetUniqueID();
+    mRunID = GeckoChildProcessHost::GetUniqueID();
 
 #ifdef MOZ_ENABLE_PROFILER_SPS
     InitPluginProfiling();
@@ -1017,9 +1017,9 @@ PluginModuleChromeParent::TerminateChildProcess(MessageLoop* aMsgLoop,
                                                 const nsCString& aMonitorDescription,
                                                 const nsAString& aDumpId)
 {
-    mozilla::ipc::ScopedProcessHandle goannaChildProcess;
+    mozilla::ipc::ScopedProcessHandle geckoChildProcess;
     bool childOpened = base::OpenProcessHandle(OtherPid(),
-                                               &goannaChildProcess.rwget());
+                                               &geckoChildProcess.rwget());
 
 #ifdef XP_WIN
     // collect cpu usage for plugin processes
@@ -1027,7 +1027,7 @@ PluginModuleChromeParent::TerminateChildProcess(MessageLoop* aMsgLoop,
     InfallibleTArray<base::ProcessHandle> processHandles;
 
     if (childOpened) {
-        processHandles.AppendElement(goannaChildProcess);
+        processHandles.AppendElement(geckoChildProcess);
     }
 
     if (!GetProcessCpuUsage(processHandles, mPluginCpuUsageOnHang)) {
@@ -1042,7 +1042,7 @@ PluginModuleChromeParent::TerminateChildProcess(MessageLoop* aMsgLoop,
         mChromeTaskFactory.NewRunnableMethod(
             &PluginModuleChromeParent::CleanupFromTimeout, isFromHangUI));
 
-    if (!childOpened || !KillProcess(goannaChildProcess, 1, false)) {
+    if (!childOpened || !KillProcess(geckoChildProcess, 1, false)) {
         NS_WARNING("failed to kill subprocess!");
     }
 }
@@ -1273,7 +1273,7 @@ PluginModuleParent::SetPluginFuncs(NPPluginFuncs* aFuncs)
     aFuncs->version = (NP_VERSION_MAJOR << 8) | NP_VERSION_MINOR;
     aFuncs->javaClass = nullptr;
 
-    // Goanna should always call these functions through a PluginLibrary object.
+    // Gecko should always call these functions through a PluginLibrary object.
     aFuncs->newp = nullptr;
     aFuncs->clearsitedata = nullptr;
     aFuncs->getsiteswithdata = nullptr;

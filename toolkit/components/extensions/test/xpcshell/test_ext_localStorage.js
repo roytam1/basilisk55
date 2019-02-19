@@ -28,7 +28,7 @@ function backgroundScript() {
 
 const ID = "test-webextension@mozilla.com";
 let extensionData = {
-  manifest: {applications: {gecko: {id: ID}}},
+  manifest: {applications: {goanna: {id: ID}}},
   background: backgroundScript,
 };
 

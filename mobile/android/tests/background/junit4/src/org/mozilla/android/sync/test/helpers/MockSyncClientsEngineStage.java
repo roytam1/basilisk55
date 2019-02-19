@@ -3,9 +3,9 @@
 
 package org.mozilla.android.sync.test.helpers;
 
-import org.mozilla.goanna.sync.net.BaseResource;
-import org.mozilla.goanna.sync.net.SyncStorageResponse;
-import org.mozilla.goanna.sync.stage.SyncClientsEngineStage;
+import org.mozilla.gecko.sync.net.BaseResource;
+import org.mozilla.gecko.sync.net.SyncStorageResponse;
+import org.mozilla.gecko.sync.stage.SyncClientsEngineStage;
 
 import static org.junit.Assert.assertTrue;
 

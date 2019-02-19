@@ -10,14 +10,14 @@
 #include "nsPrintfCString.h"
 #include "nsThreadUtils.h"
 #include "mozilla/IOInterposer.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #ifdef XP_WIN
 #include <windows.h>
 #endif
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracer.h"
+#include "GeckoTaskTracer.h"
 #include "TracedTaskCommon.h"
 #endif
 

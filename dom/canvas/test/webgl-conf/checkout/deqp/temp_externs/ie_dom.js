@@ -19,8 +19,8 @@
  *  W3C's DOM specification by IE in JScript. This file depends on
  *  w3c_dom2.js. The whole file has NOT been fully type annotated.
  *
- * When a non-standard extension appears in both Goanna and IE, we put
- * it in goanna_dom.js
+ * When a non-standard extension appears in both Gecko and IE, we put
+ * it in gecko_dom.js
  *
  * @externs
  * @author stevey@google.com (Steve Yegge)

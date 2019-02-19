@@ -24,7 +24,7 @@ AndroidSpecificState::AndroidSpecificState() {
   using namespace mozilla::java;
 
   sdk::ViewConfiguration::LocalRef config;
-  if (sdk::ViewConfiguration::Get(GoannaAppShell::GetApplicationContext(), &config) == NS_OK) {
+  if (sdk::ViewConfiguration::Get(GeckoAppShell::GetApplicationContext(), &config) == NS_OK) {
     int32_t speed = 0;
     if (config->GetScaledMaximumFlingVelocity(&speed) == NS_OK) {
       sMaxFlingSpeed = (float)speed * 0.001f;
@@ -36,7 +36,7 @@ AndroidSpecificState::AndroidSpecificState() {
   }
 
   StackScroller::LocalRef scroller;
-  if (StackScroller::New(GoannaAppShell::GetApplicationContext(), &scroller) != NS_OK) {
+  if (StackScroller::New(GeckoAppShell::GetApplicationContext(), &scroller) != NS_OK) {
     ANDROID_APZ_LOG("%p Failed to create Android StackScroller\n", this);
     return;
   }

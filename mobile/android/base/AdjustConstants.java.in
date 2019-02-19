@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.goanna;
+package org.mozilla.gecko;
 
-import org.mozilla.goanna.adjust.AdjustHelperInterface;
+import org.mozilla.gecko.adjust.AdjustHelperInterface;
 //#ifdef MOZ_INSTALL_TRACKING
-import org.mozilla.goanna.adjust.AdjustHelper;
+import org.mozilla.gecko.adjust.AdjustHelper;
 //#else
-import org.mozilla.goanna.adjust.StubAdjustHelper;
+import org.mozilla.gecko.adjust.StubAdjustHelper;
 //#endif
 
 public class AdjustConstants {

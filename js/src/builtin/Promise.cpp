@@ -2693,7 +2693,7 @@ PromiseTask::finish(JSContext* cx)
     MOZ_ASSERT(cx == runtime_);
     {
         // We can't leave a pending exception when returning to the caller so do
-        // the same thing as Goanna, which is to ignore the error. This should
+        // the same thing as Gecko, which is to ignore the error. This should
         // only happen due to OOM or interruption.
         AutoCompartment ac(cx, promise_);
         if (!finishPromise(cx, promise_))

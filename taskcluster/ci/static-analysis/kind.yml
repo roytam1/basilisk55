@@ -24,7 +24,7 @@ jobs:
             job-name: macosx64-st-an-opt
         treeherder:
             platform: osx-10-7/opt
-        worker-type: aws-provisioner-v1/goanna-{level}-b-macosx64
+        worker-type: aws-provisioner-v1/gecko-{level}-b-macosx64
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}
@@ -48,7 +48,7 @@ jobs:
             job-name: linux64-st-an-opt
         treeherder:
             platform: linux64/opt
-        worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+        worker-type: aws-provisioner-v1/gecko-{level}-b-linux
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}
@@ -74,7 +74,7 @@ jobs:
             platform: windows2012-32/debug
             symbol: tc(S)
             tier: 1
-        worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+        worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
         worker:
             implementation: generic-worker
             max-run-time: 7200
@@ -93,7 +93,7 @@ jobs:
             platform: windows2012-32/opt
             symbol: tc(S)
             tier: 1
-        worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+        worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
         worker:
             implementation: generic-worker
             max-run-time: 7200
@@ -112,7 +112,7 @@ jobs:
             platform: windows2012-64/debug
             symbol: tc(S)
             tier: 1
-        worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+        worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
         worker:
             implementation: generic-worker
             max-run-time: 7200
@@ -131,7 +131,7 @@ jobs:
             platform: windows2012-64/opt
             symbol: tc(S)
             tier: 1
-        worker-type: aws-provisioner-v1/goanna-{level}-b-win2012
+        worker-type: aws-provisioner-v1/gecko-{level}-b-win2012
         worker:
             implementation: generic-worker
             max-run-time: 7200

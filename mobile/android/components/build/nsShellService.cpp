@@ -25,6 +25,6 @@ nsShellService::CreateShortcut(const nsAString& aTitle, const nsAString& aURI,
   if (!aTitle.Length() || !aURI.Length())
     return NS_ERROR_FAILURE;
 
-  java::GoannaAppShell::CreateShortcut(aTitle, aURI);
+  java::GeckoAppShell::CreateShortcut(aTitle, aURI);
   return NS_OK;
 }

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/layers/APZChild.h"
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 
 #include "mozilla/dom/TabChild.h"
 #include "mozilla/layers/APZCCallbackHelper.h"
@@ -15,7 +15,7 @@
 namespace mozilla {
 namespace layers {
 
-APZChild::APZChild(RefPtr<GoannaContentController> aController)
+APZChild::APZChild(RefPtr<GeckoContentController> aController)
   : mController(aController)
 {
   MOZ_ASSERT(mController);

@@ -9,7 +9,7 @@ class TestProfileManagement(MarionetteTestCase):
 
     def setUp(self):
         MarionetteTestCase.setUp(self)
-        self.marionette.enforce_goanna_prefs(
+        self.marionette.enforce_gecko_prefs(
             {"marionette.test.bool": True,
              "marionette.test.string": "testing",
              "marionette.test.int": 3
@@ -24,7 +24,7 @@ class TestProfileManagement(MarionetteTestCase):
     def test_change_preference(self):
         self.assertTrue(self.marionette.get_pref("marionette.test.bool"))
 
-        self.marionette.enforce_goanna_prefs({"marionette.test.bool": False})
+        self.marionette.enforce_gecko_prefs({"marionette.test.bool": False})
 
         self.assertFalse(self.marionette.get_pref("marionette.test.bool"))
 

@@ -8,7 +8,7 @@ const DEFAULT_UA = Cc["@mozilla.org/network/protocol;1?name=http"]
                     .getService(Ci.nsIHttpProtocolHandler)
                     .userAgent;
 const CHROME_UA = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36" +
-                  " (KHTML, like Goanna) Chrome/41.0.2228.0 Safari/537.36";
+                  " (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
 add_task(function* () {
   yield addTab(TEST_URI);
 

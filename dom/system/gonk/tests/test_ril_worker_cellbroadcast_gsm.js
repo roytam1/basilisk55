@@ -46,28 +46,28 @@ add_test(function test_ril_worker_GsmPDUHelper_readCbDataCodingScheme() {
   // Group 0000
   for (let i = 0; i < 16; i++) {
     test_dcs(i, PDU_DCS_MSG_CODING_7BITS_ALPHABET, CB_DCS_LANG_GROUP_1[i],
-             false, GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+             false, GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
   }
 
   // Group 0001
   //   0000 GSM 7 bit default alphabet; message preceded by language indication.
   test_dcs(0x10, PDU_DCS_MSG_CODING_7BITS_ALPHABET, null, true,
-           GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+           GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
   //   0001 UCS2; message preceded by language indication.
   test_dcs(0x11, PDU_DCS_MSG_CODING_16BITS_ALPHABET, null, true,
-           GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+           GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
 
   // Group 0010
   //   0000..0100
   for (let i = 0; i < 5; i++) {
     test_dcs(0x20 + i, PDU_DCS_MSG_CODING_7BITS_ALPHABET,
              CB_DCS_LANG_GROUP_2[i], false,
-             GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+             GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
   }
   //   0101..1111 Reserved
   for (let i = 5; i < 16; i++) {
     test_dcs(0x20 + i, PDU_DCS_MSG_CODING_7BITS_ALPHABET, null, false,
-             GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+             GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
   }
 
   // Group 0100, 0101, 1001
@@ -77,7 +77,7 @@ add_test(function test_ril_worker_GsmPDUHelper_readCbDataCodingScheme() {
       if (encoding == 0x0C) {
         encoding = PDU_DCS_MSG_CODING_7BITS_ALPHABET;
       }
-      let messageClass = GOANNA_SMS_MESSAGE_CLASSES[i & PDU_DCS_MSG_CLASS_BITS];
+      let messageClass = GECKO_SMS_MESSAGE_CLASSES[i & PDU_DCS_MSG_CLASS_BITS];
       test_dcs(group + i, encoding, null, false, messageClass);
     }
   }
@@ -94,7 +94,7 @@ add_test(function test_ril_worker_GsmPDUHelper_readCbDataCodingScheme() {
       default: messageClass = PDU_DCS_MSG_CLASS_NORMAL; break;
     }
     test_dcs(0xF0 + i, encoding, null, false,
-             GOANNA_SMS_MESSAGE_CLASSES[messageClass]);
+             GECKO_SMS_MESSAGE_CLASSES[messageClass]);
   }
 
   // Group 0011, 1000, 1010, 1011, 1100
@@ -102,7 +102,7 @@ add_test(function test_ril_worker_GsmPDUHelper_readCbDataCodingScheme() {
   for (let group of [0x30, 0x80, 0xA0, 0xB0, 0xC0]) {
     for (let i = 0; i < 16; i++) {
       test_dcs(group + i, PDU_DCS_MSG_CODING_7BITS_ALPHABET, null, false,
-               GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
+               GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL]);
     }
   }
 

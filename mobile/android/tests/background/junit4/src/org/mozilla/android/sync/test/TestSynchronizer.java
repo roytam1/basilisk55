@@ -9,16 +9,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mozilla.android.sync.test.SynchronizerHelpers.TrackingWBORepository;
-import org.mozilla.goanna.background.common.log.Logger;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.background.testhelpers.WBORepository;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.repositories.RepositorySessionBundle;
-import org.mozilla.goanna.sync.repositories.domain.BookmarkRecord;
-import org.mozilla.goanna.sync.synchronizer.Synchronizer;
-import org.mozilla.goanna.sync.synchronizer.SynchronizerDelegate;
-import org.mozilla.goanna.sync.synchronizer.SynchronizerSession;
-import org.mozilla.goanna.sync.synchronizer.SynchronizerSessionDelegate;
+import org.mozilla.gecko.background.common.log.Logger;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.background.testhelpers.WBORepository;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.repositories.RepositorySessionBundle;
+import org.mozilla.gecko.sync.repositories.domain.BookmarkRecord;
+import org.mozilla.gecko.sync.synchronizer.Synchronizer;
+import org.mozilla.gecko.sync.synchronizer.SynchronizerDelegate;
+import org.mozilla.gecko.sync.synchronizer.SynchronizerSession;
+import org.mozilla.gecko.sync.synchronizer.SynchronizerSessionDelegate;
 
 import java.util.Date;
 

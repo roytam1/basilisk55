@@ -175,7 +175,7 @@ DataCallInterface.prototype = {
       gMobileConnectionService.getItemByServiceId(this._clientId);
     let dataInfo = connection && connection.data;
     let radioTechType = dataInfo.type;
-    let radioTechnology = RIL.GOANNA_RADIO_TECH.indexOf(radioTechType);
+    let radioTechnology = RIL.GECKO_RADIO_TECH.indexOf(radioTechType);
     // Convert pdp type into string value.
     let pdpType = RIL.RIL_DATACALL_PDP_TYPES[aPdpType];
 

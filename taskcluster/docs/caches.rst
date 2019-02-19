@@ -12,7 +12,7 @@ Version Control Caches
 
 ``level-{{level}}-checkouts-{{version}}``
    This cache holds version control checkouts, each in a subdirectory named
-   after the repo (e.g., ``goanna``).
+   after the repo (e.g., ``gecko``).
 
    Checkouts should be read-only. If a task needs to create new files from
    content of a checkout, this content should be written in a separate

@@ -16,7 +16,7 @@ macosx64-clang-tidy/opt:
         using: toolchain-script
         script: build-clang-tidy-macosx.sh
         tooltool-downloads: internal
-    worker-type: aws-provisioner-v1/goanna-{level}-b-macosx64
+    worker-type: aws-provisioner-v1/gecko-{level}-b-macosx64
     worker:
         implementation: docker-worker
         docker-image: {in-tree: desktop-build}

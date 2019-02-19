@@ -35,13 +35,13 @@ EnableAlarm()
 void
 DisableAlarm()
 {
-    java::GoannaAppShell::DisableAlarm();
+    java::GeckoAppShell::DisableAlarm();
 }
 
 bool
 SetAlarm(int32_t aSeconds, int32_t aNanoseconds)
 {
-    return java::GoannaAppShell::SetAlarm(aSeconds, aNanoseconds);
+    return java::GeckoAppShell::SetAlarm(aSeconds, aNanoseconds);
 }
 
 } // hal_impl

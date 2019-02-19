@@ -13,7 +13,7 @@ enum MediaKeySystemStatus {
   "cdm-created",
 };
 
-/* Note: This dictionary and enum is only used by Goanna to convey messages
+/* Note: This dictionary and enum is only used by Gecko to convey messages
  * to chrome JS code. It is not exposed to the web.
  */
 

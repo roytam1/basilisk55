@@ -3,10 +3,10 @@
 
 package org.mozilla.android.sync.test.helpers;
 
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.GlobalSession;
-import org.mozilla.goanna.sync.delegates.GlobalSessionCallback;
-import org.mozilla.goanna.sync.stage.GlobalSyncStage.Stage;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.GlobalSession;
+import org.mozilla.gecko.sync.delegates.GlobalSessionCallback;
+import org.mozilla.gecko.sync.stage.GlobalSyncStage.Stage;
 
 import java.net.URI;
 

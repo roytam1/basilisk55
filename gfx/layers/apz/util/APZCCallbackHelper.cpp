@@ -80,27 +80,27 @@ ScrollFrameTo(nsIScrollableFrame* aFrame, const FrameMetrics& aMetrics, bool& aS
     return targetScrollPosition;
   }
 
-  CSSPoint goannaScrollPosition = CSSPoint::FromAppUnits(aFrame->GetScrollPosition());
+  CSSPoint geckoScrollPosition = CSSPoint::FromAppUnits(aFrame->GetScrollPosition());
 
   // If the repaint request was triggered due to a previous main-thread scroll
   // offset update sent to the APZ, then we don't need to do another scroll here
   // and we can just return.
   if (!aMetrics.GetScrollOffsetUpdated()) {
-    return goannaScrollPosition;
+    return geckoScrollPosition;
   }
 
   // If the frame is overflow:hidden on a particular axis, we don't want to allow
   // user-driven scroll on that axis. Simply set the scroll position on that axis
   // to whatever it already is. Note that this will leave the APZ's async scroll
-  // position out of sync with the goanna scroll position, but APZ can deal with that
+  // position out of sync with the gecko scroll position, but APZ can deal with that
   // (by design). Note also that when we run into this case, even if both axes
   // have overflow:hidden, we want to set aSuccessOut to true, so that the displayport
-  // follows the async scroll position rather than the goanna scroll position.
+  // follows the async scroll position rather than the gecko scroll position.
   if (aFrame->GetScrollbarStyles().mVertical == NS_STYLE_OVERFLOW_HIDDEN) {
-    targetScrollPosition.y = goannaScrollPosition.y;
+    targetScrollPosition.y = geckoScrollPosition.y;
   }
   if (aFrame->GetScrollbarStyles().mHorizontal == NS_STYLE_OVERFLOW_HIDDEN) {
-    targetScrollPosition.x = goannaScrollPosition.x;
+    targetScrollPosition.x = geckoScrollPosition.x;
   }
 
   // If the scrollable frame is currently in the middle of an async or smooth
@@ -111,13 +111,13 @@ ScrollFrameTo(nsIScrollableFrame* aFrame, const FrameMetrics& aMetrics, bool& aS
   bool scrollInProgress = APZCCallbackHelper::IsScrollInProgress(aFrame);
   if (!scrollInProgress) {
     aFrame->ScrollToCSSPixelsApproximate(targetScrollPosition, nsGkAtoms::apz);
-    goannaScrollPosition = CSSPoint::FromAppUnits(aFrame->GetScrollPosition());
+    geckoScrollPosition = CSSPoint::FromAppUnits(aFrame->GetScrollPosition());
     aSuccessOut = true;
   }
   // Return the final scroll position after setting it so that anything that relies
   // on it can have an accurate value. Note that even if we set it above re-querying it
   // is a good idea because it may have gotten clamped or rounded.
-  return goannaScrollPosition;
+  return geckoScrollPosition;
 }
 
 /**
@@ -416,7 +416,7 @@ APZCCallbackHelper::ApplyCallbackTransform(const CSSPoint& aInput,
     // First, scale inversely by the root content document's pres shell
     // resolution to cancel the scale-to-resolution transform that the
     // compositor adds to the layer with the pres shell resolution. The points
-    // sent to Goanna by APZ don't have this transform unapplied (unlike other
+    // sent to Gecko by APZ don't have this transform unapplied (unlike other
     // compositor-side transforms) because APZ doesn't know about it.
     if (nsIPresShell* shell = GetRootDocumentPresShell(content)) {
         input = input / shell->GetResolution();

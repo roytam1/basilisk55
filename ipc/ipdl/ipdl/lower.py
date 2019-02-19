@@ -3467,7 +3467,7 @@ class _GenerateProtocolActorCode(ipdl.ast.Visitor):
         # XXX the writer code can treat the actor as logically const; many
         # other places that call _cxxConstRefType cannot treat the actor
         # as logically const, particularly callers that can leak out to
-        # Goanna directly.
+        # Gecko directly.
         intype.const = 1
         cxxtype = _cxxBareType(actortype, self.side)
         outtype = _cxxPtrToType(actortype, self.side)
@@ -4462,7 +4462,7 @@ class _GenerateProtocolActorCode(ipdl.ast.Visitor):
             + [ Whitespace.NL,
                 StmtDecl(Decl(Type.BOOL, sendok.name)),
                 StmtBlock([
-                    StmtDecl(Decl(Type('GoannaProfilerTracingRAII'),
+                    StmtDecl(Decl(Type('GeckoProfilerTracingRAII'),
                                   'syncIPCTracer'),
                              initargs=[ ExprLiteral.String("IPC"),
                                         ExprLiteral.String(self.protocol.name + "::" + md.prettyMsgName()) ]),

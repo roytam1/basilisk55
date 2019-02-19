@@ -21,9 +21,9 @@ import android.hardware.Camera.Size;
 import android.hardware.Camera;
 import android.util.Log;
 
-import org.mozilla.goanna.GoannaAppShell;
-import org.mozilla.goanna.annotation.WebRTCJNITarget;
-import org.mozilla.goanna.permissions.Permissions;
+import org.mozilla.gecko.GeckoAppShell;
+import org.mozilla.gecko.annotation.WebRTCJNITarget;
+import org.mozilla.gecko.permissions.Permissions;
 
 public class VideoCaptureDeviceInfoAndroid {
   private final static String TAG = "WEBRTC-JC";
@@ -76,7 +76,7 @@ public class VideoCaptureDeviceInfoAndroid {
   @WebRTCJNITarget
   private static CaptureCapabilityAndroid[] getDeviceInfo() {
       final boolean hasPermissions = Permissions.waitFor(
-              (Activity) GoannaAppShell.getContext(), Manifest.permission.CAMERA);
+              (Activity) GeckoAppShell.getContext(), Manifest.permission.CAMERA);
 
       if (hasPermissions) {
           return createDeviceList();

@@ -55,7 +55,7 @@ class BasicLayerManager;
 class CompositorBridgeChild;
 class CompositorBridgeParent;
 class IAPZCTreeManager;
-class GoannaContentController;
+class GeckoContentController;
 class APZEventState;
 class CompositorSession;
 class ImageContainer;
@@ -126,7 +126,7 @@ protected:
   typedef mozilla::layers::CompositorBridgeChild CompositorBridgeChild;
   typedef mozilla::layers::CompositorBridgeParent CompositorBridgeParent;
   typedef mozilla::layers::IAPZCTreeManager IAPZCTreeManager;
-  typedef mozilla::layers::GoannaContentController GoannaContentController;
+  typedef mozilla::layers::GeckoContentController GeckoContentController;
   typedef mozilla::layers::ScrollableLayerGuid ScrollableLayerGuid;
   typedef mozilla::layers::APZEventState APZEventState;
   typedef mozilla::layers::SetAllowedTouchBehaviorCallback SetAllowedTouchBehaviorCallback;
@@ -457,7 +457,7 @@ protected:
 
   virtual void ConfigureAPZCTreeManager();
   virtual void ConfigureAPZControllerThread();
-  virtual already_AddRefed<GoannaContentController> CreateRootContentController();
+  virtual already_AddRefed<GeckoContentController> CreateRootContentController();
 
   // Dispatch an event that has already been routed through APZ.
   nsEventStatus ProcessUntransformedAPZEvent(mozilla::WidgetInputEvent* aEvent,
@@ -613,8 +613,8 @@ protected:
                               uint32_t aPointerOrientation);
 
   /**
-   * Dispatch the given MultiTouchInput through APZ to Goanna (if APZ is enabled)
-   * or directly to goanna (if APZ is not enabled). This function must only
+   * Dispatch the given MultiTouchInput through APZ to Gecko (if APZ is enabled)
+   * or directly to gecko (if APZ is not enabled). This function must only
    * be called from the main thread, and if APZ is enabled, that must also be
    * the APZ controller thread.
    */
@@ -672,7 +672,7 @@ protected:
   RefPtr<CompositorBridgeChild> mCompositorBridgeChild;
   RefPtr<mozilla::CompositorVsyncDispatcher> mCompositorVsyncDispatcher;
   RefPtr<IAPZCTreeManager> mAPZC;
-  RefPtr<GoannaContentController> mRootContentController;
+  RefPtr<GeckoContentController> mRootContentController;
   RefPtr<APZEventState> mAPZEventState;
   SetAllowedTouchBehaviorCallback mSetAllowedTouchBehaviorCallback;
   RefPtr<WidgetShutdownObserver> mShutdownObserver;

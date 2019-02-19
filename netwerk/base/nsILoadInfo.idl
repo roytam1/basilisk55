@@ -40,7 +40,7 @@ interface nsILoadInfo : nsISupports
 {
   /**
    * *** DEPRECATED ***
-   * No LoadInfo created within Goanna should contain this security flag.
+   * No LoadInfo created within Gecko should contain this security flag.
    * Please use any of the five security flags defined underneath.
    * We only keep this security flag to provide backwards compatibilty.
    */

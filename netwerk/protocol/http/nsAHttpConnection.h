@@ -72,7 +72,7 @@ public:
     }
 
     // This is the companion to *HasDataToWrite() for the case
-    // when a goanna caller has called ResumeRecv() after being paused
+    // when a gecko caller has called ResumeRecv() after being paused
     virtual void TransactionHasDataToRecv(nsAHttpTransaction *)
     {
         // by default do nothing - only multiplexed protocols need to overload

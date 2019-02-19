@@ -1,7 +1,7 @@
 
 #Timeline
 
-The files in this directory are concerned with providing the backend platform features required for the developer tools interested in tracking down operations done in Goanna. The mechanism we use to define these operations are `markers`.
+The files in this directory are concerned with providing the backend platform features required for the developer tools interested in tracking down operations done in Gecko. The mechanism we use to define these operations are `markers`.
 
 Examples of traced operations include:
 
@@ -84,7 +84,7 @@ These markers will be created when using the `TimelineConsumers` helper methods 
 
 ### mozilla::AutoTimelineMarker
 
-The easiest way to trace Goanna events/tasks with start and end timeline markers is to use the `mozilla::AutoTimelineMarker` RAII class. It automatically adds the start marker on construction, and adds the end marker on destruction. Don't worry too much about potential performance impact! It only actually adds the markers when the given docshell is being observed by a timeline consumer, so essentially nothing will happen if a tool to inspect those markers isn't specifically open.
+The easiest way to trace Gecko events/tasks with start and end timeline markers is to use the `mozilla::AutoTimelineMarker` RAII class. It automatically adds the start marker on construction, and adds the end marker on destruction. Don't worry too much about potential performance impact! It only actually adds the markers when the given docshell is being observed by a timeline consumer, so essentially nothing will happen if a tool to inspect those markers isn't specifically open.
 
 This class may only be used on the main thread, and pointer to a docshell is necessary. If the docshell is a nullptr, nothing happens and this operation fails silently.
 

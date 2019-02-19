@@ -19,7 +19,7 @@
 -->
 <receiver android:exported="false" android:name="org.mozilla.mozstumbler.service.mainthread.SafeReceiver">
   <intent-filter>
-    <action android:name="org.mozilla.goanna.STUMBLER_REGISTER_LOCAL_LISTENER" />
+    <action android:name="org.mozilla.gecko.STUMBLER_REGISTER_LOCAL_LISTENER" />
   </intent-filter>
 </receiver>
 

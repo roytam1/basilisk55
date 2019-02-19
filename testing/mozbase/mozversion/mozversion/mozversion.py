@@ -29,7 +29,7 @@ class Version(object):
         if not self._logger:
             self._logger = mozlog.unstructured.getLogger('mozversion')
 
-    def get_goanna_info(self, path):
+    def get_gecko_info(self, path):
         for type, section in INI_DATA_MAPPING:
             config_file = os.path.join(path, "%s.ini" % type)
             if os.path.exists(config_file):
@@ -58,9 +58,9 @@ class LocalFennecVersion(Version):
 
     def __init__(self, path, **kwargs):
         Version.__init__(self, **kwargs)
-        self.get_goanna_info(path)
+        self.get_gecko_info(path)
 
-    def get_goanna_info(self, path):
+    def get_gecko_info(self, path):
         archive = zipfile.ZipFile(path, 'r')
         archive_list = archive.namelist()
         for type, section in INI_DATA_MAPPING:
@@ -102,7 +102,7 @@ class LocalVersion(Version):
             else:
                 raise errors.LocalAppNotFoundError(path)
 
-        self.get_goanna_info(path)
+        self.get_gecko_info(path)
 
     def check_location(self, path):
         return (os.path.exists(os.path.join(path, 'application.ini'))
@@ -123,7 +123,7 @@ class B2GVersion(Version):
             for element in sources_xml.getElementsByTagName('project'):
                 path = element.getAttribute('path')
                 changeset = element.getAttribute('revision')
-                if path in ['gaia', 'goanna', 'build']:
+                if path in ['gaia', 'gecko', 'build']:
                     if path == 'gaia' and self._info.get('gaia_changeset'):
                         break
                     self._info['_'.join([path, 'changeset'])] = changeset
@@ -169,7 +169,7 @@ class LocalB2GVersion(B2GVersion):
             if os.path.exists(os.path.join(os.getcwd(), 'application.ini')):
                 path = os.getcwd()
 
-        self.get_goanna_info(path)
+        self.get_gecko_info(path)
 
         zip_path = os.path.join(
             path, 'gaia', 'profile', 'webapps',
@@ -220,7 +220,7 @@ class RemoteB2GVersion(B2GVersion):
             with open(os.path.join(tempdir, '%s.ini' % ini), 'w') as f:
                 f.write(dm.pullFile('/system/b2g/%s.ini' % ini))
                 f.flush()
-        self.get_goanna_info(tempdir)
+        self.get_gecko_info(tempdir)
         mozfile.remove(tempdir)
 
         for path in ['/system/b2g', '/data/local']:

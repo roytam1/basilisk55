@@ -68,7 +68,7 @@ template<> const char ObjectBase<TypedObject<jobjectArray>, jobjectArray>::name[
 template<> const char ObjectBase<ByteBuffer, jobject>::name[] = "java/nio/ByteBuffer";
 
 
-JNIEnv* sGoannaThreadEnv;
+JNIEnv* sGeckoThreadEnv;
 
 namespace {
 
@@ -94,17 +94,17 @@ void UnregisterThreadEnv(void* env)
 
 } // namespace
 
-void SetGoannaThreadEnv(JNIEnv* aEnv)
+void SetGeckoThreadEnv(JNIEnv* aEnv)
 {
     MOZ_ASSERT(aEnv);
-    MOZ_ASSERT(!sGoannaThreadEnv || sGoannaThreadEnv == aEnv);
+    MOZ_ASSERT(!sGeckoThreadEnv || sGeckoThreadEnv == aEnv);
 
-    if (!sGoannaThreadEnv
+    if (!sGeckoThreadEnv
             && pthread_key_create(&sThreadEnvKey, UnregisterThreadEnv)) {
         MOZ_CRASH("Failed to initialize required TLS");
     }
 
-    sGoannaThreadEnv = aEnv;
+    sGeckoThreadEnv = aEnv;
     MOZ_ALWAYS_TRUE(!pthread_setspecific(sThreadEnvKey, aEnv));
 
     MOZ_ALWAYS_TRUE(!aEnv->GetJavaVM(&sJavaVM));
@@ -114,21 +114,21 @@ void SetGoannaThreadEnv(JNIEnv* aEnv)
             aEnv->FindClass("java/lang/OutOfMemoryError"))).Forget();
     aEnv->ExceptionClear();
 
-    sClassLoader = Object::GlobalRef(java::GoannaThread::ClsLoader()).Forget();
+    sClassLoader = Object::GlobalRef(java::GeckoThread::ClsLoader()).Forget();
     sClassLoaderLoadClass = aEnv->GetMethodID(
             Class::LocalRef::Adopt(aEnv->GetObjectClass(sClassLoader)).Get(),
             "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
     MOZ_ASSERT(sClassLoader && sClassLoaderLoadClass);
 
-    auto goannaAppClass = Class::LocalRef::Adopt(
-            aEnv->FindClass("org/mozilla/goanna/GoannaApp"));
+    auto geckoAppClass = Class::LocalRef::Adopt(
+            aEnv->FindClass("org/mozilla/gecko/GeckoApp"));
     aEnv->ExceptionClear();
-    sIsFennec = !!goannaAppClass;
+    sIsFennec = !!geckoAppClass;
 }
 
 JNIEnv* GetEnvForThread()
 {
-    MOZ_ASSERT(sGoannaThreadEnv);
+    MOZ_ASSERT(sGeckoThreadEnv);
 
     JNIEnv* env = static_cast<JNIEnv*>(pthread_getspecific(sThreadEnvKey));
     if (env) {
@@ -176,13 +176,13 @@ bool HandleUncaughtException(JNIEnv* aEnv)
     MOZ_ASSERT(e);
     aEnv->ExceptionClear();
 
-    String::LocalRef stack = java::GoannaAppShell::GetExceptionStackTrace(e);
+    String::LocalRef stack = java::GeckoAppShell::GetExceptionStackTrace(e);
     if (stack && ReportException(aEnv, e.Get(), stack.Get())) {
         return true;
     }
 
     aEnv->ExceptionClear();
-    java::GoannaAppShell::HandleUncaughtException(e);
+    java::GeckoAppShell::HandleUncaughtException(e);
 
     if (NS_WARN_IF(aEnv->ExceptionCheck())) {
         aEnv->ExceptionDescribe();
@@ -210,7 +210,7 @@ jfieldID sJNIObjectHandleField;
 bool EnsureJNIObject(JNIEnv* env, jobject instance) {
     if (!sJNIObjectClass) {
         sJNIObjectClass = Class::GlobalRef(Class::LocalRef::Adopt(GetClassRef(
-                env, "org/mozilla/goanna/mozglue/JNIObject"))).Forget();
+                env, "org/mozilla/gecko/mozglue/JNIObject"))).Forget();
 
         sJNIObjectHandleField = env->GetFieldID(
                 sJNIObjectClass, "mHandle", "J");
@@ -261,7 +261,7 @@ jclass GetClassRef(JNIEnv* aEnv, const char* aClassName)
     }
 
     __android_log_print(
-            ANDROID_LOG_ERROR, "Goanna",
+            ANDROID_LOG_ERROR, "Gecko",
             ">>> FATAL JNI ERROR! FindClass(\"%s\") failed. "
             "Does the class require a newer API version? "
             "Or did ProGuard optimize away something it shouldn't have?",
@@ -271,7 +271,7 @@ jclass GetClassRef(JNIEnv* aEnv, const char* aClassName)
     return nullptr;
 }
 
-void DispatchToGoannaThread(UniquePtr<AbstractCall>&& aCall)
+void DispatchToGeckoThread(UniquePtr<AbstractCall>&& aCall)
 {
     class AbstractCallEvent : public nsAppShell::Event
     {

@@ -7,7 +7,7 @@
 * http://moz-releng-docs.readthedocs.org/en/latest/software.html#mozharness
 
 ## Submitting changes
-Like any Goanna change, please create a patch or submit to Mozreview and
+Like any Gecko change, please create a patch or submit to Mozreview and
 open a Bugzilla ticket under the Mozharness component:
 https://bugzilla.mozilla.org/enter_bug.cgi?product=Release%20Engineering&component=Mozharness
 
@@ -20,7 +20,7 @@ To run the unit tests of mozharness the `tox` package needs to be installed:
 pip install tox
 ```
 
-There are various ways to run the unit tests. Just make sure you are within the `$goanna_repo/testing/mozharness` directory before running one of the commands below:
+There are various ways to run the unit tests. Just make sure you are within the `$gecko_repo/testing/mozharness` directory before running one of the commands below:
 
 ```
 tox                            # run all unit tests

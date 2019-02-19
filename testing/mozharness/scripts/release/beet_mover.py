@@ -49,11 +49,11 @@ CONFIG_OPTIONS = [
     }],
     [["--version"], {
         "dest": "version",
-        "help": "full release version based on goanna and tag/stage identifier. e.g. '44.0b1'"
+        "help": "full release version based on gecko and tag/stage identifier. e.g. '44.0b1'"
     }],
     [["--app-version"], {
         "dest": "app_version",
-        "help": "numbered version based on goanna. e.g. '44.0'"
+        "help": "numbered version based on gecko. e.g. '44.0'"
     }],
     [["--partial-version"], {
         "dest": "partial_version",

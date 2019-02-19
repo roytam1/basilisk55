@@ -229,7 +229,7 @@ def main():
                                        section="App", option="BuildID"),
             "appName": get_option(from_path, filename="application.ini",
                                   section="App", option="Name"),
-            # Use Goanna repo and rev from platform.ini, not application.ini
+            # Use Gecko repo and rev from platform.ini, not application.ini
             "repo": get_option(path, filename="platform.ini", section="Build",
                                option="SourceRepository"),
             "revision": get_option(path, filename="platform.ini",

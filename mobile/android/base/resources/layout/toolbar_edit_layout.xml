@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:goanna="http://schemas.android.com/apk/res-auto">
+       xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <!-- Search icon must have exact position and size as site security in
          display layout -->
@@ -24,7 +24,7 @@
         android:src="@drawable/search_icon_inactive"
         android:visibility="gone"/>
 
-    <org.mozilla.goanna.toolbar.ToolbarEditText
+    <org.mozilla.gecko.toolbar.ToolbarEditText
           android:id="@+id/url_edit_text"
           style="@style/UrlBar.Title"
           android:layout_width="match_parent"
@@ -36,7 +36,7 @@
           android:contentDescription="@string/url_bar_default_text"
           android:paddingRight="8dp"
           android:paddingEnd="8dp"
-          goanna:autoUpdateTheme="false"/>
+          gecko:autoUpdateTheme="false"/>
 
     <ImageButton android:id="@+id/qrcode"
                  android:layout_width="@dimen/page_action_button_width"

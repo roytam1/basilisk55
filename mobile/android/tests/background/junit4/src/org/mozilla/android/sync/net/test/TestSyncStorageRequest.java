@@ -9,12 +9,12 @@ import org.junit.runner.RunWith;
 import org.mozilla.android.sync.test.helpers.BaseTestStorageRequestDelegate;
 import org.mozilla.android.sync.test.helpers.HTTPServerTestHelper;
 import org.mozilla.android.sync.test.helpers.MockServer;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.net.AuthHeaderProvider;
-import org.mozilla.goanna.sync.net.BaseResource;
-import org.mozilla.goanna.sync.net.BasicAuthHeaderProvider;
-import org.mozilla.goanna.sync.net.SyncStorageRecordRequest;
-import org.mozilla.goanna.sync.net.SyncStorageResponse;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.net.AuthHeaderProvider;
+import org.mozilla.gecko.sync.net.BaseResource;
+import org.mozilla.gecko.sync.net.BasicAuthHeaderProvider;
+import org.mozilla.gecko.sync.net.SyncStorageRecordRequest;
+import org.mozilla.gecko.sync.net.SyncStorageResponse;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 

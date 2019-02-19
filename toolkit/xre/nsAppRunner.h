@@ -96,7 +96,7 @@ void
 OverrideDefaultLocaleIfNeeded();
 
 /**
- * Allow exit() calls to complete. This should be done from a proper Goanna
+ * Allow exit() calls to complete. This should be done from a proper Gecko
  * shutdown path. Otherwise we aim to catch improper shutdowns.
  */
 void
@@ -116,7 +116,7 @@ WinLaunchChild(const wchar_t *exePath, int argc,
 
 namespace mozilla {
 namespace startup {
-extern GoannaProcessType sChildProcessType;
+extern GeckoProcessType sChildProcessType;
 } // namespace startup
 } // namespace mozilla
 

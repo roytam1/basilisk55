@@ -6,7 +6,7 @@ include $(topsrcdir)/config/config.mk
 
 JAVAFILES := \
 	java/org/mozilla/bouncer/BouncerService.java \
-	java/org/mozilla/goanna/BrowserApp.java \
+	java/org/mozilla/gecko/BrowserApp.java \
   $(NULL)
 
 ANDROID_EXTRA_JARS := \

@@ -85,7 +85,7 @@ nsTreeStyleCache::GetStyleContext(nsICSSPseudoComparator* aComparator,
       newResult = aPresContext->StyleSet()->
         ResolveStyleForOtherNonElement(aContext);
     } else {
-      newResult = aPresContext->StyleSet()->AsGoanna()->
+      newResult = aPresContext->StyleSet()->AsGecko()->
         ResolveXULTreePseudoStyle(aContent->AsElement(), aPseudoElement,
                                   aContext, aComparator);
     }

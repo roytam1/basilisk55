@@ -78,7 +78,7 @@ data in a json useful for Exhibit
 class CompareLocales(BaseCommand):
     """usage: %prog [options] l10n.ini l10n_base_dir [locale ...]
 
-Check the localization status of a goanna application.
+Check the localization status of a gecko application.
 The first argument is a path to the l10n.ini file for the application,
 followed by the base directory of the localization repositories.
 Then you pass in the list of locale codes you want to compare. If there are

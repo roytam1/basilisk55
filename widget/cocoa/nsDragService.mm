@@ -286,7 +286,7 @@ nsDragService::InvokeDragSessionImpl(nsIArray* aTransferableArray,
 
   if (!gLastDragView) {
     // gLastDragView is only set during -[ChildView mouseDragged:].
-    // InvokeDragSessionImpl is only called while Goanna processes a mouse move
+    // InvokeDragSessionImpl is only called while Gecko processes a mouse move
     // event. So if we get here with gLastDragView being null, that means that
     // the mouse button has already been released, and mouseMoved is on the
     // stack instead of mouseDragged. In that case we need to abort the drag
@@ -330,7 +330,7 @@ nsDragService::InvokeDragSessionImpl(nsIArray* aTransferableArray,
 
       // write everything out to the general pasteboard
       [types addObjectsFromArray:[pasteboardOutputDict allKeys]];
-      // Goanna is initiating this drag so we always want its own views to
+      // Gecko is initiating this drag so we always want its own views to
       // consider it. Add our wildcard type to the pasteboard to accomplish
       // this.
       [types addObject:kWildcardPboardType];
@@ -695,7 +695,7 @@ nsDragService::DragMovedWithView(NSDraggingSession* aSession, NSPoint aPoint)
         LayoutDeviceIntRect newRect;
         NSImage* image = ConstructDragImage(mSourceNode, nullptr, screenPoint, &newRect);
         if (image) {
-          NSRect draggingRect = nsCocoaUtils::GoannaRectToCocoaRectDevPix(newRect, scaleFactor);
+          NSRect draggingRect = nsCocoaUtils::GeckoRectToCocoaRectDevPix(newRect, scaleFactor);
           [draggingItem setDraggingFrame:draggingRect contents:image];
         }
       };

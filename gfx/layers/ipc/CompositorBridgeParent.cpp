@@ -68,7 +68,7 @@
 #include "mozilla/layers/CompositorD3D11.h"
 #include "mozilla/layers/CompositorD3D9.h"
 #endif
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "mozilla/ipc/ProtocolTypes.h"
 #include "mozilla/Unused.h"
 #include "mozilla/Hal.h"
@@ -872,7 +872,7 @@ CompositorBridgeParent::SetShadowProperties(Layer* aLayer)
 void
 CompositorBridgeParent::CompositeToTarget(DrawTarget* aTarget, const gfx::IntRect* aRect)
 {
-  GoannaProfilerTracingRAII tracer("Paint", "Composite");
+  GeckoProfilerTracingRAII tracer("Paint", "Composite");
   PROFILER_LABEL("CompositorBridgeParent", "Composite",
     js::ProfileEntry::Category::GRAPHICS);
 
@@ -1478,7 +1478,7 @@ CompositorBridgeParent* CompositorBridgeParent::RemoveCompositor(uint64_t id)
 void
 CompositorBridgeParent::NotifyVsync(const TimeStamp& aTimeStamp, const uint64_t& aLayersId)
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_GPU);
   MOZ_ASSERT(CompositorThreadHolder::IsInCompositorThread());
 
   MonitorAutoLock lock(*sIndirectLayerTreesLock);
@@ -1578,18 +1578,18 @@ CompositorBridgeParent::DeallocateLayerTreeId(uint64_t aId)
 
 static void
 UpdateControllerForLayersId(uint64_t aLayersId,
-                            GoannaContentController* aController)
+                            GeckoContentController* aController)
 {
   // Adopt ref given to us by SetControllerForLayerTree()
   MonitorAutoLock lock(*sIndirectLayerTreesLock);
   sIndirectLayerTrees[aLayersId].mController =
-    already_AddRefed<GoannaContentController>(aController);
+    already_AddRefed<GeckoContentController>(aController);
 }
 
 ScopedLayerTreeRegistration::ScopedLayerTreeRegistration(APZCTreeManager* aApzctm,
                                                          uint64_t aLayersId,
                                                          Layer* aRoot,
-                                                         GoannaContentController* aController)
+                                                         GeckoContentController* aController)
     : mLayersId(aLayersId)
 {
   EnsureLayerTreeMapReady();
@@ -1606,7 +1606,7 @@ ScopedLayerTreeRegistration::~ScopedLayerTreeRegistration()
 
 /*static*/ void
 CompositorBridgeParent::SetControllerForLayerTree(uint64_t aLayersId,
-                                                  GoannaContentController* aController)
+                                                  GeckoContentController* aController)
 {
   // This ref is adopted by UpdateControllerForLayersId().
   aController->AddRef();
@@ -1932,8 +1932,8 @@ CompositorBridgeParent::GetApzcTreeManagerParentForRoot(uint64_t aContentLayersI
   return state ? state->mApzcTreeManagerParent : nullptr;
 }
 
-/* static */ GoannaContentController*
-CompositorBridgeParent::GetGoannaContentControllerForRoot(uint64_t aContentLayersId)
+/* static */ GeckoContentController*
+CompositorBridgeParent::GetGeckoContentControllerForRoot(uint64_t aContentLayersId)
 {
   MonitorAutoLock lock(*sIndirectLayerTreesLock);
   CompositorBridgeParent::LayerTreeState* state =

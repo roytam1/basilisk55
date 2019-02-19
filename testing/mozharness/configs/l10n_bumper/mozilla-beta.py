@@ -8,8 +8,8 @@ config = {
         "hgtool.py": ["/usr/local/bin/hgtool.py"],
     },
 
-    "goanna_pull_url": "https://hg.mozilla.org/{}".format(MULTI_REPO),
-    "goanna_push_url": "ssh://hg.mozilla.org/{}".format(MULTI_REPO),
+    "gecko_pull_url": "https://hg.mozilla.org/{}".format(MULTI_REPO),
+    "gecko_push_url": "ssh://hg.mozilla.org/{}".format(MULTI_REPO),
 
     "hg_user": "L10n Bumper Bot <release+l10nbumper@mozilla.com>",
     "ssh_key": "~/.ssh/ffxbld_rsa",

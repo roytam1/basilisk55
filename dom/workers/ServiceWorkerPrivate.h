@@ -206,7 +206,7 @@ private:
   ServiceWorkerInfo* MOZ_NON_OWNING_REF mInfo;
 
   // The WorkerPrivate object can only be closed by this class or by the
-  // RuntimeService class if goanna is shutting down. Closing the worker
+  // RuntimeService class if gecko is shutting down. Closing the worker
   // multiple times is OK, since the second attempt will be a no-op.
   RefPtr<WorkerPrivate> mWorkerPrivate;
 

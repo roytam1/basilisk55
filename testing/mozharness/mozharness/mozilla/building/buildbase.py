@@ -582,7 +582,7 @@ BUILD_BASE_CONFIG_OPTIONS = [
     [["--disable-mock"], {
         "dest": "disable_mock",
         "action": "store_true",
-        "help": "do not run under mock despite what goanna-config says",
+        "help": "do not run under mock despite what gecko-config says",
     }],
 
 ]
@@ -1083,7 +1083,7 @@ or run without that action (ie: --no-{action})"
             with self.opened(manifest, error_level=ERROR) as (fh, err):
                 if err:
                     self.fatal("%s exists but coud not read properties" % manifest)
-                abs_mozconfig_path = os.path.join(dirs['abs_src_dir'], json.load(fh)['goanna_path'])
+                abs_mozconfig_path = os.path.join(dirs['abs_src_dir'], json.load(fh)['gecko_path'])
         else:
             self.fatal("'src_mozconfig' or 'src_mozconfig_manifest' must be "
                        "in the config but not both in order to determine the mozconfig.")

@@ -183,9 +183,9 @@ def upload_to_tooltool(tooltool_auth, task_id, artifact):
         os.chdir(oldcwd)
 
 
-def update_manifest(artifact, manifest, local_goanna_clone):
+def update_manifest(artifact, manifest, local_gecko_clone):
     platform = 'linux'
-    manifest_dir = os.path.join(local_goanna_clone,
+    manifest_dir = os.path.join(local_gecko_clone,
                                 'testing', 'config', 'tooltool-manifests')
     platform_dir = [p for p in os.listdir(manifest_dir)
                     if p.startswith(platform)][0]
@@ -203,8 +203,8 @@ def main():
     parser.add_argument('--tooltool-auth',
                         help='Path to a file containing a tooltool '
                              'authentication token valid for uploading files')
-    parser.add_argument('--local-goanna-clone',
-                        help='Path to a local Goanna clone whose tooltool '
+    parser.add_argument('--local-gecko-clone',
+                        help='Path to a local Gecko clone whose tooltool '
                              'manifests will be updated with the newly-built binaries')
     parser.add_argument('--rust-branch', default='stable',
                         help='Revision of the rust repository to use')
@@ -222,8 +222,8 @@ def main():
         if args.tooltool_auth:
             manifest = upload_to_tooltool(args.tooltool_auth, task_id,
                                           artifact)
-        if args.local_goanna_clone:
-            update_manifest(artifact, manifest, args.local_goanna_clone)
+        if args.local_gecko_clone:
+            update_manifest(artifact, manifest, args.local_gecko_clone)
 
 
 if __name__ == '__main__':

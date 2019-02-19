@@ -30,7 +30,7 @@ import sys
 import urllib2
 
 
-FINGERPRINT_URL = 'http://taskcluster/secrets/v1/secret/project/taskcluster/goanna/hgfingerprint'
+FINGERPRINT_URL = 'http://taskcluster/secrets/v1/secret/project/taskcluster/gecko/hgfingerprint'
 FALLBACK_FINGERPRINT = {
     'fingerprints':
         "sha256:8e:ad:f7:6a:eb:44:06:15:ed:f3:e4:69:a6:64:60:37:2d:ff:98:88:37"
@@ -175,7 +175,7 @@ def main(args):
     parser.add_argument('--chown-recursive', action='append',
                         help='Directory to recursively chown to --user:--group')
     parser.add_argument('--vcs-checkout',
-                        help='Directory where Goanna checkout should be created')
+                        help='Directory where Gecko checkout should be created')
     parser.add_argument('--tools-checkout',
                         help='Directory where build/tools checkout should be created')
 
@@ -280,28 +280,28 @@ def main(args):
     os.setresgid(gid, gid, gid)
     os.setresuid(uid, uid, uid)
 
-    # Checkout the repository, setting the GOANNA_HEAD_REV to the current
+    # Checkout the repository, setting the GECKO_HEAD_REV to the current
     # revision hash. Revision hashes have priority over symbolic revisions. We
     # disallow running tasks with symbolic revisions unless they have been
     # resolved by a checkout.
     if args.vcs_checkout:
-        base_repo = os.environ.get('GOANNA_BASE_REPOSITORY')
+        base_repo = os.environ.get('GECKO_BASE_REPOSITORY')
         # Some callers set the base repository to mozilla-central for historical
         # reasons. Switch to mozilla-unified because robustcheckout works best
         # with it.
         if base_repo == 'https://hg.mozilla.org/mozilla-central':
             base_repo = b'https://hg.mozilla.org/mozilla-unified'
 
-        os.environ['GOANNA_HEAD_REV'] = vcs_checkout(
-            os.environ['GOANNA_HEAD_REPOSITORY'],
+        os.environ['GECKO_HEAD_REV'] = vcs_checkout(
+            os.environ['GECKO_HEAD_REPOSITORY'],
             args.vcs_checkout,
             os.environ['HG_STORE_PATH'],
             base_repo=base_repo,
-            revision=os.environ.get('GOANNA_HEAD_REV'),
-            branch=os.environ.get('GOANNA_HEAD_REF'))
+            revision=os.environ.get('GECKO_HEAD_REV'),
+            branch=os.environ.get('GECKO_HEAD_REF'))
 
-    elif not os.environ.get('GOANNA_HEAD_REV') and \
-            os.environ.get('GOANNA_HEAD_REF'):
+    elif not os.environ.get('GECKO_HEAD_REV') and \
+            os.environ.get('GECKO_HEAD_REF'):
         print('task should be defined in terms of non-symbolic revision')
         return 1
 

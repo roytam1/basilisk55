@@ -176,7 +176,7 @@ SandboxBrokerPolicyFactory::GetContentPolicy(int aPid)
 
   // Bug 1029337: where the profiler writes the data.
   nsPrintfCString profilerLogPath("/data/local/tmp/profile_%d_%d.txt",
-                                  GoannaProcessType_Content, aPid);
+                                  GeckoProcessType_Content, aPid);
   policy->AddPath(wrlog, profilerLogPath.get());
 
   // Bug 1198550: the profiler's replacement for dl_iterate_phdr

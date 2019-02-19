@@ -53,7 +53,7 @@ public:
     return ::XRE_XPCShellMain(argc, argv, envp, aShellData);
   }
 
-  virtual GoannaProcessType XRE_GetProcessType() override {
+  virtual GeckoProcessType XRE_GetProcessType() override {
     return ::XRE_GetProcessType();
   }
 
@@ -70,8 +70,8 @@ public:
   }
 
 #ifdef MOZ_WIDGET_ANDROID
-  virtual void GoannaStart(JNIEnv* aEnv, char** argv, int argc, const StaticXREAppData& aAppData) override {
-    ::GoannaStart(aEnv, argv, argc, aAppData);
+  virtual void GeckoStart(JNIEnv* aEnv, char** argv, int argc, const StaticXREAppData& aAppData) override {
+    ::GeckoStart(aEnv, argv, argc, aAppData);
   }
 
   virtual void XRE_SetAndroidChildFds(int aCrashFd, int aIPCFd) override {

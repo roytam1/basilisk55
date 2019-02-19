@@ -13,16 +13,16 @@ import org.mozilla.android.sync.test.SynchronizerHelpers.FinishErrorWBORepositor
 import org.mozilla.android.sync.test.SynchronizerHelpers.FinishFailedException;
 import org.mozilla.android.sync.test.SynchronizerHelpers.SerialFailStoreWBORepository;
 import org.mozilla.android.sync.test.SynchronizerHelpers.TrackingWBORepository;
-import org.mozilla.goanna.background.common.log.Logger;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.background.testhelpers.WBORepository;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.repositories.FetchFailedException;
-import org.mozilla.goanna.sync.repositories.StoreFailedException;
-import org.mozilla.goanna.sync.repositories.domain.BookmarkRecord;
-import org.mozilla.goanna.sync.synchronizer.ServerLocalSynchronizer;
-import org.mozilla.goanna.sync.synchronizer.Synchronizer;
-import org.mozilla.goanna.sync.synchronizer.SynchronizerDelegate;
+import org.mozilla.gecko.background.common.log.Logger;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.background.testhelpers.WBORepository;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.repositories.FetchFailedException;
+import org.mozilla.gecko.sync.repositories.StoreFailedException;
+import org.mozilla.gecko.sync.repositories.domain.BookmarkRecord;
+import org.mozilla.gecko.sync.synchronizer.ServerLocalSynchronizer;
+import org.mozilla.gecko.sync.synchronizer.Synchronizer;
+import org.mozilla.gecko.sync.synchronizer.SynchronizerDelegate;
 
 import java.util.ArrayList;
 

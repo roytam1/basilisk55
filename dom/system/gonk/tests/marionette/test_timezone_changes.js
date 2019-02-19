@@ -40,7 +40,7 @@ function verifyDate(aTestDate, aUTCOffsetDate) {
   is(aUTCOffsetDate.getUTCMilliseconds(), aTestDate.getMilliseconds(), 'milliseconds');
 
   // Ensure toLocaleString also uses correct timezone.
-  // It uses ICU's timezone instead of the offset calculated from goanna prtime.
+  // It uses ICU's timezone instead of the offset calculated from gecko prtime.
   let expectedDateString =
     paddingZeros(aUTCOffsetDate.getUTCMonth() + 1, 2) + '/' +
     paddingZeros(aUTCOffsetDate.getUTCDate(), 2);

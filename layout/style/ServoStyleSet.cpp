@@ -174,7 +174,7 @@ ServoStyleSet::ResolveStyleForText(nsIContent* aTextNode,
   MOZ_ASSERT(aTextNode->GetParent());
   MOZ_ASSERT(aParentContext);
 
-  // Goanna expects text node style contexts to be like elements that match no
+  // Gecko expects text node style contexts to be like elements that match no
   // rules: inherit the inherit structs, reset the reset structs. This is cheap
   // enough to do on the main thread, which means that the parallel style system
   // can avoid worrying about text nodes.
@@ -334,7 +334,7 @@ nsresult
 ServoStyleSet::ReplaceSheets(SheetType aType,
                              const nsTArray<RefPtr<ServoStyleSheet>>& aNewSheets)
 {
-  // Goanna uses a two-dimensional array keyed by sheet type, whereas Servo
+  // Gecko uses a two-dimensional array keyed by sheet type, whereas Servo
   // stores a flattened list. This makes ReplaceSheets a pretty clunky thing
   // to express. If the need ever arises, we can easily make this more efficent,
   // probably by aligning the representations better between engines.

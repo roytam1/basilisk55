@@ -67,7 +67,7 @@ class MachCommands(MachCommandBase):
              description="Manipulate TaskCluster task graphs defined in-tree")
     def taskgraph(self):
         """The taskgraph subcommands all relate to the generation of task graphs
-        for Goanna continuous integration.  A task graph is a set of tasks linked
+        for Gecko continuous integration.  A task graph is a set of tasks linked
         by dependencies: for example, a binary must be built before it is tested,
         and that build may further depend on various toolchains, libraries, etc.
         """
@@ -181,7 +181,7 @@ class MachCommands(MachCommandBase):
     def taskgraph_action(self, **options):
         """Run the action task: Generates a task graph using the set of labels
         provided in the task-labels parameter. It uses the full-task file of
-        the goanna decision task."""
+        the gecko decision task."""
 
         import taskgraph.action
         try:
@@ -206,7 +206,7 @@ class MachCommands(MachCommandBase):
     def taskgraph_add_tasks(self, **options):
         """Run the action task: Generates a task graph using the set of labels
         provided in the task-labels parameter. It uses the full-task file of
-        the goanna decision task."""
+        the gecko decision task."""
 
         import taskgraph.action
         try:

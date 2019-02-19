@@ -73,14 +73,14 @@ const memorySpec = generateActorSpec({
         options: Arg(0, "nullable:AllocationsRecordingOptions")
       },
       response: {
-        // Accept `nullable` in the case of server Goanna <= 37, handled on the front
+        // Accept `nullable` in the case of server Gecko <= 37, handled on the front
         value: RetVal(0, "nullable:number")
       }
     },
     stopRecordingAllocations: {
       request: {},
       response: {
-        // Accept `nullable` in the case of server Goanna <= 37, handled on the front
+        // Accept `nullable` in the case of server Gecko <= 37, handled on the front
         value: RetVal(0, "nullable:number")
       }
     },

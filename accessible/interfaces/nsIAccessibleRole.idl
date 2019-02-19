@@ -6,7 +6,7 @@
 #include "nsISupports.idl"
 
 /**
- * Defines cross platform (Goanna) roles.
+ * Defines cross platform (Gecko) roles.
  */
 [scriptable, builtinclass, uuid(05a9f33f-dcfd-4e7b-b825-138ba784c1f5)]
 interface nsIAccessibleRole : nsISupports

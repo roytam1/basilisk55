@@ -26,7 +26,7 @@ class CrashReporterHost
   typedef CrashReporter::AnnotationTable AnnotationTable;
 
 public:
-  CrashReporterHost(GoannaProcessType aProcessType, const Shmem& aShmem);
+  CrashReporterHost(GeckoProcessType aProcessType, const Shmem& aShmem);
 
 private:
   void GenerateCrashReport(RefPtr<nsIFile> aCrashDump);
@@ -34,7 +34,7 @@ private:
                             const nsString& aChildDumpID);
 
 private:
-  GoannaProcessType mProcessType;
+  GeckoProcessType mProcessType;
   Shmem mShmem;
   time_t mStartTime;
 };

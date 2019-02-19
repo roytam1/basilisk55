@@ -95,7 +95,7 @@ class BaseTestFrontendUnits(MarionetteTestCase):
         #
         # Note: when e10s is enabled by default, this pref can go away. The automatic
         # restart will also go away if this is still the only pref set here.
-        self.marionette.enforce_goanna_prefs({
+        self.marionette.enforce_gecko_prefs({
             "browser.tabs.remote.autostart": True
         })
 

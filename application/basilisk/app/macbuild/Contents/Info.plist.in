@@ -217,7 +217,7 @@
   <key>NSSupportsAutomaticGraphicsSwitching</key>
   <true/>
   <key>NSPrincipalClass</key>
-  <string>GoannaNSApplication</string>
+  <string>GeckoNSApplication</string>
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>org.mozilla.updater</key>

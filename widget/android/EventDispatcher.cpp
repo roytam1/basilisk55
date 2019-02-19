@@ -135,7 +135,7 @@ BoxArray(JSContext* aCx, JS::HandleObject aData, jni::Object::LocalRef& aOut)
 
     if (!length) {
         // Always represent empty arrays as an empty boolean array.
-        aOut = java::GoannaBundle::EMPTY_BOOLEAN_ARRAY();
+        aOut = java::GeckoBundle::EMPTY_BOOLEAN_ARRAY();
         return NS_OK;
     }
 
@@ -192,7 +192,7 @@ BoxArray(JSContext* aCx, JS::HandleObject aData, jni::Object::LocalRef& aOut)
     };
 
     if (element.isNullOrUndefined() || isObject(element)) {
-        return BoxArrayObject<java::GoannaBundle, &BoxObject>(
+        return BoxArrayObject<java::GeckoBundle, &BoxObject>(
                 aCx, aData, aOut, length, element, isObject);
     }
 
@@ -262,7 +262,7 @@ BoxObject(JSContext* aCx, JS::HandleValue aData, jni::Object::LocalRef& aOut)
         values->SetElement(i, value);
     }
 
-    aOut = java::GoannaBundle::New(keys, values);
+    aOut = java::GeckoBundle::New(keys, values);
     return NS_OK;
 }
 
@@ -272,11 +272,11 @@ BoxValue(JSContext* aCx, JS::HandleValue aData, jni::Object::LocalRef& aOut)
     if (aData.isNullOrUndefined()) {
         aOut = nullptr;
     } else if (aData.isBoolean()) {
-        aOut = java::GoannaBundle::Box(aData.toBoolean());
+        aOut = java::GeckoBundle::Box(aData.toBoolean());
     } else if (aData.isInt32()) {
-        aOut = java::GoannaBundle::Box(aData.toInt32());
+        aOut = java::GeckoBundle::Box(aData.toInt32());
     } else if (aData.isNumber()) {
-        aOut = java::GoannaBundle::Box(aData.toNumber());
+        aOut = java::GeckoBundle::Box(aData.toNumber());
     } else if (aData.isString()) {
         return BoxString(aCx, aData, aOut);
     } else if (aData.isObject()) {
@@ -359,10 +359,10 @@ UnboxBundle(JSContext* aCx, const jni::Object::LocalRef& aData,
         return NS_OK;
     }
 
-    MOZ_ASSERT(aData.IsInstanceOf<java::GoannaBundle>());
+    MOZ_ASSERT(aData.IsInstanceOf<java::GeckoBundle>());
 
     JNIEnv* const env = aData.Env();
-    const auto& bundle = java::GoannaBundle::Ref::From(aData);
+    const auto& bundle = java::GeckoBundle::Ref::From(aData);
     jni::ObjectArray::LocalRef keys = bundle->Keys();
     jni::ObjectArray::LocalRef values = bundle->Values();
     const size_t len = keys->Length();
@@ -447,13 +447,13 @@ struct StringArray : jni::ObjectBase<StringArray>
     static const char name[];
 };
 
-struct GoannaBundleArray : jni::ObjectBase<GoannaBundleArray>
+struct GeckoBundleArray : jni::ObjectBase<GeckoBundleArray>
 {
     static const char name[];
 };
 
 const char StringArray::name[] = "[Ljava/lang/String;";
-const char GoannaBundleArray::name[] = "[Lorg/mozilla/goanna/util/GoannaBundle;";
+const char GeckoBundleArray::name[] = "[Lorg/mozilla/gecko/util/GeckoBundle;";
 
 template<nsresult (*Unbox)(JSContext*, const jni::Object::LocalRef&,
                            JS::MutableHandleValue)> nsresult
@@ -487,14 +487,14 @@ UnboxValue(JSContext* aCx, const jni::Object::LocalRef& aData,
     if (!aData) {
         aOut.setNull();
     } else if (aData.IsInstanceOf<jni::Boolean>()) {
-        aOut.setBoolean(java::GoannaBundle::UnboxBoolean(aData));
+        aOut.setBoolean(java::GeckoBundle::UnboxBoolean(aData));
     } else if (aData.IsInstanceOf<jni::Integer>()) {
-        aOut.setInt32(java::GoannaBundle::UnboxInteger(aData));
+        aOut.setInt32(java::GeckoBundle::UnboxInteger(aData));
     } else if (aData.IsInstanceOf<jni::Double>()) {
-        aOut.setNumber(java::GoannaBundle::UnboxDouble(aData));
+        aOut.setNumber(java::GeckoBundle::UnboxDouble(aData));
     } else if (aData.IsInstanceOf<jni::String>()) {
         return UnboxString(aCx, aData, aOut);
-    } else if (aData.IsInstanceOf<java::GoannaBundle>()) {
+    } else if (aData.IsInstanceOf<java::GeckoBundle>()) {
         return UnboxBundle(aCx, aData, aOut);
 
     } else if (aData.IsInstanceOf<jni::BooleanArray>()) {
@@ -517,7 +517,7 @@ UnboxValue(JSContext* aCx, const jni::Object::LocalRef& aData,
 
     } else if (aData.IsInstanceOf<StringArray>()) {
         return UnboxArrayObject<&UnboxString>(aCx, aData, aOut);
-    } else if (aData.IsInstanceOf<GoannaBundleArray>()) {
+    } else if (aData.IsInstanceOf<GeckoBundleArray>()) {
         return UnboxArrayObject<&UnboxBundle>(aCx, aData, aOut);
     } else {
         NS_WARNING("Invalid type");
@@ -532,12 +532,12 @@ UnboxData(jni::String::Param aEvent, JSContext* aCx, jni::Object::Param aData,
 {
     MOZ_ASSERT(NS_IsMainThread());
 
-    jni::Object::LocalRef jniData(jni::GetGoannaThreadEnv(), aData);
+    jni::Object::LocalRef jniData(jni::GetGeckoThreadEnv(), aData);
     nsresult rv = NS_ERROR_INVALID_ARG;
 
     if (!aBundleOnly) {
         rv = UnboxValue(aCx, jniData, aOut);
-    } else if (!jniData || jniData.IsInstanceOf<java::GoannaBundle>()) {
+    } else if (!jniData || jniData.IsInstanceOf<java::GeckoBundle>()) {
         rv = UnboxBundle(aCx, jniData, aOut);
     }
     if (rv != NS_ERROR_INVALID_ARG) {
@@ -566,7 +566,7 @@ class JavaCallbackDelegate final : public nsIAndroidEventCallback
         MOZ_ASSERT(NS_IsMainThread());
         AutoJSContext cx;
 
-        jni::Object::LocalRef data(jni::GetGoannaThreadEnv());
+        jni::Object::LocalRef data(jni::GetGeckoThreadEnv());
         nsresult rv = BoxData(NS_LITERAL_STRING("callback"), cx, aData, data,
                               /* ObjectOnly */ false);
         NS_ENSURE_SUCCESS(rv, JS_IsExceptionPending(cx) ? NS_OK : rv);
@@ -578,7 +578,7 @@ class JavaCallbackDelegate final : public nsIAndroidEventCallback
 
 public:
     JavaCallbackDelegate(java::EventCallback::Param aCallback)
-        : mCallback(jni::GetGoannaThreadEnv(), aCallback)
+        : mCallback(jni::GetGeckoThreadEnv(), aCallback)
     {}
 
     NS_DECL_ISUPPORTS
@@ -641,7 +641,7 @@ public:
     static void OnNativeCall(Functor&& aCall)
     {
         if (NS_IsMainThread()) {
-            // Invoke callbacks synchronously if we're already on Goanna thread.
+            // Invoke callbacks synchronously if we're already on Gecko thread.
             return aCall();
         }
         nsAppShell::PostEvent(Move(aCall));
@@ -676,7 +676,7 @@ using namespace detail;
 NS_IMPL_ISUPPORTS(EventDispatcher, nsIAndroidEventDispatcher)
 
 nsresult
-EventDispatcher::DispatchOnGoanna(ListenersList* list, const nsAString& aEvent,
+EventDispatcher::DispatchOnGecko(ListenersList* list, const nsAString& aEvent,
                                  JS::HandleValue aData,
                                  nsIAndroidEventCallback* aCallback)
 {
@@ -724,14 +724,14 @@ EventDispatcher::Dispatch(const nsAString& aEvent, JS::HandleValue aData,
 
     ListenersList* list = mListenersMap.Get(aEvent);
     if (list) {
-        return DispatchOnGoanna(list, aEvent, aData, aCallback);
+        return DispatchOnGecko(list, aEvent, aData, aCallback);
     }
 
     if (!mDispatcher) {
         return NS_OK;
     }
 
-    jni::Object::LocalRef data(jni::GetGoannaThreadEnv());
+    jni::Object::LocalRef data(jni::GetGeckoThreadEnv());
     nsresult rv = BoxData(aEvent, aCx, aData, data, /* ObjectOnly */ true);
     NS_ENSURE_SUCCESS(rv, JS_IsExceptionPending(aCx) ? NS_OK : rv);
 
@@ -878,7 +878,7 @@ EventDispatcher::Attach(java::EventDispatcher::Param aDispatcher,
             mDOMWindow = aDOMWindow;
             return;
         }
-        mDispatcher->SetAttachedToGoanna(java::EventDispatcher::REATTACHING);
+        mDispatcher->SetAttachedToGecko(java::EventDispatcher::REATTACHING);
     }
 
     java::EventDispatcher::LocalRef dispatcher(aDispatcher);
@@ -887,7 +887,7 @@ EventDispatcher::Attach(java::EventDispatcher::Param aDispatcher,
     mDispatcher = dispatcher;
     mDOMWindow = aDOMWindow;
 
-    dispatcher->SetAttachedToGoanna(java::EventDispatcher::ATTACHED);
+    dispatcher->SetAttachedToGecko(java::EventDispatcher::ATTACHED);
 }
 
 void
@@ -896,16 +896,16 @@ EventDispatcher::Detach()
     MOZ_ASSERT(NS_IsMainThread());
     MOZ_ASSERT(mDispatcher);
 
-    // SetAttachedToGoanna will call disposeNative for us. disposeNative will be
-    // called later on the Goanna thread to make sure all pending
-    // dispatchToGoanna calls have completed.
-    mDispatcher->SetAttachedToGoanna(java::EventDispatcher::DETACHED);
+    // SetAttachedToGecko will call disposeNative for us. disposeNative will be
+    // called later on the Gecko thread to make sure all pending
+    // dispatchToGecko calls have completed.
+    mDispatcher->SetAttachedToGecko(java::EventDispatcher::DETACHED);
     mDispatcher = nullptr;
     mDOMWindow = nullptr;
 }
 
 bool
-EventDispatcher::HasGoannaListener(jni::String::Param aEvent)
+EventDispatcher::HasGeckoListener(jni::String::Param aEvent)
 {
     // Can be called from any thread.
     MutexAutoLock lock(mLock);
@@ -913,7 +913,7 @@ EventDispatcher::HasGoannaListener(jni::String::Param aEvent)
 }
 
 void
-EventDispatcher::DispatchToGoanna(jni::String::Param aEvent,
+EventDispatcher::DispatchToGecko(jni::String::Param aEvent,
                                  jni::Object::Param aData,
                                  jni::Object::Param aCallback)
 {
@@ -948,7 +948,7 @@ EventDispatcher::DispatchToGoanna(jni::String::Param aEvent,
                 java::EventCallback::Ref::From(aCallback));
     }
 
-    DispatchOnGoanna(list, event, data, callback);
+    DispatchOnGecko(list, event, data, callback);
 }
 
 } // namespace widget

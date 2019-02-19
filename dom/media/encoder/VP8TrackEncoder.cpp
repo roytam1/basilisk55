@@ -4,7 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "VP8TrackEncoder.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "LayersLogging.h"
 #include "libyuv.h"
 #include "mozilla/gfx/2D.h"

@@ -8,27 +8,27 @@ used Mozilla applications, such as Firefox or B2G emulator.
 """
 
 from .application import get_app_context
-from .base import DeviceRunner, GoannaRuntimeRunner, FennecRunner
+from .base import DeviceRunner, GeckoRuntimeRunner, FennecRunner
 from .devices import Emulator, EmulatorAVD, Device
 
 
 def Runner(*args, **kwargs):
     """
-    Create a generic GoannaRuntime runner.
+    Create a generic GeckoRuntime runner.
 
     :param binary: Path to binary.
     :param cmdargs: Arguments to pass into binary.
     :param profile: Profile object to use.
-    :param env: Environment variables to pass into the goanna process.
+    :param env: Environment variables to pass into the gecko process.
     :param clean_profile: If True, restores profile back to original state.
     :param process_class: Class used to launch the binary.
     :param process_args: Arguments to pass into process_class.
     :param symbols_path: Path to symbol files used for crash analysis.
     :param show_crash_reporter: allow the crash reporter window to pop up.
         Defaults to False.
-    :returns: A generic GoannaRuntimeRunner.
+    :returns: A generic GeckoRuntimeRunner.
     """
-    return GoannaRuntimeRunner(*args, **kwargs)
+    return GeckoRuntimeRunner(*args, **kwargs)
 
 
 def FirefoxRunner(*args, **kwargs):
@@ -38,17 +38,17 @@ def FirefoxRunner(*args, **kwargs):
     :param binary: Path to Firefox binary.
     :param cmdargs: Arguments to pass into binary.
     :param profile: Profile object to use.
-    :param env: Environment variables to pass into the goanna process.
+    :param env: Environment variables to pass into the gecko process.
     :param clean_profile: If True, restores profile back to original state.
     :param process_class: Class used to launch the binary.
     :param process_args: Arguments to pass into process_class.
     :param symbols_path: Path to symbol files used for crash analysis.
     :param show_crash_reporter: allow the crash reporter window to pop up.
         Defaults to False.
-    :returns: A GoannaRuntimeRunner for Firefox.
+    :returns: A GeckoRuntimeRunner for Firefox.
     """
     kwargs['app_ctx'] = get_app_context('firefox')()
-    return GoannaRuntimeRunner(*args, **kwargs)
+    return GeckoRuntimeRunner(*args, **kwargs)
 
 
 def ThunderbirdRunner(*args, **kwargs):
@@ -58,17 +58,17 @@ def ThunderbirdRunner(*args, **kwargs):
     :param binary: Path to Thunderbird binary.
     :param cmdargs: Arguments to pass into binary.
     :param profile: Profile object to use.
-    :param env: Environment variables to pass into the goanna process.
+    :param env: Environment variables to pass into the gecko process.
     :param clean_profile: If True, restores profile back to original state.
     :param process_class: Class used to launch the binary.
     :param process_args: Arguments to pass into process_class.
     :param symbols_path: Path to symbol files used for crash analysis.
     :param show_crash_reporter: allow the crash reporter window to pop up.
         Defaults to False.
-    :returns: A GoannaRuntimeRunner for Thunderbird.
+    :returns: A GeckoRuntimeRunner for Thunderbird.
     """
     kwargs['app_ctx'] = get_app_context('thunderbird')()
-    return GoannaRuntimeRunner(*args, **kwargs)
+    return GeckoRuntimeRunner(*args, **kwargs)
 
 
 def B2GDesktopRunner(*args, **kwargs):
@@ -78,14 +78,14 @@ def B2GDesktopRunner(*args, **kwargs):
     :param binary: Path to b2g desktop binary.
     :param cmdargs: Arguments to pass into binary.
     :param profile: Profile object to use.
-    :param env: Environment variables to pass into the goanna process.
+    :param env: Environment variables to pass into the gecko process.
     :param clean_profile: If True, restores profile back to original state.
     :param process_class: Class used to launch the binary.
     :param process_args: Arguments to pass into process_class.
     :param symbols_path: Path to symbol files used for crash analysis.
     :param show_crash_reporter: allow the crash reporter window to pop up.
         Defaults to False.
-    :returns: A GoannaRuntimeRunner for b2g desktop.
+    :returns: A GeckoRuntimeRunner for b2g desktop.
     """
     # There is no difference between a generic and b2g desktop runner,
     # but expose a separate entry point for clarity.

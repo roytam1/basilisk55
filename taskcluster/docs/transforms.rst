@@ -159,7 +159,7 @@ task definition.  The schema for a task description is defined at the top of
 ``task.py``, with copious comments.  Go forth and read it now!
 
 In general, the task-description transforms handle functionality that is common
-to all Goanna tasks.  While the schema is the definitive reference, the
+to all Gecko tasks.  While the schema is the definitive reference, the
 functionality includes:
 
 * TreeHerder metadata

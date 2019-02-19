@@ -106,7 +106,7 @@
 #include "nsDocShellEnumerator.h"
 #include "nsSHistory.h"
 #include "nsDocShellEditorData.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "timeline/JavascriptTimelineMarker.h"
 
 // Helper Classes
@@ -7522,7 +7522,7 @@ nsDocShell::OnRedirectStateChange(nsIChannel* aOldChannel,
   nsCOMPtr<nsIApplicationCacheChannel> appCacheChannel =
     do_QueryInterface(aNewChannel);
   if (appCacheChannel) {
-    if (GoannaProcessType_Default != XRE_GetProcessType()) {
+    if (GeckoProcessType_Default != XRE_GetProcessType()) {
       // Permission will be checked in the parent process.
       appCacheChannel->SetChooseApplicationCache(true);
     } else {
@@ -11103,7 +11103,7 @@ nsDocShell::DoURILoad(nsIURI* aURI,
 
     // Loads with the correct permissions should check for a matching
     // application cache.
-    if (GoannaProcessType_Default != XRE_GetProcessType()) {
+    if (GeckoProcessType_Default != XRE_GetProcessType()) {
       // Permission will be checked in the parent process
       appCacheChannel->SetChooseApplicationCache(true);
     } else {

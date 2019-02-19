@@ -21,7 +21,7 @@
 #endif
 #include "nsThreadUtils.h"
 #include "nsXULAppAPI.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #ifdef XP_WIN
 #include <windows.h>
@@ -280,8 +280,8 @@ ThreadMain(void*)
 void
 Startup()
 {
-  if (GoannaProcessType_Default != XRE_GetProcessType() &&
-      GoannaProcessType_Content != XRE_GetProcessType()) {
+  if (GeckoProcessType_Default != XRE_GetProcessType() &&
+      GeckoProcessType_Content != XRE_GetProcessType()) {
     return;
   }
 
@@ -315,8 +315,8 @@ Startup()
 void
 Shutdown()
 {
-  if (GoannaProcessType_Default != XRE_GetProcessType() &&
-      GoannaProcessType_Content != XRE_GetProcessType()) {
+  if (GeckoProcessType_Default != XRE_GetProcessType() &&
+      GeckoProcessType_Content != XRE_GetProcessType()) {
     return;
   }
 

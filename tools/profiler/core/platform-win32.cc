@@ -30,7 +30,7 @@
 #include <mmsystem.h>
 #include <process.h>
 #include "platform.h"
-#include "GoannaSampler.h"
+#include "GeckoSampler.h"
 #include "ThreadResponsiveness.h"
 #include "ProfileEntry.h"
 
@@ -212,7 +212,7 @@ class SamplerThread : public Thread {
     // the jits also need to modify the same dynamic function table that we need
     // to get a stack trace, we have to be wary of that to avoid deadlock.
     //
-    // When embedded in Goanna, for threads that aren't the main thread,
+    // When embedded in Gecko, for threads that aren't the main thread,
     // CanInvokeJS consults an unlocked value in the nsIThread, so we must
     // consult this after suspending the profiled thread to avoid racing
     // against a value change.

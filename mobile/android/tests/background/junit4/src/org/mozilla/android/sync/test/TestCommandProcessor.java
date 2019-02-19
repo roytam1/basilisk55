@@ -5,12 +5,12 @@ package org.mozilla.android.sync.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.CommandProcessor;
-import org.mozilla.goanna.sync.CommandRunner;
-import org.mozilla.goanna.sync.ExtendedJSONObject;
-import org.mozilla.goanna.sync.GlobalSession;
-import org.mozilla.goanna.sync.NonObjectJSONException;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.CommandProcessor;
+import org.mozilla.gecko.sync.CommandRunner;
+import org.mozilla.gecko.sync.ExtendedJSONObject;
+import org.mozilla.gecko.sync.GlobalSession;
+import org.mozilla.gecko.sync.NonObjectJSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;

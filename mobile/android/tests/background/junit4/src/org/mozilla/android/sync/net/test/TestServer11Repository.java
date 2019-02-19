@@ -6,10 +6,10 @@ package org.mozilla.android.sync.net.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.InfoCollections;
-import org.mozilla.goanna.sync.InfoConfiguration;
-import org.mozilla.goanna.sync.repositories.Server11Repository;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.InfoCollections;
+import org.mozilla.gecko.sync.InfoConfiguration;
+import org.mozilla.gecko.sync.repositories.Server11Repository;
 
 import java.net.URI;
 import java.net.URISyntaxException;

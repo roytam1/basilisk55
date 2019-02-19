@@ -948,10 +948,10 @@ void nsBaseWidget::CreateCompositor()
   CreateCompositor(rect.width, rect.height);
 }
 
-already_AddRefed<GoannaContentController>
+already_AddRefed<GeckoContentController>
 nsBaseWidget::CreateRootContentController()
 {
-  RefPtr<GoannaContentController> controller = new ChromeProcessController(this, mAPZEventState, mAPZC);
+  RefPtr<GeckoContentController> controller = new ChromeProcessController(this, mAPZEventState, mAPZC);
   return controller.forget();
 }
 

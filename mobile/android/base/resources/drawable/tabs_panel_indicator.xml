@@ -4,14 +4,14 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <item android:state_focused="false"
           android:state_selected="false"
           android:state_pressed="false"
           android:drawable="@android:color/transparent"/>
 
-    <item goanna:state_private="true"
+    <item gecko:state_private="true"
           android:state_focused="false"
           android:state_selected="true"
           android:state_pressed="false"

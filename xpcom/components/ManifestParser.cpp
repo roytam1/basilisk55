@@ -473,7 +473,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
   NS_NAMED_LITERAL_STRING(kRemoteRequired, "remoterequired");
   NS_NAMED_LITERAL_STRING(kApplication, "application");
   NS_NAMED_LITERAL_STRING(kAppVersion, "appversion");
-  NS_NAMED_LITERAL_STRING(kGoannaVersion, "platformversion");
+  NS_NAMED_LITERAL_STRING(kGeckoVersion, "platformversion");
   NS_NAMED_LITERAL_STRING(kOs, "os");
   NS_NAMED_LITERAL_STRING(kOsVersion, "osversion");
   NS_NAMED_LITERAL_STRING(kABI, "abi");
@@ -490,7 +490,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
 
   nsAutoString appID;
   nsAutoString appVersion;
-  nsAutoString goannaVersion;
+  nsAutoString geckoVersion;
   nsAutoString osTarget;
   nsAutoString abi;
   nsAutoString process;
@@ -515,7 +515,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
 
     rv = xapp->GetPlatformVersion(s);
     if (NS_SUCCEEDED(rv)) {
-      CopyUTF8toUTF16(s, goannaVersion);
+      CopyUTF8toUTF16(s, geckoVersion);
     }
 
     nsCOMPtr<nsIXULRuntime> xruntime(do_QueryInterface(xapp));
@@ -563,7 +563,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
     mozilla::AndroidBridge::Bridge()->GetStaticStringField("android/os/Build$VERSION",
                                                            "RELEASE",
                                                            osVersion);
-    isTablet = java::GoannaAppShell::IsTablet();
+    isTablet = java::GeckoAppShell::IsTablet();
   }
 #endif
 
@@ -667,7 +667,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
 
     bool ok = true;
     TriState stAppVersion = eUnspecified;
-    TriState stGoannaVersion = eUnspecified;
+    TriState stGeckoVersion = eUnspecified;
     TriState stApp = eUnspecified;
     TriState stOsVersion = eUnspecified;
     TriState stOs = eUnspecified;
@@ -689,7 +689,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
           CheckStringFlag(kProcess, wtoken, process, stProcess) ||
           CheckVersionFlag(kOsVersion, wtoken, osVersion, stOsVersion) ||
           CheckVersionFlag(kAppVersion, wtoken, appVersion, stAppVersion) ||
-          CheckVersionFlag(kGoannaVersion, wtoken, goannaVersion, stGoannaVersion)) {
+          CheckVersionFlag(kGeckoVersion, wtoken, geckoVersion, stGeckoVersion)) {
         continue;
       }
 
@@ -742,7 +742,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
     if (!ok ||
         stApp == eBad ||
         stAppVersion == eBad ||
-        stGoannaVersion == eBad ||
+        stGeckoVersion == eBad ||
         stOs == eBad ||
         stOsVersion == eBad ||
 #ifdef MOZ_WIDGET_ANDROID
@@ -754,7 +754,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
     }
 
     if (directive->regfunc) {
-      if (GoannaProcessType_Default != XRE_GetProcessType()) {
+      if (GeckoProcessType_Default != XRE_GetProcessType()) {
         continue;
       }
 

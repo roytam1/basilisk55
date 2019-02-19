@@ -93,8 +93,8 @@ testing/web-platform/sync/
 mobile/android/gradle/.gradle
 
 # XCode project cruft
-embedding/ios/GoannaEmbed/GoannaEmbed.xcodeproj/project.xcworkspace/xcuserdata
-embedding/ios/GoannaEmbed/GoannaEmbed.xcodeproj/xcuserdata
+embedding/ios/GeckoEmbed/GeckoEmbed.xcodeproj/project.xcworkspace/xcuserdata
+embedding/ios/GeckoEmbed/GeckoEmbed.xcodeproj/xcuserdata
 
 # Ignore mozharness execution files
 testing/mozharness/.tox/

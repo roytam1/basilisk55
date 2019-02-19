@@ -90,13 +90,13 @@ Logger::Logger(const nsACString& aLeafBaseName)
 {
   MOZ_ASSERT(NS_IsMainThread());
   nsCOMPtr<nsIFile> logFileName;
-  GoannaProcessType procType = XRE_GetProcessType();
+  GeckoProcessType procType = XRE_GetProcessType();
   nsAutoCString leafName(aLeafBaseName);
   nsresult rv;
-  if (procType == GoannaProcessType_Default) {
+  if (procType == GeckoProcessType_Default) {
     leafName.AppendLiteral("-Parent-");
     rv = NS_GetSpecialDirectory(NS_OS_TEMP_DIR, getter_AddRefs(logFileName));
-  } else if (procType == GoannaProcessType_Content) {
+  } else if (procType == GeckoProcessType_Content) {
     leafName.AppendLiteral("-Content-");
 #if defined(MOZ_CONTENT_SANDBOX)
     rv = NS_GetSpecialDirectory(NS_APP_CONTENT_PROCESS_TEMP_DIR,

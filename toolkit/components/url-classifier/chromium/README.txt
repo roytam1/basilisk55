@@ -4,7 +4,7 @@
 
 "package mozilla.safebrowsing;"
 
-to avoid naming pollution. We use this source file along with protobuf compiler (protoc) to generate safebrowsing.pb.h/cc for safebrowsing v4 update and hash completion. The current generated files are compiled by protoc 2.6.1 since the protobuf library in goanna is not upgraded to 3.0 yet.
+to avoid naming pollution. We use this source file along with protobuf compiler (protoc) to generate safebrowsing.pb.h/cc for safebrowsing v4 update and hash completion. The current generated files are compiled by protoc 2.6.1 since the protobuf library in gecko is not upgraded to 3.0 yet.
 
 # Update
 

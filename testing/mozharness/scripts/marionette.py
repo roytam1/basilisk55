@@ -48,7 +48,7 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
         {"action": "store",
          "dest": "marionette_address",
          "default": None,
-         "help": "The host:port of the Marionette server running inside Goanna.  Unused for emulator testing",
+         "help": "The host:port of the Marionette server running inside Gecko.  Unused for emulator testing",
          }
     ], [
         ["--emulator"],
@@ -98,8 +98,8 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
 
     error_list = [
         {'substr': 'FAILED (errors=', 'level': WARNING},
-        {'substr': r'''Could not successfully complete transport of message to Goanna, socket closed''', 'level': ERROR},
-        {'substr': r'''Connection to Marionette server is lost. Check goanna''', 'level': ERROR},
+        {'substr': r'''Could not successfully complete transport of message to Gecko, socket closed''', 'level': ERROR},
+        {'substr': r'''Connection to Marionette server is lost. Check gecko''', 'level': ERROR},
         {'substr': 'Timeout waiting for marionette on port', 'level': ERROR},
         {'regex': re.compile(r'''(TEST-UNEXPECTED|PROCESS-CRASH)'''), 'level': ERROR},
         {'regex': re.compile(r'''(\b((?!Marionette|TestMarionette|NoSuchElement|XPathLookup|NoSuchWindow|StaleElement|ScriptTimeout|ElementNotVisible|NoSuchFrame|InvalidResponse|Javascript|Timeout|InvalidElementState|NoAlertPresent|InvalidCookieDomain|UnableToSetCookie|InvalidSelector|MoveTargetOutOfBounds)\w*)Exception)'''), 'level': ERROR},
@@ -156,8 +156,8 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
         dirs['abs_marionette_tests_dir'] = os.path.join(
             dirs['abs_test_install_dir'], 'marionette', 'tests', 'testing',
             'marionette', 'harness', 'marionette_harness', 'tests')
-        dirs['abs_goanna_dir'] = os.path.join(
-            abs_dirs['abs_work_dir'], 'goanna')
+        dirs['abs_gecko_dir'] = os.path.join(
+            abs_dirs['abs_work_dir'], 'gecko')
         dirs['abs_emulator_dir'] = os.path.join(
             abs_dirs['abs_work_dir'], 'emulator')
 
@@ -252,7 +252,7 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
             'raw_log_file': raw_log_file,
             'error_summary_file': error_summary_file,
             'html_report_file': html_report_file,
-            'goanna_log': dirs["abs_blob_upload_dir"],
+            'gecko_log': dirs["abs_blob_upload_dir"],
             'this_chunk': self.config.get('this_chunk', 1),
             'total_chunks': self.config.get('total_chunks', 1)
         }
@@ -273,8 +273,8 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
         if not self.config['e10s']:
             cmd.append('--disable-e10s')
 
-        cmd.append('--goanna-log=%s' % os.path.join(dirs["abs_blob_upload_dir"],
-                                                   'goanna.log'))
+        cmd.append('--gecko-log=%s' % os.path.join(dirs["abs_blob_upload_dir"],
+                                                   'gecko.log'))
 
         if self.config.get("structured_output"):
             cmd.append("--log-raw=-")
@@ -337,14 +337,14 @@ class MarionetteTest(TestingMixin, MercurialScript, BlobUploadMixin, TransferMix
                 else:
                     self.info('no logcat file found')
         else:
-            # .. or goanna.log if it exists
-            goanna_log = os.path.join(self.config['base_work_dir'], 'goanna.log')
-            if os.access(goanna_log, os.F_OK):
-                self.info('dumping goanna.log')
-                self.run_command(['cat', goanna_log])
-                self.rmtree(goanna_log)
+            # .. or gecko.log if it exists
+            gecko_log = os.path.join(self.config['base_work_dir'], 'gecko.log')
+            if os.access(gecko_log, os.F_OK):
+                self.info('dumping gecko.log')
+                self.run_command(['cat', gecko_log])
+                self.rmtree(gecko_log)
             else:
-                self.info('goanna.log not found')
+                self.info('gecko.log not found')
 
         marionette_parser.print_summary('marionette')
 

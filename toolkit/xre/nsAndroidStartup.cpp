@@ -25,12 +25,12 @@
 using namespace mozilla;
 
 extern "C" NS_EXPORT void
-GoannaStart(JNIEnv* env, char** argv, int argc, const StaticXREAppData& aAppData)
+GeckoStart(JNIEnv* env, char** argv, int argc, const StaticXREAppData& aAppData)
 {
-    mozilla::jni::SetGoannaThreadEnv(env);
+    mozilla::jni::SetGeckoThreadEnv(env);
 
     if (!argv) {
-        LOG("Failed to get arguments for GoannaStart\n");
+        LOG("Failed to get arguments for GeckoStart\n");
         return;
     }
 

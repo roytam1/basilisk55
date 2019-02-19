@@ -22,7 +22,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsTArray.h"
 #include "mozilla/Telemetry.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "nsIWindowsRegKey.h"
 #include "nsIFile.h"
@@ -1845,7 +1845,7 @@ public:
           // On Windows 10 and on, DWMGetCompositionTimingInfo, mostly
           // reports the upcoming vsync time, which is in the future.
           // It can also sometimes report a vblank time in the past.
-          // Since large parts of Goanna assume TimeStamps can't be in future,
+          // Since large parts of Gecko assume TimeStamps can't be in future,
           // use the previous vsync.
 
           // Windows 10 and Intel HD vsync timestamps are messy and
@@ -1891,7 +1891,7 @@ public:
             if (!mVsyncEnabled) return;
           }
 
-          // Large parts of goanna assume that the refresh driver timestamp
+          // Large parts of gecko assume that the refresh driver timestamp
           // must be <= Now() and cannot be in the future.
           MOZ_ASSERT(vsync <= TimeStamp::Now());
           Display::NotifyVsync(vsync);

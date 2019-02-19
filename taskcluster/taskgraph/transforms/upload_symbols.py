@@ -21,8 +21,8 @@ def fill_template(config, tasks):
         # Fill out the dynamic fields in the task description
         task['label'] = task['build-label'] + '-upload-symbols'
         task['dependencies'] = {'build': task['build-label']}
-        task['worker']['env']['GOANNA_HEAD_REPOSITORY'] = config.params['head_repository']
-        task['worker']['env']['GOANNA_HEAD_REV'] = config.params['head_rev']
+        task['worker']['env']['GECKO_HEAD_REPOSITORY'] = config.params['head_repository']
+        task['worker']['env']['GECKO_HEAD_REV'] = config.params['head_rev']
 
         build_platform, build_type = task['build-platform'].split('/')
         attributes = task.setdefault('attributes', {})

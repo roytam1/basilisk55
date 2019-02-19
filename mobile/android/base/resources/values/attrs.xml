@@ -5,10 +5,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Theme level attributes -->
-    <declare-styleable name="GoannaTheme">
+    <declare-styleable name="GeckoTheme">
 
-        <!-- Style for GoannaMenu ListView -->
-        <attr name="goannaMenuListViewStyle" format="reference"/>
+        <!-- Style for GeckoMenu ListView -->
+        <attr name="geckoMenuListViewStyle" format="reference"/>
 
         <!-- Style for MenuItemActionBar -->
         <attr name="menuItemActionBarStyle" format="reference"/>

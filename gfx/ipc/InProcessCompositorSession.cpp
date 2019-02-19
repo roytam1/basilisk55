@@ -49,7 +49,7 @@ InProcessCompositorSession::GetInProcessBridge() const
 }
 
 void
-InProcessCompositorSession::SetContentController(GoannaContentController* aController)
+InProcessCompositorSession::SetContentController(GeckoContentController* aController)
 {
   mCompositorBridgeParent->SetControllerForLayerTree(mRootLayerTreeId, aController);
 }

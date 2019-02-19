@@ -9,7 +9,7 @@
 #include "mozilla/TimeStamp.h"
 #include "mozilla/Attributes.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "gfxASurface.h"
 
@@ -153,7 +153,7 @@ private:
 #include "Units.h"    // For ScreenIntPoint
 
 /**
- * Tracks when touch events are processed by goanna, not when
+ * Tracks when touch events are processed by gecko, not when
  * the touch actually occured in gonk/android.
  */
 class TouchDataPayload : public ProfilerMarkerPayload

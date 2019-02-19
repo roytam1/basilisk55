@@ -43,7 +43,7 @@
 # include <android/log.h>
 # include "mozilla/widget/AndroidCompositorWidget.h"
 #endif
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "FrameUniformityData.h"
 #include "TreeTraversal.h"              // for ForEachNode, BreadthFirstSearch
 #include "VsyncSource.h"
@@ -910,7 +910,7 @@ ExpandRootClipRect(Layer* aLayer, const ScreenMargin& aFixedLayerMargins)
   // For Fennec we want to expand the root scrollable layer clip rect based on
   // the fixed position margins. In particular, we want this while the dynamic
   // toolbar is in the process of sliding offscreen and the area of the
-  // LayerView visible to the user is larger than the viewport size that Goanna
+  // LayerView visible to the user is larger than the viewport size that Gecko
   // knows about (and therefore larger than the clip rect). We could also just
   // clear the clip rect on aLayer entirely but this seems more precise.
   Maybe<ParentLayerIntRect> rootClipRect = aLayer->AsHostLayer()->GetShadowClipRect();
@@ -1077,12 +1077,12 @@ AsyncCompositionManager::ApplyAsyncContentTransformToTree(Layer *aLayer,
                    i + 1 >= layer->GetScrollMetadataCount());
             if (*aOutFoundRoot) {
               mRootScrollableId = metrics.GetScrollId();
-              CSSToLayerScale goannaZoom = metrics.LayersPixelsPerCSSPixel().ToScaleFactor();
+              CSSToLayerScale geckoZoom = metrics.LayersPixelsPerCSSPixel().ToScaleFactor();
               if (mIsFirstPaint) {
-                LayerIntPoint scrollOffsetLayerPixels = RoundedToInt(metrics.GetScrollOffset() * goannaZoom);
+                LayerIntPoint scrollOffsetLayerPixels = RoundedToInt(metrics.GetScrollOffset() * geckoZoom);
                 mContentRect = metrics.GetScrollableRect();
                 SetFirstPaintViewport(scrollOffsetLayerPixels,
-                                      goannaZoom,
+                                      geckoZoom,
                                       mContentRect);
               } else {
                 ParentLayerPoint scrollOffset = controller->GetCurrentAsyncScrollOffset(
@@ -1093,8 +1093,8 @@ AsyncCompositionManager::ApplyAsyncContentTransformToTree(Layer *aLayer,
                     metrics.GetCriticalDisplayPort());
                 displayPort += metrics.GetScrollOffset();
                 SyncFrameMetrics(scrollOffset,
-                    goannaZoom * asyncTransformWithoutOverscroll.mScale,
-                    metrics.GetScrollableRect(), displayPort, goannaZoom, mLayersUpdated,
+                    geckoZoom * asyncTransformWithoutOverscroll.mScale,
+                    metrics.GetScrollableRect(), displayPort, geckoZoom, mLayersUpdated,
                     mPaintSyncId, fixedLayerMargins);
                 mFixedLayerMargins = fixedLayerMargins;
                 mLayersUpdated = false;
@@ -1502,12 +1502,12 @@ AsyncCompositionManager::TransformShadowTree(TimeStamp aCurrentFrame,
     //
     // Attempt to apply an async content transform to any layer that has
     // an async pan zoom controller (which means that it is rendered
-    // async using Goanna). If this fails, fall back to transforming the
+    // async using Gecko). If this fails, fall back to transforming the
     // primary scrollable layer.  "Failing" here means that we don't
     // find a frame that is async scrollable.  Note that the fallback
     // code also includes Fennec which is rendered async.  Fennec uses
     // its own platform-specific async rendering that is done partially
-    // in Goanna and partially in Java.
+    // in Gecko and partially in Java.
     bool foundRoot = false;
     if (ApplyAsyncContentTransformToTree(root, &foundRoot)) {
 #if defined(MOZ_WIDGET_ANDROID)

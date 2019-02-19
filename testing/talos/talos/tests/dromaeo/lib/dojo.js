@@ -1345,7 +1345,7 @@ if(typeof window != 'undefined'){
 		}
 		if(dua.indexOf("AdobeAIR") >= 0){ d.isAIR = 1; }
 		if(dav.indexOf("Konqueror") >= 0 || d.isSafari){ d.isKhtml =  tv; }
-		if(dua.indexOf("Goanna") >= 0 && !d.isKhtml){ d.isMozilla = d.isMoz = tv; }
+		if(dua.indexOf("Gecko") >= 0 && !d.isKhtml){ d.isMozilla = d.isMoz = tv; }
 		if(d.isMoz){
 			d.isFF = parseFloat(dua.split("Firefox/")[1]) || undefined;
 		}

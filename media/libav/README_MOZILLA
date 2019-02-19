@@ -1,4 +1,4 @@
-This directory contains files used in goanna builds from libav
+This directory contains files used in gecko builds from libav
 (http://libav.org). The current files are from v11.3 of the library.
 All source files match their path from the library's source archive.
 

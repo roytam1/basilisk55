@@ -29,7 +29,7 @@
 #include "nsURLHelper.h"
 #include "nsThreadUtils.h"
 #include "GetAddrInfo.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "mozilla/HashFunctions.h"
 #include "mozilla/TimeStamp.h"

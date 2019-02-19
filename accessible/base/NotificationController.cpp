@@ -468,7 +468,7 @@ NotificationController::ProcessMutationEvents()
   // there is no reason to fire a hide event for a child of a show event
   // target.  That can happen if something is inserted into the tree and
   // removed before the next refresh driver tick, but it should not be
-  // observable outside goanna so it should be safe to coalesce away any such
+  // observable outside gecko so it should be safe to coalesce away any such
   // events.  This means that it should be fine to fire all of the hide events
   // first, and then deal with any shown subtrees.
   for (AccTreeMutationEvent* event = mFirstMutationEvent;

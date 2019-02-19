@@ -217,12 +217,12 @@ public:
   // Check whether the caller is system if you might be on a worker thread.
   static bool ThreadsafeIsSystemCaller(JSContext* aCx);
 
-  // In the traditional Goanna architecture, both C++ code and untrusted JS code
+  // In the traditional Gecko architecture, both C++ code and untrusted JS code
   // needed to rely on the same XPCOM method/getter/setter to get work done.
   // This required lots of security checks in the various exposed methods, which
   // in turn created difficulty in determining whether the caller was script
   // (whose access needed to be checked) and internal C++ platform code (whose
-  // access did not need to be checked). To address this problem, Goanna had a
+  // access did not need to be checked). To address this problem, Gecko had a
   // convention whereby the absence of script on the stack was interpretted as
   // "System Caller" and always granted unfettered access.
   //
@@ -567,7 +567,7 @@ public:
   /**
    * Convert aInput (in encoding aEncoding) to UTF16 in aOutput.
    *
-   * @param aEncoding the Goanna-canonical name of the encoding or the empty
+   * @param aEncoding the Gecko-canonical name of the encoding or the empty
    *                  string (meaning UTF-8)
    */
   static nsresult ConvertStringFromEncoding(const nsACString& aEncoding,

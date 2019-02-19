@@ -99,15 +99,15 @@ private:
   void LoadSheet(nsIURI* aURI, RefPtr<mozilla::StyleSheet>* aSheet,
                  mozilla::css::SheetParsingMode aParsingMode,
                  mozilla::css::FailureAction aFailureAction);
-  static void InvalidateSheet(RefPtr<mozilla::StyleSheet>* aGoannaSheet,
+  static void InvalidateSheet(RefPtr<mozilla::StyleSheet>* aGeckoSheet,
                               RefPtr<mozilla::StyleSheet>* aServoSheet);
   static void DependentPrefChanged(const char* aPref, void* aData);
   void BuildPreferenceSheet(RefPtr<mozilla::StyleSheet>* aSheet,
                             nsPresContext* aPresContext);
 
-  static mozilla::StaticRefPtr<nsLayoutStylesheetCache> gStyleCache_Goanna;
+  static mozilla::StaticRefPtr<nsLayoutStylesheetCache> gStyleCache_Gecko;
   static mozilla::StaticRefPtr<nsLayoutStylesheetCache> gStyleCache_Servo;
-  static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader_Goanna;
+  static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader_Gecko;
   static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader_Servo;
   static mozilla::StaticRefPtr<nsIURI> gUserContentSheetURL;
   mozilla::StyleBackendType mBackendType;

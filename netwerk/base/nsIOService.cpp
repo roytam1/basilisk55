@@ -275,7 +275,7 @@ nsIOService::~nsIOService()
 nsresult
 nsIOService::InitializeCaptivePortalService()
 {
-    if (XRE_GetProcessType() != GoannaProcessType_Default) {
+    if (XRE_GetProcessType() != GeckoProcessType_Default) {
         // We only initalize a captive portal service in the main process
         return NS_OK;
     }

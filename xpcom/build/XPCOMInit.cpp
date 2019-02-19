@@ -152,7 +152,7 @@ extern nsresult nsStringInputStreamConstructor(nsISupports*, REFNSIID, void**);
 #include "mozilla/SystemMemoryReporter.h"
 #include "mozilla/UniquePtr.h"
 
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 
 #include "ogg/ogg.h"
 #if defined(MOZ_VPX) && !defined(MOZ_VPX_NO_MEM_REPORTING)
@@ -165,7 +165,7 @@ extern nsresult nsStringInputStreamConstructor(nsISupports*, REFNSIID, void**);
 #include "vpx_mem/vpx_mem.h"
 #endif
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "jsapi.h"
 #include "js/Initialization.h"
@@ -535,12 +535,12 @@ NS_InitXPCOM2(nsIServiceManager** aResult,
   MessageLoop* messageLoop = MessageLoop::current();
   if (!messageLoop) {
     sMessageLoop = new MessageLoopForUI(MessageLoop::TYPE_MOZILLA_PARENT);
-    sMessageLoop->set_thread_name("Goanna");
+    sMessageLoop->set_thread_name("Gecko");
     // Set experimental values for main thread hangs:
     // 128ms for transient hangs and 8192ms for permanent hangs
     sMessageLoop->set_hang_timeouts(128, 8192);
   } else if (messageLoop->type() == MessageLoop::TYPE_MOZILLA_CHILD) {
-    messageLoop->set_thread_name("Goanna_Child");
+    messageLoop->set_thread_name("Gecko_Child");
     messageLoop->set_hang_timeouts(128, 8192);
   }
 

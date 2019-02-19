@@ -33,7 +33,7 @@ def add_tasks(decision_task_id, task_labels, prefix=''):
     and is responsible for
 
      * creating taskgraph of tasks asked for in parameters with respect to
-     a given goanna decision task and schedule these jobs.
+     a given gecko decision task and schedule these jobs.
     """
     # read in the full graph for reference
     full_task_json = get_artifact(decision_task_id, "public/full-task-graph.json")
@@ -81,7 +81,7 @@ def backfill(project, job_id):
      a successful job is found or `N` jobs have been scheduled.
     """
     s = requests.Session()
-    s.headers.update({"User-Agent": "goanna-intree-backfill-task"})
+    s.headers.update({"User-Agent": "gecko-intree-backfill-task"})
 
     job = s.get(url="{}/project/{}/jobs/{}/".format(TREEHERDER_URL, project, job_id)).json()
 
@@ -127,7 +127,7 @@ def load_decisions(s, project, resultsets, filters):
         elif len(filtered) == 1:
             if filtered[0]["result"] == "success":
                 break
-        decisions += [t for t in unfiltered if t["job_type_name"] == "Goanna Decision Task"]
+        decisions += [t for t in unfiltered if t["job_type_name"] == "Gecko Decision Task"]
 
     for decision in decisions:
         params = {"job_guid": decision["job_guid"]}

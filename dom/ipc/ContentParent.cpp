@@ -590,7 +590,7 @@ ContentParent::JoinProcessesIOThread(const nsTArray<ContentParent*>* aProcesses,
 {
   const nsTArray<ContentParent*>& processes = *aProcesses;
   for (uint32_t i = 0; i < processes.Length(); ++i) {
-    if (GoannaChildProcessHost* process = processes[i]->mSubprocess) {
+    if (GeckoChildProcessHost* process = processes[i]->mSubprocess) {
       process->Join();
     }
   }
@@ -1132,7 +1132,7 @@ ContentParent::Init()
   }
 #endif
 
-  RefPtr<GoannaMediaPluginServiceParent> gmps(GoannaMediaPluginServiceParent::GetSingleton());
+  RefPtr<GeckoMediaPluginServiceParent> gmps(GeckoMediaPluginServiceParent::GetSingleton());
   gmps->UpdateContentProcessGMPCapabilities();
 }
 
@@ -1188,7 +1188,7 @@ ContentParent::SetPriorityAndCheckIsAlive(ProcessPriority aPriority)
   //
   // Bug 943174: use waitid() with WNOWAIT so that, if the process
   // did exit, we won't consume its zombie and confuse the
-  // GoannaChildProcessHost dtor.
+  // GeckoChildProcessHost dtor.
 #ifdef MOZ_WIDGET_GONK
   siginfo_t info;
   info.si_pid = 0;
@@ -1432,9 +1432,9 @@ ContentParent::RecvDeallocateLayerTreeId(const uint64_t& aId)
 namespace {
 
 void
-DelayedDeleteSubprocess(GoannaChildProcessHost* aSubprocess)
+DelayedDeleteSubprocess(GeckoChildProcessHost* aSubprocess)
 {
-  RefPtr<DeleteTask<GoannaChildProcessHost>> task = new DeleteTask<GoannaChildProcessHost>(aSubprocess);
+  RefPtr<DeleteTask<GeckoChildProcessHost>> task = new DeleteTask<GeckoChildProcessHost>(aSubprocess);
   XRE_GetIOMessageLoop()->PostTask(task.forget());
 }
 
@@ -1812,7 +1812,7 @@ ContentParent::ContentParent(ContentParent* aOpener,
   ChildPrivileges privs = mRemoteType.EqualsLiteral(FILE_REMOTE_TYPE)
                           ? base::PRIVILEGES_FILEREAD
                           : base::PRIVILEGES_DEFAULT;
-  mSubprocess = new GoannaChildProcessHost(GoannaProcessType_Content, privs);
+  mSubprocess = new GeckoChildProcessHost(GeckoProcessType_Content, privs);
 }
 
 ContentParent::~ContentParent()
@@ -2262,7 +2262,7 @@ ContentParent::RecvGetShowPasswordSetting(bool* showPassword)
 #ifdef MOZ_WIDGET_ANDROID
   NS_ASSERTION(AndroidBridge::Bridge() != nullptr, "AndroidBridge is not available");
 
-  *showPassword = java::GoannaAppShell::GetShowPasswordSetting();
+  *showPassword = java::GeckoAppShell::GetShowPasswordSetting();
 #endif
   return IPC_OK();
 }
@@ -2563,7 +2563,7 @@ ContentParent::RecvGetXPCOMProcessAttributes(bool* aIsOffline,
 
   // Content processes have no permission to access profile directory, so we
   // send the file URL instead.
-  StyleSheet* ucs = nsLayoutStylesheetCache::For(StyleBackendType::Goanna)->UserContentSheet();
+  StyleSheet* ucs = nsLayoutStylesheetCache::For(StyleBackendType::Gecko)->UserContentSheet();
   if (ucs) {
     SerializeURI(ucs->GetSheetURI(), *aUserContentCSSURL);
   } else {
@@ -4676,7 +4676,7 @@ mozilla::ipc::IPCResult
 ContentParent::RecvAccumulateChildHistogram(
                 InfallibleTArray<Accumulation>&& aAccumulations)
 {
-  Telemetry::AccumulateChild(GoannaProcessType_Content, aAccumulations);
+  Telemetry::AccumulateChild(GeckoProcessType_Content, aAccumulations);
   return IPC_OK();
 }
 
@@ -4684,7 +4684,7 @@ mozilla::ipc::IPCResult
 ContentParent::RecvAccumulateChildKeyedHistogram(
                 InfallibleTArray<KeyedAccumulation>&& aAccumulations)
 {
-  Telemetry::AccumulateChildKeyed(GoannaProcessType_Content, aAccumulations);
+  Telemetry::AccumulateChildKeyed(GeckoProcessType_Content, aAccumulations);
   return IPC_OK();
 }
 
@@ -4692,7 +4692,7 @@ mozilla::ipc::IPCResult
 ContentParent::RecvUpdateChildScalars(
                 InfallibleTArray<ScalarAction>&& aScalarActions)
 {
-  Telemetry::UpdateChildScalars(GoannaProcessType_Content, aScalarActions);
+  Telemetry::UpdateChildScalars(GeckoProcessType_Content, aScalarActions);
   return IPC_OK();
 }
 
@@ -4700,7 +4700,7 @@ mozilla::ipc::IPCResult
 ContentParent::RecvUpdateChildKeyedScalars(
                 InfallibleTArray<KeyedScalarAction>&& aScalarActions)
 {
-  Telemetry::UpdateChildKeyedScalars(GoannaProcessType_Content, aScalarActions);
+  Telemetry::UpdateChildKeyedScalars(GeckoProcessType_Content, aScalarActions);
   return IPC_OK();
 }
 

@@ -129,7 +129,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
         {"action": "store",
          "dest": "revision",
          "type": "string",
-         "help": "Override the goanna revision to use (otherwise use buildbot supplied"
+         "help": "Override the gecko revision to use (otherwise use buildbot supplied"
                  " value, or en-US revision) "}
     ], [
         ['--user-repo-override', ],
@@ -165,7 +165,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
         ["--disable-mock"], {
         "dest": "disable_mock",
         "action": "store_true",
-        "help": "do not run under mock despite what goanna-config says"}
+        "help": "do not run under mock despite what gecko-config says"}
     ]]
 
     def __init__(self, require_config_file=True):
@@ -464,7 +464,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
         return self.buildid
 
     def _query_revision(self):
-        """ Get the goanna revision in this order of precedence
+        """ Get the gecko revision in this order of precedence
               * cached value
               * command line arg --revision   (development, taskcluster)
               * buildbot properties           (try with buildbot forced build)
@@ -488,7 +488,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
             revision = self.buildbot_config['sourcestamp']['revision']
         elif self.buildbot_config and self.buildbot_config.get('revision'):
             revision = self.buildbot_config['revision']
-        elif config.get("update_goanna_source_to_enUS", True):
+        elif config.get("update_gecko_source_to_enUS", True):
             revision = self._query_enUS_revision()
 
         if not revision:
@@ -502,7 +502,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
        """
         if self.enUS_revision:
             return self.enUS_revision
-        r = re.compile(r"^(goanna|fx)_revision ([0-9a-f]+\+?)$")
+        r = re.compile(r"^(gecko|fx)_revision ([0-9a-f]+\+?)$")
         output = self._query_make_ident_output()
         for line in output.splitlines():
             match = r.match(line)
@@ -654,7 +654,7 @@ class DesktopSingleLocale(LocalesMixin, ReleaseMixin, MockMixin, BuildbotMixin,
 
         # on try we want the source we already have, otherwise update to the
         # same as the en-US binary
-        if self.config.get("update_goanna_source_to_enUS", True):
+        if self.config.get("update_gecko_source_to_enUS", True):
             revision = self._query_enUS_revision()
             #  TODO do this through VCSMixin instead of hardcoding hg
             #  self.update(dest=dirs["abs_mozilla_dir"], revision=revision)

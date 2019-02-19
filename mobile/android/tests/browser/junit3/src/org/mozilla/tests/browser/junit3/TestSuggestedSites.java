@@ -16,13 +16,13 @@ import android.test.RenamingDelegatingContext;
 import android.test.mock.MockResources;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mozilla.goanna.R;
-import org.mozilla.goanna.GoannaSharedPrefs;
-import org.mozilla.goanna.Locales;
-import org.mozilla.goanna.db.BrowserContract;
-import org.mozilla.goanna.db.SuggestedSites;
-import org.mozilla.goanna.distribution.Distribution;
-import org.mozilla.goanna.preferences.GoannaPreferences;
+import org.mozilla.gecko.R;
+import org.mozilla.gecko.GeckoSharedPrefs;
+import org.mozilla.gecko.Locales;
+import org.mozilla.gecko.db.BrowserContract;
+import org.mozilla.gecko.db.SuggestedSites;
+import org.mozilla.gecko.distribution.Distribution;
+import org.mozilla.gecko.preferences.GeckoPreferences;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -307,7 +307,7 @@ public class TestSuggestedSites extends InstrumentationTestCase {
         }
 
         final String hiddenPref = hiddenUrlBuilder.toString();
-        GoannaSharedPrefs.forProfile(context).edit()
+        GeckoSharedPrefs.forProfile(context).edit()
                                         .putString(SuggestedSites.PREF_SUGGESTED_SITES_HIDDEN, hiddenPref)
                                         .commit();
 

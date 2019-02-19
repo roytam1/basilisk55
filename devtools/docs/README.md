@@ -23,7 +23,7 @@ $ ./mach run -P development
 ```
 
 You can also clone via git from
-`https://github.com/mozilla/goanna-dev.git`. Note that the workflow for
+`https://github.com/mozilla/gecko-dev.git`. Note that the workflow for
 submitting patches may be a little different if using git.
 
 Please see the [Hacking](https://wiki.mozilla.org/DevTools/Hacking)

@@ -8,7 +8,7 @@
 #define mozilla_layers_AsyncPanZoomController_h
 
 #include "CrossProcessMutex.h"
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 #include "mozilla/layers/APZCTreeManager.h"
 #include "mozilla/layers/AsyncPanZoomAnimation.h"
 #include "mozilla/Attributes.h"
@@ -118,16 +118,16 @@ public:
   AsyncPanZoomController(uint64_t aLayersId,
                          APZCTreeManager* aTreeManager,
                          const RefPtr<InputQueue>& aInputQueue,
-                         GoannaContentController* aController,
+                         GeckoContentController* aController,
                          GestureBehavior aGestures = DEFAULT_GESTURES);
 
   // --------------------------------------------------------------------------
-  // These methods must only be called on the goanna thread.
+  // These methods must only be called on the gecko thread.
   //
 
   /**
    * Read the various prefs and do any global initialization for all APZC instances.
-   * This must be run on the goanna thread before any APZC instances are actually
+   * This must be run on the gecko thread before any APZC instances are actually
    * used for anything meaningful.
    */
   static void InitializeGlobalState();
@@ -215,10 +215,10 @@ public:
 
   /**
    * Returns the transform to take something from the coordinate space of the
-   * last thing we know goanna painted, to the coordinate space of the last thing
-   * we asked goanna to paint. In cases where that last request has not yet been
+   * last thing we know gecko painted, to the coordinate space of the last thing
+   * we asked gecko to paint. In cases where that last request has not yet been
    * processed, this is needed to transform input events properly into a space
-   * goanna will understand.
+   * gecko will understand.
    */
   Matrix4x4 GetTransformToLastDispatchedPaint() const;
 
@@ -492,7 +492,7 @@ protected:
   nsEventStatus OnSecondTap(const TapGestureInput& aEvent);
 
   /**
-   * Helper method to cancel any gesture currently going to Goanna. Used
+   * Helper method to cancel any gesture currently going to Gecko. Used
    * primarily when a user taps the screen over some clickable content but then
    * pans down instead of letting go (i.e. to cancel a previous touch so that a
    * new one can properly take effect.
@@ -590,8 +590,8 @@ protected:
   void TrackTouch(const MultiTouchInput& aEvent);
 
   /**
-   * Utility function to send updated FrameMetrics to Goanna so that it can paint
-   * the displayport area. Calls into GoannaContentController to do the actual
+   * Utility function to send updated FrameMetrics to Gecko so that it can paint
+   * the displayport area. Calls into GeckoContentController to do the actual
    * work. This call will use the current metrics. If this function is called
    * from a non-main thread, it will redispatch itself to the main thread, and
    * use the latest metrics during the redispatch.
@@ -599,7 +599,7 @@ protected:
   void RequestContentRepaint(bool aUserAction = true);
 
   /**
-   * Send the provided metrics to Goanna to trigger a repaint. This function
+   * Send the provided metrics to Gecko to trigger a repaint. This function
    * may filter duplicate calls with the same metrics. This function must be
    * called on the main thread.
    */
@@ -607,7 +607,7 @@ protected:
                              const ParentLayerPoint& aVelocity);
 
   /**
-   * Gets the current frame metrics. This is *not* the Goanna copy stored in the
+   * Gets the current frame metrics. This is *not* the Gecko copy stored in the
    * layers code.
    */
   const FrameMetrics& GetFrameMetrics() const;
@@ -625,7 +625,7 @@ protected:
    * NOTE: This must be converted to LayoutDevicePoint relative to the child
    * document before sending over IPC to a child process.
    */
-  bool ConvertToGoanna(const ScreenIntPoint& aPoint, LayoutDevicePoint* aOut);
+  bool ConvertToGecko(const ScreenIntPoint& aPoint, LayoutDevicePoint* aOut);
 
   enum AxisLockMode {
     FREE,     /* No locking at all */
@@ -637,7 +637,7 @@ protected:
 
   // Helper function for OnSingleTapUp(), OnSingleTapConfirmed(), and
   // OnLongPressUp().
-  nsEventStatus GenerateSingleTap(GoannaContentController::TapType aType,
+  nsEventStatus GenerateSingleTap(GeckoContentController::TapType aType,
                                   const ScreenIntPoint& aPoint,
                                   mozilla::Modifiers aModifiers);
 
@@ -651,7 +651,7 @@ protected:
   /* Access to the following two fields is protected by the mRefPtrMonitor,
      since they are accessed on the UI thread but can be cleared on the
      compositor thread. */
-  RefPtr<GoannaContentController> mGoannaContentController;
+  RefPtr<GeckoContentController> mGeckoContentController;
   RefPtr<GestureEventListener> mGestureEventListener;
   mutable Monitor mRefPtrMonitor;
 
@@ -663,7 +663,7 @@ protected:
   Atomic<APZCTreeManager*> mTreeManager;
 
   /* Utility functions that return a addrefed pointer to the corresponding fields. */
-  already_AddRefed<GoannaContentController> GetGoannaContentController() const;
+  already_AddRefed<GeckoContentController> GetGeckoContentController() const;
   already_AddRefed<GestureEventListener> GetGestureEventListener() const;
 
   PlatformSpecificStateBase* GetPlatformSpecificState();
@@ -688,16 +688,16 @@ private:
   // stored here so that it is accessible from the UI/controller thread.
   // These are the metrics at last content paint, the most recent
   // values we were notified of in NotifyLayersUpdate(). Since it represents
-  // the Goanna state, it should be used as a basis for untransformation when
-  // sending messages back to Goanna.
+  // the Gecko state, it should be used as a basis for untransformation when
+  // sending messages back to Gecko.
   ScrollMetadata mLastContentPaintMetadata;
   FrameMetrics& mLastContentPaintMetrics;  // for convenience, refers to mLastContentPaintMetadata.mMetrics
   // The last metrics used for a content repaint request.
   FrameMetrics mLastPaintRequestMetrics;
   // The metrics that we expect content to have. This is updated when we
   // request a content repaint, and when we receive a shadow layers update.
-  // This allows us to transform events into Goanna's coordinate space.
-  FrameMetrics mExpectedGoannaMetrics;
+  // This allows us to transform events into Gecko's coordinate space.
+  FrameMetrics mExpectedGeckoMetrics;
 
   AxisX mX;
   AxisY mY;

@@ -7,7 +7,7 @@ const PARENT_ORIGIN = "http://mochi.test:8888/";
 // Since web platform tests don't check pointerId, we have to use some heuristic
 // to test them. and thus pointerIds are send to mochitest_support_external.js
 // before we start sending synthesized widget events. Here, we avoid using
-// default values used in Goanna to insure everything works as expected.
+// default values used in Gecko to insure everything works as expected.
 const POINTER_MOUSE_ID = 7;
 const POINTER_PEN_ID   = 8;
 const POINTER_TOUCH_ID = 9; // Extend for multiple touch points if needed.

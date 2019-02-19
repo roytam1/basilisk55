@@ -4,7 +4,7 @@
 """
 These transforms construct a task description to run the given test, based on a
 test description.  The implementation here is shared among all test kinds, but
-contains specific support for how we run tests in Goanna (via mozharness,
+contains specific support for how we run tests in Gecko (via mozharness,
 invoked in particular ways).
 
 This is a good place to translate a test-description option such as
@@ -44,15 +44,15 @@ import re
 ARTIFACT_URL = 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'
 WORKER_TYPE = {
     # default worker types keyed by instance-size
-    'large': 'aws-provisioner-v1/goanna-t-linux-large',
-    'xlarge': 'aws-provisioner-v1/goanna-t-linux-xlarge',
-    'legacy': 'aws-provisioner-v1/goanna-t-linux-medium',
-    'default': 'aws-provisioner-v1/goanna-t-linux-large',
+    'large': 'aws-provisioner-v1/gecko-t-linux-large',
+    'xlarge': 'aws-provisioner-v1/gecko-t-linux-xlarge',
+    'legacy': 'aws-provisioner-v1/gecko-t-linux-medium',
+    'default': 'aws-provisioner-v1/gecko-t-linux-large',
     # windows worker types keyed by test-platform
-    'windows7-32-vm': 'aws-provisioner-v1/goanna-t-win7-32',
-    'windows7-32': 'aws-provisioner-v1/goanna-t-win7-32-gpu',
-    'windows10-64-vm': 'aws-provisioner-v1/goanna-t-win10-64',
-    'windows10-64': 'aws-provisioner-v1/goanna-t-win10-64-gpu'
+    'windows7-32-vm': 'aws-provisioner-v1/gecko-t-win7-32',
+    'windows7-32': 'aws-provisioner-v1/gecko-t-win7-32-gpu',
+    'windows10-64-vm': 'aws-provisioner-v1/gecko-t-win10-64',
+    'windows10-64': 'aws-provisioner-v1/gecko-t-win10-64-gpu'
 }
 
 ARTIFACTS = [
@@ -199,7 +199,7 @@ test_description_schema = Schema({
     # the exit status code that indicates the task should be retried
     Optional('retry-exit-status'): int,
 
-    # Whether to perform a goanna checkout.
+    # Whether to perform a gecko checkout.
     Required('checkout', default=False): bool,
 
     # What to run
@@ -745,8 +745,8 @@ def docker_worker_setup(config, test, taskdesc):
     # If we have a source checkout, run mozharness from it instead of
     # downloading a zip file with the same content.
     if test['checkout']:
-        command.extend(['--vcs-checkout', '/home/worker/checkouts/goanna'])
-        env['MOZHARNESS_PATH'] = '/home/worker/checkouts/goanna/testing/mozharness'
+        command.extend(['--vcs-checkout', '/home/worker/checkouts/gecko'])
+        env['MOZHARNESS_PATH'] = '/home/worker/checkouts/gecko/testing/mozharness'
     else:
         env['MOZHARNESS_URL'] = {'task-reference': mozharness_url}
 
@@ -909,7 +909,7 @@ def macosx_engine_setup(config, test, taskdesc):
                                          'public/build/mozharness.zip')
 
     # for now we have only 10.10 machines
-    taskdesc['worker-type'] = 'tc-worker-provisioner/goanna-t-osx-10-10'
+    taskdesc['worker-type'] = 'tc-worker-provisioner/gecko-t-osx-10-10'
 
     worker = taskdesc['worker'] = {}
     worker['implementation'] = test['worker-implementation']
@@ -921,8 +921,8 @@ def macosx_engine_setup(config, test, taskdesc):
     } for (prefix, path) in ARTIFACTS]
 
     worker['env'] = {
-        'GOANNA_HEAD_REPOSITORY': config.params['head_repository'],
-        'GOANNA_HEAD_REV': config.params['head_rev'],
+        'GECKO_HEAD_REPOSITORY': config.params['head_repository'],
+        'GECKO_HEAD_REV': config.params['head_rev'],
         'MOZHARNESS_CONFIG': ' '.join(mozharness['config']),
         'MOZHARNESS_SCRIPT': mozharness['script'],
         'MOZHARNESS_URL': {'task-reference': mozharness_url},

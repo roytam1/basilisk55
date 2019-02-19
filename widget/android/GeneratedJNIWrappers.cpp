@@ -11,13 +11,13 @@ namespace mozilla {
 namespace java {
 
 const char AlarmReceiver::name[] =
-        "org/mozilla/goanna/AlarmReceiver";
+        "org/mozilla/gecko/AlarmReceiver";
 
 constexpr char AlarmReceiver::NotifyAlarmFired_t::name[];
 constexpr char AlarmReceiver::NotifyAlarmFired_t::signature[];
 
 const char AndroidGamepadManager::name[] =
-        "org/mozilla/goanna/AndroidGamepadManager";
+        "org/mozilla/gecko/AndroidGamepadManager";
 
 constexpr char AndroidGamepadManager::OnAxisChange_t::name[];
 constexpr char AndroidGamepadManager::OnAxisChange_t::signature[];
@@ -53,10 +53,10 @@ auto AndroidGamepadManager::Stop() -> void
 }
 
 const char EventDispatcher::name[] =
-        "org/mozilla/goanna/EventDispatcher";
+        "org/mozilla/gecko/EventDispatcher";
 
-constexpr char EventDispatcher::DispatchToGoanna_t::name[];
-constexpr char EventDispatcher::DispatchToGoanna_t::signature[];
+constexpr char EventDispatcher::DispatchToGecko_t::name[];
+constexpr char EventDispatcher::DispatchToGecko_t::signature[];
 
 constexpr char EventDispatcher::DispatchToThreads_t::name[];
 constexpr char EventDispatcher::DispatchToThreads_t::signature[];
@@ -77,19 +77,19 @@ auto EventDispatcher::GetInstance() -> EventDispatcher::LocalRef
     return mozilla::jni::Method<GetInstance_t>::Call(EventDispatcher::Context(), nullptr);
 }
 
-constexpr char EventDispatcher::HasGoannaListener_t::name[];
-constexpr char EventDispatcher::HasGoannaListener_t::signature[];
+constexpr char EventDispatcher::HasGeckoListener_t::name[];
+constexpr char EventDispatcher::HasGeckoListener_t::signature[];
 
-constexpr char EventDispatcher::SetAttachedToGoanna_t::name[];
-constexpr char EventDispatcher::SetAttachedToGoanna_t::signature[];
+constexpr char EventDispatcher::SetAttachedToGecko_t::name[];
+constexpr char EventDispatcher::SetAttachedToGecko_t::signature[];
 
-auto EventDispatcher::SetAttachedToGoanna(int32_t a0) const -> void
+auto EventDispatcher::SetAttachedToGecko(int32_t a0) const -> void
 {
-    return mozilla::jni::Method<SetAttachedToGoanna_t>::Call(EventDispatcher::mCtx, nullptr, a0);
+    return mozilla::jni::Method<SetAttachedToGecko_t>::Call(EventDispatcher::mCtx, nullptr, a0);
 }
 
 const char EventDispatcher::NativeCallbackDelegate::name[] =
-        "org/mozilla/goanna/EventDispatcher$NativeCallbackDelegate";
+        "org/mozilla/gecko/EventDispatcher$NativeCallbackDelegate";
 
 constexpr char EventDispatcher::NativeCallbackDelegate::New_t::name[];
 constexpr char EventDispatcher::NativeCallbackDelegate::New_t::signature[];
@@ -108,902 +108,902 @@ constexpr char EventDispatcher::NativeCallbackDelegate::SendError_t::signature[]
 constexpr char EventDispatcher::NativeCallbackDelegate::SendSuccess_t::name[];
 constexpr char EventDispatcher::NativeCallbackDelegate::SendSuccess_t::signature[];
 
-const char GoannaAppShell::name[] =
-        "org/mozilla/goanna/GoannaAppShell";
+const char GeckoAppShell::name[] =
+        "org/mozilla/gecko/GeckoAppShell";
 
-constexpr char GoannaAppShell::AddFullScreenPluginView_t::name[];
-constexpr char GoannaAppShell::AddFullScreenPluginView_t::signature[];
+constexpr char GeckoAppShell::AddFullScreenPluginView_t::name[];
+constexpr char GeckoAppShell::AddFullScreenPluginView_t::signature[];
 
-auto GoannaAppShell::AddFullScreenPluginView(mozilla::jni::Object::Param a0) -> void
+auto GeckoAppShell::AddFullScreenPluginView(mozilla::jni::Object::Param a0) -> void
 {
-    return mozilla::jni::Method<AddFullScreenPluginView_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<AddFullScreenPluginView_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::CancelVibrate_t::name[];
-constexpr char GoannaAppShell::CancelVibrate_t::signature[];
+constexpr char GeckoAppShell::CancelVibrate_t::name[];
+constexpr char GeckoAppShell::CancelVibrate_t::signature[];
 
-auto GoannaAppShell::CancelVibrate() -> void
+auto GeckoAppShell::CancelVibrate() -> void
 {
-    return mozilla::jni::Method<CancelVibrate_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<CancelVibrate_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::CheckURIVisited_t::name[];
-constexpr char GoannaAppShell::CheckURIVisited_t::signature[];
+constexpr char GeckoAppShell::CheckURIVisited_t::name[];
+constexpr char GeckoAppShell::CheckURIVisited_t::signature[];
 
-auto GoannaAppShell::CheckURIVisited(mozilla::jni::String::Param a0) -> void
+auto GeckoAppShell::CheckURIVisited(mozilla::jni::String::Param a0) -> void
 {
-    return mozilla::jni::Method<CheckURIVisited_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<CheckURIVisited_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::CloseCamera_t::name[];
-constexpr char GoannaAppShell::CloseCamera_t::signature[];
+constexpr char GeckoAppShell::CloseCamera_t::name[];
+constexpr char GeckoAppShell::CloseCamera_t::signature[];
 
-auto GoannaAppShell::CloseCamera() -> void
+auto GeckoAppShell::CloseCamera() -> void
 {
-    return mozilla::jni::Method<CloseCamera_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<CloseCamera_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::CloseNotification_t::name[];
-constexpr char GoannaAppShell::CloseNotification_t::signature[];
+constexpr char GeckoAppShell::CloseNotification_t::name[];
+constexpr char GeckoAppShell::CloseNotification_t::signature[];
 
-auto GoannaAppShell::CloseNotification(mozilla::jni::String::Param a0) -> void
+auto GeckoAppShell::CloseNotification(mozilla::jni::String::Param a0) -> void
 {
-    return mozilla::jni::Method<CloseNotification_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<CloseNotification_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::ConnectionGetMimeType_t::name[];
-constexpr char GoannaAppShell::ConnectionGetMimeType_t::signature[];
+constexpr char GeckoAppShell::ConnectionGetMimeType_t::name[];
+constexpr char GeckoAppShell::ConnectionGetMimeType_t::signature[];
 
-auto GoannaAppShell::ConnectionGetMimeType(mozilla::jni::Object::Param a0) -> mozilla::jni::String::LocalRef
+auto GeckoAppShell::ConnectionGetMimeType(mozilla::jni::Object::Param a0) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<ConnectionGetMimeType_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<ConnectionGetMimeType_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::CreateInputStream_t::name[];
-constexpr char GoannaAppShell::CreateInputStream_t::signature[];
+constexpr char GeckoAppShell::CreateInputStream_t::name[];
+constexpr char GeckoAppShell::CreateInputStream_t::signature[];
 
-auto GoannaAppShell::CreateInputStream(mozilla::jni::Object::Param a0) -> mozilla::jni::Object::LocalRef
+auto GeckoAppShell::CreateInputStream(mozilla::jni::Object::Param a0) -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<CreateInputStream_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<CreateInputStream_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::CreateShortcut_t::name[];
-constexpr char GoannaAppShell::CreateShortcut_t::signature[];
+constexpr char GeckoAppShell::CreateShortcut_t::name[];
+constexpr char GeckoAppShell::CreateShortcut_t::signature[];
 
-auto GoannaAppShell::CreateShortcut(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
+auto GeckoAppShell::CreateShortcut(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
 {
-    return mozilla::jni::Method<CreateShortcut_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<CreateShortcut_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::DisableAlarm_t::name[];
-constexpr char GoannaAppShell::DisableAlarm_t::signature[];
+constexpr char GeckoAppShell::DisableAlarm_t::name[];
+constexpr char GeckoAppShell::DisableAlarm_t::signature[];
 
-auto GoannaAppShell::DisableAlarm() -> void
+auto GeckoAppShell::DisableAlarm() -> void
 {
-    return mozilla::jni::Method<DisableAlarm_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<DisableAlarm_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::DisableBatteryNotifications_t::name[];
-constexpr char GoannaAppShell::DisableBatteryNotifications_t::signature[];
+constexpr char GeckoAppShell::DisableBatteryNotifications_t::name[];
+constexpr char GeckoAppShell::DisableBatteryNotifications_t::signature[];
 
-auto GoannaAppShell::DisableBatteryNotifications() -> void
+auto GeckoAppShell::DisableBatteryNotifications() -> void
 {
-    return mozilla::jni::Method<DisableBatteryNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<DisableBatteryNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::DisableNetworkNotifications_t::name[];
-constexpr char GoannaAppShell::DisableNetworkNotifications_t::signature[];
+constexpr char GeckoAppShell::DisableNetworkNotifications_t::name[];
+constexpr char GeckoAppShell::DisableNetworkNotifications_t::signature[];
 
-auto GoannaAppShell::DisableNetworkNotifications() -> void
+auto GeckoAppShell::DisableNetworkNotifications() -> void
 {
-    return mozilla::jni::Method<DisableNetworkNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<DisableNetworkNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::DisableScreenOrientationNotifications_t::name[];
-constexpr char GoannaAppShell::DisableScreenOrientationNotifications_t::signature[];
+constexpr char GeckoAppShell::DisableScreenOrientationNotifications_t::name[];
+constexpr char GeckoAppShell::DisableScreenOrientationNotifications_t::signature[];
 
-auto GoannaAppShell::DisableScreenOrientationNotifications() -> void
+auto GeckoAppShell::DisableScreenOrientationNotifications() -> void
 {
-    return mozilla::jni::Method<DisableScreenOrientationNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<DisableScreenOrientationNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::DisableSensor_t::name[];
-constexpr char GoannaAppShell::DisableSensor_t::signature[];
+constexpr char GeckoAppShell::DisableSensor_t::name[];
+constexpr char GeckoAppShell::DisableSensor_t::signature[];
 
-auto GoannaAppShell::DisableSensor(int32_t a0) -> void
+auto GeckoAppShell::DisableSensor(int32_t a0) -> void
 {
-    return mozilla::jni::Method<DisableSensor_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<DisableSensor_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::EnableBatteryNotifications_t::name[];
-constexpr char GoannaAppShell::EnableBatteryNotifications_t::signature[];
+constexpr char GeckoAppShell::EnableBatteryNotifications_t::name[];
+constexpr char GeckoAppShell::EnableBatteryNotifications_t::signature[];
 
-auto GoannaAppShell::EnableBatteryNotifications() -> void
+auto GeckoAppShell::EnableBatteryNotifications() -> void
 {
-    return mozilla::jni::Method<EnableBatteryNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<EnableBatteryNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::EnableLocation_t::name[];
-constexpr char GoannaAppShell::EnableLocation_t::signature[];
+constexpr char GeckoAppShell::EnableLocation_t::name[];
+constexpr char GeckoAppShell::EnableLocation_t::signature[];
 
-auto GoannaAppShell::EnableLocation(bool a0) -> void
+auto GeckoAppShell::EnableLocation(bool a0) -> void
 {
-    return mozilla::jni::Method<EnableLocation_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<EnableLocation_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::EnableLocationHighAccuracy_t::name[];
-constexpr char GoannaAppShell::EnableLocationHighAccuracy_t::signature[];
+constexpr char GeckoAppShell::EnableLocationHighAccuracy_t::name[];
+constexpr char GeckoAppShell::EnableLocationHighAccuracy_t::signature[];
 
-auto GoannaAppShell::EnableLocationHighAccuracy(bool a0) -> void
+auto GeckoAppShell::EnableLocationHighAccuracy(bool a0) -> void
 {
-    return mozilla::jni::Method<EnableLocationHighAccuracy_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<EnableLocationHighAccuracy_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::EnableNetworkNotifications_t::name[];
-constexpr char GoannaAppShell::EnableNetworkNotifications_t::signature[];
+constexpr char GeckoAppShell::EnableNetworkNotifications_t::name[];
+constexpr char GeckoAppShell::EnableNetworkNotifications_t::signature[];
 
-auto GoannaAppShell::EnableNetworkNotifications() -> void
+auto GeckoAppShell::EnableNetworkNotifications() -> void
 {
-    return mozilla::jni::Method<EnableNetworkNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<EnableNetworkNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::EnableScreenOrientationNotifications_t::name[];
-constexpr char GoannaAppShell::EnableScreenOrientationNotifications_t::signature[];
+constexpr char GeckoAppShell::EnableScreenOrientationNotifications_t::name[];
+constexpr char GeckoAppShell::EnableScreenOrientationNotifications_t::signature[];
 
-auto GoannaAppShell::EnableScreenOrientationNotifications() -> void
+auto GeckoAppShell::EnableScreenOrientationNotifications() -> void
 {
-    return mozilla::jni::Method<EnableScreenOrientationNotifications_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<EnableScreenOrientationNotifications_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::EnableSensor_t::name[];
-constexpr char GoannaAppShell::EnableSensor_t::signature[];
+constexpr char GeckoAppShell::EnableSensor_t::name[];
+constexpr char GeckoAppShell::EnableSensor_t::signature[];
 
-auto GoannaAppShell::EnableSensor(int32_t a0) -> void
+auto GeckoAppShell::EnableSensor(int32_t a0) -> void
 {
-    return mozilla::jni::Method<EnableSensor_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<EnableSensor_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::GetApplicationContext_t::name[];
-constexpr char GoannaAppShell::GetApplicationContext_t::signature[];
+constexpr char GeckoAppShell::GetApplicationContext_t::name[];
+constexpr char GeckoAppShell::GetApplicationContext_t::signature[];
 
-auto GoannaAppShell::GetApplicationContext() -> mozilla::jni::Object::LocalRef
+auto GeckoAppShell::GetApplicationContext() -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<GetApplicationContext_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetApplicationContext_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetConnection_t::name[];
-constexpr char GoannaAppShell::GetConnection_t::signature[];
+constexpr char GeckoAppShell::GetConnection_t::name[];
+constexpr char GeckoAppShell::GetConnection_t::signature[];
 
-auto GoannaAppShell::GetConnection(mozilla::jni::String::Param a0) -> mozilla::jni::Object::LocalRef
+auto GeckoAppShell::GetConnection(mozilla::jni::String::Param a0) -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<GetConnection_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<GetConnection_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::GetContext_t::name[];
-constexpr char GoannaAppShell::GetContext_t::signature[];
+constexpr char GeckoAppShell::GetContext_t::name[];
+constexpr char GeckoAppShell::GetContext_t::signature[];
 
-auto GoannaAppShell::GetContext() -> mozilla::jni::Object::LocalRef
+auto GeckoAppShell::GetContext() -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<GetContext_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetContext_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetCurrentBatteryInformation_t::name[];
-constexpr char GoannaAppShell::GetCurrentBatteryInformation_t::signature[];
+constexpr char GeckoAppShell::GetCurrentBatteryInformation_t::name[];
+constexpr char GeckoAppShell::GetCurrentBatteryInformation_t::signature[];
 
-auto GoannaAppShell::GetCurrentBatteryInformation() -> mozilla::jni::DoubleArray::LocalRef
+auto GeckoAppShell::GetCurrentBatteryInformation() -> mozilla::jni::DoubleArray::LocalRef
 {
-    return mozilla::jni::Method<GetCurrentBatteryInformation_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetCurrentBatteryInformation_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetCurrentNetworkInformation_t::name[];
-constexpr char GoannaAppShell::GetCurrentNetworkInformation_t::signature[];
+constexpr char GeckoAppShell::GetCurrentNetworkInformation_t::name[];
+constexpr char GeckoAppShell::GetCurrentNetworkInformation_t::signature[];
 
-auto GoannaAppShell::GetCurrentNetworkInformation() -> mozilla::jni::DoubleArray::LocalRef
+auto GeckoAppShell::GetCurrentNetworkInformation() -> mozilla::jni::DoubleArray::LocalRef
 {
-    return mozilla::jni::Method<GetCurrentNetworkInformation_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetCurrentNetworkInformation_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetDensity_t::name[];
-constexpr char GoannaAppShell::GetDensity_t::signature[];
+constexpr char GeckoAppShell::GetDensity_t::name[];
+constexpr char GeckoAppShell::GetDensity_t::signature[];
 
-auto GoannaAppShell::GetDensity() -> float
+auto GeckoAppShell::GetDensity() -> float
 {
-    return mozilla::jni::Method<GetDensity_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetDensity_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetDpi_t::name[];
-constexpr char GoannaAppShell::GetDpi_t::signature[];
+constexpr char GeckoAppShell::GetDpi_t::name[];
+constexpr char GeckoAppShell::GetDpi_t::signature[];
 
-auto GoannaAppShell::GetDpi() -> int32_t
+auto GeckoAppShell::GetDpi() -> int32_t
 {
-    return mozilla::jni::Method<GetDpi_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetDpi_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetExceptionStackTrace_t::name[];
-constexpr char GoannaAppShell::GetExceptionStackTrace_t::signature[];
+constexpr char GeckoAppShell::GetExceptionStackTrace_t::name[];
+constexpr char GeckoAppShell::GetExceptionStackTrace_t::signature[];
 
-auto GoannaAppShell::GetExceptionStackTrace(mozilla::jni::Throwable::Param a0) -> mozilla::jni::String::LocalRef
+auto GeckoAppShell::GetExceptionStackTrace(mozilla::jni::Throwable::Param a0) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetExceptionStackTrace_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<GetExceptionStackTrace_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::GetExtensionFromMimeType_t::name[];
-constexpr char GoannaAppShell::GetExtensionFromMimeType_t::signature[];
+constexpr char GeckoAppShell::GetExtensionFromMimeType_t::name[];
+constexpr char GeckoAppShell::GetExtensionFromMimeType_t::signature[];
 
-auto GoannaAppShell::GetExtensionFromMimeType(mozilla::jni::String::Param a0) -> mozilla::jni::String::LocalRef
+auto GeckoAppShell::GetExtensionFromMimeType(mozilla::jni::String::Param a0) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetExtensionFromMimeType_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<GetExtensionFromMimeType_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::GetHWDecoderCapability_t::name[];
-constexpr char GoannaAppShell::GetHWDecoderCapability_t::signature[];
+constexpr char GeckoAppShell::GetHWDecoderCapability_t::name[];
+constexpr char GeckoAppShell::GetHWDecoderCapability_t::signature[];
 
-auto GoannaAppShell::GetHWDecoderCapability() -> bool
+auto GeckoAppShell::GetHWDecoderCapability() -> bool
 {
-    return mozilla::jni::Method<GetHWDecoderCapability_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetHWDecoderCapability_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetHWEncoderCapability_t::name[];
-constexpr char GoannaAppShell::GetHWEncoderCapability_t::signature[];
+constexpr char GeckoAppShell::GetHWEncoderCapability_t::name[];
+constexpr char GeckoAppShell::GetHWEncoderCapability_t::signature[];
 
-auto GoannaAppShell::GetHWEncoderCapability() -> bool
+auto GeckoAppShell::GetHWEncoderCapability() -> bool
 {
-    return mozilla::jni::Method<GetHWEncoderCapability_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetHWEncoderCapability_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetHandlersForMimeType_t::name[];
-constexpr char GoannaAppShell::GetHandlersForMimeType_t::signature[];
+constexpr char GeckoAppShell::GetHandlersForMimeType_t::name[];
+constexpr char GeckoAppShell::GetHandlersForMimeType_t::signature[];
 
-auto GoannaAppShell::GetHandlersForMimeType(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::ObjectArray::LocalRef
+auto GeckoAppShell::GetHandlersForMimeType(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::ObjectArray::LocalRef
 {
-    return mozilla::jni::Method<GetHandlersForMimeType_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<GetHandlersForMimeType_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::GetHandlersForURL_t::name[];
-constexpr char GoannaAppShell::GetHandlersForURL_t::signature[];
+constexpr char GeckoAppShell::GetHandlersForURL_t::name[];
+constexpr char GeckoAppShell::GetHandlersForURL_t::signature[];
 
-auto GoannaAppShell::GetHandlersForURL(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::ObjectArray::LocalRef
+auto GeckoAppShell::GetHandlersForURL(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::ObjectArray::LocalRef
 {
-    return mozilla::jni::Method<GetHandlersForURL_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<GetHandlersForURL_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::GetIconForExtension_t::name[];
-constexpr char GoannaAppShell::GetIconForExtension_t::signature[];
+constexpr char GeckoAppShell::GetIconForExtension_t::name[];
+constexpr char GeckoAppShell::GetIconForExtension_t::signature[];
 
-auto GoannaAppShell::GetIconForExtension(mozilla::jni::String::Param a0, int32_t a1) -> mozilla::jni::ByteArray::LocalRef
+auto GeckoAppShell::GetIconForExtension(mozilla::jni::String::Param a0, int32_t a1) -> mozilla::jni::ByteArray::LocalRef
 {
-    return mozilla::jni::Method<GetIconForExtension_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<GetIconForExtension_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::GetMaxTouchPoints_t::name[];
-constexpr char GoannaAppShell::GetMaxTouchPoints_t::signature[];
+constexpr char GeckoAppShell::GetMaxTouchPoints_t::name[];
+constexpr char GeckoAppShell::GetMaxTouchPoints_t::signature[];
 
-auto GoannaAppShell::GetMaxTouchPoints() -> int32_t
+auto GeckoAppShell::GetMaxTouchPoints() -> int32_t
 {
-    return mozilla::jni::Method<GetMaxTouchPoints_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetMaxTouchPoints_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetMimeTypeFromExtensions_t::name[];
-constexpr char GoannaAppShell::GetMimeTypeFromExtensions_t::signature[];
+constexpr char GeckoAppShell::GetMimeTypeFromExtensions_t::name[];
+constexpr char GeckoAppShell::GetMimeTypeFromExtensions_t::signature[];
 
-auto GoannaAppShell::GetMimeTypeFromExtensions(mozilla::jni::String::Param a0) -> mozilla::jni::String::LocalRef
+auto GeckoAppShell::GetMimeTypeFromExtensions(mozilla::jni::String::Param a0) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetMimeTypeFromExtensions_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<GetMimeTypeFromExtensions_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::GetNetworkLinkType_t::name[];
-constexpr char GoannaAppShell::GetNetworkLinkType_t::signature[];
+constexpr char GeckoAppShell::GetNetworkLinkType_t::name[];
+constexpr char GeckoAppShell::GetNetworkLinkType_t::signature[];
 
-auto GoannaAppShell::GetNetworkLinkType() -> int32_t
+auto GeckoAppShell::GetNetworkLinkType() -> int32_t
 {
-    return mozilla::jni::Method<GetNetworkLinkType_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetNetworkLinkType_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetProxyForURI_t::name[];
-constexpr char GoannaAppShell::GetProxyForURI_t::signature[];
+constexpr char GeckoAppShell::GetProxyForURI_t::name[];
+constexpr char GeckoAppShell::GetProxyForURI_t::signature[];
 
-auto GoannaAppShell::GetProxyForURI(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, int32_t a3) -> mozilla::jni::String::LocalRef
+auto GeckoAppShell::GetProxyForURI(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, int32_t a3) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetProxyForURI_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1, a2, a3);
+    return mozilla::jni::Method<GetProxyForURI_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1, a2, a3);
 }
 
-constexpr char GoannaAppShell::GetScreenAngle_t::name[];
-constexpr char GoannaAppShell::GetScreenAngle_t::signature[];
+constexpr char GeckoAppShell::GetScreenAngle_t::name[];
+constexpr char GeckoAppShell::GetScreenAngle_t::signature[];
 
-auto GoannaAppShell::GetScreenAngle() -> int32_t
+auto GeckoAppShell::GetScreenAngle() -> int32_t
 {
-    return mozilla::jni::Method<GetScreenAngle_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetScreenAngle_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetScreenDepth_t::name[];
-constexpr char GoannaAppShell::GetScreenDepth_t::signature[];
+constexpr char GeckoAppShell::GetScreenDepth_t::name[];
+constexpr char GeckoAppShell::GetScreenDepth_t::signature[];
 
-auto GoannaAppShell::GetScreenDepth() -> int32_t
+auto GeckoAppShell::GetScreenDepth() -> int32_t
 {
-    return mozilla::jni::Method<GetScreenDepth_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetScreenDepth_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetScreenOrientation_t::name[];
-constexpr char GoannaAppShell::GetScreenOrientation_t::signature[];
+constexpr char GeckoAppShell::GetScreenOrientation_t::name[];
+constexpr char GeckoAppShell::GetScreenOrientation_t::signature[];
 
-auto GoannaAppShell::GetScreenOrientation() -> int16_t
+auto GeckoAppShell::GetScreenOrientation() -> int16_t
 {
-    return mozilla::jni::Method<GetScreenOrientation_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetScreenOrientation_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetScreenSize_t::name[];
-constexpr char GoannaAppShell::GetScreenSize_t::signature[];
+constexpr char GeckoAppShell::GetScreenSize_t::name[];
+constexpr char GeckoAppShell::GetScreenSize_t::signature[];
 
-auto GoannaAppShell::GetScreenSize() -> mozilla::jni::Object::LocalRef
+auto GeckoAppShell::GetScreenSize() -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<GetScreenSize_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetScreenSize_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetShowPasswordSetting_t::name[];
-constexpr char GoannaAppShell::GetShowPasswordSetting_t::signature[];
+constexpr char GeckoAppShell::GetShowPasswordSetting_t::name[];
+constexpr char GeckoAppShell::GetShowPasswordSetting_t::signature[];
 
-auto GoannaAppShell::GetShowPasswordSetting() -> bool
+auto GeckoAppShell::GetShowPasswordSetting() -> bool
 {
-    return mozilla::jni::Method<GetShowPasswordSetting_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetShowPasswordSetting_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::GetSystemColors_t::name[];
-constexpr char GoannaAppShell::GetSystemColors_t::signature[];
+constexpr char GeckoAppShell::GetSystemColors_t::name[];
+constexpr char GeckoAppShell::GetSystemColors_t::signature[];
 
-auto GoannaAppShell::GetSystemColors() -> mozilla::jni::IntArray::LocalRef
+auto GeckoAppShell::GetSystemColors() -> mozilla::jni::IntArray::LocalRef
 {
-    return mozilla::jni::Method<GetSystemColors_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<GetSystemColors_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::HandleGoannaMessage_t::name[];
-constexpr char GoannaAppShell::HandleGoannaMessage_t::signature[];
+constexpr char GeckoAppShell::HandleGeckoMessage_t::name[];
+constexpr char GeckoAppShell::HandleGeckoMessage_t::signature[];
 
-auto GoannaAppShell::HandleGoannaMessage(mozilla::jni::Object::Param a0) -> void
+auto GeckoAppShell::HandleGeckoMessage(mozilla::jni::Object::Param a0) -> void
 {
-    return mozilla::jni::Method<HandleGoannaMessage_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<HandleGeckoMessage_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::HandleUncaughtException_t::name[];
-constexpr char GoannaAppShell::HandleUncaughtException_t::signature[];
+constexpr char GeckoAppShell::HandleUncaughtException_t::name[];
+constexpr char GeckoAppShell::HandleUncaughtException_t::signature[];
 
-auto GoannaAppShell::HandleUncaughtException(mozilla::jni::Throwable::Param a0) -> void
+auto GeckoAppShell::HandleUncaughtException(mozilla::jni::Throwable::Param a0) -> void
 {
-    return mozilla::jni::Method<HandleUncaughtException_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<HandleUncaughtException_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::HideProgressDialog_t::name[];
-constexpr char GoannaAppShell::HideProgressDialog_t::signature[];
+constexpr char GeckoAppShell::HideProgressDialog_t::name[];
+constexpr char GeckoAppShell::HideProgressDialog_t::signature[];
 
-auto GoannaAppShell::HideProgressDialog() -> void
+auto GeckoAppShell::HideProgressDialog() -> void
 {
-    return mozilla::jni::Method<HideProgressDialog_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<HideProgressDialog_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::InitCamera_t::name[];
-constexpr char GoannaAppShell::InitCamera_t::signature[];
+constexpr char GeckoAppShell::InitCamera_t::name[];
+constexpr char GeckoAppShell::InitCamera_t::signature[];
 
-auto GoannaAppShell::InitCamera(mozilla::jni::String::Param a0, int32_t a1, int32_t a2, int32_t a3) -> mozilla::jni::IntArray::LocalRef
+auto GeckoAppShell::InitCamera(mozilla::jni::String::Param a0, int32_t a1, int32_t a2, int32_t a3) -> mozilla::jni::IntArray::LocalRef
 {
-    return mozilla::jni::Method<InitCamera_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1, a2, a3);
+    return mozilla::jni::Method<InitCamera_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1, a2, a3);
 }
 
-constexpr char GoannaAppShell::IsNetworkLinkKnown_t::name[];
-constexpr char GoannaAppShell::IsNetworkLinkKnown_t::signature[];
+constexpr char GeckoAppShell::IsNetworkLinkKnown_t::name[];
+constexpr char GeckoAppShell::IsNetworkLinkKnown_t::signature[];
 
-auto GoannaAppShell::IsNetworkLinkKnown() -> bool
+auto GeckoAppShell::IsNetworkLinkKnown() -> bool
 {
-    return mozilla::jni::Method<IsNetworkLinkKnown_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<IsNetworkLinkKnown_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::IsNetworkLinkUp_t::name[];
-constexpr char GoannaAppShell::IsNetworkLinkUp_t::signature[];
+constexpr char GeckoAppShell::IsNetworkLinkUp_t::name[];
+constexpr char GeckoAppShell::IsNetworkLinkUp_t::signature[];
 
-auto GoannaAppShell::IsNetworkLinkUp() -> bool
+auto GeckoAppShell::IsNetworkLinkUp() -> bool
 {
-    return mozilla::jni::Method<IsNetworkLinkUp_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<IsNetworkLinkUp_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::IsTablet_t::name[];
-constexpr char GoannaAppShell::IsTablet_t::signature[];
+constexpr char GeckoAppShell::IsTablet_t::name[];
+constexpr char GeckoAppShell::IsTablet_t::signature[];
 
-auto GoannaAppShell::IsTablet() -> bool
+auto GeckoAppShell::IsTablet() -> bool
 {
-    return mozilla::jni::Method<IsTablet_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<IsTablet_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::KillAnyZombies_t::name[];
-constexpr char GoannaAppShell::KillAnyZombies_t::signature[];
+constexpr char GeckoAppShell::KillAnyZombies_t::name[];
+constexpr char GeckoAppShell::KillAnyZombies_t::signature[];
 
-auto GoannaAppShell::KillAnyZombies() -> void
+auto GeckoAppShell::KillAnyZombies() -> void
 {
-    return mozilla::jni::Method<KillAnyZombies_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<KillAnyZombies_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::LaunchOrBringToFront_t::name[];
-constexpr char GoannaAppShell::LaunchOrBringToFront_t::signature[];
+constexpr char GeckoAppShell::LaunchOrBringToFront_t::name[];
+constexpr char GeckoAppShell::LaunchOrBringToFront_t::signature[];
 
-auto GoannaAppShell::LaunchOrBringToFront() -> void
+auto GeckoAppShell::LaunchOrBringToFront() -> void
 {
-    return mozilla::jni::Method<LaunchOrBringToFront_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<LaunchOrBringToFront_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::LoadPluginClass_t::name[];
-constexpr char GoannaAppShell::LoadPluginClass_t::signature[];
+constexpr char GeckoAppShell::LoadPluginClass_t::name[];
+constexpr char GeckoAppShell::LoadPluginClass_t::signature[];
 
-auto GoannaAppShell::LoadPluginClass(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::Class::LocalRef
+auto GeckoAppShell::LoadPluginClass(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> mozilla::jni::Class::LocalRef
 {
-    return mozilla::jni::Method<LoadPluginClass_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<LoadPluginClass_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::LockScreenOrientation_t::name[];
-constexpr char GoannaAppShell::LockScreenOrientation_t::signature[];
+constexpr char GeckoAppShell::LockScreenOrientation_t::name[];
+constexpr char GeckoAppShell::LockScreenOrientation_t::signature[];
 
-auto GoannaAppShell::LockScreenOrientation(int32_t a0) -> void
+auto GeckoAppShell::LockScreenOrientation(int32_t a0) -> void
 {
-    return mozilla::jni::Method<LockScreenOrientation_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<LockScreenOrientation_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::MarkURIVisited_t::name[];
-constexpr char GoannaAppShell::MarkURIVisited_t::signature[];
+constexpr char GeckoAppShell::MarkURIVisited_t::name[];
+constexpr char GeckoAppShell::MarkURIVisited_t::signature[];
 
-auto GoannaAppShell::MarkURIVisited(mozilla::jni::String::Param a0) -> void
+auto GeckoAppShell::MarkURIVisited(mozilla::jni::String::Param a0) -> void
 {
-    return mozilla::jni::Method<MarkURIVisited_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<MarkURIVisited_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::MoveTaskToBack_t::name[];
-constexpr char GoannaAppShell::MoveTaskToBack_t::signature[];
+constexpr char GeckoAppShell::MoveTaskToBack_t::name[];
+constexpr char GeckoAppShell::MoveTaskToBack_t::signature[];
 
-auto GoannaAppShell::MoveTaskToBack() -> void
+auto GeckoAppShell::MoveTaskToBack() -> void
 {
-    return mozilla::jni::Method<MoveTaskToBack_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<MoveTaskToBack_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::NotifyObservers_t::name[];
-constexpr char GoannaAppShell::NotifyObservers_t::signature[];
+constexpr char GeckoAppShell::NotifyObservers_t::name[];
+constexpr char GeckoAppShell::NotifyObservers_t::signature[];
 
-constexpr char GoannaAppShell::NotifyPushObservers_t::name[];
-constexpr char GoannaAppShell::NotifyPushObservers_t::signature[];
+constexpr char GeckoAppShell::NotifyPushObservers_t::name[];
+constexpr char GeckoAppShell::NotifyPushObservers_t::signature[];
 
-constexpr char GoannaAppShell::NotifyAlertListener_t::name[];
-constexpr char GoannaAppShell::NotifyAlertListener_t::signature[];
+constexpr char GeckoAppShell::NotifyAlertListener_t::name[];
+constexpr char GeckoAppShell::NotifyAlertListener_t::signature[];
 
-constexpr char GoannaAppShell::NotifyUriVisited_t::name[];
-constexpr char GoannaAppShell::NotifyUriVisited_t::signature[];
+constexpr char GeckoAppShell::NotifyUriVisited_t::name[];
+constexpr char GeckoAppShell::NotifyUriVisited_t::signature[];
 
-constexpr char GoannaAppShell::NotifyWakeLockChanged_t::name[];
-constexpr char GoannaAppShell::NotifyWakeLockChanged_t::signature[];
+constexpr char GeckoAppShell::NotifyWakeLockChanged_t::name[];
+constexpr char GeckoAppShell::NotifyWakeLockChanged_t::signature[];
 
-auto GoannaAppShell::NotifyWakeLockChanged(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
+auto GeckoAppShell::NotifyWakeLockChanged(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
 {
-    return mozilla::jni::Method<NotifyWakeLockChanged_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<NotifyWakeLockChanged_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::OnFullScreenPluginHidden_t::name[];
-constexpr char GoannaAppShell::OnFullScreenPluginHidden_t::signature[];
+constexpr char GeckoAppShell::OnFullScreenPluginHidden_t::name[];
+constexpr char GeckoAppShell::OnFullScreenPluginHidden_t::signature[];
 
-constexpr char GoannaAppShell::OnLocationChanged_t::name[];
-constexpr char GoannaAppShell::OnLocationChanged_t::signature[];
+constexpr char GeckoAppShell::OnLocationChanged_t::name[];
+constexpr char GeckoAppShell::OnLocationChanged_t::signature[];
 
-constexpr char GoannaAppShell::OnSensorChanged_t::name[];
-constexpr char GoannaAppShell::OnSensorChanged_t::signature[];
+constexpr char GeckoAppShell::OnSensorChanged_t::name[];
+constexpr char GeckoAppShell::OnSensorChanged_t::signature[];
 
-constexpr char GoannaAppShell::OpenUriExternal_t::name[];
-constexpr char GoannaAppShell::OpenUriExternal_t::signature[];
+constexpr char GeckoAppShell::OpenUriExternal_t::name[];
+constexpr char GeckoAppShell::OpenUriExternal_t::signature[];
 
-auto GoannaAppShell::OpenUriExternal(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3, mozilla::jni::String::Param a4, mozilla::jni::String::Param a5) -> bool
+auto GeckoAppShell::OpenUriExternal(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3, mozilla::jni::String::Param a4, mozilla::jni::String::Param a5) -> bool
 {
-    return mozilla::jni::Method<OpenUriExternal_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1, a2, a3, a4, a5);
+    return mozilla::jni::Method<OpenUriExternal_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1, a2, a3, a4, a5);
 }
 
-constexpr char GoannaAppShell::PerformHapticFeedback_t::name[];
-constexpr char GoannaAppShell::PerformHapticFeedback_t::signature[];
+constexpr char GeckoAppShell::PerformHapticFeedback_t::name[];
+constexpr char GeckoAppShell::PerformHapticFeedback_t::signature[];
 
-auto GoannaAppShell::PerformHapticFeedback(bool a0) -> void
+auto GeckoAppShell::PerformHapticFeedback(bool a0) -> void
 {
-    return mozilla::jni::Method<PerformHapticFeedback_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<PerformHapticFeedback_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::RemoveFullScreenPluginView_t::name[];
-constexpr char GoannaAppShell::RemoveFullScreenPluginView_t::signature[];
+constexpr char GeckoAppShell::RemoveFullScreenPluginView_t::name[];
+constexpr char GeckoAppShell::RemoveFullScreenPluginView_t::signature[];
 
-auto GoannaAppShell::RemoveFullScreenPluginView(mozilla::jni::Object::Param a0) -> void
+auto GeckoAppShell::RemoveFullScreenPluginView(mozilla::jni::Object::Param a0) -> void
 {
-    return mozilla::jni::Method<RemoveFullScreenPluginView_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<RemoveFullScreenPluginView_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::ReportJavaCrash_t::name[];
-constexpr char GoannaAppShell::ReportJavaCrash_t::signature[];
+constexpr char GeckoAppShell::ReportJavaCrash_t::name[];
+constexpr char GeckoAppShell::ReportJavaCrash_t::signature[];
 
-constexpr char GoannaAppShell::ScheduleRestart_t::name[];
-constexpr char GoannaAppShell::ScheduleRestart_t::signature[];
+constexpr char GeckoAppShell::ScheduleRestart_t::name[];
+constexpr char GeckoAppShell::ScheduleRestart_t::signature[];
 
-auto GoannaAppShell::ScheduleRestart() -> void
+auto GeckoAppShell::ScheduleRestart() -> void
 {
-    return mozilla::jni::Method<ScheduleRestart_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<ScheduleRestart_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::SetAlarm_t::name[];
-constexpr char GoannaAppShell::SetAlarm_t::signature[];
+constexpr char GeckoAppShell::SetAlarm_t::name[];
+constexpr char GeckoAppShell::SetAlarm_t::signature[];
 
-auto GoannaAppShell::SetAlarm(int32_t a0, int32_t a1) -> bool
+auto GeckoAppShell::SetAlarm(int32_t a0, int32_t a1) -> bool
 {
-    return mozilla::jni::Method<SetAlarm_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<SetAlarm_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::SetFullScreen_t::name[];
-constexpr char GoannaAppShell::SetFullScreen_t::signature[];
+constexpr char GeckoAppShell::SetFullScreen_t::name[];
+constexpr char GeckoAppShell::SetFullScreen_t::signature[];
 
-auto GoannaAppShell::SetFullScreen(bool a0) -> void
+auto GeckoAppShell::SetFullScreen(bool a0) -> void
 {
-    return mozilla::jni::Method<SetFullScreen_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<SetFullScreen_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::SetKeepScreenOn_t::name[];
-constexpr char GoannaAppShell::SetKeepScreenOn_t::signature[];
+constexpr char GeckoAppShell::SetKeepScreenOn_t::name[];
+constexpr char GeckoAppShell::SetKeepScreenOn_t::signature[];
 
-auto GoannaAppShell::SetKeepScreenOn(bool a0) -> void
+auto GeckoAppShell::SetKeepScreenOn(bool a0) -> void
 {
-    return mozilla::jni::Method<SetKeepScreenOn_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<SetKeepScreenOn_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::SetScreenDepthOverride_t::name[];
-constexpr char GoannaAppShell::SetScreenDepthOverride_t::signature[];
+constexpr char GeckoAppShell::SetScreenDepthOverride_t::name[];
+constexpr char GeckoAppShell::SetScreenDepthOverride_t::signature[];
 
-auto GoannaAppShell::SetScreenDepthOverride(int32_t a0) -> void
+auto GeckoAppShell::SetScreenDepthOverride(int32_t a0) -> void
 {
-    return mozilla::jni::Method<SetScreenDepthOverride_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<SetScreenDepthOverride_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::SetURITitle_t::name[];
-constexpr char GoannaAppShell::SetURITitle_t::signature[];
+constexpr char GeckoAppShell::SetURITitle_t::name[];
+constexpr char GeckoAppShell::SetURITitle_t::signature[];
 
-auto GoannaAppShell::SetURITitle(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
+auto GeckoAppShell::SetURITitle(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1) -> void
 {
-    return mozilla::jni::Method<SetURITitle_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<SetURITitle_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaAppShell::ShowNotification_t::name[];
-constexpr char GoannaAppShell::ShowNotification_t::signature[];
+constexpr char GeckoAppShell::ShowNotification_t::name[];
+constexpr char GeckoAppShell::ShowNotification_t::signature[];
 
-auto GoannaAppShell::ShowNotification(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3, mozilla::jni::String::Param a4, mozilla::jni::String::Param a5, mozilla::jni::String::Param a6) -> void
+auto GeckoAppShell::ShowNotification(mozilla::jni::String::Param a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3, mozilla::jni::String::Param a4, mozilla::jni::String::Param a5, mozilla::jni::String::Param a6) -> void
 {
-    return mozilla::jni::Method<ShowNotification_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1, a2, a3, a4, a5, a6);
+    return mozilla::jni::Method<ShowNotification_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1, a2, a3, a4, a5, a6);
 }
 
-constexpr char GoannaAppShell::StartGoannaServiceChildProcess_t::name[];
-constexpr char GoannaAppShell::StartGoannaServiceChildProcess_t::signature[];
+constexpr char GeckoAppShell::StartGeckoServiceChildProcess_t::name[];
+constexpr char GeckoAppShell::StartGeckoServiceChildProcess_t::signature[];
 
-auto GoannaAppShell::StartGoannaServiceChildProcess(mozilla::jni::String::Param a0, mozilla::jni::ObjectArray::Param a1, int32_t a2, int32_t a3) -> int32_t
+auto GeckoAppShell::StartGeckoServiceChildProcess(mozilla::jni::String::Param a0, mozilla::jni::ObjectArray::Param a1, int32_t a2, int32_t a3) -> int32_t
 {
-    return mozilla::jni::Method<StartGoannaServiceChildProcess_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1, a2, a3);
+    return mozilla::jni::Method<StartGeckoServiceChildProcess_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1, a2, a3);
 }
 
-constexpr char GoannaAppShell::SyncNotifyObservers_t::name[];
-constexpr char GoannaAppShell::SyncNotifyObservers_t::signature[];
+constexpr char GeckoAppShell::SyncNotifyObservers_t::name[];
+constexpr char GeckoAppShell::SyncNotifyObservers_t::signature[];
 
-constexpr char GoannaAppShell::UnlockProfile_t::name[];
-constexpr char GoannaAppShell::UnlockProfile_t::signature[];
+constexpr char GeckoAppShell::UnlockProfile_t::name[];
+constexpr char GeckoAppShell::UnlockProfile_t::signature[];
 
-auto GoannaAppShell::UnlockProfile() -> bool
+auto GeckoAppShell::UnlockProfile() -> bool
 {
-    return mozilla::jni::Method<UnlockProfile_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<UnlockProfile_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::UnlockScreenOrientation_t::name[];
-constexpr char GoannaAppShell::UnlockScreenOrientation_t::signature[];
+constexpr char GeckoAppShell::UnlockScreenOrientation_t::name[];
+constexpr char GeckoAppShell::UnlockScreenOrientation_t::signature[];
 
-auto GoannaAppShell::UnlockScreenOrientation() -> void
+auto GeckoAppShell::UnlockScreenOrientation() -> void
 {
-    return mozilla::jni::Method<UnlockScreenOrientation_t>::Call(GoannaAppShell::Context(), nullptr);
+    return mozilla::jni::Method<UnlockScreenOrientation_t>::Call(GeckoAppShell::Context(), nullptr);
 }
 
-constexpr char GoannaAppShell::Vibrate_t::name[];
-constexpr char GoannaAppShell::Vibrate_t::signature[];
+constexpr char GeckoAppShell::Vibrate_t::name[];
+constexpr char GeckoAppShell::Vibrate_t::signature[];
 
-auto GoannaAppShell::Vibrate(int64_t a0) -> void
+auto GeckoAppShell::Vibrate(int64_t a0) -> void
 {
-    return mozilla::jni::Method<Vibrate_t>::Call(GoannaAppShell::Context(), nullptr, a0);
+    return mozilla::jni::Method<Vibrate_t>::Call(GeckoAppShell::Context(), nullptr, a0);
 }
 
-constexpr char GoannaAppShell::Vibrate2_t::name[];
-constexpr char GoannaAppShell::Vibrate2_t::signature[];
+constexpr char GeckoAppShell::Vibrate2_t::name[];
+constexpr char GeckoAppShell::Vibrate2_t::signature[];
 
-auto GoannaAppShell::Vibrate(mozilla::jni::LongArray::Param a0, int32_t a1) -> void
+auto GeckoAppShell::Vibrate(mozilla::jni::LongArray::Param a0, int32_t a1) -> void
 {
-    return mozilla::jni::Method<Vibrate2_t>::Call(GoannaAppShell::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<Vibrate2_t>::Call(GeckoAppShell::Context(), nullptr, a0, a1);
 }
 
-const char GoannaAppShell::CameraCallback::name[] =
-        "org/mozilla/goanna/GoannaAppShell$CameraCallback";
+const char GeckoAppShell::CameraCallback::name[] =
+        "org/mozilla/gecko/GeckoAppShell$CameraCallback";
 
-constexpr char GoannaAppShell::CameraCallback::OnFrameData_t::name[];
-constexpr char GoannaAppShell::CameraCallback::OnFrameData_t::signature[];
+constexpr char GeckoAppShell::CameraCallback::OnFrameData_t::name[];
+constexpr char GeckoAppShell::CameraCallback::OnFrameData_t::signature[];
 
-const char GoannaBatteryManager::name[] =
-        "org/mozilla/goanna/GoannaBatteryManager";
+const char GeckoBatteryManager::name[] =
+        "org/mozilla/gecko/GeckoBatteryManager";
 
-constexpr char GoannaBatteryManager::OnBatteryChange_t::name[];
-constexpr char GoannaBatteryManager::OnBatteryChange_t::signature[];
+constexpr char GeckoBatteryManager::OnBatteryChange_t::name[];
+constexpr char GeckoBatteryManager::OnBatteryChange_t::signature[];
 
-const char GoannaEditable::name[] =
-        "org/mozilla/goanna/GoannaEditable";
+const char GeckoEditable::name[] =
+        "org/mozilla/gecko/GeckoEditable";
 
-constexpr char GoannaEditable::New_t::name[];
-constexpr char GoannaEditable::New_t::signature[];
+constexpr char GeckoEditable::New_t::name[];
+constexpr char GeckoEditable::New_t::signature[];
 
-auto GoannaEditable::New(mozilla::jni::Object::Param a0) -> GoannaEditable::LocalRef
+auto GeckoEditable::New(mozilla::jni::Object::Param a0) -> GeckoEditable::LocalRef
 {
-    return mozilla::jni::Constructor<New_t>::Call(GoannaEditable::Context(), nullptr, a0);
+    return mozilla::jni::Constructor<New_t>::Call(GeckoEditable::Context(), nullptr, a0);
 }
 
-constexpr char GoannaEditable::DisposeNative_t::name[];
-constexpr char GoannaEditable::DisposeNative_t::signature[];
+constexpr char GeckoEditable::DisposeNative_t::name[];
+constexpr char GeckoEditable::DisposeNative_t::signature[];
 
-constexpr char GoannaEditable::NotifyIME_t::name[];
-constexpr char GoannaEditable::NotifyIME_t::signature[];
+constexpr char GeckoEditable::NotifyIME_t::name[];
+constexpr char GeckoEditable::NotifyIME_t::signature[];
 
-auto GoannaEditable::NotifyIME(int32_t a0) const -> void
+auto GeckoEditable::NotifyIME(int32_t a0) const -> void
 {
-    return mozilla::jni::Method<NotifyIME_t>::Call(GoannaEditable::mCtx, nullptr, a0);
+    return mozilla::jni::Method<NotifyIME_t>::Call(GeckoEditable::mCtx, nullptr, a0);
 }
 
-constexpr char GoannaEditable::NotifyIMEContext_t::name[];
-constexpr char GoannaEditable::NotifyIMEContext_t::signature[];
+constexpr char GeckoEditable::NotifyIMEContext_t::name[];
+constexpr char GeckoEditable::NotifyIMEContext_t::signature[];
 
-auto GoannaEditable::NotifyIMEContext(int32_t a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3) const -> void
+auto GeckoEditable::NotifyIMEContext(int32_t a0, mozilla::jni::String::Param a1, mozilla::jni::String::Param a2, mozilla::jni::String::Param a3) const -> void
 {
-    return mozilla::jni::Method<NotifyIMEContext_t>::Call(GoannaEditable::mCtx, nullptr, a0, a1, a2, a3);
+    return mozilla::jni::Method<NotifyIMEContext_t>::Call(GeckoEditable::mCtx, nullptr, a0, a1, a2, a3);
 }
 
-constexpr char GoannaEditable::OnDefaultKeyEvent_t::name[];
-constexpr char GoannaEditable::OnDefaultKeyEvent_t::signature[];
+constexpr char GeckoEditable::OnDefaultKeyEvent_t::name[];
+constexpr char GeckoEditable::OnDefaultKeyEvent_t::signature[];
 
-auto GoannaEditable::OnDefaultKeyEvent(mozilla::jni::Object::Param a0) const -> void
+auto GeckoEditable::OnDefaultKeyEvent(mozilla::jni::Object::Param a0) const -> void
 {
-    return mozilla::jni::Method<OnDefaultKeyEvent_t>::Call(GoannaEditable::mCtx, nullptr, a0);
+    return mozilla::jni::Method<OnDefaultKeyEvent_t>::Call(GeckoEditable::mCtx, nullptr, a0);
 }
 
-constexpr char GoannaEditable::OnImeAddCompositionRange_t::name[];
-constexpr char GoannaEditable::OnImeAddCompositionRange_t::signature[];
+constexpr char GeckoEditable::OnImeAddCompositionRange_t::name[];
+constexpr char GeckoEditable::OnImeAddCompositionRange_t::signature[];
 
-constexpr char GoannaEditable::OnImeReplaceText_t::name[];
-constexpr char GoannaEditable::OnImeReplaceText_t::signature[];
+constexpr char GeckoEditable::OnImeReplaceText_t::name[];
+constexpr char GeckoEditable::OnImeReplaceText_t::signature[];
 
-constexpr char GoannaEditable::OnImeRequestCursorUpdates_t::name[];
-constexpr char GoannaEditable::OnImeRequestCursorUpdates_t::signature[];
+constexpr char GeckoEditable::OnImeRequestCursorUpdates_t::name[];
+constexpr char GeckoEditable::OnImeRequestCursorUpdates_t::signature[];
 
-constexpr char GoannaEditable::OnImeSynchronize_t::name[];
-constexpr char GoannaEditable::OnImeSynchronize_t::signature[];
+constexpr char GeckoEditable::OnImeSynchronize_t::name[];
+constexpr char GeckoEditable::OnImeSynchronize_t::signature[];
 
-constexpr char GoannaEditable::OnImeUpdateComposition_t::name[];
-constexpr char GoannaEditable::OnImeUpdateComposition_t::signature[];
+constexpr char GeckoEditable::OnImeUpdateComposition_t::name[];
+constexpr char GeckoEditable::OnImeUpdateComposition_t::signature[];
 
-constexpr char GoannaEditable::OnKeyEvent_t::name[];
-constexpr char GoannaEditable::OnKeyEvent_t::signature[];
+constexpr char GeckoEditable::OnKeyEvent_t::name[];
+constexpr char GeckoEditable::OnKeyEvent_t::signature[];
 
-constexpr char GoannaEditable::OnSelectionChange_t::name[];
-constexpr char GoannaEditable::OnSelectionChange_t::signature[];
+constexpr char GeckoEditable::OnSelectionChange_t::name[];
+constexpr char GeckoEditable::OnSelectionChange_t::signature[];
 
-auto GoannaEditable::OnSelectionChange(int32_t a0, int32_t a1) const -> void
+auto GeckoEditable::OnSelectionChange(int32_t a0, int32_t a1) const -> void
 {
-    return mozilla::jni::Method<OnSelectionChange_t>::Call(GoannaEditable::mCtx, nullptr, a0, a1);
+    return mozilla::jni::Method<OnSelectionChange_t>::Call(GeckoEditable::mCtx, nullptr, a0, a1);
 }
 
-constexpr char GoannaEditable::OnTextChange_t::name[];
-constexpr char GoannaEditable::OnTextChange_t::signature[];
+constexpr char GeckoEditable::OnTextChange_t::name[];
+constexpr char GeckoEditable::OnTextChange_t::signature[];
 
-auto GoannaEditable::OnTextChange(mozilla::jni::String::Param a0, int32_t a1, int32_t a2, int32_t a3) const -> void
+auto GeckoEditable::OnTextChange(mozilla::jni::String::Param a0, int32_t a1, int32_t a2, int32_t a3) const -> void
 {
-    return mozilla::jni::Method<OnTextChange_t>::Call(GoannaEditable::mCtx, nullptr, a0, a1, a2, a3);
+    return mozilla::jni::Method<OnTextChange_t>::Call(GeckoEditable::mCtx, nullptr, a0, a1, a2, a3);
 }
 
-constexpr char GoannaEditable::OnViewChange_t::name[];
-constexpr char GoannaEditable::OnViewChange_t::signature[];
+constexpr char GeckoEditable::OnViewChange_t::name[];
+constexpr char GeckoEditable::OnViewChange_t::signature[];
 
-auto GoannaEditable::OnViewChange(mozilla::jni::Object::Param a0) const -> void
+auto GeckoEditable::OnViewChange(mozilla::jni::Object::Param a0) const -> void
 {
-    return mozilla::jni::Method<OnViewChange_t>::Call(GoannaEditable::mCtx, nullptr, a0);
+    return mozilla::jni::Method<OnViewChange_t>::Call(GeckoEditable::mCtx, nullptr, a0);
 }
 
-constexpr char GoannaEditable::UpdateCompositionRects_t::name[];
-constexpr char GoannaEditable::UpdateCompositionRects_t::signature[];
+constexpr char GeckoEditable::UpdateCompositionRects_t::name[];
+constexpr char GeckoEditable::UpdateCompositionRects_t::signature[];
 
-auto GoannaEditable::UpdateCompositionRects(mozilla::jni::ObjectArray::Param a0) const -> void
+auto GeckoEditable::UpdateCompositionRects(mozilla::jni::ObjectArray::Param a0) const -> void
 {
-    return mozilla::jni::Method<UpdateCompositionRects_t>::Call(GoannaEditable::mCtx, nullptr, a0);
+    return mozilla::jni::Method<UpdateCompositionRects_t>::Call(GeckoEditable::mCtx, nullptr, a0);
 }
 
-const char GoannaEditableListener::name[] =
-        "org/mozilla/goanna/GoannaEditableListener";
+const char GeckoEditableListener::name[] =
+        "org/mozilla/gecko/GeckoEditableListener";
 
-const char GoannaNetworkManager::name[] =
-        "org/mozilla/goanna/GoannaNetworkManager";
+const char GeckoNetworkManager::name[] =
+        "org/mozilla/gecko/GeckoNetworkManager";
 
-constexpr char GoannaNetworkManager::OnConnectionChanged_t::name[];
-constexpr char GoannaNetworkManager::OnConnectionChanged_t::signature[];
+constexpr char GeckoNetworkManager::OnConnectionChanged_t::name[];
+constexpr char GeckoNetworkManager::OnConnectionChanged_t::signature[];
 
-constexpr char GoannaNetworkManager::OnStatusChanged_t::name[];
-constexpr char GoannaNetworkManager::OnStatusChanged_t::signature[];
+constexpr char GeckoNetworkManager::OnStatusChanged_t::name[];
+constexpr char GeckoNetworkManager::OnStatusChanged_t::signature[];
 
-const char GoannaScreenOrientation::name[] =
-        "org/mozilla/goanna/GoannaScreenOrientation";
+const char GeckoScreenOrientation::name[] =
+        "org/mozilla/gecko/GeckoScreenOrientation";
 
-constexpr char GoannaScreenOrientation::OnOrientationChange_t::name[];
-constexpr char GoannaScreenOrientation::OnOrientationChange_t::signature[];
+constexpr char GeckoScreenOrientation::OnOrientationChange_t::name[];
+constexpr char GeckoScreenOrientation::OnOrientationChange_t::signature[];
 
-const char GoannaThread::name[] =
-        "org/mozilla/goanna/GoannaThread";
+const char GeckoThread::name[] =
+        "org/mozilla/gecko/GeckoThread";
 
-constexpr char GoannaThread::CheckAndSetState_t::name[];
-constexpr char GoannaThread::CheckAndSetState_t::signature[];
+constexpr char GeckoThread::CheckAndSetState_t::name[];
+constexpr char GeckoThread::CheckAndSetState_t::signature[];
 
-auto GoannaThread::CheckAndSetState(mozilla::jni::Object::Param a0, mozilla::jni::Object::Param a1) -> bool
+auto GeckoThread::CheckAndSetState(mozilla::jni::Object::Param a0, mozilla::jni::Object::Param a1) -> bool
 {
-    return mozilla::jni::Method<CheckAndSetState_t>::Call(GoannaThread::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<CheckAndSetState_t>::Call(GeckoThread::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaThread::CreateServices_t::name[];
-constexpr char GoannaThread::CreateServices_t::signature[];
+constexpr char GeckoThread::CreateServices_t::name[];
+constexpr char GeckoThread::CreateServices_t::signature[];
 
-constexpr char GoannaThread::OnPause_t::name[];
-constexpr char GoannaThread::OnPause_t::signature[];
+constexpr char GeckoThread::OnPause_t::name[];
+constexpr char GeckoThread::OnPause_t::signature[];
 
-constexpr char GoannaThread::OnResume_t::name[];
-constexpr char GoannaThread::OnResume_t::signature[];
+constexpr char GeckoThread::OnResume_t::name[];
+constexpr char GeckoThread::OnResume_t::signature[];
 
-constexpr char GoannaThread::PumpMessageLoop_t::name[];
-constexpr char GoannaThread::PumpMessageLoop_t::signature[];
+constexpr char GeckoThread::PumpMessageLoop_t::name[];
+constexpr char GeckoThread::PumpMessageLoop_t::signature[];
 
-auto GoannaThread::PumpMessageLoop(mozilla::jni::Object::Param a0) -> bool
+auto GeckoThread::PumpMessageLoop(mozilla::jni::Object::Param a0) -> bool
 {
-    return mozilla::jni::Method<PumpMessageLoop_t>::Call(GoannaThread::Context(), nullptr, a0);
+    return mozilla::jni::Method<PumpMessageLoop_t>::Call(GeckoThread::Context(), nullptr, a0);
 }
 
-constexpr char GoannaThread::RequestUiThreadCallback_t::name[];
-constexpr char GoannaThread::RequestUiThreadCallback_t::signature[];
+constexpr char GeckoThread::RequestUiThreadCallback_t::name[];
+constexpr char GeckoThread::RequestUiThreadCallback_t::signature[];
 
-auto GoannaThread::RequestUiThreadCallback(int64_t a0) -> void
+auto GeckoThread::RequestUiThreadCallback(int64_t a0) -> void
 {
-    return mozilla::jni::Method<RequestUiThreadCallback_t>::Call(GoannaThread::Context(), nullptr, a0);
+    return mozilla::jni::Method<RequestUiThreadCallback_t>::Call(GeckoThread::Context(), nullptr, a0);
 }
 
-constexpr char GoannaThread::RunUiThreadCallback_t::name[];
-constexpr char GoannaThread::RunUiThreadCallback_t::signature[];
+constexpr char GeckoThread::RunUiThreadCallback_t::name[];
+constexpr char GeckoThread::RunUiThreadCallback_t::signature[];
 
-constexpr char GoannaThread::SetState_t::name[];
-constexpr char GoannaThread::SetState_t::signature[];
+constexpr char GeckoThread::SetState_t::name[];
+constexpr char GeckoThread::SetState_t::signature[];
 
-auto GoannaThread::SetState(mozilla::jni::Object::Param a0) -> void
+auto GeckoThread::SetState(mozilla::jni::Object::Param a0) -> void
 {
-    return mozilla::jni::Method<SetState_t>::Call(GoannaThread::Context(), nullptr, a0);
+    return mozilla::jni::Method<SetState_t>::Call(GeckoThread::Context(), nullptr, a0);
 }
 
-constexpr char GoannaThread::SpeculativeConnect_t::name[];
-constexpr char GoannaThread::SpeculativeConnect_t::signature[];
+constexpr char GeckoThread::SpeculativeConnect_t::name[];
+constexpr char GeckoThread::SpeculativeConnect_t::signature[];
 
-constexpr char GoannaThread::WaitOnGoanna_t::name[];
-constexpr char GoannaThread::WaitOnGoanna_t::signature[];
+constexpr char GeckoThread::WaitOnGecko_t::name[];
+constexpr char GeckoThread::WaitOnGecko_t::signature[];
 
-constexpr char GoannaThread::ClsLoader_t::name[];
-constexpr char GoannaThread::ClsLoader_t::signature[];
+constexpr char GeckoThread::ClsLoader_t::name[];
+constexpr char GeckoThread::ClsLoader_t::signature[];
 
-auto GoannaThread::ClsLoader() -> mozilla::jni::Object::LocalRef
+auto GeckoThread::ClsLoader() -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Field<ClsLoader_t>::Get(GoannaThread::Context(), nullptr);
+    return mozilla::jni::Field<ClsLoader_t>::Get(GeckoThread::Context(), nullptr);
 }
 
-constexpr char GoannaThread::MsgQueue_t::name[];
-constexpr char GoannaThread::MsgQueue_t::signature[];
+constexpr char GeckoThread::MsgQueue_t::name[];
+constexpr char GeckoThread::MsgQueue_t::signature[];
 
-auto GoannaThread::MsgQueue() -> mozilla::jni::Object::LocalRef
+auto GeckoThread::MsgQueue() -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Field<MsgQueue_t>::Get(GoannaThread::Context(), nullptr);
+    return mozilla::jni::Field<MsgQueue_t>::Get(GeckoThread::Context(), nullptr);
 }
 
-auto GoannaThread::MsgQueue(mozilla::jni::Object::Param a0) -> void
+auto GeckoThread::MsgQueue(mozilla::jni::Object::Param a0) -> void
 {
-    return mozilla::jni::Field<MsgQueue_t>::Set(GoannaThread::Context(), nullptr, a0);
+    return mozilla::jni::Field<MsgQueue_t>::Set(GeckoThread::Context(), nullptr, a0);
 }
 
-const char GoannaThread::State::name[] =
-        "org/mozilla/goanna/GoannaThread$State";
+const char GeckoThread::State::name[] =
+        "org/mozilla/gecko/GeckoThread$State";
 
-constexpr char GoannaThread::State::EXITED_t::name[];
-constexpr char GoannaThread::State::EXITED_t::signature[];
+constexpr char GeckoThread::State::EXITED_t::name[];
+constexpr char GeckoThread::State::EXITED_t::signature[];
 
-auto GoannaThread::State::EXITED() -> State::LocalRef
+auto GeckoThread::State::EXITED() -> State::LocalRef
 {
     return mozilla::jni::Field<EXITED_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::EXITING_t::name[];
-constexpr char GoannaThread::State::EXITING_t::signature[];
+constexpr char GeckoThread::State::EXITING_t::name[];
+constexpr char GeckoThread::State::EXITING_t::signature[];
 
-auto GoannaThread::State::EXITING() -> State::LocalRef
+auto GeckoThread::State::EXITING() -> State::LocalRef
 {
     return mozilla::jni::Field<EXITING_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::INITIAL_t::name[];
-constexpr char GoannaThread::State::INITIAL_t::signature[];
+constexpr char GeckoThread::State::INITIAL_t::name[];
+constexpr char GeckoThread::State::INITIAL_t::signature[];
 
-auto GoannaThread::State::INITIAL() -> State::LocalRef
+auto GeckoThread::State::INITIAL() -> State::LocalRef
 {
     return mozilla::jni::Field<INITIAL_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::JNI_READY_t::name[];
-constexpr char GoannaThread::State::JNI_READY_t::signature[];
+constexpr char GeckoThread::State::JNI_READY_t::name[];
+constexpr char GeckoThread::State::JNI_READY_t::signature[];
 
-auto GoannaThread::State::JNI_READY() -> State::LocalRef
+auto GeckoThread::State::JNI_READY() -> State::LocalRef
 {
     return mozilla::jni::Field<JNI_READY_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::LAUNCHED_t::name[];
-constexpr char GoannaThread::State::LAUNCHED_t::signature[];
+constexpr char GeckoThread::State::LAUNCHED_t::name[];
+constexpr char GeckoThread::State::LAUNCHED_t::signature[];
 
-auto GoannaThread::State::LAUNCHED() -> State::LocalRef
+auto GeckoThread::State::LAUNCHED() -> State::LocalRef
 {
     return mozilla::jni::Field<LAUNCHED_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::LIBS_READY_t::name[];
-constexpr char GoannaThread::State::LIBS_READY_t::signature[];
+constexpr char GeckoThread::State::LIBS_READY_t::name[];
+constexpr char GeckoThread::State::LIBS_READY_t::signature[];
 
-auto GoannaThread::State::LIBS_READY() -> State::LocalRef
+auto GeckoThread::State::LIBS_READY() -> State::LocalRef
 {
     return mozilla::jni::Field<LIBS_READY_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::MOZGLUE_READY_t::name[];
-constexpr char GoannaThread::State::MOZGLUE_READY_t::signature[];
+constexpr char GeckoThread::State::MOZGLUE_READY_t::name[];
+constexpr char GeckoThread::State::MOZGLUE_READY_t::signature[];
 
-auto GoannaThread::State::MOZGLUE_READY() -> State::LocalRef
+auto GeckoThread::State::MOZGLUE_READY() -> State::LocalRef
 {
     return mozilla::jni::Field<MOZGLUE_READY_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::PROFILE_READY_t::name[];
-constexpr char GoannaThread::State::PROFILE_READY_t::signature[];
+constexpr char GeckoThread::State::PROFILE_READY_t::name[];
+constexpr char GeckoThread::State::PROFILE_READY_t::signature[];
 
-auto GoannaThread::State::PROFILE_READY() -> State::LocalRef
+auto GeckoThread::State::PROFILE_READY() -> State::LocalRef
 {
     return mozilla::jni::Field<PROFILE_READY_t>::Get(State::Context(), nullptr);
 }
 
-constexpr char GoannaThread::State::RUNNING_t::name[];
-constexpr char GoannaThread::State::RUNNING_t::signature[];
+constexpr char GeckoThread::State::RUNNING_t::name[];
+constexpr char GeckoThread::State::RUNNING_t::signature[];
 
-auto GoannaThread::State::RUNNING() -> State::LocalRef
+auto GeckoThread::State::RUNNING() -> State::LocalRef
 {
     return mozilla::jni::Field<RUNNING_t>::Get(State::Context(), nullptr);
 }
 
-const char GoannaView::name[] =
-        "org/mozilla/goanna/GoannaView";
+const char GeckoView::name[] =
+        "org/mozilla/gecko/GeckoView";
 
-const char GoannaView::Window::name[] =
-        "org/mozilla/goanna/GoannaView$Window";
+const char GeckoView::Window::name[] =
+        "org/mozilla/gecko/GeckoView$Window";
 
-constexpr char GoannaView::Window::Close_t::name[];
-constexpr char GoannaView::Window::Close_t::signature[];
+constexpr char GeckoView::Window::Close_t::name[];
+constexpr char GeckoView::Window::Close_t::signature[];
 
-constexpr char GoannaView::Window::DisposeNative_t::name[];
-constexpr char GoannaView::Window::DisposeNative_t::signature[];
+constexpr char GeckoView::Window::DisposeNative_t::name[];
+constexpr char GeckoView::Window::DisposeNative_t::signature[];
 
-constexpr char GoannaView::Window::LoadUri_t::name[];
-constexpr char GoannaView::Window::LoadUri_t::signature[];
+constexpr char GeckoView::Window::LoadUri_t::name[];
+constexpr char GeckoView::Window::LoadUri_t::signature[];
 
-constexpr char GoannaView::Window::Open_t::name[];
-constexpr char GoannaView::Window::Open_t::signature[];
+constexpr char GeckoView::Window::Open_t::name[];
+constexpr char GeckoView::Window::Open_t::signature[];
 
-constexpr char GoannaView::Window::Reattach_t::name[];
-constexpr char GoannaView::Window::Reattach_t::signature[];
+constexpr char GeckoView::Window::Reattach_t::name[];
+constexpr char GeckoView::Window::Reattach_t::signature[];
 
 const char PrefsHelper::name[] =
-        "org/mozilla/goanna/PrefsHelper";
+        "org/mozilla/gecko/PrefsHelper";
 
 constexpr char PrefsHelper::CallPrefHandler_t::name[];
 constexpr char PrefsHelper::CallPrefHandler_t::signature[];
@@ -1034,7 +1034,7 @@ auto PrefsHelper::OnPrefChange(mozilla::jni::String::Param a0, int32_t a1, bool 
 }
 
 const char ScreenManagerHelper::name[] =
-        "org/mozilla/goanna/ScreenManagerHelper";
+        "org/mozilla/gecko/ScreenManagerHelper";
 
 constexpr char ScreenManagerHelper::AddDisplay_t::name[];
 constexpr char ScreenManagerHelper::AddDisplay_t::signature[];
@@ -1043,7 +1043,7 @@ constexpr char ScreenManagerHelper::RemoveDisplay_t::name[];
 constexpr char ScreenManagerHelper::RemoveDisplay_t::signature[];
 
 const char SurfaceTextureListener::name[] =
-        "org/mozilla/goanna/SurfaceTextureListener";
+        "org/mozilla/gecko/SurfaceTextureListener";
 
 constexpr char SurfaceTextureListener::New_t::name[];
 constexpr char SurfaceTextureListener::New_t::signature[];
@@ -1056,88 +1056,88 @@ auto SurfaceTextureListener::New() -> SurfaceTextureListener::LocalRef
 constexpr char SurfaceTextureListener::OnFrameAvailable_t::name[];
 constexpr char SurfaceTextureListener::OnFrameAvailable_t::signature[];
 
-const char GoannaLayerClient::name[] =
-        "org/mozilla/goanna/gfx/GoannaLayerClient";
+const char GeckoLayerClient::name[] =
+        "org/mozilla/gecko/gfx/GeckoLayerClient";
 
-constexpr char GoannaLayerClient::ContentDocumentChanged_t::name[];
-constexpr char GoannaLayerClient::ContentDocumentChanged_t::signature[];
+constexpr char GeckoLayerClient::ContentDocumentChanged_t::name[];
+constexpr char GeckoLayerClient::ContentDocumentChanged_t::signature[];
 
-auto GoannaLayerClient::ContentDocumentChanged() const -> void
+auto GeckoLayerClient::ContentDocumentChanged() const -> void
 {
-    return mozilla::jni::Method<ContentDocumentChanged_t>::Call(GoannaLayerClient::mCtx, nullptr);
+    return mozilla::jni::Method<ContentDocumentChanged_t>::Call(GeckoLayerClient::mCtx, nullptr);
 }
 
-constexpr char GoannaLayerClient::CreateFrame_t::name[];
-constexpr char GoannaLayerClient::CreateFrame_t::signature[];
+constexpr char GeckoLayerClient::CreateFrame_t::name[];
+constexpr char GeckoLayerClient::CreateFrame_t::signature[];
 
-auto GoannaLayerClient::CreateFrame() const -> mozilla::jni::Object::LocalRef
+auto GeckoLayerClient::CreateFrame() const -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<CreateFrame_t>::Call(GoannaLayerClient::mCtx, nullptr);
+    return mozilla::jni::Method<CreateFrame_t>::Call(GeckoLayerClient::mCtx, nullptr);
 }
 
-constexpr char GoannaLayerClient::IsContentDocumentDisplayed_t::name[];
-constexpr char GoannaLayerClient::IsContentDocumentDisplayed_t::signature[];
+constexpr char GeckoLayerClient::IsContentDocumentDisplayed_t::name[];
+constexpr char GeckoLayerClient::IsContentDocumentDisplayed_t::signature[];
 
-auto GoannaLayerClient::IsContentDocumentDisplayed() const -> bool
+auto GeckoLayerClient::IsContentDocumentDisplayed() const -> bool
 {
-    return mozilla::jni::Method<IsContentDocumentDisplayed_t>::Call(GoannaLayerClient::mCtx, nullptr);
+    return mozilla::jni::Method<IsContentDocumentDisplayed_t>::Call(GeckoLayerClient::mCtx, nullptr);
 }
 
-constexpr char GoannaLayerClient::OnGoannaReady_t::name[];
-constexpr char GoannaLayerClient::OnGoannaReady_t::signature[];
+constexpr char GeckoLayerClient::OnGeckoReady_t::name[];
+constexpr char GeckoLayerClient::OnGeckoReady_t::signature[];
 
-auto GoannaLayerClient::OnGoannaReady() const -> void
+auto GeckoLayerClient::OnGeckoReady() const -> void
 {
-    return mozilla::jni::Method<OnGoannaReady_t>::Call(GoannaLayerClient::mCtx, nullptr);
+    return mozilla::jni::Method<OnGeckoReady_t>::Call(GeckoLayerClient::mCtx, nullptr);
 }
 
-constexpr char GoannaLayerClient::SetFirstPaintViewport_t::name[];
-constexpr char GoannaLayerClient::SetFirstPaintViewport_t::signature[];
+constexpr char GeckoLayerClient::SetFirstPaintViewport_t::name[];
+constexpr char GeckoLayerClient::SetFirstPaintViewport_t::signature[];
 
-auto GoannaLayerClient::SetFirstPaintViewport(float a0, float a1, float a2, float a3, float a4, float a5, float a6) const -> void
+auto GeckoLayerClient::SetFirstPaintViewport(float a0, float a1, float a2, float a3, float a4, float a5, float a6) const -> void
 {
-    return mozilla::jni::Method<SetFirstPaintViewport_t>::Call(GoannaLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5, a6);
+    return mozilla::jni::Method<SetFirstPaintViewport_t>::Call(GeckoLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5, a6);
 }
 
-constexpr char GoannaLayerClient::SyncFrameMetrics_t::name[];
-constexpr char GoannaLayerClient::SyncFrameMetrics_t::signature[];
+constexpr char GeckoLayerClient::SyncFrameMetrics_t::name[];
+constexpr char GeckoLayerClient::SyncFrameMetrics_t::signature[];
 
-auto GoannaLayerClient::SyncFrameMetrics(float a0, float a1, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8, int32_t a9, int32_t a10, float a11, bool a12, int32_t a13) const -> mozilla::jni::Object::LocalRef
+auto GeckoLayerClient::SyncFrameMetrics(float a0, float a1, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8, int32_t a9, int32_t a10, float a11, bool a12, int32_t a13) const -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<SyncFrameMetrics_t>::Call(GoannaLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+    return mozilla::jni::Method<SyncFrameMetrics_t>::Call(GeckoLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
 }
 
-constexpr char GoannaLayerClient::SynthesizeNativeMouseEvent_t::name[];
-constexpr char GoannaLayerClient::SynthesizeNativeMouseEvent_t::signature[];
+constexpr char GeckoLayerClient::SynthesizeNativeMouseEvent_t::name[];
+constexpr char GeckoLayerClient::SynthesizeNativeMouseEvent_t::signature[];
 
-auto GoannaLayerClient::SynthesizeNativeMouseEvent(int32_t a0, int32_t a1, int32_t a2) const -> void
+auto GeckoLayerClient::SynthesizeNativeMouseEvent(int32_t a0, int32_t a1, int32_t a2) const -> void
 {
-    return mozilla::jni::Method<SynthesizeNativeMouseEvent_t>::Call(GoannaLayerClient::mCtx, nullptr, a0, a1, a2);
+    return mozilla::jni::Method<SynthesizeNativeMouseEvent_t>::Call(GeckoLayerClient::mCtx, nullptr, a0, a1, a2);
 }
 
-constexpr char GoannaLayerClient::SynthesizeNativeTouchPoint_t::name[];
-constexpr char GoannaLayerClient::SynthesizeNativeTouchPoint_t::signature[];
+constexpr char GeckoLayerClient::SynthesizeNativeTouchPoint_t::name[];
+constexpr char GeckoLayerClient::SynthesizeNativeTouchPoint_t::signature[];
 
-auto GoannaLayerClient::SynthesizeNativeTouchPoint(int32_t a0, int32_t a1, int32_t a2, int32_t a3, double a4, int32_t a5) const -> void
+auto GeckoLayerClient::SynthesizeNativeTouchPoint(int32_t a0, int32_t a1, int32_t a2, int32_t a3, double a4, int32_t a5) const -> void
 {
-    return mozilla::jni::Method<SynthesizeNativeTouchPoint_t>::Call(GoannaLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5);
+    return mozilla::jni::Method<SynthesizeNativeTouchPoint_t>::Call(GeckoLayerClient::mCtx, nullptr, a0, a1, a2, a3, a4, a5);
 }
 
-constexpr char GoannaLayerClient::ClearColor_t::name[];
-constexpr char GoannaLayerClient::ClearColor_t::signature[];
+constexpr char GeckoLayerClient::ClearColor_t::name[];
+constexpr char GeckoLayerClient::ClearColor_t::signature[];
 
-auto GoannaLayerClient::ClearColor() const -> int32_t
+auto GeckoLayerClient::ClearColor() const -> int32_t
 {
-    return mozilla::jni::Field<ClearColor_t>::Get(GoannaLayerClient::mCtx, nullptr);
+    return mozilla::jni::Field<ClearColor_t>::Get(GeckoLayerClient::mCtx, nullptr);
 }
 
-auto GoannaLayerClient::ClearColor(int32_t a0) const -> void
+auto GeckoLayerClient::ClearColor(int32_t a0) const -> void
 {
-    return mozilla::jni::Field<ClearColor_t>::Set(GoannaLayerClient::mCtx, nullptr, a0);
+    return mozilla::jni::Field<ClearColor_t>::Set(GeckoLayerClient::mCtx, nullptr, a0);
 }
 
 const char ImmutableViewportMetrics::name[] =
-        "org/mozilla/goanna/gfx/ImmutableViewportMetrics";
+        "org/mozilla/gecko/gfx/ImmutableViewportMetrics";
 
 constexpr char ImmutableViewportMetrics::New_t::name[];
 constexpr char ImmutableViewportMetrics::New_t::signature[];
@@ -1148,10 +1148,10 @@ auto ImmutableViewportMetrics::New(float a0, float a1, float a2, float a3, float
 }
 
 const char LayerRenderer::name[] =
-        "org/mozilla/goanna/gfx/LayerRenderer";
+        "org/mozilla/gecko/gfx/LayerRenderer";
 
 const char LayerRenderer::Frame::name[] =
-        "org/mozilla/goanna/gfx/LayerRenderer$Frame";
+        "org/mozilla/gecko/gfx/LayerRenderer$Frame";
 
 constexpr char LayerRenderer::Frame::BeginDrawing_t::name[];
 constexpr char LayerRenderer::Frame::BeginDrawing_t::signature[];
@@ -1170,7 +1170,7 @@ auto LayerRenderer::Frame::EndDrawing() const -> void
 }
 
 const char LayerView::name[] =
-        "org/mozilla/goanna/gfx/LayerView";
+        "org/mozilla/gecko/gfx/LayerView";
 
 constexpr char LayerView::GetCompositor_t::name[];
 constexpr char LayerView::GetCompositor_t::signature[];
@@ -1202,7 +1202,7 @@ auto LayerView::CompositorCreated(bool a0) const -> void
 }
 
 const char LayerView::Compositor::name[] =
-        "org/mozilla/goanna/gfx/LayerView$Compositor";
+        "org/mozilla/gecko/gfx/LayerView$Compositor";
 
 constexpr char LayerView::Compositor::AttachToJava_t::name[];
 constexpr char LayerView::Compositor::AttachToJava_t::signature[];
@@ -1242,7 +1242,7 @@ constexpr char LayerView::Compositor::SyncResumeResizeCompositor_t::name[];
 constexpr char LayerView::Compositor::SyncResumeResizeCompositor_t::signature[];
 
 const char NativePanZoomController::name[] =
-        "org/mozilla/goanna/gfx/NativePanZoomController";
+        "org/mozilla/gecko/gfx/NativePanZoomController";
 
 constexpr char NativePanZoomController::AdjustScrollForSurfaceShift_t::name[];
 constexpr char NativePanZoomController::AdjustScrollForSurfaceShift_t::signature[];
@@ -1306,7 +1306,7 @@ auto NativePanZoomController::UpdateOverscrollVelocity(float a0, float a1) const
 }
 
 const char StackScroller::name[] =
-        "org/mozilla/goanna/gfx/StackScroller";
+        "org/mozilla/gecko/gfx/StackScroller";
 
 constexpr char StackScroller::New_t::name[];
 constexpr char StackScroller::New_t::signature[];
@@ -1577,7 +1577,7 @@ auto StackScroller::SViscousFluidScale(float a0) -> nsresult
 }
 
 const char ViewTransform::name[] =
-        "org/mozilla/goanna/gfx/ViewTransform";
+        "org/mozilla/gecko/gfx/ViewTransform";
 
 constexpr char ViewTransform::New_t::name[];
 constexpr char ViewTransform::New_t::signature[];
@@ -1705,7 +1705,7 @@ auto ViewTransform::Y(float a0) const -> void
 }
 
 const char VsyncSource::name[] =
-        "org/mozilla/goanna/gfx/VsyncSource";
+        "org/mozilla/gecko/gfx/VsyncSource";
 
 constexpr char VsyncSource::GetRefreshRate_t::name[];
 constexpr char VsyncSource::GetRefreshRate_t::signature[];
@@ -1735,7 +1735,7 @@ auto VsyncSource::INSTANCE() -> VsyncSource::LocalRef
 }
 
 const char Clipboard::name[] =
-        "org/mozilla/goanna/util/Clipboard";
+        "org/mozilla/gecko/util/Clipboard";
 
 constexpr char Clipboard::ClearText_t::name[];
 constexpr char Clipboard::ClearText_t::signature[];
@@ -1770,7 +1770,7 @@ auto Clipboard::SetText(mozilla::jni::String::Param a0) -> void
 }
 
 const char EventCallback::name[] =
-        "org/mozilla/goanna/util/EventCallback";
+        "org/mozilla/gecko/util/EventCallback";
 
 constexpr char EventCallback::SendError_t::name[];
 constexpr char EventCallback::SendError_t::signature[];
@@ -1788,91 +1788,91 @@ auto EventCallback::SendSuccess(mozilla::jni::Object::Param a0) const -> void
     return mozilla::jni::Method<SendSuccess_t>::Call(EventCallback::mCtx, nullptr, a0);
 }
 
-const char GoannaBundle::name[] =
-        "org/mozilla/goanna/util/GoannaBundle";
+const char GeckoBundle::name[] =
+        "org/mozilla/gecko/util/GeckoBundle";
 
-constexpr char GoannaBundle::New_t::name[];
-constexpr char GoannaBundle::New_t::signature[];
+constexpr char GeckoBundle::New_t::name[];
+constexpr char GeckoBundle::New_t::signature[];
 
-auto GoannaBundle::New(mozilla::jni::ObjectArray::Param a0, mozilla::jni::ObjectArray::Param a1) -> GoannaBundle::LocalRef
+auto GeckoBundle::New(mozilla::jni::ObjectArray::Param a0, mozilla::jni::ObjectArray::Param a1) -> GeckoBundle::LocalRef
 {
-    return mozilla::jni::Constructor<New_t>::Call(GoannaBundle::Context(), nullptr, a0, a1);
+    return mozilla::jni::Constructor<New_t>::Call(GeckoBundle::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaBundle::Box_t::name[];
-constexpr char GoannaBundle::Box_t::signature[];
+constexpr char GeckoBundle::Box_t::name[];
+constexpr char GeckoBundle::Box_t::signature[];
 
-auto GoannaBundle::Box(double a0) -> mozilla::jni::Object::LocalRef
+auto GeckoBundle::Box(double a0) -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<Box_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<Box_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::Box2_t::name[];
-constexpr char GoannaBundle::Box2_t::signature[];
+constexpr char GeckoBundle::Box2_t::name[];
+constexpr char GeckoBundle::Box2_t::signature[];
 
-auto GoannaBundle::Box(int32_t a0) -> mozilla::jni::Object::LocalRef
+auto GeckoBundle::Box(int32_t a0) -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<Box2_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<Box2_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::Box3_t::name[];
-constexpr char GoannaBundle::Box3_t::signature[];
+constexpr char GeckoBundle::Box3_t::name[];
+constexpr char GeckoBundle::Box3_t::signature[];
 
-auto GoannaBundle::Box(bool a0) -> mozilla::jni::Object::LocalRef
+auto GeckoBundle::Box(bool a0) -> mozilla::jni::Object::LocalRef
 {
-    return mozilla::jni::Method<Box3_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<Box3_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::Keys_t::name[];
-constexpr char GoannaBundle::Keys_t::signature[];
+constexpr char GeckoBundle::Keys_t::name[];
+constexpr char GeckoBundle::Keys_t::signature[];
 
-auto GoannaBundle::Keys() const -> mozilla::jni::ObjectArray::LocalRef
+auto GeckoBundle::Keys() const -> mozilla::jni::ObjectArray::LocalRef
 {
-    return mozilla::jni::Method<Keys_t>::Call(GoannaBundle::mCtx, nullptr);
+    return mozilla::jni::Method<Keys_t>::Call(GeckoBundle::mCtx, nullptr);
 }
 
-constexpr char GoannaBundle::UnboxBoolean_t::name[];
-constexpr char GoannaBundle::UnboxBoolean_t::signature[];
+constexpr char GeckoBundle::UnboxBoolean_t::name[];
+constexpr char GeckoBundle::UnboxBoolean_t::signature[];
 
-auto GoannaBundle::UnboxBoolean(mozilla::jni::Object::Param a0) -> bool
+auto GeckoBundle::UnboxBoolean(mozilla::jni::Object::Param a0) -> bool
 {
-    return mozilla::jni::Method<UnboxBoolean_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<UnboxBoolean_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::UnboxDouble_t::name[];
-constexpr char GoannaBundle::UnboxDouble_t::signature[];
+constexpr char GeckoBundle::UnboxDouble_t::name[];
+constexpr char GeckoBundle::UnboxDouble_t::signature[];
 
-auto GoannaBundle::UnboxDouble(mozilla::jni::Object::Param a0) -> double
+auto GeckoBundle::UnboxDouble(mozilla::jni::Object::Param a0) -> double
 {
-    return mozilla::jni::Method<UnboxDouble_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<UnboxDouble_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::UnboxInteger_t::name[];
-constexpr char GoannaBundle::UnboxInteger_t::signature[];
+constexpr char GeckoBundle::UnboxInteger_t::name[];
+constexpr char GeckoBundle::UnboxInteger_t::signature[];
 
-auto GoannaBundle::UnboxInteger(mozilla::jni::Object::Param a0) -> int32_t
+auto GeckoBundle::UnboxInteger(mozilla::jni::Object::Param a0) -> int32_t
 {
-    return mozilla::jni::Method<UnboxInteger_t>::Call(GoannaBundle::Context(), nullptr, a0);
+    return mozilla::jni::Method<UnboxInteger_t>::Call(GeckoBundle::Context(), nullptr, a0);
 }
 
-constexpr char GoannaBundle::Values_t::name[];
-constexpr char GoannaBundle::Values_t::signature[];
+constexpr char GeckoBundle::Values_t::name[];
+constexpr char GeckoBundle::Values_t::signature[];
 
-auto GoannaBundle::Values() const -> mozilla::jni::ObjectArray::LocalRef
+auto GeckoBundle::Values() const -> mozilla::jni::ObjectArray::LocalRef
 {
-    return mozilla::jni::Method<Values_t>::Call(GoannaBundle::mCtx, nullptr);
+    return mozilla::jni::Method<Values_t>::Call(GeckoBundle::mCtx, nullptr);
 }
 
-constexpr char GoannaBundle::EMPTY_BOOLEAN_ARRAY_t::name[];
-constexpr char GoannaBundle::EMPTY_BOOLEAN_ARRAY_t::signature[];
+constexpr char GeckoBundle::EMPTY_BOOLEAN_ARRAY_t::name[];
+constexpr char GeckoBundle::EMPTY_BOOLEAN_ARRAY_t::signature[];
 
-auto GoannaBundle::EMPTY_BOOLEAN_ARRAY() -> mozilla::jni::BooleanArray::LocalRef
+auto GeckoBundle::EMPTY_BOOLEAN_ARRAY() -> mozilla::jni::BooleanArray::LocalRef
 {
-    return mozilla::jni::Field<EMPTY_BOOLEAN_ARRAY_t>::Get(GoannaBundle::Context(), nullptr);
+    return mozilla::jni::Field<EMPTY_BOOLEAN_ARRAY_t>::Get(GeckoBundle::Context(), nullptr);
 }
 
 const char HardwareCodecCapabilityUtils::name[] =
-        "org/mozilla/goanna/util/HardwareCodecCapabilityUtils";
+        "org/mozilla/gecko/util/HardwareCodecCapabilityUtils";
 
 constexpr char HardwareCodecCapabilityUtils::HasHWVP9_t::name[];
 constexpr char HardwareCodecCapabilityUtils::HasHWVP9_t::signature[];
@@ -1899,7 +1899,7 @@ auto HardwareCodecCapabilityUtils::FindDecoderCodecInfoForMimeType(mozilla::jni:
 }
 
 const char NativeJSContainer::name[] =
-        "org/mozilla/goanna/util/NativeJSContainer";
+        "org/mozilla/gecko/util/NativeJSContainer";
 
 constexpr char NativeJSContainer::New_t::name[];
 constexpr char NativeJSContainer::New_t::signature[];
@@ -1916,7 +1916,7 @@ constexpr char NativeJSContainer::DisposeNative_t::name[];
 constexpr char NativeJSContainer::DisposeNative_t::signature[];
 
 const char NativeJSObject::name[] =
-        "org/mozilla/goanna/util/NativeJSObject";
+        "org/mozilla/gecko/util/NativeJSObject";
 
 constexpr char NativeJSObject::New_t::name[];
 constexpr char NativeJSObject::New_t::signature[];

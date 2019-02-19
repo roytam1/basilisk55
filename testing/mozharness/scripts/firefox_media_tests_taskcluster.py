@@ -59,7 +59,7 @@ class FirefoxMediaTestsTaskcluster(FirefoxMediaTestsBase):
         dirs = self.query_abs_dirs()
         # configure logging
         blob_upload_dir = dirs.get('abs_blob_upload_dir')
-        cmd += ['--goanna-log', os.path.join(blob_upload_dir, 'goanna.log')]
+        cmd += ['--gecko-log', os.path.join(blob_upload_dir, 'gecko.log')]
         cmd += ['--log-html', os.path.join(blob_upload_dir, 'media_tests.html')]
         cmd += ['--log-mach', os.path.join(blob_upload_dir, 'media_tests_mach.log')]
         return cmd

@@ -159,11 +159,11 @@ public:
   //
   // TYPE_MOZILLA_CHILD
   //   This type of ML is used in Mozilla child processes which initialize
-  //   XPCOM and use the goanna event loop.
+  //   XPCOM and use the gecko event loop.
   //
   // TYPE_MOZILLA_PARENT
   //   This type of ML is used in Mozilla parent processes which initialize
-  //   XPCOM and use the goanna event loop.
+  //   XPCOM and use the gecko event loop.
   //
   // TYPE_MOZILLA_NONMAINTHREAD
   //   This type of ML is used in Mozilla parent processes which initialize

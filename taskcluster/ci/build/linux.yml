@@ -6,7 +6,7 @@ linux64/opt:
     treeherder:
         platform: linux64/opt
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -29,7 +29,7 @@ linux64/pgo:
     treeherder:
         platform: linux64/pgo
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -54,7 +54,7 @@ linux64/debug:
     treeherder:
         platform: linux64/debug
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -78,7 +78,7 @@ linux/opt:
     treeherder:
         platform: linux32/opt
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -102,7 +102,7 @@ linux/debug:
     treeherder:
         platform: linux32/debug
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -127,7 +127,7 @@ linux/pgo:
     treeherder:
         platform: linux32/pgo
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -155,7 +155,7 @@ linux-nightly/opt:
     treeherder:
         platform: linux32/opt
         symbol: tc(N)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -180,7 +180,7 @@ linux64-asan/opt:
     treeherder:
         platform: linux64/asan
         symbol: tc(Bo)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -204,7 +204,7 @@ linux64-asan/debug:
     treeherder:
         platform: linux64/asan
         symbol: tc(Bd)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -231,7 +231,7 @@ linux64-nightly/opt:
     treeherder:
         platform: linux64/opt
         symbol: tc(N)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -256,7 +256,7 @@ linux64-stylo/opt:
         platform: linux64-stylo/opt
         symbol: tc(B)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 3600
@@ -280,7 +280,7 @@ linux64-stylo/debug:
         platform: linux64-stylo/debug
         symbol: tc(B)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 3600
@@ -305,7 +305,7 @@ linux64-jsdcov/opt:
         symbol: tc(B)
         tier: 2
     run-on-projects: [ ]
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -330,7 +330,7 @@ linux64-ccov/opt:
         symbol: tc(B)
         tier: 2
     run-on-projects: [ ]
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -355,7 +355,7 @@ linux64-add-on-devel/opt:
         platform: linux64-add-on-devel/opt
         symbol: tc(B)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000

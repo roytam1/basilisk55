@@ -42,12 +42,12 @@ moz_gtk_menu_item_paint(WidgetNodeType widget, cairo_t *cr, GdkRectangle* rect,
 
 // GetStateFlagsFromGtkWidgetState() can be safely used for the specific
 // GtkWidgets that set both prelight and active flags.  For other widgets,
-// either the GtkStateFlags or Goanna's GtkWidgetState need to be carefully
+// either the GtkStateFlags or Gecko's GtkWidgetState need to be carefully
 // adjusted to match GTK behavior.  Although GTK sets insensitive and focus
 // flags in the generic GtkWidget base class, GTK adds prelight and active
 // flags only to widgets that are expected to demonstrate prelight or active
 // states.  This contrasts with HTML where any element may have :active and
-// :hover states, and so Goanna's GtkStateFlags do not necessarily map to GTK
+// :hover states, and so Gecko's GtkStateFlags do not necessarily map to GTK
 // flags.  Failure to restrict the flags in the same way as GTK can cause
 // generic CSS selectors from some themes to unintentionally match elements
 // that are not expected to change appearance on hover or mouse-down.

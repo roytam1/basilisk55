@@ -41,7 +41,7 @@
             android:label="@MOZ_APP_DISPLAYNAME@"
             android:theme="@android:style/Theme.Translucent">
 
-            <!-- Aping org.mozilla.goanna.BrowserApp. -->
+            <!-- Aping org.mozilla.gecko.BrowserApp. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -65,7 +65,7 @@
                 <data android:scheme="https" />
             </intent-filter>
 
-            <!-- Aping org.mozilla.goanna.tabqueue.TabQueueDispatcher. -->
+            <!-- Aping org.mozilla.gecko.tabqueue.TabQueueDispatcher. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -75,14 +75,14 @@ MarionetteComponent.prototype.determineLoggingLevel_ = function() {
     let p = Preferences.get(LOG_PREF);
 
     switch (typeof p) {
-      // Goanna >= 46
+      // Gecko >= 46
       case "string":
         let s = p.toLowerCase();
         s = s.charAt(0).toUpperCase() + s.slice(1);
         level = Log.Level[s];
         break;
 
-      // Goanna <= 45
+      // Gecko <= 45
       case "boolean":
         if (p) {
           level = Log.Level.Trace;

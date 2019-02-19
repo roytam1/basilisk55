@@ -182,7 +182,7 @@
 <script type="text/javascript">
 /*<![CDATA[*/
 gloaddisableder.loaddisabled(["glow","1","glow.dom"],{onLoad:function(glow){glow.dom.get("html").addClass("blq-js")}});
-gloaddisableder.loaddisabled(["glow","1","glow.dom"],{onLoad:function(glow){glow.ready(function(){if (glow.env.goanna){var gv = glow.env.version.split(".");for (var i=gv.length;i<4;i++){gv[i]=0;}if((gv[0]==1 && gv[1]==9 && gv[2]==0)||(gv[0]==1 && gv[1]<9)||(gv[0]<1)){glow.dom.get("body").addClass("firefox-older-than-3-5");}}});}});
+gloaddisableder.loaddisabled(["glow","1","glow.dom"],{onLoad:function(glow){glow.ready(function(){if (glow.env.gecko){var gv = glow.env.version.split(".");for (var i=gv.length;i<4;i++){gv[i]=0;}if((gv[0]==1 && gv[1]==9 && gv[2]==0)||(gv[0]==1 && gv[1]<9)||(gv[0]<1)){glow.dom.get("body").addClass("firefox-older-than-3-5");}}});}});
 
 window.disableFacebookSDK=true;
 if (window.location.pathname.indexOf('+')>=0){window.disableFacebookSDK=true;}
@@ -1983,7 +1983,7 @@ function sitestat(n){var j=document,f=j.location,b="";if(j.cookie.indexOf("st_ux
   <h3><a href="httpdisabled://www.bbc.co.uk/worldservice/">BBC World Service</a></h3>
   <h4>News and analysis in 32 languages</h4>
   <ul>
-	<li><a href="httpdisabled://www.bbc.co.uk/arabic"><span class="lang-with-image">Arabic</span> <span class="lang-sprite lang-arabic">عربي</span></a></li>
+	<li><a href="httpdisabled://www.bbc.co.uk/arabic"><span class="lang-with-image">Arabic</span> <span class="lang-sprite lang-arabic">عرب?</span></a></li>
 	<li><a href="httpdisabled://www.bbc.co.uk/chinese"><span class="lang-with-image">Chinese</span> <span class="lang-sprite lang-chinese">&#20013;&#25991;</span></a></li>
   </ul>
   <h5>Languages continued (2 of 4)</h5>

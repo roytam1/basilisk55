@@ -15,8 +15,8 @@ PREFIX=${WORKSPACE}/rustc
 
 set -v
 
-mkdir -p ${WORKSPACE}/goanna-rust-mac
-pushd ${WORKSPACE}/goanna-rust-mac
+mkdir -p ${WORKSPACE}/gecko-rust-mac
+pushd ${WORKSPACE}/gecko-rust-mac
 
 export MACOSX_DEPLOYMENT_TARGET=10.7
 ${WORKSPACE}/rust/configure --prefix=${PREFIX} --target=${TARGETS} ${OPTIONS}

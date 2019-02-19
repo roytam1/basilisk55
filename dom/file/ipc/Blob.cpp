@@ -89,7 +89,7 @@ static_assert(FileDescriptorSet::MAX_DESCRIPTORS_PER_MESSAGE == 250,
 
 StaticRefPtr<nsIUUIDGenerator> gUUIDGenerator;
 
-GoannaProcessType gProcessType = GoannaProcessType_Invalid;
+GeckoProcessType gProcessType = GeckoProcessType_Invalid;
 
 void
 CommonStartup()
@@ -97,7 +97,7 @@ CommonStartup()
   MOZ_ASSERT(NS_IsMainThread());
 
   gProcessType = XRE_GetProcessType();
-  MOZ_ASSERT(gProcessType != GoannaProcessType_Invalid);
+  MOZ_ASSERT(gProcessType != GeckoProcessType_Invalid);
 
   nsCOMPtr<nsIUUIDGenerator> uuidGen = do_GetService(kUUIDGeneratorContractId);
   MOZ_RELEASE_ASSERT(uuidGen);
@@ -142,7 +142,7 @@ AssertCorrectThreadForManager(nsIContentChild* aManager)
 void
 AssertCorrectThreadForManager(nsIContentParent* aManager)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   MOZ_ASSERT(NS_IsMainThread());
 }
 
@@ -161,7 +161,7 @@ AssertCorrectThreadForManager(PBackgroundChild* aManager)
 void
 AssertCorrectThreadForManager(PBackgroundParent* aManager)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   AssertIsOnBackgroundThread();
 }
 
@@ -624,7 +624,7 @@ already_AddRefed<BlobImpl>
 CreateBlobImpl(const nsID& aKnownBlobIDData,
                const CreateBlobImplMetadata& aMetadata)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   MOZ_ASSERT(aMetadata.mHasRecursed);
 
   RefPtr<BlobImpl> blobImpl = BlobParent::GetBlobImplForID(aKnownBlobIDData);
@@ -644,7 +644,7 @@ already_AddRefed<BlobImpl>
 CreateBlobImpl(const BlobDataStream& aStream,
                const CreateBlobImplMetadata& aMetadata)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
   nsCOMPtr<nsIInputStream> inputStream = DeserializeIPCStream(aStream.stream());
   if (!inputStream) {
@@ -690,7 +690,7 @@ already_AddRefed<BlobImpl>
 CreateBlobImplFromBlobData(const BlobData& aBlobData,
                            CreateBlobImplMetadata& aMetadata)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
   RefPtr<BlobImpl> blobImpl;
 
@@ -721,7 +721,7 @@ already_AddRefed<BlobImpl>
 CreateBlobImpl(const nsTArray<BlobData>& aBlobDatas,
                CreateBlobImplMetadata& aMetadata)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
   // Special case for a multipart blob with only one part.
   if (aBlobDatas.Length() == 1) {
@@ -787,7 +787,7 @@ already_AddRefed<BlobImpl>
 CreateBlobImpl(const ParentBlobConstructorParams& aParams,
                const BlobData& aBlobData)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   MOZ_ASSERT(aParams.blobParams().type() ==
                AnyBlobConstructorParams::TNormalBlobConstructorParams ||
              aParams.blobParams().type() ==
@@ -843,7 +843,7 @@ BlobDataFromBlobImpl(ChildManagerType* aManager, BlobImpl* aBlobImpl,
                      BlobData& aBlobData,
                      nsTArray<UniquePtr<AutoIPCStream>>& aIPCStreams)
 {
-  MOZ_ASSERT(gProcessType != GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType != GeckoProcessType_Default);
   MOZ_ASSERT(aBlobImpl);
 
   const nsTArray<RefPtr<BlobImpl>>* subBlobs = aBlobImpl->GetSubBlobImpls();
@@ -2193,7 +2193,7 @@ RemoteBlobImpl::RemoteBlobImpl(BlobChild* aActor,
   if (aIsSameProcessBlob) {
     MOZ_ASSERT(aRemoteBlobImpl);
     mSameProcessBlobImpl = aRemoteBlobImpl;
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   } else {
     mDifferentProcessBlobImpl = aRemoteBlobImpl;
   }
@@ -2215,7 +2215,7 @@ RemoteBlobImpl::RemoteBlobImpl(BlobChild* aActor,
   if (aIsSameProcessBlob) {
     MOZ_ASSERT(aRemoteBlobImpl);
     mSameProcessBlobImpl = aRemoteBlobImpl;
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   } else {
     mDifferentProcessBlobImpl = aRemoteBlobImpl;
   }
@@ -2355,7 +2355,7 @@ RemoteBlobImpl::GetMozFullPathInternal(nsAString& aFilePath,
   }
 
   if (mSameProcessBlobImpl) {
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
     mSameProcessBlobImpl->GetMozFullPathInternal(aFilePath, aRv);
     return;
@@ -2391,7 +2391,7 @@ RemoteBlobImpl::CreateSlice(uint64_t aStart,
 {
   // May be called on any thread.
   if (mSameProcessBlobImpl) {
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
     return mSameProcessBlobImpl->CreateSlice(aStart,
                                              aLength,
@@ -2410,7 +2410,7 @@ RemoteBlobImpl::GetInternalStream(nsIInputStream** aStream, ErrorResult& aRv)
 {
   // May be called on any thread.
   if (mSameProcessBlobImpl) {
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
     nsCOMPtr<nsIInputStream> realStream;
     mSameProcessBlobImpl->GetInternalStream(getter_AddRefs(realStream), aRv);
@@ -2440,7 +2440,7 @@ RemoteBlobImpl::GetFileId()
   }
 
   if (mSameProcessBlobImpl) {
-    MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+    MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
     return mSameProcessBlobImpl->GetFileId();
   }
@@ -3272,7 +3272,7 @@ BlobChild::CommonInit(const ChildBlobConstructorParams& aParams)
     }
 
     case AnyBlobConstructorParams::TSameProcessBlobConstructorParams: {
-      MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+      MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
 
       const SameProcessBlobConstructorParams& params =
         blobParams.get_SameProcessBlobConstructorParams();
@@ -3468,7 +3468,7 @@ BlobChild::GetOrCreateFromImpl(ChildManagerType* aManager,
   AnyBlobConstructorParams blobParams;
   nsTArray<UniquePtr<AutoIPCStream>> autoIPCStreams;
 
-  if (gProcessType == GoannaProcessType_Default) {
+  if (gProcessType == GeckoProcessType_Default) {
     RefPtr<BlobImpl> sameProcessImpl = aBlobImpl;
     auto addRefedBlobImpl =
       reinterpret_cast<intptr_t>(sameProcessImpl.forget().take());
@@ -3569,7 +3569,7 @@ BlobChild::SendSliceConstructor(ChildManagerType* aManager,
   auto* newActor = new BlobChild(aManager, id, aRemoteBlobSliceImpl);
 
   if (aManager->SendPBlobConstructor(newActor, aParams)) {
-    if (gProcessType != GoannaProcessType_Default || !NS_IsMainThread()) {
+    if (gProcessType != GeckoProcessType_Default || !NS_IsMainThread()) {
       newActor->SendWaitForSliceCreation();
     }
     return newActor;
@@ -3976,7 +3976,7 @@ BlobParent::Create(PBackgroundParent* aManager,
 already_AddRefed<BlobImpl>
 BlobParent::GetBlobImplForID(const nsID& aID)
 {
-  if (NS_WARN_IF(gProcessType != GoannaProcessType_Default)) {
+  if (NS_WARN_IF(gProcessType != GeckoProcessType_Default)) {
     ASSERT_UNLESS_FUZZING();
     return nullptr;
   }
@@ -4714,7 +4714,7 @@ IDTableEntry::GetOrCreateInternal(const nsID& aID,
                                   bool aMayGet,
                                   bool aIgnoreProcessID)
 {
-  MOZ_ASSERT(gProcessType == GoannaProcessType_Default);
+  MOZ_ASSERT(gProcessType == GeckoProcessType_Default);
   MOZ_ASSERT(sIDTableMutex);
   sIDTableMutex->AssertNotCurrentThreadOwns();
 

@@ -3,8 +3,8 @@
 
 package org.mozilla.android.sync.test.helpers;
 
-import org.mozilla.goanna.background.common.log.Logger;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.background.common.log.Logger;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
 
 public class ExpectSuccessDelegate {
   public WaitHelper waitHelper;

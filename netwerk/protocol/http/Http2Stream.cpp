@@ -1439,7 +1439,7 @@ Http2Stream::OnWriteSegment(char *buf,
   }
 
   // sometimes we have read data from the network and stored it in a pipe
-  // so that other streams can proceed when the goanna caller is not processing
+  // so that other streams can proceed when the gecko caller is not processing
   // data events fast enough and flow control hasn't caught up yet. This
   // gets the stored data out of that pipe
   if (!mBypassInputBuffer && mSimpleBuffer.Available()) {

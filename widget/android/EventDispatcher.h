@@ -21,9 +21,9 @@ namespace mozilla {
 namespace widget {
 
 /**
- * EventDispatcher is the Goanna counterpart to the Java EventDispatcher class.
+ * EventDispatcher is the Gecko counterpart to the Java EventDispatcher class.
  * Together, they make up a unified event bus. Events dispatched from the Java
- * side may notify event listeners on the Goanna side, and vice versa.
+ * side may notify event listeners on the Gecko side, and vice versa.
  */
 class EventDispatcher final
     : public nsIAndroidEventDispatcher
@@ -43,8 +43,8 @@ public:
 
     using NativesBase::DisposeNative;
 
-    bool HasGoannaListener(jni::String::Param aEvent);
-    void DispatchToGoanna(jni::String::Param aEvent,
+    bool HasGeckoListener(jni::String::Param aEvent);
+    void DispatchToGecko(jni::String::Param aEvent,
                          jni::Object::Param aData,
                          jni::Object::Param aCallback);
 
@@ -76,7 +76,7 @@ private:
     nsresult RegisterEventLocked(const nsAString&, nsIAndroidEventListener*);
     nsresult UnregisterEventLocked(const nsAString&, nsIAndroidEventListener*);
 
-    nsresult DispatchOnGoanna(ListenersList* list, const nsAString& aEvent,
+    nsresult DispatchOnGecko(ListenersList* list, const nsAString& aEvent,
                              JS::HandleValue aData,
                              nsIAndroidEventCallback* aCallback);
 };

@@ -159,7 +159,7 @@ AndroidDecoderModule::SupportsMimeType(const nsACString& aMimeType,
     return false;
   }
 
-  // Prefer the goanna decoder for opus and vorbis; stagefright crashes
+  // Prefer the gecko decoder for opus and vorbis; stagefright crashes
   // on content demuxed from mp4.
   if (OpusDataDecoder::IsOpus(aMimeType) ||
       VorbisDataDecoder::IsVorbis(aMimeType)) {

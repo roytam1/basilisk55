@@ -70,7 +70,7 @@ add_task(function () {
         "Defaults to enum for GC reasons when not L10N'd");
 
   equal(MarkerBlueprintUtils.getMarkerFields(
-    { name: "Javascript", causeName: "Some Platform Field" })[0].value, "(Goanna)",
+    { name: "Javascript", causeName: "Some Platform Field" })[0].value, "(Gecko)",
     "Correctly obfuscates JS markers when platform data is off.");
   Services.prefs.setBoolPref(PLATFORM_DATA_PREF, true);
   equal(MarkerBlueprintUtils.getMarkerFields(

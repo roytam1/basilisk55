@@ -145,7 +145,7 @@ interface nsIDataCallInterface : nsISupports
 
   /**
    * Data call authentication type. Must match the values in ril_consts
-   * RIL_DATACALL_AUTH_TO_GOANNA array.
+   * RIL_DATACALL_AUTH_TO_GECKO array.
    */
   const long DATACALL_AUTH_NONE         = 0;
   const long DATACALL_AUTH_PAP          = 1;

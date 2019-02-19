@@ -3,7 +3,7 @@
   "description": "",
   "version": "0.1.0",
   "applications": {
-    "gecko": {
+    "goanna": {
       "id": "embedded-webextension@jetpack"
     }
   },

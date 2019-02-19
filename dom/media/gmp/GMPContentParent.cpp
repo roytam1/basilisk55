@@ -9,7 +9,7 @@
 #include "GMPServiceChild.h"
 #include "GMPVideoDecoderParent.h"
 #include "GMPVideoEncoderParent.h"
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Unused.h"
 #include "base/task.h"
@@ -133,8 +133,8 @@ GMPContentParent::CloseIfUnused()
       toClose = mParent->ForgetGMPContentParent();
     } else {
       toClose = this;
-      RefPtr<GoannaMediaPluginServiceChild> gmp(
-        GoannaMediaPluginServiceChild::GetSingleton());
+      RefPtr<GeckoMediaPluginServiceChild> gmp(
+        GeckoMediaPluginServiceChild::GetSingleton());
       gmp->RemoveGMPContentParent(toClose);
     }
     NS_DispatchToCurrentThread(NewRunnableMethod(toClose,
@@ -163,7 +163,7 @@ nsIThread*
 GMPContentParent::GMPThread()
 {
   if (!mGMPThread) {
-    nsCOMPtr<mozIGoannaMediaPluginService> mps = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+    nsCOMPtr<mozIGeckoMediaPluginService> mps = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
     MOZ_ASSERT(mps);
     if (!mps) {
       return nullptr;

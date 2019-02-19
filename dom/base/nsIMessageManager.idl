@@ -477,7 +477,7 @@ interface nsIGlobalProcessScriptLoader : nsIProcessScriptLoader
    *
    * This value will always be a JS object. Different users are
    * expected to set properties on this object. The property name
-   * should be unique enough that other Goanna consumers won't
+   * should be unique enough that other Gecko consumers won't
    * accidentally choose it.
    */
   [implicit_jscontext]

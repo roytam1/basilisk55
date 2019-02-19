@@ -19,7 +19,7 @@
 #include "nsIContentInlines.h"
 #include "mozilla/SplayTree.h"
 #include "mozilla/RestyleLogging.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "mozilla/Maybe.h"
 
 namespace mozilla {

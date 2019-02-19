@@ -126,7 +126,7 @@ private:
     bool mightHaveNoneSVGMask =
       nsSVGEffects::GetEffectProperties(firstFrame).MightHaveNoneSVGMask();
     bool inRestyle =
-      aFrame->PresContext()->RestyleManager()->AsGoanna()->IsInStyleRefresh();
+      aFrame->PresContext()->RestyleManager()->AsGecko()->IsInStyleRefresh();
 
     NS_ASSERTION(mightHaveNoneSVGMask || inRestyle ||
                  aFrame->GetParent()->StyleContext()->GetPseudo() ==

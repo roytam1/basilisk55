@@ -81,14 +81,14 @@ nsSecCheckWrapChannel::nsSecCheckWrapChannel(nsIChannel* aChannel,
 already_AddRefed<nsIChannel>
 nsSecCheckWrapChannel::MaybeWrap(nsIChannel* aChannel, nsILoadInfo* aLoadInfo)
 {
-  // Maybe a custom protocol handler actually returns a goanna
+  // Maybe a custom protocol handler actually returns a gecko
   // http/ftpChannel - To check this we will check whether the channel
-  // implements a goanna non-scriptable interface e.g. nsIForcePendingChannel.
-  nsCOMPtr<nsIForcePendingChannel> isGoannaChannel = do_QueryInterface(aChannel);
+  // implements a gecko non-scriptable interface e.g. nsIForcePendingChannel.
+  nsCOMPtr<nsIForcePendingChannel> isGeckoChannel = do_QueryInterface(aChannel);
 
   nsCOMPtr<nsIChannel> channel;
-  if (isGoannaChannel) {
-    // If it is a goanna channel (ftp or http) we do not need to wrap it.
+  if (isGeckoChannel) {
+    // If it is a gecko channel (ftp or http) we do not need to wrap it.
     channel = aChannel;
     channel->SetLoadInfo(aLoadInfo);
   } else {

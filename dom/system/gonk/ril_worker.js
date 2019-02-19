@@ -140,7 +140,7 @@ RilObject.prototype = {
     /**
      * One of the RADIO_STATE_* constants.
      */
-    this.radioState = GOANNA_RADIOSTATE_UNKNOWN;
+    this.radioState = GECKO_RADIOSTATE_UNKNOWN;
 
     /**
      * True if we are on a CDMA phone.
@@ -161,7 +161,7 @@ RilObject.prototype = {
     /**
      * Card state
      */
-    this.cardState = GOANNA_CARDSTATE_UNINITIALIZED;
+    this.cardState = GECKO_CARDSTATE_UNINITIALIZED;
 
     /**
      * Device Identities including IMEI, IMEISV, ESN and MEID.
@@ -193,7 +193,7 @@ RilObject.prototype = {
      */
     this.appType = null;
 
-    this.networkSelectionMode = GOANNA_NETWORK_SELECTION_UNKNOWN;
+    this.networkSelectionMode = GECKO_NETWORK_SELECTION_UNKNOWN;
 
     this.voiceRegistrationState = {};
     this.dataRegistrationState = {};
@@ -301,42 +301,42 @@ RilObject.prototype = {
    */
   iccUnlockCardLock: function(options) {
     switch (options.lockType) {
-      case GOANNA_CARDLOCK_PIN:
+      case GECKO_CARDLOCK_PIN:
         this.enterICCPIN(options);
         break;
-      case GOANNA_CARDLOCK_PIN2:
+      case GECKO_CARDLOCK_PIN2:
         this.enterICCPIN2(options);
         break;
-      case GOANNA_CARDLOCK_PUK:
+      case GECKO_CARDLOCK_PUK:
         this.enterICCPUK(options);
         break;
-      case GOANNA_CARDLOCK_PUK2:
+      case GECKO_CARDLOCK_PUK2:
         this.enterICCPUK2(options);
         break;
-      case GOANNA_CARDLOCK_NCK:
-      case GOANNA_CARDLOCK_NSCK:
-      case GOANNA_CARDLOCK_NCK1:
-      case GOANNA_CARDLOCK_NCK2:
-      case GOANNA_CARDLOCK_HNCK:
-      case GOANNA_CARDLOCK_CCK:
-      case GOANNA_CARDLOCK_SPCK:
-      case GOANNA_CARDLOCK_PCK:
-      case GOANNA_CARDLOCK_RCCK:
-      case GOANNA_CARDLOCK_RSPCK:
-      case GOANNA_CARDLOCK_NCK_PUK:
-      case GOANNA_CARDLOCK_NSCK_PUK:
-      case GOANNA_CARDLOCK_NCK1_PUK:
-      case GOANNA_CARDLOCK_NCK2_PUK:
-      case GOANNA_CARDLOCK_HNCK_PUK:
-      case GOANNA_CARDLOCK_CCK_PUK:
-      case GOANNA_CARDLOCK_SPCK_PUK:
-      case GOANNA_CARDLOCK_PCK_PUK:
-      case GOANNA_CARDLOCK_RCCK_PUK: // Fall through.
-      case GOANNA_CARDLOCK_RSPCK_PUK:
+      case GECKO_CARDLOCK_NCK:
+      case GECKO_CARDLOCK_NSCK:
+      case GECKO_CARDLOCK_NCK1:
+      case GECKO_CARDLOCK_NCK2:
+      case GECKO_CARDLOCK_HNCK:
+      case GECKO_CARDLOCK_CCK:
+      case GECKO_CARDLOCK_SPCK:
+      case GECKO_CARDLOCK_PCK:
+      case GECKO_CARDLOCK_RCCK:
+      case GECKO_CARDLOCK_RSPCK:
+      case GECKO_CARDLOCK_NCK_PUK:
+      case GECKO_CARDLOCK_NSCK_PUK:
+      case GECKO_CARDLOCK_NCK1_PUK:
+      case GECKO_CARDLOCK_NCK2_PUK:
+      case GECKO_CARDLOCK_HNCK_PUK:
+      case GECKO_CARDLOCK_CCK_PUK:
+      case GECKO_CARDLOCK_SPCK_PUK:
+      case GECKO_CARDLOCK_PCK_PUK:
+      case GECKO_CARDLOCK_RCCK_PUK: // Fall through.
+      case GECKO_CARDLOCK_RSPCK_PUK:
         this.enterDepersonalization(options);
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         this.sendChromeMessage(options);
     }
   },
@@ -476,14 +476,14 @@ RilObject.prototype = {
    */
   iccChangeCardLockPassword: function(options) {
     switch (options.lockType) {
-      case GOANNA_CARDLOCK_PIN:
+      case GECKO_CARDLOCK_PIN:
         this.changeICCPIN(options);
         break;
-      case GOANNA_CARDLOCK_PIN2:
+      case GECKO_CARDLOCK_PIN2:
         this.changeICCPIN2(options);
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         this.sendChromeMessage(options);
     }
   },
@@ -493,12 +493,12 @@ RilObject.prototype = {
    */
   iccSetCardLockEnabled: function(options) {
     switch (options.lockType) {
-      case GOANNA_CARDLOCK_PIN: // Fall through.
-      case GOANNA_CARDLOCK_FDN:
-        options.facility = GOANNA_CARDLOCK_TO_FACILITY[options.lockType];
+      case GECKO_CARDLOCK_PIN: // Fall through.
+      case GECKO_CARDLOCK_FDN:
+        options.facility = GECKO_CARDLOCK_TO_FACILITY[options.lockType];
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         this.sendChromeMessage(options);
         return;
     }
@@ -514,12 +514,12 @@ RilObject.prototype = {
    */
   iccGetCardLockEnabled: function(options) {
     switch (options.lockType) {
-      case GOANNA_CARDLOCK_PIN: // Fall through.
-      case GOANNA_CARDLOCK_FDN:
-        options.facility = GOANNA_CARDLOCK_TO_FACILITY[options.lockType];
+      case GECKO_CARDLOCK_PIN: // Fall through.
+      case GECKO_CARDLOCK_FDN:
+        options.facility = GECKO_CARDLOCK_TO_FACILITY[options.lockType];
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         this.sendChromeMessage(options);
         return;
     }
@@ -540,26 +540,26 @@ RilObject.prototype = {
   iccGetCardLockRetryCount: function(options) {
     if (!RILQUIRKS_HAVE_QUERY_ICC_LOCK_RETRY_COUNT) {
       // Only the emulator supports this request.
-      options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+      options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
       this.sendChromeMessage(options);
       return;
     }
 
     switch (options.lockType) {
-      case GOANNA_CARDLOCK_PIN:
-      case GOANNA_CARDLOCK_PIN2:
-      case GOANNA_CARDLOCK_PUK:
-      case GOANNA_CARDLOCK_PUK2:
-      case GOANNA_CARDLOCK_NCK:
-      case GOANNA_CARDLOCK_NSCK:
-      case GOANNA_CARDLOCK_CCK: // Fall through.
-      case GOANNA_CARDLOCK_SPCK:
+      case GECKO_CARDLOCK_PIN:
+      case GECKO_CARDLOCK_PIN2:
+      case GECKO_CARDLOCK_PUK:
+      case GECKO_CARDLOCK_PUK2:
+      case GECKO_CARDLOCK_NCK:
+      case GECKO_CARDLOCK_NSCK:
+      case GECKO_CARDLOCK_CCK: // Fall through.
+      case GECKO_CARDLOCK_SPCK:
       // TODO: Bug 1116072: identify the mapping between RIL_PERSOSUBSTATE_SIM_SIM
-      //       @ ril.h and TS 27.007, clause 8.65 for GOANNA_CARDLOCK_SPCK.
-        options.selCode = GOANNA_CARDLOCK_TO_SEL_CODE[options.lockType];
+      //       @ ril.h and TS 27.007, clause 8.65 for GECKO_CARDLOCK_SPCK.
+        options.selCode = GECKO_CARDLOCK_TO_SEL_CODE[options.lockType];
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         this.sendChromeMessage(options);
         return;
     }
@@ -710,7 +710,7 @@ RilObject.prototype = {
    * Read UICC Phonebook contacts.
    *
    * @param contactType
-   *        One of GOANNA_CARDCONTACT_TYPE_*.
+   *        One of GECKO_CARDCONTACT_TYPE_*.
    * @param requestId
    *        Request id from RadioInterfaceLayer.
    */
@@ -744,7 +744,7 @@ RilObject.prototype = {
   /**
    * Update UICC Phonebook.
    *
-   * @param contactType   One of GOANNA_CARDCONTACT_TYPE_*.
+   * @param contactType   One of GECKO_CARDCONTACT_TYPE_*.
    * @param contact       The contact will be updated.
    * @param pin2          PIN2 is required for updating FDN.
    * @param requestId     Request id from RadioInterfaceLayer.
@@ -947,12 +947,12 @@ RilObject.prototype = {
    * Set the preferred network type.
    *
    * @param options An object contains a valid value of
-   *                RIL_PREFERRED_NETWORK_TYPE_TO_GOANNA as its `type` attribute.
+   *                RIL_PREFERRED_NETWORK_TYPE_TO_GECKO as its `type` attribute.
    */
   setPreferredNetworkType: function(options) {
     let networkType = options.type;
-    if (networkType < 0 || networkType >= RIL_PREFERRED_NETWORK_TYPE_TO_GOANNA.length) {
-      options.errorMsg = GOANNA_ERROR_INVALID_PARAMETER;
+    if (networkType < 0 || networkType >= RIL_PREFERRED_NETWORK_TYPE_TO_GECKO.length) {
+      options.errorMsg = GECKO_ERROR_INVALID_PARAMETER;
       this.sendChromeMessage(options);
       return;
     }
@@ -1112,12 +1112,12 @@ RilObject.prototype = {
    */
   getIccServiceState: function(options) {
     switch (options.service) {
-      case GOANNA_CARDSERVICE_FDN:
+      case GECKO_CARDSERVICE_FDN:
         let ICCUtilsHelper = this.context.ICCUtilsHelper;
         options.result = ICCUtilsHelper.isICCServiceAvailable("FDN");
         break;
       default:
-        options.errorMsg = GOANNA_ERROR_REQUEST_NOT_SUPPORTED;
+        options.errorMsg = GECKO_ERROR_REQUEST_NOT_SUPPORTED;
         break;
     }
     this.sendChromeMessage(options);
@@ -1475,7 +1475,7 @@ RilObject.prototype = {
       if (DEBUG) {
         this.context.debug("Invalid Cell Broadcast search list: " + e);
       }
-      options.errorMsg = GOANNA_ERROR_UNSPECIFIED_ERROR;
+      options.errorMsg = GECKO_ERROR_UNSPECIFIED_ERROR;
     }
 
     this.sendChromeMessage(options);
@@ -1622,7 +1622,7 @@ RilObject.prototype = {
     // If any of the mandatory arguments is not available, return an error
     // immediately.
     if (ton === undefined || npi === undefined || !options.smscAddress) {
-      options.errorMsg = GOANNA_ERROR_INVALID_PARAMETER;
+      options.errorMsg = GECKO_ERROR_INVALID_PARAMETER;
       this.sendChromeMessage(options);
       return;
     }
@@ -1636,7 +1636,7 @@ RilObject.prototype = {
 
     // If the filtered number is an empty string, return an error immediately.
     if (number.length === 0) {
-      options.errorMsg = GOANNA_ERROR_INVALID_PARAMETER;
+      options.errorMsg = GECKO_ERROR_INVALID_PARAMETER;
       this.sendChromeMessage(options);
       return;
     }
@@ -2419,11 +2419,11 @@ RilObject.prototype = {
     // When |iccStatus.cardState| is not CARD_STATE_PRESENT, set cardState to
     // undetected.
     if (iccStatus.cardState !== CARD_STATE_PRESENT) {
-      if (this.cardState !== GOANNA_CARDSTATE_UNDETECTED) {
+      if (this.cardState !== GECKO_CARDSTATE_UNDETECTED) {
         this.operator = null;
         // We should send |cardstatechange| before |iccinfochange|, otherwise we
         // may lost cardstatechange event when icc card becomes undetected.
-        this.cardState = GOANNA_CARDSTATE_UNDETECTED;
+        this.cardState = GECKO_CARDSTATE_UNDETECTED;
         this.sendChromeMessage({rilMessageType: "cardstatechange",
                                 cardState: this.cardState});
 
@@ -2443,7 +2443,7 @@ RilObject.prototype = {
           // Note: setUiccSubscription works abnormally when RADIO is OFF,
           // which causes SMS function broken in Flame.
           // See bug 1008557 for detailed info.
-          this.radioState === GOANNA_RADIOSTATE_ENABLED) {
+          this.radioState === GECKO_RADIOSTATE_ENABLED) {
         for (let i = 0; i < iccStatus.apps.length; i++) {
           this.setUiccSubscription({appIndex: i, enabled: true});
         }
@@ -2458,46 +2458,46 @@ RilObject.prototype = {
       // fetchICCRecords will need to read aid, so read aid here.
       this.aid = app.aid;
       this.appType = app.app_type;
-      this.iccInfo.iccType = GOANNA_CARD_TYPE[this.appType];
+      this.iccInfo.iccType = GECKO_CARD_TYPE[this.appType];
 
       switch (app.app_state) {
         case CARD_APPSTATE_ILLEGAL:
-          newCardState = GOANNA_CARDSTATE_ILLEGAL;
+          newCardState = GECKO_CARDSTATE_ILLEGAL;
           break;
         case CARD_APPSTATE_PIN:
-          newCardState = GOANNA_CARDSTATE_PIN_REQUIRED;
+          newCardState = GECKO_CARDSTATE_PIN_REQUIRED;
           break;
         case CARD_APPSTATE_PUK:
-          newCardState = GOANNA_CARDSTATE_PUK_REQUIRED;
+          newCardState = GECKO_CARDSTATE_PUK_REQUIRED;
           break;
         case CARD_APPSTATE_SUBSCRIPTION_PERSO:
           newCardState = PERSONSUBSTATE[app.perso_substate];
           break;
         case CARD_APPSTATE_READY:
-          newCardState = GOANNA_CARDSTATE_READY;
+          newCardState = GECKO_CARDSTATE_READY;
           break;
         case CARD_APPSTATE_UNKNOWN:
         case CARD_APPSTATE_DETECTED:
           // Fall through.
         default:
-          newCardState = GOANNA_CARDSTATE_UNKNOWN;
+          newCardState = GECKO_CARDSTATE_UNKNOWN;
       }
 
       let pin1State = app.pin1_replaced ? iccStatus.universalPINState :
                                           app.pin1;
       if (pin1State === CARD_PINSTATE_ENABLED_PERM_BLOCKED) {
-        newCardState = GOANNA_CARDSTATE_PERMANENT_BLOCKED;
+        newCardState = GECKO_CARDSTATE_PERMANENT_BLOCKED;
       }
     } else {
       // Having incorrect app information, set card state to unknown.
-      newCardState = GOANNA_CARDSTATE_UNKNOWN;
+      newCardState = GECKO_CARDSTATE_UNKNOWN;
     }
 
     let ICCRecordHelper = this.context.ICCRecordHelper;
-    // Try to get iccId only when cardState left GOANNA_CARDSTATE_UNDETECTED.
+    // Try to get iccId only when cardState left GECKO_CARDSTATE_UNDETECTED.
     if (iccStatus.cardState === CARD_STATE_PRESENT &&
-        (this.cardState === GOANNA_CARDSTATE_UNINITIALIZED ||
-         this.cardState === GOANNA_CARDSTATE_UNDETECTED)) {
+        (this.cardState === GECKO_CARDSTATE_UNINITIALIZED ||
+         this.cardState === GECKO_CARDSTATE_UNDETECTED)) {
       ICCRecordHelper.readICCID();
     }
 
@@ -2507,7 +2507,7 @@ RilObject.prototype = {
 
     // This was moved down from CARD_APPSTATE_READY
     this.requestNetworkInfo();
-    if (newCardState == GOANNA_CARDSTATE_READY) {
+    if (newCardState == GECKO_CARDSTATE_READY) {
       // For type SIM, we need to check EF_phase first.
       // Other types of ICC we can send Terminal_Profile immediately.
       if (this.appType == CARD_APPTYPE_SIM) {
@@ -2809,7 +2809,7 @@ RilObject.prototype = {
       changed = true;
       curState.regState = regState;
 
-      curState.state = NETWORK_CREG_TO_GOANNA_MOBILE_CONNECTION_STATE[regState];
+      curState.state = NETWORK_CREG_TO_GECKO_MOBILE_CONNECTION_STATE[regState];
       curState.connected = regState == NETWORK_CREG_STATE_REGISTERED_HOME ||
                            regState == NETWORK_CREG_STATE_REGISTERED_ROAMING;
       curState.roaming = regState == NETWORK_CREG_STATE_REGISTERED_ROAMING;
@@ -2842,7 +2842,7 @@ RilObject.prototype = {
     if (curState.radioTech === undefined || curState.radioTech !== radioTech) {
       changed = true;
       curState.radioTech = radioTech;
-      curState.type = GOANNA_RADIO_TECH[radioTech] || null;
+      curState.type = GECKO_RADIO_TECH[radioTech] || null;
     }
     return changed;
   },
@@ -2973,7 +2973,7 @@ RilObject.prototype = {
     switch (info.code) {
       case SUPP_SVC_NOTIFICATION_CODE2_PUT_ON_HOLD:
       case SUPP_SVC_NOTIFICATION_CODE2_RETRIEVED:
-        notification = GOANNA_SUPP_SVC_NOTIFICATION_FROM_CODE2[info.code];
+        notification = GECKO_SUPP_SVC_NOTIFICATION_FROM_CODE2[info.code];
         break;
       default:
         // Notification type not supported.
@@ -3046,7 +3046,7 @@ RilObject.prototype = {
       }
 
       let state = strings[i + 3];
-      network.state = RIL_QAN_STATE_TO_GOANNA_STATE[state];
+      network.state = RIL_QAN_STATE_TO_GECKO_STATE[state];
 
       networks.push(network);
     }
@@ -3107,7 +3107,7 @@ RilObject.prototype = {
     this.radioTech = radioTech;
 
     if (DEBUG) {
-      this.context.debug("Radio tech is set to: " + GOANNA_RADIO_TECH[radioTech] +
+      this.context.debug("Radio tech is set to: " + GECKO_RADIO_TECH[radioTech] +
                          ", it is a " + (isCdma?"cdma":"gsm") + " technology");
     }
 
@@ -3362,8 +3362,8 @@ RilObject.prototype = {
     delete this._pendingSentSmsMap[message.messageRef];
 
     let deliveryStatus = ((status >>> 5) === 0x00)
-                       ? GOANNA_SMS_DELIVERY_STATUS_SUCCESS
-                       : GOANNA_SMS_DELIVERY_STATUS_ERROR;
+                       ? GECKO_SMS_DELIVERY_STATUS_SUCCESS
+                       : GECKO_SMS_DELIVERY_STATUS_ERROR;
     this.sendChromeMessage({
       rilMessageType: options.rilMessageType,
       rilMessageToken: options.rilMessageToken,
@@ -3405,8 +3405,8 @@ RilObject.prototype = {
     }
 
     let deliveryStatus = (message.errorClass === 0)
-                       ? GOANNA_SMS_DELIVERY_STATUS_SUCCESS
-                       : GOANNA_SMS_DELIVERY_STATUS_ERROR;
+                       ? GECKO_SMS_DELIVERY_STATUS_SUCCESS
+                       : GECKO_SMS_DELIVERY_STATUS_ERROR;
     this.sendChromeMessage({
       rilMessageType: options.rilMessageType,
       rilMessageToken: options.rilMessageToken,
@@ -4123,7 +4123,7 @@ RilObject.prototype[REQUEST_LAST_CALL_FAIL_CAUSE] = function REQUEST_LAST_CALL_F
 
     if (num) {
       let causeNum = Buf.readInt32();
-      failCause = RIL_CALL_FAILCAUSE_TO_GOANNA_CALL_ERROR[causeNum] || failCause;
+      failCause = RIL_CALL_FAILCAUSE_TO_GECKO_CALL_ERROR[causeNum] || failCause;
     }
     if (DEBUG) this.context.debug("Last call fail cause: " + failCause);
   }
@@ -4245,7 +4245,7 @@ RilObject.prototype[REQUEST_SIM_IO] = function REQUEST_SIM_IO(length, options) {
       // We can get fail cause from sw1/sw2 (See TS 11.11 clause 9.4.1 and
       // ISO 7816-4 clause 6). But currently no one needs this information,
       // so simply reports "GenericFailure" for now.
-      options.onerror(GOANNA_ERROR_GENERIC_FAILURE);
+      options.onerror(GECKO_ERROR_GENERIC_FAILURE);
     }
     return;
   }
@@ -4272,7 +4272,7 @@ RilObject.prototype[REQUEST_GET_CLIR] = function REQUEST_GET_CLIR(length, option
   let Buf = this.context.Buf;
   let bufLength = Buf.readInt32();
   if (!bufLength || bufLength < 2) {
-    options.errorMsg = GOANNA_ERROR_GENERIC_FAILURE;
+    options.errorMsg = GECKO_ERROR_GENERIC_FAILURE;
     this.sendChromeMessage(options);
     return;
   }
@@ -4303,7 +4303,7 @@ RilObject.prototype[REQUEST_QUERY_CALL_FORWARD_STATUS] =
     rulesLength = Buf.readInt32();
   }
   if (!rulesLength) {
-    options.errorMsg = GOANNA_ERROR_GENERIC_FAILURE;
+    options.errorMsg = GECKO_ERROR_GENERIC_FAILURE;
     this.sendChromeMessage(options);
     return;
   }
@@ -4358,7 +4358,7 @@ RilObject.prototype[REQUEST_QUERY_FACILITY_LOCK] = function REQUEST_QUERY_FACILI
   }
 
   if (!length) {
-    options.errorMsg = GOANNA_ERROR_GENERIC_FAILURE;
+    options.errorMsg = GECKO_ERROR_GENERIC_FAILURE;
     this.sendChromeMessage(options);
     return;
   }
@@ -4394,13 +4394,13 @@ RilObject.prototype[REQUEST_QUERY_NETWORK_SELECTION_MODE] = function REQUEST_QUE
 
   switch (mode[0]) {
     case NETWORK_SELECTION_MODE_AUTOMATIC:
-      selectionMode = GOANNA_NETWORK_SELECTION_AUTOMATIC;
+      selectionMode = GECKO_NETWORK_SELECTION_AUTOMATIC;
       break;
     case NETWORK_SELECTION_MODE_MANUAL:
-      selectionMode = GOANNA_NETWORK_SELECTION_MANUAL;
+      selectionMode = GECKO_NETWORK_SELECTION_MANUAL;
       break;
     default:
-      selectionMode = GOANNA_NETWORK_SELECTION_UNKNOWN;
+      selectionMode = GECKO_NETWORK_SELECTION_UNKNOWN;
       break;
   }
 
@@ -4408,13 +4408,13 @@ RilObject.prototype[REQUEST_QUERY_NETWORK_SELECTION_MODE] = function REQUEST_QUE
 };
 RilObject.prototype[REQUEST_SET_NETWORK_SELECTION_AUTOMATIC] = function REQUEST_SET_NETWORK_SELECTION_AUTOMATIC(length, options) {
   if (!options.errorMsg) {
-    this._updateNetworkSelectionMode(GOANNA_NETWORK_SELECTION_AUTOMATIC);
+    this._updateNetworkSelectionMode(GECKO_NETWORK_SELECTION_AUTOMATIC);
   }
   this.sendChromeMessage(options);
 };
 RilObject.prototype[REQUEST_SET_NETWORK_SELECTION_MANUAL] = function REQUEST_SET_NETWORK_SELECTION_MANUAL(length, options) {
   if (!options.errorMsg) {
-    this._updateNetworkSelectionMode(GOANNA_NETWORK_SELECTION_MANUAL);
+    this._updateNetworkSelectionMode(GECKO_NETWORK_SELECTION_MANUAL);
   }
   this.sendChromeMessage(options);
 };
@@ -4450,7 +4450,7 @@ RilObject.prototype[REQUEST_QUERY_CLIP] = function REQUEST_QUERY_CLIP(length, op
   let Buf = this.context.Buf;
   let bufLength = Buf.readInt32();
   if (!bufLength) {
-    options.errorMsg = GOANNA_ERROR_GENERIC_FAILURE;
+    options.errorMsg = GECKO_ERROR_GENERIC_FAILURE;
     this.sendChromeMessage(options);
     return;
   }
@@ -4592,7 +4592,7 @@ RilObject.prototype[REQUEST_GET_NEIGHBORING_CELL_IDS] = function REQUEST_GET_NEI
 
   for (let i = 0; i < num; i++) {
     let cellId = {};
-    cellId.networkType = GOANNA_RADIO_TECH[radioTech];
+    cellId.networkType = GECKO_RADIO_TECH[radioTech];
     cellId.signalStrength = Buf.readInt32();
 
     let cid = Buf.readString();
@@ -5004,13 +5004,13 @@ RilObject.prototype[UNSOLICITED_RESPONSE_RADIO_STATE_CHANGED] = function UNSOLIC
   let newState;
   switch (radioState) {
     case RADIO_STATE_UNAVAILABLE:
-      newState = GOANNA_RADIOSTATE_UNKNOWN;
+      newState = GECKO_RADIOSTATE_UNKNOWN;
       break;
     case RADIO_STATE_OFF:
-      newState = GOANNA_RADIOSTATE_DISABLED;
+      newState = GECKO_RADIOSTATE_DISABLED;
       break;
     default:
-      newState = GOANNA_RADIOSTATE_ENABLED;
+      newState = GECKO_RADIOSTATE_ENABLED;
   }
 
   if (DEBUG) {
@@ -5034,9 +5034,9 @@ RilObject.prototype[UNSOLICITED_RESPONSE_RADIO_STATE_CHANGED] = function UNSOLIC
     this.getVoiceRadioTechnology();
   }
 
-  if ((this.radioState == GOANNA_RADIOSTATE_UNKNOWN ||
-       this.radioState == GOANNA_RADIOSTATE_DISABLED) &&
-       newState == GOANNA_RADIOSTATE_ENABLED) {
+  if ((this.radioState == GECKO_RADIOSTATE_UNKNOWN ||
+       this.radioState == GECKO_RADIOSTATE_DISABLED) &&
+       newState == GECKO_RADIOSTATE_ENABLED) {
     // The radio became available, let's get its info.
     this.getBasebandVersion();
     this.updateCellBroadcastConfig();
@@ -5303,7 +5303,7 @@ RilObject.prototype[UNSOLICITED_CDMA_CALL_WAITING] = function UNSOLICITED_CDMA_C
 };
 RilObject.prototype[UNSOLICITED_CDMA_OTA_PROVISION_STATUS] = function UNSOLICITED_CDMA_OTA_PROVISION_STATUS() {
   let status =
-    CDMA_OTA_PROVISION_STATUS_TO_GOANNA[this.context.Buf.readInt32List()[0]];
+    CDMA_OTA_PROVISION_STATUS_TO_GECKO[this.context.Buf.readInt32List()[0]];
   if (!status) {
     return;
   }
@@ -6245,7 +6245,7 @@ GsmPDUHelperObject.prototype = {
 
             mwi.active = active;
             mwi.discard = (dcs & PDU_DCS_CODING_GROUP_BITS) == 0xC0;
-            mwi.msgCount = active ? GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN : 0;
+            mwi.msgCount = active ? GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN : 0;
 
             if (DEBUG) {
               this.context.debug("MWI in DCS received for voicemail: " +
@@ -6278,7 +6278,7 @@ GsmPDUHelperObject.prototype = {
 
     msg.dcs = dcs;
     msg.encoding = encoding;
-    msg.messageClass = GOANNA_SMS_MESSAGE_CLASSES[messageClass];
+    msg.messageClass = GECKO_SMS_MESSAGE_CLASSES[messageClass];
 
     if (DEBUG) this.context.debug("PDU: message encoding is " + encoding + " bit.");
   },
@@ -6560,7 +6560,7 @@ GsmPDUHelperObject.prototype = {
       return [null, PDU_FCS_OK];
     }
 
-    if (message.messageClass == GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_2]) {
+    if (message.messageClass == GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_2]) {
       let RIL = this.context.RIL;
       switch (message.epid) {
         case PDU_PID_ANSI_136_R_DATA:
@@ -6590,13 +6590,13 @@ GsmPDUHelperObject.prototype = {
     }
 
     // TODO: Bug 739143: B2G SMS: Support SMS Storage Full event
-    if ((message.messageClass != GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_0]) && !true) {
+    if ((message.messageClass != GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_0]) && !true) {
       // `When a mobile terminated message is class 0..., the MS shall display
       // the message immediately and send a ACK to the SC ..., irrespective of
       // whether there is memory available in the (U)SIM or ME.` ~ 3GPP 23.038
       // clause 4.
 
-      if (message.messageClass == GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_2]) {
+      if (message.messageClass == GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_2]) {
         // `If all the short message storage at the MS is already in use, the
         // MS shall return "memory capacity exceeded".` ~ 3GPP 23.038 clause 4.
         return [null, PDU_FCS_MEMORY_CAPACITY_EXCEEDED];
@@ -6966,7 +6966,7 @@ GsmPDUHelperObject.prototype = {
     msg.dcs = dcs;
     msg.encoding = encoding;
     msg.language = language;
-    msg.messageClass = GOANNA_SMS_MESSAGE_CLASSES[messageClass];
+    msg.messageClass = GECKO_SMS_MESSAGE_CLASSES[messageClass];
     msg.hasLanguageIndicator = hasLanguageIndicator;
   },
 
@@ -7225,7 +7225,7 @@ GsmPDUHelperObject.prototype = {
       language:             null,                              //  O   X    O
       fullBody:             null,                              //  O   X    O
       fullData:             null,                              //  O   X    O
-      messageClass:         GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL], //  O   x    O
+      messageClass:         GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL], //  O   x    O
       etws:                 null                               //  ?   O    ?
       /*{
         warningType:        null,                              //  X   O    X
@@ -7943,7 +7943,7 @@ CdmaPDUHelperObject.prototype = {
       scts:             null,
       dt:               null,
       encoding:         message.encoding,
-      messageClass:     GOANNA_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL],
+      messageClass:     GECKO_SMS_MESSAGE_CLASSES[PDU_DCS_MSG_CLASS_NORMAL],
       messageType:      message.messageType,
       serviceCategory:  message.service,
       subMsgType:       message[PDU_CDMA_MSG_USERDATA_MSG_ID].msgType,
@@ -10703,17 +10703,17 @@ ComprehensionTlvHelperObject.prototype = {
   },
 
   /**
-   * Given a goannaError string, this function translates it into cause value
+   * Given a geckoError string, this function translates it into cause value
    * and write the value into buffer.
    *
-   * @param goannaError Error string that is passed to goanna.
+   * @param geckoError Error string that is passed to gecko.
    */
-  writeCauseTlv: function(goannaError) {
+  writeCauseTlv: function(geckoError) {
     let GsmPDUHelper = this.context.GsmPDUHelper;
 
     let cause = -1;
-    for (let errorNo in RIL_CALL_FAILCAUSE_TO_GOANNA_CALL_ERROR) {
-      if (goannaError == RIL_CALL_FAILCAUSE_TO_GOANNA_CALL_ERROR[errorNo]) {
+    for (let errorNo in RIL_CALL_FAILCAUSE_TO_GECKO_CALL_ERROR) {
+      if (geckoError == RIL_CALL_FAILCAUSE_TO_GECKO_CALL_ERROR[errorNo]) {
         cause = errorNo;
         break;
       }
@@ -11674,7 +11674,7 @@ ICCRecordHelperObject.prototype = {
     }
 
     if (!contact || !contact.recordId) {
-      if (onerror) onerror(GOANNA_ERROR_INVALID_PARAMETER);
+      if (onerror) onerror(GECKO_ERROR_INVALID_PARAMETER);
       return;
     }
 
@@ -12787,7 +12787,7 @@ SimRecordHelperObject.prototype = {
         // Normally, when mwi is active, the msgCount must be larger than 0.
         // Refer to other reference phone,
         // 0 is usually treated as UNKNOWN for storing 2nd level MWI status (DCS).
-        mwi.msgCount = (mwis[1] === 0) ? GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN
+        mwi.msgCount = (mwis[1] === 0) ? GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN
                                        : mwis[1];
       } else {
         mwi.msgCount = 0;
@@ -12819,7 +12819,7 @@ SimRecordHelperObject.prototype = {
       let mwis = RIL.iccInfoPrivate.mwis;
 
       let msgCount =
-          (mwi.msgCount === GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) ? 0 : mwi.msgCount;
+          (mwi.msgCount === GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) ? 0 : mwi.msgCount;
 
       [mwis[0], mwis[1]] = (mwi.active) ? [(mwis[0] | 0x01), msgCount]
                                         : [(mwis[0] & 0xFE), 0];
@@ -13974,12 +13974,12 @@ ICCUtilsHelperObject.prototype = {
   /**
    * Get whether specificed (U)SIM service is available.
    *
-   * @param goannaService
+   * @param geckoService
    *        Service name like "ADN", "BDN", etc.
    *
    * @return true if the service is enabled, false otherwise.
    */
-  isICCServiceAvailable: function(goannaService) {
+  isICCServiceAvailable: function(geckoService) {
     let RIL = this.context.RIL;
     let serviceTable = RIL._isCdma ? RIL.iccInfoPrivate.cst:
                                      RIL.iccInfoPrivate.sst;
@@ -14001,9 +14001,9 @@ ICCUtilsHelperObject.prototype = {
        */
       let simService;
       if (RIL.appType == CARD_APPTYPE_SIM) {
-        simService = GOANNA_ICC_SERVICES.sim[goannaService];
+        simService = GECKO_ICC_SERVICES.sim[geckoService];
       } else {
-        simService = GOANNA_ICC_SERVICES.ruim[goannaService];
+        simService = GECKO_ICC_SERVICES.ruim[geckoService];
       }
       if (!simService) {
         return false;
@@ -14024,7 +14024,7 @@ ICCUtilsHelperObject.prototype = {
        *
        * @see 3GPP TS 31.102 4.2.8.
        */
-      let usimService = GOANNA_ICC_SERVICES.usim[goannaService];
+      let usimService = GECKO_ICC_SERVICES.usim[geckoService];
       if (!usimService) {
         return false;
       }
@@ -14041,12 +14041,12 @@ ICCUtilsHelperObject.prototype = {
   /**
    * Get whether specificed CPHS service is available.
    *
-   * @param goannaService
+   * @param geckoService
    *        Service name like "MDN", etc.
    *
    * @return true if the service is enabled, false otherwise.
    */
-  isCphsServiceAvailable: function(goannaService) {
+  isCphsServiceAvailable: function(geckoService) {
     let RIL = this.context.RIL;
     let serviceTable = RIL.iccInfoPrivate.cphsSt;
 
@@ -14068,7 +14068,7 @@ ICCUtilsHelperObject.prototype = {
      *
      * @See  B.3.1.1 CPHS Information in CPHS Phase 2.
      */
-    let cphsService  = GOANNA_ICC_SERVICES.cphs[goannaService];
+    let cphsService  = GECKO_ICC_SERVICES.cphs[geckoService];
 
     if (!cphsService) {
       return false;
@@ -14180,7 +14180,7 @@ ICCContactHelperObject.prototype = {
    * Helper function to read ICC contacts.
    *
    * @param appType       One of CARD_APPTYPE_*.
-   * @param contactType   One of GOANNA_CARDCONTACT_TYPE_*.
+   * @param contactType   One of GECKO_CARDCONTACT_TYPE_*.
    * @param onsuccess     Callback to be called when success.
    * @param onerror       Callback to be called when error.
    */
@@ -14189,7 +14189,7 @@ ICCContactHelperObject.prototype = {
     let ICCUtilsHelper = this.context.ICCUtilsHelper;
 
     switch (contactType) {
-      case GOANNA_CARDCONTACT_TYPE_ADN:
+      case GECKO_CARDCONTACT_TYPE_ADN:
         if (!this.hasDfPhoneBook(appType)) {
           ICCRecordHelper.readADNLike(ICC_EF_ADN,
             (ICCUtilsHelper.isICCServiceAvailable("EXT1")) ? ICC_EF_EXT1 : null,
@@ -14198,7 +14198,7 @@ ICCContactHelperObject.prototype = {
           this.readUSimContacts(onsuccess, onerror);
         }
         break;
-      case GOANNA_CARDCONTACT_TYPE_FDN:
+      case GECKO_CARDCONTACT_TYPE_FDN:
         if (!ICCUtilsHelper.isICCServiceAvailable("FDN")) {
           onerror(CONTACT_ERR_CONTACT_TYPE_NOT_SUPPORTED);
           break;
@@ -14207,7 +14207,7 @@ ICCContactHelperObject.prototype = {
           (ICCUtilsHelper.isICCServiceAvailable("EXT2")) ? ICC_EF_EXT2 : null,
           onsuccess, onerror);
         break;
-      case GOANNA_CARDCONTACT_TYPE_SDN:
+      case GECKO_CARDCONTACT_TYPE_SDN:
         if (!ICCUtilsHelper.isICCServiceAvailable("SDN")) {
           onerror(CONTACT_ERR_CONTACT_TYPE_NOT_SUPPORTED);
           break;
@@ -14230,7 +14230,7 @@ ICCContactHelperObject.prototype = {
    * Helper function to find free contact record.
    *
    * @param appType       One of CARD_APPTYPE_*.
-   * @param contactType   One of GOANNA_CARDCONTACT_TYPE_*.
+   * @param contactType   One of GECKO_CARDCONTACT_TYPE_*.
    * @param onsuccess     Callback to be called when success.
    * @param onerror       Callback to be called when error.
    */
@@ -14238,7 +14238,7 @@ ICCContactHelperObject.prototype = {
     let ICCRecordHelper = this.context.ICCRecordHelper;
 
     switch (contactType) {
-      case GOANNA_CARDCONTACT_TYPE_ADN:
+      case GECKO_CARDCONTACT_TYPE_ADN:
         if (!this.hasDfPhoneBook(appType)) {
           ICCRecordHelper.findFreeRecordId(ICC_EF_ADN, onsuccess.bind(null, 0), onerror);
         } else {
@@ -14249,7 +14249,7 @@ ICCContactHelperObject.prototype = {
           ICCRecordHelper.readPBR(gotPbrCb, onerror);
         }
         break;
-      case GOANNA_CARDCONTACT_TYPE_FDN:
+      case GECKO_CARDCONTACT_TYPE_FDN:
         ICCRecordHelper.findFreeRecordId(ICC_EF_FDN, onsuccess.bind(null, 0), onerror);
         break;
       default:
@@ -14307,7 +14307,7 @@ ICCContactHelperObject.prototype = {
    * Helper function to add a new ICC contact.
    *
    * @param appType       One of CARD_APPTYPE_*.
-   * @param contactType   One of GOANNA_CARDCONTACT_TYPE_*.
+   * @param contactType   One of GECKO_CARDCONTACT_TYPE_*.
    * @param contact       The contact will be added.
    * @param pin2          PIN2 is required for FDN.
    * @param onsuccess     Callback to be called when success.
@@ -14328,7 +14328,7 @@ ICCContactHelperObject.prototype = {
    * Helper function to update ICC contact.
    *
    * @param appType       One of CARD_APPTYPE_*.
-   * @param contactType   One of GOANNA_CARDCONTACT_TYPE_*.
+   * @param contactType   One of GECKO_CARDCONTACT_TYPE_*.
    * @param contact       The contact will be updated.
    * @param pin2          PIN2 is required for FDN.
    * @param onsuccess     Callback to be called when success.
@@ -14345,7 +14345,7 @@ ICCContactHelperObject.prototype = {
     }
 
     switch (contactType) {
-      case GOANNA_CARDCONTACT_TYPE_ADN:
+      case GECKO_CARDCONTACT_TYPE_ADN:
         if (!this.hasDfPhoneBook(appType)) {
           if (ICCUtilsHelper.isICCServiceAvailable("EXT1")) {
             this.updateADNLikeWithExtension(ICC_EF_ADN, ICC_EF_EXT1,
@@ -14360,9 +14360,9 @@ ICCContactHelperObject.prototype = {
           this.updateUSimContact(contact, updateContactCb, onerror);
         }
         break;
-      case GOANNA_CARDCONTACT_TYPE_FDN:
+      case GECKO_CARDCONTACT_TYPE_FDN:
         if (!pin2) {
-          onerror(GOANNA_ERROR_SIM_PIN2);
+          onerror(GECKO_ERROR_SIM_PIN2);
           return;
         }
         if (!ICCUtilsHelper.isICCServiceAvailable("FDN")) {
@@ -15051,7 +15051,7 @@ IconLoaderObject.prototype = {
     }
 
     return {pixels: pixels,
-            codingScheme: GOANNA_IMG_CODING_SCHEME_BASIC,
+            codingScheme: GECKO_IMG_CODING_SCHEME_BASIC,
             width: width,
             height: height};
   },
@@ -15086,7 +15086,7 @@ IconLoaderObject.prototype = {
     }
 
     return {pixels: pixels,
-            codingScheme: ICC_IMG_CODING_SCHEME_TO_GOANNA[codingScheme],
+            codingScheme: ICC_IMG_CODING_SCHEME_TO_GECKO[codingScheme],
             width: width,
             height: height};
   },

@@ -370,7 +370,7 @@ CSSStyleSheetInner::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
 
 CSSStyleSheet::CSSStyleSheet(css::SheetParsingMode aParsingMode,
                              CORSMode aCORSMode, ReferrerPolicy aReferrerPolicy)
-  : StyleSheet(StyleBackendType::Goanna, aParsingMode),
+  : StyleSheet(StyleBackendType::Gecko, aParsingMode),
     mParent(nullptr),
     mOwnerRule(nullptr),
     mDirty(false),
@@ -386,7 +386,7 @@ CSSStyleSheet::CSSStyleSheet(css::SheetParsingMode aParsingMode,
                              CORSMode aCORSMode,
                              ReferrerPolicy aReferrerPolicy,
                              const SRIMetadata& aIntegrity)
-  : StyleSheet(StyleBackendType::Goanna, aParsingMode),
+  : StyleSheet(StyleBackendType::Gecko, aParsingMode),
     mParent(nullptr),
     mOwnerRule(nullptr),
     mDirty(false),
@@ -652,7 +652,7 @@ CSSStyleSheet::FindOwningWindowInnerID() const
     RefPtr<StyleSheet> sheet =
       static_cast<css::Rule*>(mOwnerRule)->GetStyleSheet();
     if (sheet) {
-      windowID = sheet->AsGoanna()->FindOwningWindowInnerID();
+      windowID = sheet->AsGecko()->FindOwningWindowInnerID();
     }
   }
 
@@ -1153,10 +1153,10 @@ CSSStyleSheet::StyleSheetLoaded(StyleSheet* aSheet,
                                 bool aWasAlternate,
                                 nsresult aStatus)
 {
-  MOZ_ASSERT(aSheet->IsGoanna(),
+  MOZ_ASSERT(aSheet->IsGecko(),
              "why we were called back with a ServoStyleSheet?");
 
-  CSSStyleSheet* sheet = aSheet->AsGoanna();
+  CSSStyleSheet* sheet = aSheet->AsGecko();
 
   if (sheet->GetParentSheet() == nullptr) {
     return NS_OK; // ignore if sheet has been detached already (see parseSheet)
@@ -1190,7 +1190,7 @@ CSSStyleSheet::ReparseSheet(const nsAString& aInput)
     loader = mDocument->CSSLoader();
     NS_ASSERTION(loader, "Document with no CSS loader!");
   } else {
-    loader = new css::Loader(StyleBackendType::Goanna);
+    loader = new css::Loader(StyleBackendType::Gecko);
   }
 
   mozAutoDocUpdate updateBatch(mDocument, UPDATE_STYLE, true);

@@ -6443,7 +6443,7 @@ var BrowserDetect = {
 		},
 		{
 			string: navigator.userAgent,
-			subString: "Goanna",
+			subString: "Gecko",
 			identity: "Mozilla",
 			versionSearch: "rv"
 		},

@@ -13,7 +13,7 @@ mozlint-eslint/opt:
     run:
         using: run-task
         command: >
-            cd /home/worker/checkouts/goanna/tools/lint/eslint &&
+            cd /home/worker/checkouts/gecko/tools/lint/eslint &&
             /build/tooltool.py fetch -m manifest.tt &&
             tar xvfz eslint.tar.gz &&
             rm eslint.tar.gz &&
@@ -43,7 +43,7 @@ mozlint-eslint/opt:
             - 'taskcluster/docker/lint/**'
 
 mozlint-flake8/opt:
-    description: flake8 run over the goanna codebase
+    description: flake8 run over the gecko codebase
     treeherder:
         symbol: f8
         kind: test
@@ -68,7 +68,7 @@ mozlint-flake8/opt:
             - 'tools/lint/**'
             - 'taskcluster/docker/lint/**'
 
-wptlint-goanna/opt:
+wptlint-gecko/opt:
     description: web-platform-tests linter
     treeherder:
         symbol: W

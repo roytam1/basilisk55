@@ -15,10 +15,10 @@ $JAVA -jar ../../../../closure/compiler.jar \
   --externs temp_externs/es6_collections.js \
   --externs temp_externs/fileapi.js \
   --externs temp_externs/flash.js \
-  --externs temp_externs/goanna_css.js \
-  --externs temp_externs/goanna_dom.js \
-  --externs temp_externs/goanna_event.js \
-  --externs temp_externs/goanna_xml.js \
+  --externs temp_externs/gecko_css.js \
+  --externs temp_externs/gecko_dom.js \
+  --externs temp_externs/gecko_event.js \
+  --externs temp_externs/gecko_xml.js \
   --externs temp_externs/google.js \
   --externs temp_externs/html5.js \
   --externs temp_externs/ie_css.js \

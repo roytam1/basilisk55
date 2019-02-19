@@ -11,7 +11,7 @@ namespace mozilla {
 namespace java {
 
 const char ANRReporter::name[] =
-        "org/mozilla/goanna/ANRReporter";
+        "org/mozilla/gecko/ANRReporter";
 
 constexpr char ANRReporter::GetNativeStack_t::name[];
 constexpr char ANRReporter::GetNativeStack_t::signature[];
@@ -23,7 +23,7 @@ constexpr char ANRReporter::RequestNativeStack_t::name[];
 constexpr char ANRReporter::RequestNativeStack_t::signature[];
 
 const char DownloadsIntegration::name[] =
-        "org/mozilla/goanna/DownloadsIntegration";
+        "org/mozilla/gecko/DownloadsIntegration";
 
 constexpr char DownloadsIntegration::GetTemporaryDownloadDirectory_t::name[];
 constexpr char DownloadsIntegration::GetTemporaryDownloadDirectory_t::signature[];
@@ -41,76 +41,76 @@ auto DownloadsIntegration::ScanMedia(mozilla::jni::String::Param a0, mozilla::jn
     return mozilla::jni::Method<ScanMedia_t>::Call(DownloadsIntegration::Context(), nullptr, a0, a1);
 }
 
-const char GoannaJavaSampler::name[] =
-        "org/mozilla/goanna/GoannaJavaSampler";
+const char GeckoJavaSampler::name[] =
+        "org/mozilla/gecko/GeckoJavaSampler";
 
-constexpr char GoannaJavaSampler::GetFrameName_t::name[];
-constexpr char GoannaJavaSampler::GetFrameName_t::signature[];
+constexpr char GeckoJavaSampler::GetFrameName_t::name[];
+constexpr char GeckoJavaSampler::GetFrameName_t::signature[];
 
-auto GoannaJavaSampler::GetFrameName(int32_t a0, int32_t a1, int32_t a2) -> mozilla::jni::String::LocalRef
+auto GeckoJavaSampler::GetFrameName(int32_t a0, int32_t a1, int32_t a2) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetFrameName_t>::Call(GoannaJavaSampler::Context(), nullptr, a0, a1, a2);
+    return mozilla::jni::Method<GetFrameName_t>::Call(GeckoJavaSampler::Context(), nullptr, a0, a1, a2);
 }
 
-constexpr char GoannaJavaSampler::GetProfilerTime_t::name[];
-constexpr char GoannaJavaSampler::GetProfilerTime_t::signature[];
+constexpr char GeckoJavaSampler::GetProfilerTime_t::name[];
+constexpr char GeckoJavaSampler::GetProfilerTime_t::signature[];
 
-constexpr char GoannaJavaSampler::GetSampleTime_t::name[];
-constexpr char GoannaJavaSampler::GetSampleTime_t::signature[];
+constexpr char GeckoJavaSampler::GetSampleTime_t::name[];
+constexpr char GeckoJavaSampler::GetSampleTime_t::signature[];
 
-auto GoannaJavaSampler::GetSampleTime(int32_t a0, int32_t a1) -> double
+auto GeckoJavaSampler::GetSampleTime(int32_t a0, int32_t a1) -> double
 {
-    return mozilla::jni::Method<GetSampleTime_t>::Call(GoannaJavaSampler::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<GetSampleTime_t>::Call(GeckoJavaSampler::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaJavaSampler::GetThreadName_t::name[];
-constexpr char GoannaJavaSampler::GetThreadName_t::signature[];
+constexpr char GeckoJavaSampler::GetThreadName_t::name[];
+constexpr char GeckoJavaSampler::GetThreadName_t::signature[];
 
-auto GoannaJavaSampler::GetThreadName(int32_t a0) -> mozilla::jni::String::LocalRef
+auto GeckoJavaSampler::GetThreadName(int32_t a0) -> mozilla::jni::String::LocalRef
 {
-    return mozilla::jni::Method<GetThreadName_t>::Call(GoannaJavaSampler::Context(), nullptr, a0);
+    return mozilla::jni::Method<GetThreadName_t>::Call(GeckoJavaSampler::Context(), nullptr, a0);
 }
 
-constexpr char GoannaJavaSampler::Pause_t::name[];
-constexpr char GoannaJavaSampler::Pause_t::signature[];
+constexpr char GeckoJavaSampler::Pause_t::name[];
+constexpr char GeckoJavaSampler::Pause_t::signature[];
 
-auto GoannaJavaSampler::Pause() -> void
+auto GeckoJavaSampler::Pause() -> void
 {
-    return mozilla::jni::Method<Pause_t>::Call(GoannaJavaSampler::Context(), nullptr);
+    return mozilla::jni::Method<Pause_t>::Call(GeckoJavaSampler::Context(), nullptr);
 }
 
-constexpr char GoannaJavaSampler::Start_t::name[];
-constexpr char GoannaJavaSampler::Start_t::signature[];
+constexpr char GeckoJavaSampler::Start_t::name[];
+constexpr char GeckoJavaSampler::Start_t::signature[];
 
-auto GoannaJavaSampler::Start(int32_t a0, int32_t a1) -> void
+auto GeckoJavaSampler::Start(int32_t a0, int32_t a1) -> void
 {
-    return mozilla::jni::Method<Start_t>::Call(GoannaJavaSampler::Context(), nullptr, a0, a1);
+    return mozilla::jni::Method<Start_t>::Call(GeckoJavaSampler::Context(), nullptr, a0, a1);
 }
 
-constexpr char GoannaJavaSampler::Stop_t::name[];
-constexpr char GoannaJavaSampler::Stop_t::signature[];
+constexpr char GeckoJavaSampler::Stop_t::name[];
+constexpr char GeckoJavaSampler::Stop_t::signature[];
 
-auto GoannaJavaSampler::Stop() -> void
+auto GeckoJavaSampler::Stop() -> void
 {
-    return mozilla::jni::Method<Stop_t>::Call(GoannaJavaSampler::Context(), nullptr);
+    return mozilla::jni::Method<Stop_t>::Call(GeckoJavaSampler::Context(), nullptr);
 }
 
-constexpr char GoannaJavaSampler::Unpause_t::name[];
-constexpr char GoannaJavaSampler::Unpause_t::signature[];
+constexpr char GeckoJavaSampler::Unpause_t::name[];
+constexpr char GeckoJavaSampler::Unpause_t::signature[];
 
-auto GoannaJavaSampler::Unpause() -> void
+auto GeckoJavaSampler::Unpause() -> void
 {
-    return mozilla::jni::Method<Unpause_t>::Call(GoannaJavaSampler::Context(), nullptr);
+    return mozilla::jni::Method<Unpause_t>::Call(GeckoJavaSampler::Context(), nullptr);
 }
 
 const char MemoryMonitor::name[] =
-        "org/mozilla/goanna/MemoryMonitor";
+        "org/mozilla/gecko/MemoryMonitor";
 
 constexpr char MemoryMonitor::DispatchMemoryPressure_t::name[];
 constexpr char MemoryMonitor::DispatchMemoryPressure_t::signature[];
 
 const char PresentationMediaPlayerManager::name[] =
-        "org/mozilla/goanna/PresentationMediaPlayerManager";
+        "org/mozilla/gecko/PresentationMediaPlayerManager";
 
 constexpr char PresentationMediaPlayerManager::AddPresentationSurface_t::name[];
 constexpr char PresentationMediaPlayerManager::AddPresentationSurface_t::signature[];
@@ -122,7 +122,7 @@ constexpr char PresentationMediaPlayerManager::RemovePresentationSurface_t::name
 constexpr char PresentationMediaPlayerManager::RemovePresentationSurface_t::signature[];
 
 const char Telemetry::name[] =
-        "org/mozilla/goanna/Telemetry";
+        "org/mozilla/gecko/Telemetry";
 
 constexpr char Telemetry::AddHistogram_t::name[];
 constexpr char Telemetry::AddHistogram_t::signature[];
@@ -140,7 +140,7 @@ constexpr char Telemetry::StopUISession_t::name[];
 constexpr char Telemetry::StopUISession_t::signature[];
 
 const char ThumbnailHelper::name[] =
-        "org/mozilla/goanna/ThumbnailHelper";
+        "org/mozilla/gecko/ThumbnailHelper";
 
 constexpr char ThumbnailHelper::NotifyThumbnail_t::name[];
 constexpr char ThumbnailHelper::NotifyThumbnail_t::signature[];
@@ -154,13 +154,13 @@ constexpr char ThumbnailHelper::RequestThumbnail_t::name[];
 constexpr char ThumbnailHelper::RequestThumbnail_t::signature[];
 
 const char ZoomedView::name[] =
-        "org/mozilla/goanna/ZoomedView";
+        "org/mozilla/gecko/ZoomedView";
 
 constexpr char ZoomedView::RequestZoomedViewData_t::name[];
 constexpr char ZoomedView::RequestZoomedViewData_t::signature[];
 
 const char AudioFocusAgent::name[] =
-        "org/mozilla/goanna/media/AudioFocusAgent";
+        "org/mozilla/gecko/media/AudioFocusAgent";
 
 constexpr char AudioFocusAgent::NotifyStartedPlaying_t::name[];
 constexpr char AudioFocusAgent::NotifyStartedPlaying_t::signature[];
@@ -179,7 +179,7 @@ auto AudioFocusAgent::NotifyStoppedPlaying() -> void
 }
 
 const char CodecProxy::name[] =
-        "org/mozilla/goanna/media/CodecProxy";
+        "org/mozilla/gecko/media/CodecProxy";
 
 constexpr char CodecProxy::Create_t::name[];
 constexpr char CodecProxy::Create_t::signature[];
@@ -230,7 +230,7 @@ auto CodecProxy::ReleaseOutput(mozilla::jni::Object::Param a0, bool a1) const ->
 }
 
 const char CodecProxy::NativeCallbacks::name[] =
-        "org/mozilla/goanna/media/CodecProxy$NativeCallbacks";
+        "org/mozilla/gecko/media/CodecProxy$NativeCallbacks";
 
 constexpr char CodecProxy::NativeCallbacks::New_t::name[];
 constexpr char CodecProxy::NativeCallbacks::New_t::signature[];
@@ -256,7 +256,7 @@ constexpr char CodecProxy::NativeCallbacks::OnOutputFormatChanged_t::name[];
 constexpr char CodecProxy::NativeCallbacks::OnOutputFormatChanged_t::signature[];
 
 const char MediaDrmProxy::name[] =
-        "org/mozilla/goanna/media/MediaDrmProxy";
+        "org/mozilla/gecko/media/MediaDrmProxy";
 
 constexpr char MediaDrmProxy::CanDecode_t::name[];
 constexpr char MediaDrmProxy::CanDecode_t::signature[];
@@ -351,7 +351,7 @@ const char16_t MediaDrmProxy::VP8[] = u"video/x-vnd.on2.vp8";
 const char16_t MediaDrmProxy::VP9[] = u"video/x-vnd.on2.vp9";
 
 const char MediaDrmProxy::NativeMediaDrmProxyCallbacks::name[] =
-        "org/mozilla/goanna/media/MediaDrmProxy$NativeMediaDrmProxyCallbacks";
+        "org/mozilla/gecko/media/MediaDrmProxy$NativeMediaDrmProxyCallbacks";
 
 constexpr char MediaDrmProxy::NativeMediaDrmProxyCallbacks::New_t::name[];
 constexpr char MediaDrmProxy::NativeMediaDrmProxyCallbacks::New_t::signature[];
@@ -383,7 +383,7 @@ constexpr char MediaDrmProxy::NativeMediaDrmProxyCallbacks::OnSessionUpdated_t::
 constexpr char MediaDrmProxy::NativeMediaDrmProxyCallbacks::OnSessionUpdated_t::signature[];
 
 const char Sample::name[] =
-        "org/mozilla/goanna/media/Sample";
+        "org/mozilla/gecko/media/Sample";
 
 constexpr char Sample::WriteToByteBuffer_t::name[];
 constexpr char Sample::WriteToByteBuffer_t::signature[];
@@ -407,7 +407,7 @@ auto Sample::Info(mozilla::jni::Object::Param a0) const -> void
 }
 
 const char SessionKeyInfo::name[] =
-        "org/mozilla/goanna/media/SessionKeyInfo";
+        "org/mozilla/gecko/media/SessionKeyInfo";
 
 constexpr char SessionKeyInfo::New_t::name[];
 constexpr char SessionKeyInfo::New_t::signature[];
@@ -444,7 +444,7 @@ auto SessionKeyInfo::Status(int32_t a0) const -> void
 }
 
 const char Restrictions::name[] =
-        "org/mozilla/goanna/restrictions/Restrictions";
+        "org/mozilla/gecko/restrictions/Restrictions";
 
 constexpr char Restrictions::IsAllowed_t::name[];
 constexpr char Restrictions::IsAllowed_t::signature[];

@@ -245,7 +245,7 @@ protected:
 
   bool IsOpaque() const;
   bool IsTransparentMode() const;
-  bool IsPaintedByGoanna() const;
+  bool IsPaintedByGecko() const;
 
   nsIntPoint GetWindowOriginInPixels(bool aWindowless);
   

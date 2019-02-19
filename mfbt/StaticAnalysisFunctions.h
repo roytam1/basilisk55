@@ -13,7 +13,7 @@
 #endif
 #endif
 /*
- * Functions that are used as markers in Goanna code for static analysis. Their
+ * Functions that are used as markers in Gecko code for static analysis. Their
  * purpose is to have different AST nodes generated during compile time and to
  * match them based on different checkers implemented in build/clang-plugin
  */

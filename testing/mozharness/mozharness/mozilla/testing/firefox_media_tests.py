@@ -111,8 +111,8 @@ class FirefoxMediaTestsBase(TestingMixin, VCSToolsScript):
 
     error_list = [
         {'substr': 'FAILED (errors=', 'level': WARNING},
-        {'substr': r'''Could not successfully complete transport of message to Goanna, socket closed''', 'level': ERROR},
-        {'substr': r'''Connection to Marionette server is lost. Check goanna''', 'level': ERROR},
+        {'substr': r'''Could not successfully complete transport of message to Gecko, socket closed''', 'level': ERROR},
+        {'substr': r'''Connection to Marionette server is lost. Check gecko''', 'level': ERROR},
         {'substr': 'Timeout waiting for marionette on port', 'level': ERROR},
         {'regex': re.compile(r'''(TEST-UNEXPECTED|PROCESS-CRASH|CRASH|ERROR|FAIL)'''), 'level': ERROR},
         {'regex': re.compile(r'''(\b\w*Exception)'''), 'level': ERROR},

@@ -20,7 +20,7 @@
 #include "DataContainerEvent.h"
 #include "DeviceMotionEvent.h"
 #include "DragEvent.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "KeyboardEvent.h"
 #include "mozilla/ContentEvents.h"
 #include "mozilla/dom/CloseEvent.h"
@@ -59,7 +59,7 @@
 #include "mozilla/Unused.h"
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracer.h"
+#include "GeckoTaskTracer.h"
 #include "mozilla/dom/Element.h"
 using namespace mozilla::tasktracer;
 #endif

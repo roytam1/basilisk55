@@ -88,7 +88,7 @@ add_task(function* test_happy_path() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -157,7 +157,7 @@ if (AppConstants.platform == "win") {
     let extension = ExtensionTestUtils.loadExtension({
       background,
       manifest: {
-        applications: {gecko: {id: ID}},
+        applications: {goanna: {id: ID}},
         permissions: ["nativeMessaging"],
       },
     });
@@ -197,7 +197,7 @@ add_task(function* test_sendNativeMessage() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -249,7 +249,7 @@ add_task(function* test_disconnect() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -302,7 +302,7 @@ add_task(function* test_write_limit() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -343,7 +343,7 @@ add_task(function* test_read_limit() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -427,7 +427,7 @@ add_task(function* test_child_process() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });
@@ -459,7 +459,7 @@ add_task(function* test_stderr() {
     let extension = ExtensionTestUtils.loadExtension({
       background,
       manifest: {
-        applications: {gecko: {id: ID}},
+        applications: {goanna: {id: ID}},
         permissions: ["nativeMessaging"],
       },
     });
@@ -503,7 +503,7 @@ add_task(function* test_multiple_connects() {
   let extension = ExtensionTestUtils.loadExtension({
     background,
     manifest: {
-      applications: {gecko: {id: ID}},
+      applications: {goanna: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });

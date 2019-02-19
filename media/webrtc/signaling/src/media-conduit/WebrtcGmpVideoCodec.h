@@ -41,7 +41,7 @@
 #include "mozilla/Monitor.h"
 #include "mozilla/Mutex.h"
 
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "MediaConduitInterface.h"
 #include "AudioConduit.h"
 #include "VideoConduit.h"
@@ -267,7 +267,7 @@ private:
                              uint32_t aNewBitRate,
                              uint32_t aFrameRate);
 
-  nsCOMPtr<mozIGoannaMediaPluginService> mMPS;
+  nsCOMPtr<mozIGeckoMediaPluginService> mMPS;
   nsCOMPtr<nsIThread> mGMPThread;
   GMPVideoEncoderProxy* mGMP;
   // Used to handle a race where Release() is called while init is in progress
@@ -447,7 +447,7 @@ private:
                            const webrtc::CodecSpecificInfo* aCodecSpecificInfo,
                            int64_t aRenderTimeMs);
 
-  nsCOMPtr<mozIGoannaMediaPluginService> mMPS;
+  nsCOMPtr<mozIGeckoMediaPluginService> mMPS;
   nsCOMPtr<nsIThread> mGMPThread;
   GMPVideoDecoderProxy* mGMP; // Addref is held for us
   // Used to handle a race where Release() is called while init is in progress

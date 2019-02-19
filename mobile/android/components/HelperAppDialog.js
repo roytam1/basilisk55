@@ -161,7 +161,7 @@ HelperAppLauncherDialog.prototype = {
       // Add a fake intent for save to disk at the top of the list.
       apps.unshift({
         name: bundle.GetStringFromName("helperapps.saveToDisk"),
-        packageName: "org.mozilla.goanna.Download",
+        packageName: "org.mozilla.gecko.Download",
         iconUri: "drawable://icon",
         selected: true, // Default to download for files
         launch: function() {
@@ -245,7 +245,7 @@ HelperAppLauncherDialog.prototype = {
 
     try {
       jenv = JNI.GetForThread();
-      let jAppConstants = JNI.LoadClass(jenv, "org.mozilla.goanna.AppConstants$Versions", {
+      let jAppConstants = JNI.LoadClass(jenv, "org.mozilla.gecko.AppConstants$Versions", {
         static_fields: [
           { name: "feature21Plus", sig: "Z" }
         ],

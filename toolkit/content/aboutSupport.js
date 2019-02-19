@@ -613,7 +613,7 @@ function copyRawDataToClipboard(button) {
           message: stringBundle().GetStringFromName("rawDataCopied"),
           duration: "short"
         };
-        Services.androidBridge.handleGoannaMessage(message);
+        Services.androidBridge.handleGeckoMessage(message);
       }
     });
   } catch (err) {
@@ -666,7 +666,7 @@ function copyContentsToClipboard() {
       message: stringBundle().GetStringFromName("textCopied"),
       duration: "short"
     };
-    Services.androidBridge.handleGoannaMessage(message);
+    Services.androidBridge.handleGeckoMessage(message);
   }
 }
 

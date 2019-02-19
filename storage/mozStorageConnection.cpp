@@ -38,7 +38,7 @@
 #include "SQLCollations.h"
 #include "FileSystemModule.h"
 #include "mozStorageHelper.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "mozilla/Logging.h"
 #include "prprf.h"

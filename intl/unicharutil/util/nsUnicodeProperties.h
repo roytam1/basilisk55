@@ -41,7 +41,7 @@ enum PairedBracketType {
 };
 
 /* Flags for Unicode security IdentifierType.txt attributes. Only a subset
-   of these are currently checked by Goanna, so we only define flags for the
+   of these are currently checked by Gecko, so we only define flags for the
    ones we need. */
 enum IdentifierType {
   IDTYPE_RESTRICTED = 0,

@@ -19,7 +19,7 @@ android {
         minSdkVersion 15
         applicationId mozconfig.substs.ANDROID_PACKAGE_NAME
         testApplicationId 'org.mozilla.roboexample.test'
-        testInstrumentationRunner 'org.mozilla.goanna.FennecInstrumentationTestRunner'
+        testInstrumentationRunner 'org.mozilla.gecko.FennecInstrumentationTestRunner'
         manifestPlaceholders = [
             ANDROID_PACKAGE_NAME: mozconfig.substs.ANDROID_PACKAGE_NAME,
             MOZ_ANDROID_MIN_SDK_VERSION: mozconfig.substs.MOZ_ANDROID_MIN_SDK_VERSION,
@@ -113,14 +113,14 @@ android {
                     srcDir "${topsrcdir}/mobile/android/stumbler/java"
                 }
 
-                exclude 'org/mozilla/goanna/CrashReporter.java'
+                exclude 'org/mozilla/gecko/CrashReporter.java'
 
                 if (!mozconfig.substs.MOZ_NATIVE_DEVICES) {
-                    exclude 'org/mozilla/goanna/ChromeCastDisplay.java'
-                    exclude 'org/mozilla/goanna/ChromeCastPlayer.java'
-                    exclude 'org/mozilla/goanna/GoannaMediaPlayer.java'
-                    exclude 'org/mozilla/goanna/GoannaPresentationDisplay.java'
-                    exclude 'org/mozilla/goanna/MediaPlayerManager.java'
+                    exclude 'org/mozilla/gecko/ChromeCastDisplay.java'
+                    exclude 'org/mozilla/gecko/ChromeCastPlayer.java'
+                    exclude 'org/mozilla/gecko/GoannaMediaPlayer.java'
+                    exclude 'org/mozilla/gecko/GoannaPresentationDisplay.java'
+                    exclude 'org/mozilla/gecko/MediaPlayerManager.java'
                 }
 
                 if (mozconfig.substs.MOZ_WEBRTC) {
@@ -130,14 +130,14 @@ android {
                 }
 
                 if (mozconfig.substs.MOZ_INSTALL_TRACKING) {
-                    exclude 'org/mozilla/goanna/adjust/StubAdjustHelper.java'
+                    exclude 'org/mozilla/gecko/adjust/StubAdjustHelper.java'
                 } else {
-                    exclude 'org/mozilla/goanna/adjust/AdjustHelper.java'
+                    exclude 'org/mozilla/gecko/adjust/AdjustHelper.java'
                 }
 
                 if (!mozconfig.substs.MOZ_ANDROID_GCM) {
-                    exclude 'org/mozilla/goanna/gcm/**/*.java'
-                    exclude 'org/mozilla/goanna/push/**/*.java'
+                    exclude 'org/mozilla/gecko/gcm/**/*.java'
+                    exclude 'org/mozilla/gecko/push/**/*.java'
                 }
 
                 srcDir "${project.buildDir}/generated/source/preprocessed_code" // See syncPreprocessedCode.
@@ -165,8 +165,8 @@ android {
                 srcDir "${topsrcdir}/mobile/android/tests/background/junit4/src"
 
                 if (!mozconfig.substs.MOZ_ANDROID_GCM) {
-                    exclude 'org/mozilla/goanna/gcm/**/*.java'
-                    exclude 'org/mozilla/goanna/push/**/*.java'
+                    exclude 'org/mozilla/gecko/gcm/**/*.java'
+                    exclude 'org/mozilla/gecko/push/**/*.java'
                 }
             }
             resources {
@@ -239,7 +239,7 @@ dependencies {
     automationCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta1'
 
-    compile project(':goannaview')
+    compile project(':geckoview')
     compile project(':thirdparty')
 
     testCompile 'junit:junit:4.12'
@@ -266,7 +266,7 @@ task checkstyle(type: Checkstyle) {
 task syncPreprocessedCode(type: Sync, dependsOn: rootProject.generateCodeAndResources) {
     into("${project.buildDir}/generated/source/preprocessed_code")
     from("${topobjdir}/mobile/android/base/generated/preprocessed") {
-        // All other preprocessed code is included in the goannaview project.
+        // All other preprocessed code is included in the geckoview project.
         include '**/AdjustConstants.java'
     }
 }
@@ -297,34 +297,34 @@ task syncPreprocessedResources(type: Sync, dependsOn: rootProject.generateCodeAn
 // It's not easy -- see the backout in Bug 1242213 -- to change the <manifest>
 // package for Fennec.  Gradle has grown a mechanism to achieve what we want for
 // Fennec, however, with applicationId.  To use the same manifest as moz.build,
-// we replace the package with org.mozilla.goanna (the eventual package) here.
+// we replace the package with org.mozilla.gecko (the eventual package) here.
 task rewriteManifestPackage(type: Copy, dependsOn: rootProject.generateCodeAndResources) {
     into("${project.buildDir}/generated/source/preprocessed_manifest")
     from("${topobjdir}/mobile/android/base/AndroidManifest.xml")
-    filter { it.replaceFirst(/package=".*?"/, 'package="org.mozilla.goanna"') }
+    filter { it.replaceFirst(/package=".*?"/, 'package="org.mozilla.gecko"') }
 }
 
-apply from: "${topsrcdir}/mobile/android/gradle/with_goanna_binaries.gradle"
+apply from: "${topsrcdir}/mobile/android/gradle/with_gecko_binaries.gradle"
 
 android.applicationVariants.all { variant ->
     variant.preBuild.dependsOn rewriteManifestPackage
     variant.preBuild.dependsOn syncPreprocessedCode
     variant.preBuild.dependsOn syncPreprocessedResources
 
-    // Automation builds don't include Goanna binaries, since those binaries are
+    // Automation builds don't include Gecko binaries, since those binaries are
     // not produced until after build time (at package time).  Therefore,
-    // automation builds include the Goanna binaries into the APK at package
-    // time.  The "withGoannaBinaries" variant of the :goannaview project also
+    // automation builds include the Gecko binaries into the APK at package
+    // time.  The "withGeckoBinaries" variant of the :geckoview project also
     // does this.  (It does what it says on the tin!)  For notes on this
-    // approach, see mobile/android/gradle/with_goanna_binaries.gradle.
+    // approach, see mobile/android/gradle/with_gecko_binaries.gradle.
 
     // Like 'local' or 'localOld'.
     def productFlavor = variant.productFlavors[0].name
 
-    // :app uses :goannaview:release and handles it's own Goanna binary inclusion,
-    // even though this would be most naturally done in the :goannaview project.
+    // :app uses :geckoview:release and handles it's own Gecko binary inclusion,
+    // even though this would be most naturally done in the :geckoview project.
     if (!productFlavor.equals('automation')) {
-        configureVariantWithGoannaBinaries(variant)
+        configureVariantWithGeckoBinaries(variant)
     }
 }
 
@@ -341,7 +341,7 @@ spoon {
         spoonPackageName = 'org.mozilla.tests.browser.junit3'
     }
     if (gradle.startParameter.taskNames.contains('runBackgroundTests')) {
-        spoonPackageName = 'org.mozilla.goanna.background'
+        spoonPackageName = 'org.mozilla.gecko.background'
     }
     if (project.hasProperty('spoonPackageName')) {
         // Command line overrides everything.

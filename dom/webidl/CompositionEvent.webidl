@@ -17,7 +17,7 @@ interface CompositionEvent : UIEvent
   readonly attribute DOMString  locale;
 
  /**
-  * ranges is trying to expose TextRangeArray in Goanna so a
+  * ranges is trying to expose TextRangeArray in Gecko so a
   * js-plugin couble be able to know the clauses information
   */
   [ChromeOnly,Cached,Pure]

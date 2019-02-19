@@ -19,7 +19,7 @@ from ..devices import BaseEmulator
 
 class DeviceRunner(BaseRunner):
     """
-    The base runner class used for running goanna on
+    The base runner class used for running gecko on
     remote devices (or emulators), such as B2G.
     """
     env = {'MOZ_CRASHREPORTER_SHUTDOWN': '1',
@@ -171,7 +171,7 @@ class FennecRunner(DeviceRunner):
         if self.app_ctx.dm._deviceSerial:
             cmd.extend(["-s", self.app_ctx.dm._deviceSerial])
         cmd.append("shell")
-        app = "%s/org.mozilla.goanna.BrowserApp" % self.app_ctx.remote_process
+        app = "%s/org.mozilla.gecko.BrowserApp" % self.app_ctx.remote_process
         am_subcommand = ["am", "start", "-a", "android.activity.MAIN", "-n", app]
         app_params = ["-no-remote", "-profile", self.app_ctx.remote_profile]
         app_params.extend(self.cmdargs)

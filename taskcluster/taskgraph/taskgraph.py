@@ -10,7 +10,7 @@ from .graph import Graph
 from .util.python_path import find_object
 
 TASKCLUSTER_QUEUE_URL = "https://queue.taskcluster.net/v1/task/"
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
 
 class TaskGraph(object):

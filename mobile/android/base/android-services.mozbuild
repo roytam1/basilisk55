@@ -763,7 +763,7 @@ sync_thirdparty_java_files = [
     'org/mozilla/apache/commons/codec/StringEncoderComparator.java',
 ]
 
-sync_java_files = [TOPSRCDIR + '/mobile/android/services/src/main/java/org/mozilla/goanna/' + x for x in [
+sync_java_files = [TOPSRCDIR + '/mobile/android/services/src/main/java/org/mozilla/gecko/' + x for x in [
     'background/common/EditorBranch.java',
     'background/common/GlobalConstants.java',
     'background/common/log/Logger.java',

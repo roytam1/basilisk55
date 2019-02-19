@@ -17,7 +17,7 @@
 - (NSString*)title
 {
   nsAutoString title;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     mozilla::ErrorResult rv;
     // XXX use the flattening API when there are available
     // see bug 768298
@@ -32,7 +32,7 @@
 - (id)value
 {
   uint32_t level = 0;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     level = accWrap->GetLevelInternal();
   } else if (ProxyAccessible* proxy = [self getProxyAccessible]) {
     level = proxy->GetLevelInternal();
@@ -52,7 +52,7 @@
 - (NSArray*)accessibilityAttributeNames
 {
   // if we're expired, we don't support any attributes.
-  if (![self getGoannaAccessible] && ![self getProxyAccessible])
+  if (![self getGeckoAccessible] && ![self getProxyAccessible])
     return [NSArray array];
 
   static NSMutableArray* attributes = nil;
@@ -76,7 +76,7 @@
 - (NSArray*)accessibilityActionNames
 {
     // if we're expired, we don't support any attributes.
-  if (![self getGoannaAccessible] && ![self getProxyAccessible])
+  if (![self getGeckoAccessible] && ![self getProxyAccessible])
     return [NSArray array];
 
   static NSArray* actionNames = nil;
@@ -91,7 +91,7 @@
 
 - (void)accessibilityPerformAction:(NSString*)action
 {
-  AccessibleWrap* accWrap = [self getGoannaAccessible];
+  AccessibleWrap* accWrap = [self getGeckoAccessible];
   ProxyAccessible* proxy = [self getProxyAccessible];
   if (!accWrap && !proxy) {
     return;
@@ -123,7 +123,7 @@
 - (NSURL*)url
 {
   nsAutoString value;
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     accWrap->Value(value);
   } else if (ProxyAccessible* proxy = [self getProxyAccessible]) {
     proxy->Value(value);

@@ -19,7 +19,7 @@
 #include "AndroidSurfaceTexture.h"
 #include "GfxTexturesReporter.h"        // for GfxTexturesReporter
 #include "GLBlitTextureImageHelper.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #ifdef XP_MACOSX
 #include "mozilla/layers/MacIOSurfaceTextureHostOGL.h"

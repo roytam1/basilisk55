@@ -4,7 +4,7 @@
   "description": "test content script sources",
   "version": "0.1.0",
   "applications": {
-    "gecko": {
+    "goanna": {
       "id": "test-contentscript-sources@mozilla.com"
     }
   },

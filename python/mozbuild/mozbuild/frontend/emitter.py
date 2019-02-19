@@ -1069,7 +1069,7 @@ class TreeMetadataEmitter(LoggingMixin):
             raise SandboxValidationError('A .js component was specified in EXTRA_COMPONENTS '
                                          'or EXTRA_PP_COMPONENTS without a matching '
                                          '.manifest file.  See '
-                                         'https://developer.mozilla.org/en/XPCOM/XPCOM_changes_in_Goanna_2.0 .',
+                                         'https://developer.mozilla.org/en/XPCOM/XPCOM_changes_in_Gecko_2.0 .',
                                          context);
 
         for c in components:

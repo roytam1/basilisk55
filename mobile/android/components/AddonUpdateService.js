@@ -63,7 +63,7 @@ AddonUpdateService.prototype = {
 
     let interval = 1000 * getPref("getIntPref", PREF_ADDON_UPDATE_INTERVAL, 86400);
     EventDispatcher.instance.sendRequest({
-      type: "Goanna:ScheduleRun",
+      type: "Gecko:ScheduleRun",
       action: "update-addons",
       trigger: interval,
       interval: interval,

@@ -715,7 +715,7 @@ IMMHandler::ProcessMessageForPlugin(nsWindow* aWindow,
       return true;
     case WM_IME_REQUEST:
        // Our plugin implementation is alwasy OOP.  So WM_IME_REQUEST doesn't
-       // allow that parameter is pointer and shouldn't handle into Goanna.
+       // allow that parameter is pointer and shouldn't handle into Gecko.
        aRet = false;
        return true;
   }
@@ -2042,7 +2042,7 @@ IMMHandler::DispatchCompositionChangeEvent(nsWindow* aWindow,
     if (targetClause &&
         cursor >= targetClause->mStartOffset &&
         cursor <= targetClause->mEndOffset) {
-      // Forget the caret position specified by IME since Goanna's caret position
+      // Forget the caret position specified by IME since Gecko's caret position
       // will be at the end of composition string.
       mCursorPosition = NO_IME_CARET;
       MOZ_LOG(gIMMLog, LogLevel::Info,

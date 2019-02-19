@@ -4,20 +4,20 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:goanna="http://schemas.android.com/apk/res-auto"
+                  xmlns:gecko="http://schemas.android.com/apk/res-auto"
                   android:title="@string/pref_category_vendor"
                   android:enabled="false">
 
-    <org.mozilla.goanna.preferences.LinkPreference android:key="android.not_a_preference.about.link"
+    <org.mozilla.gecko.preferences.LinkPreference android:key="android.not_a_preference.about.link"
                                                   android:title="@string/pref_about_firefox"
                                                   android:persistent="false"
                                                   url="about:" />
 
-    <org.mozilla.goanna.preferences.LinkPreference android:key="android.not_a_preference.faq.link"
+    <org.mozilla.gecko.preferences.LinkPreference android:key="android.not_a_preference.faq.link"
                                                   android:title="@string/pref_vendor_faqs"
                                                   android:persistent="false"/>
 
-    <org.mozilla.goanna.preferences.LinkPreference android:key="android.not_a_preference.feedback.link"
+    <org.mozilla.gecko.preferences.LinkPreference android:key="android.not_a_preference.feedback.link"
                                                   android:title="@string/pref_vendor_feedback"
                                                   android:persistent="false"/>
 

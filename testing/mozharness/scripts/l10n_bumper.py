@@ -6,7 +6,7 @@
 # ***** END LICENSE BLOCK *****
 """ l10n_bumper.py
 
-    Updates a goanna repo with up to date changesets from l10n.mozilla.org.
+    Updates a gecko repo with up to date changesets from l10n.mozilla.org.
 
     Specifically, it updates l10n-changesets.json which is used by mobile releases.
 
@@ -38,7 +38,7 @@ class L10nBumper(VCSScript):
             all_actions=[
                 'clobber',
                 'check-treestatus',
-                'checkout-goanna',
+                'checkout-gecko',
                 'bump-changesets',
                 'push',
                 'push-loop',
@@ -62,10 +62,10 @@ class L10nBumper(VCSScript):
         abs_dirs = super(L10nBumper, self).query_abs_dirs()
 
         abs_dirs.update({
-            'goanna_local_dir':
+            'gecko_local_dir':
             os.path.join(
                 abs_dirs['abs_work_dir'],
-                self.config.get('goanna_local_dir', os.path.basename(self.config['goanna_pull_url']))
+                self.config.get('gecko_local_dir', os.path.basename(self.config['gecko_pull_url']))
             ),
         })
         self.abs_dirs = abs_dirs
@@ -89,7 +89,7 @@ class L10nBumper(VCSScript):
                         "ssh -oIdentityFile=%s -l %s" % (
                             self.config["ssh_key"], self.config["ssh_user"],
                         ),
-                        self.config["goanna_push_url"]]
+                        self.config["gecko_push_url"]]
         status = self.run_command(command, cwd=repo_path,
                                   error_list=HgErrorList)
         if status != 0:
@@ -132,7 +132,7 @@ class L10nBumper(VCSScript):
 
     def _build_platform_dict(self, bump_config):
         dirs = self.query_abs_dirs()
-        repo_path = dirs['goanna_local_dir']
+        repo_path = dirs['gecko_local_dir']
         platform_dict = {}
         for platform_config in bump_config['platform_configs']:
             path = os.path.join(repo_path, platform_config['path'])
@@ -186,7 +186,7 @@ class L10nBumper(VCSScript):
         "Return True if we can land based on treestatus"
         c = self.config
         dirs = self.query_abs_dirs()
-        tree = c.get('treestatus_tree', os.path.basename(c['goanna_pull_url'].rstrip("/")))
+        tree = c.get('treestatus_tree', os.path.basename(c['gecko_pull_url'].rstrip("/")))
         treestatus_url = "%s/trees/%s" % (c['treestatus_base_url'], tree)
         treestatus_json = os.path.join(dirs['abs_work_dir'], 'treestatus.json')
         if not os.path.exists(dirs['abs_work_dir']):
@@ -208,13 +208,13 @@ class L10nBumper(VCSScript):
             self.info("breaking early since treestatus is closed")
             sys.exit(0)
 
-    def checkout_goanna(self):
+    def checkout_gecko(self):
         c = self.config
         dirs = self.query_abs_dirs()
-        dest = dirs['goanna_local_dir']
+        dest = dirs['gecko_local_dir']
         repos = [{
-            'repo': c['goanna_pull_url'],
-            'tag': c.get('goanna_tag', 'default'),
+            'repo': c['gecko_pull_url'],
+            'tag': c.get('gecko_tag', 'default'),
             'dest': dest,
             'vcs': 'hg',
         }]
@@ -222,7 +222,7 @@ class L10nBumper(VCSScript):
 
     def bump_changesets(self):
         dirs = self.query_abs_dirs()
-        repo_path = dirs['goanna_local_dir']
+        repo_path = dirs['gecko_local_dir']
         version_path = os.path.join(repo_path, self.config['version_path'])
         changes = False
         version_list = self._read_version(version_path)
@@ -262,7 +262,7 @@ class L10nBumper(VCSScript):
 
     def push(self):
         dirs = self.query_abs_dirs()
-        repo_path = dirs['goanna_local_dir']
+        repo_path = dirs['gecko_local_dir']
         return self.hg_push(repo_path)
 
     def push_loop(self):
@@ -274,7 +274,7 @@ class L10nBumper(VCSScript):
                 self.info("breaking early since treestatus is closed")
                 break
 
-            self.checkout_goanna()
+            self.checkout_gecko()
             if self.bump_changesets():
                 changed = True
 

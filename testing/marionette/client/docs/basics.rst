@@ -4,13 +4,13 @@ Marionette Python Client
 ========================
 
 The Marionette Python client library allows you to remotely control a
-Goanna-based browser or device which is running a Marionette_
+Gecko-based browser or device which is running a Marionette_
 server. This includes Firefox Desktop and Firefox for Android.
 
-The Marionette server is built directly into Goanna and can be started by
-passing in a command line option to Goanna, or by using a Marionette-enabled
+The Marionette server is built directly into Gecko and can be started by
+passing in a command line option to Gecko, or by using a Marionette-enabled
 build. The server listens for connections from various clients. Clients can
-then control Goanna by sending commands to the server.
+then control Gecko by sending commands to the server.
 
 This is the official Python client for Marionette. There also exists a
 `NodeJS client`_ maintained by the Firefox OS automation team.

@@ -7,28 +7,28 @@
 DIRS += ['locales']
 
 GENERATED_FILES += [
-    '../goannaview/generated/preprocessed/org/mozilla/goannaview/BuildConfig.java',
-    'generated/preprocessed/org/mozilla/goanna/AdjustConstants.java',
-    'generated/preprocessed/org/mozilla/goanna/AppConstants.java',
+    '../geckoview/generated/preprocessed/org/mozilla/geckoview/BuildConfig.java',
+    'generated/preprocessed/org/mozilla/gecko/AdjustConstants.java',
+    'generated/preprocessed/org/mozilla/gecko/AppConstants.java',
 ]
-w = GENERATED_FILES['../goannaview/generated/preprocessed/org/mozilla/goannaview/BuildConfig.java']
+w = GENERATED_FILES['../geckoview/generated/preprocessed/org/mozilla/geckoview/BuildConfig.java']
 w.script = 'generate_build_config.py'
-w.inputs += ['../goannaview/BuildConfig.java.in']
-x = GENERATED_FILES['generated/preprocessed/org/mozilla/goanna/AdjustConstants.java']
+w.inputs += ['../geckoview/BuildConfig.java.in']
+x = GENERATED_FILES['generated/preprocessed/org/mozilla/gecko/AdjustConstants.java']
 x.script = 'generate_build_config.py'
 x.inputs += ['AdjustConstants.java.in']
-y = GENERATED_FILES['generated/preprocessed/org/mozilla/goanna/AppConstants.java']
+y = GENERATED_FILES['generated/preprocessed/org/mozilla/gecko/AppConstants.java']
 y.script = 'generate_build_config.py'
 y.inputs += ['AppConstants.java.in']
 
 include('android-services.mozbuild')
 
-goannaview_source_dir = TOPSRCDIR + '/mobile/android/goannaview/src/main/'
-goannaview_thirdparty_source_dir = TOPSRCDIR + '/mobile/android/goannaview/src/thirdparty/'
+geckoview_source_dir = TOPSRCDIR + '/mobile/android/geckoview/src/main/'
+geckoview_thirdparty_source_dir = TOPSRCDIR + '/mobile/android/geckoview/src/thirdparty/'
 thirdparty_source_dir = TOPSRCDIR + '/mobile/android/thirdparty/'
 
 constants_jar = add_java_jar('constants')
-constants_jar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x for x in [
+constants_jar.sources += [geckoview_source_dir + 'java/org/mozilla/gecko/' + x for x in [
     'annotation/JNITarget.java',
     'annotation/ReflectionTarget.java',
     'annotation/RobocopTarget.java',
@@ -36,7 +36,7 @@ constants_jar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x
     'annotation/WrapForJNI.java',
     'SysInfo.java',
 ]]
-constants_jar.sources += ['java/org/mozilla/goanna/' + x for x in [
+constants_jar.sources += ['java/org/mozilla/gecko/' + x for x in [
     'adjust/AdjustHelperInterface.java',
     'adjust/AttributionHelperListener.java',
     'db/BrowserContract.java',
@@ -44,9 +44,9 @@ constants_jar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'Locales.java',
 ]]
 constants_jar.generated_sources = [
-    '../goannaview/generated/preprocessed/org/mozilla/goannaview/BuildConfig.java',
-    'generated/preprocessed/org/mozilla/goanna/AdjustConstants.java',
-    'generated/preprocessed/org/mozilla/goanna/AppConstants.java',
+    '../geckoview/generated/preprocessed/org/mozilla/geckoview/BuildConfig.java',
+    'generated/preprocessed/org/mozilla/gecko/AdjustConstants.java',
+    'generated/preprocessed/org/mozilla/gecko/AppConstants.java',
 ]
 constants_jar.extra_jars = [
     CONFIG['ANDROID_SUPPORT_ANNOTATIONS_JAR_LIB'],
@@ -56,21 +56,21 @@ constants_jar.extra_jars = [
 ]
 
 if CONFIG['MOZ_INSTALL_TRACKING']:
-    constants_jar.sources += ['java/org/mozilla/goanna/' + x for x in [
+    constants_jar.sources += ['java/org/mozilla/gecko/' + x for x in [
         'adjust/AdjustHelper.java',
     ]]
     constants_jar.extra_jars += [
-        'goanna-thirdparty-adjust_sdk.jar',
+        'gecko-thirdparty-adjust_sdk.jar',
     ]
 else:
-    constants_jar.sources += ['java/org/mozilla/goanna/' + x for x in [
+    constants_jar.sources += ['java/org/mozilla/gecko/' + x for x in [
         'adjust/StubAdjustHelper.java',
     ]]
 
-resjar = add_java_jar('goanna-R')
+resjar = add_java_jar('gecko-R')
 resjar.sources = []
 resjar.generated_sources += [
-    'generated/org/mozilla/goanna/R.java',
+    'generated/org/mozilla/gecko/R.java',
 ]
 
 if CONFIG['ANDROID_SUPPORT_V4_AAR']:
@@ -112,11 +112,11 @@ if CONFIG['ANDROID_PALETTE_V7_AAR']:
 
 resjar.javac_flags += ['-Xlint:all']
 
-mgjar = add_java_jar('goanna-mozglue')
-mgjar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x for x in [
+mgjar = add_java_jar('gecko-mozglue')
+mgjar.sources += [geckoview_source_dir + 'java/org/mozilla/gecko/' + x for x in [
     'mozglue/ByteBufferInputStream.java',
     'mozglue/DirectBufferAllocator.java',
-    'mozglue/GoannaLoader.java',
+    'mozglue/GeckoLoader.java',
     'mozglue/JNIObject.java',
     'mozglue/NativeReference.java',
     'mozglue/NativeZip.java',
@@ -129,8 +129,8 @@ mgjar.extra_jars += [
 ]
 mgjar.javac_flags += ['-Xlint:all']
 
-gujar = add_java_jar('goanna-util')
-gujar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x for x in [
+gujar = add_java_jar('gecko-util')
+gujar.sources += [geckoview_source_dir + 'java/org/mozilla/gecko/' + x for x in [
     'util/ActivityResultHandler.java',
     'util/ActivityResultHandlerMap.java',
     'util/ActivityUtils.java',
@@ -142,11 +142,11 @@ gujar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x for x i
     'util/FileUtils.java',
     'util/FloatUtils.java',
     'util/GamepadUtils.java',
-    'util/GoannaBackgroundThread.java',
-    'util/GoannaBundle.java',
-    'util/GoannaEventListener.java',
-    'util/GoannaJarReader.java',
-    'util/GoannaRequest.java',
+    'util/GeckoBackgroundThread.java',
+    'util/GeckoBundle.java',
+    'util/GeckoEventListener.java',
+    'util/GeckoJarReader.java',
+    'util/GeckoRequest.java',
     'util/HardwareCodecCapabilityUtils.java',
     'util/HardwareUtils.java',
     'util/INIParser.java',
@@ -178,7 +178,7 @@ gujar.extra_jars = [
     CONFIG['ANDROID_SUPPORT_V4_AAR_LIB'],
     CONFIG['ANDROID_SUPPORT_V4_AAR_INTERNAL_LIB'],
     'constants.jar',
-    'goanna-mozglue.jar',
+    'gecko-mozglue.jar',
 ]
 gujar.javac_flags += ['-Xlint:all,-deprecation']
 
@@ -194,10 +194,10 @@ services_jar.extra_jars = [
     CONFIG['ANDROID_SUPPORT_V4_AAR_INTERNAL_LIB'],
     CONFIG['ANDROID_APPCOMPAT_V7_AAR_LIB'],
     'constants.jar',
-    'goanna-R.jar',
-    'goanna-mozglue.jar',
-    'goanna-thirdparty.jar',
-    'goanna-util.jar',
+    'gecko-R.jar',
+    'gecko-mozglue.jar',
+    'gecko-thirdparty.jar',
+    'gecko-util.jar',
     'sync-thirdparty.jar',
 ]
 services_jar.javac_flags += ['-Xlint:all,-deprecation']
@@ -229,49 +229,49 @@ if CONFIG['MOZ_WEBRTC']:
     ]
     wrjar.extra_jars = [
         'constants.jar',
-        'goanna-R.jar',
-        'goanna-browser.jar',
-        'goanna-mozglue.jar',
-        'goanna-util.jar',
-        'goanna-view.jar',
+        'gecko-R.jar',
+        'gecko-browser.jar',
+        'gecko-mozglue.jar',
+        'gecko-util.jar',
+        'gecko-view.jar',
     ]
     wrjar.javac_flags += ['-Xlint:all,-deprecation,-cast']
 
-gvjar = add_java_jar('goanna-view')
+gvjar = add_java_jar('gecko-view')
 
-gvjar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x
+gvjar.sources += [geckoview_source_dir + 'java/org/mozilla/gecko/' + x
                   for x in [
     'AlarmReceiver.java',
     'AndroidGamepadManager.java',
-    'BaseGoannaInterface.java',
+    'BaseGeckoInterface.java',
     'ContextGetter.java',
     'CrashHandler.java',
     'EventDispatcher.java',
-    'GoannaAccessibility.java',
-    'GoannaAppShell.java',
-    'GoannaBatteryManager.java',
-    'GoannaEditable.java',
-    'GoannaEditableClient.java',
-    'GoannaEditableListener.java',
-    'GoannaHalDefines.java',
-    'GoannaInputConnection.java',
-    'GoannaNetworkManager.java',
-    'GoannaProfile.java',
-    'GoannaProfileDirectories.java',
-    'GoannaScreenOrientation.java',
-    'GoannaSharedPrefs.java',
-    'GoannaThread.java',
-    'GoannaView.java',
-    'GoannaViewChrome.java',
-    'GoannaViewContent.java',
-    'GoannaViewFragment.java',
+    'GeckoAccessibility.java',
+    'GeckoAppShell.java',
+    'GeckoBatteryManager.java',
+    'GeckoEditable.java',
+    'GeckoEditableClient.java',
+    'GeckoEditableListener.java',
+    'GeckoHalDefines.java',
+    'GeckoInputConnection.java',
+    'GeckoNetworkManager.java',
+    'GeckoProfile.java',
+    'GeckoProfileDirectories.java',
+    'GeckoScreenOrientation.java',
+    'GeckoSharedPrefs.java',
+    'GeckoThread.java',
+    'GeckoView.java',
+    'GeckoViewChrome.java',
+    'GeckoViewContent.java',
+    'GeckoViewFragment.java',
     'gfx/BitmapUtils.java',
     'gfx/BufferedImage.java',
     'gfx/BufferedImageGLInfo.java',
     'gfx/DynamicToolbarAnimator.java',
     'gfx/FloatSize.java',
     'gfx/FullScreenState.java',
-    'gfx/GoannaLayerClient.java',
+    'gfx/GeckoLayerClient.java',
     'gfx/ImmutableViewportMetrics.java',
     'gfx/IntSize.java',
     'gfx/LayerRenderer.java',
@@ -297,8 +297,8 @@ gvjar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x
     'permissions/Permissions.java',
     'permissions/PermissionsHelper.java',
     'PrefsHelper.java',
-    'process/GoannaProcessManager.java',
-    'process/GoannaServiceChildProcess.java',
+    'process/GeckoProcessManager.java',
+    'process/GeckoServiceChildProcess.java',
     'ScreenManagerHelper.java',
     'ScreenOrientationDelegate.java',
     'sqlite/ByteBufferInputStream.java',
@@ -308,7 +308,7 @@ gvjar.sources += [goannaview_source_dir + 'java/org/mozilla/goanna/' + x
     'TouchEventInterceptor.java',
 ]]
 
-gvjar.sources += [goannaview_thirdparty_source_dir + f for f in [
+gvjar.sources += [geckoview_thirdparty_source_dir + f for f in [
     'java/com/googlecode/eyesfree/braille/selfbraille/ISelfBrailleService.java',
     'java/com/googlecode/eyesfree/braille/selfbraille/SelfBrailleClient.java',
     'java/com/googlecode/eyesfree/braille/selfbraille/WriteData.java',
@@ -319,8 +319,8 @@ gvjar.extra_jars += [
     CONFIG['ANDROID_SUPPORT_V4_AAR_LIB'],
     CONFIG['ANDROID_SUPPORT_V4_AAR_INTERNAL_LIB'],
     'constants.jar',
-    'goanna-mozglue.jar',
-    'goanna-util.jar',
+    'gecko-mozglue.jar',
+    'gecko-util.jar',
 ]
 
 gvjar.javac_flags += [
@@ -330,9 +330,9 @@ gvjar.javac_flags += [
 ]
 
 
-gbjar = add_java_jar('goanna-browser')
+gbjar = add_java_jar('gecko-browser')
 
-gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
+gbjar.sources += ['java/org/mozilla/gecko/' + x for x in [
     'AboutPages.java',
     'AccountsHelper.java',
     'ActionBarTextSelection.java',
@@ -356,7 +356,7 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'cleanup/FileCleanupService.java',
     'CustomEditText.java',
     'customtabs/CustomTabsActivity.java',
-    'customtabs/GoannaCustomTabsService.java',
+    'customtabs/GeckoCustomTabsService.java',
     'DataReportingNotification.java',
     'db/AbstractPerProfileDatabaseProvider.java',
     'db/AbstractTransactionalProvider.java',
@@ -448,15 +448,15 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'firstrun/SyncPanel.java',
     'firstrun/TabQueuePanel.java',
     'FormAssistPopup.java',
-    'GoannaActivity.java',
-    'GoannaActivityStatus.java',
-    'GoannaApp.java',
-    'GoannaApplication.java',
-    'GoannaJavaSampler.java',
-    'GoannaMessageReceiver.java',
-    'GoannaProfilesProvider.java',
-    'GoannaService.java',
-    'GoannaUpdateReceiver.java',
+    'GeckoActivity.java',
+    'GeckoActivityStatus.java',
+    'GeckoApp.java',
+    'GeckoApplication.java',
+    'GeckoJavaSampler.java',
+    'GeckoMessageReceiver.java',
+    'GeckoProfilesProvider.java',
+    'GeckoService.java',
+    'GeckoUpdateReceiver.java',
     'GlobalHistory.java',
     'GlobalPageMetadata.java',
     'GuestSession.java',
@@ -593,9 +593,9 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'media/Codec.java',
     'media/CodecProxy.java',
     'media/FormatParam.java',
-    'media/GoannaMediaDrm.java',
-    'media/GoannaMediaDrmBridgeV21.java',
-    'media/GoannaMediaDrmBridgeV23.java',
+    'media/GeckoMediaDrm.java',
+    'media/GeckoMediaDrmBridgeV21.java',
+    'media/GeckoMediaDrmBridgeV23.java',
     'media/JellyBeanAsyncCodec.java',
     'media/LocalMediaDrmBridge.java',
     'media/MediaControlService.java',
@@ -610,10 +610,10 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'media/VideoPlayer.java',
     'MediaCastingBar.java',
     'MemoryMonitor.java',
-    'menu/GoannaMenu.java',
-    'menu/GoannaMenuInflater.java',
-    'menu/GoannaMenuItem.java',
-    'menu/GoannaSubMenu.java',
+    'menu/GeckoMenu.java',
+    'menu/GeckoMenuInflater.java',
+    'menu/GeckoMenuItem.java',
+    'menu/GeckoSubMenu.java',
     'menu/MenuItemActionBar.java',
     'menu/MenuItemDefault.java',
     'menu/MenuItemSwitcherLayout.java',
@@ -649,8 +649,8 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'preferences/CustomListPreference.java',
     'preferences/DistroSharedPrefsImport.java',
     'preferences/FontSizePreference.java',
-    'preferences/GoannaPreferenceFragment.java',
-    'preferences/GoannaPreferences.java',
+    'preferences/GeckoPreferenceFragment.java',
+    'preferences/GeckoPreferences.java',
     'preferences/LinkPreference.java',
     'preferences/ListCheckboxPreference.java',
     'preferences/LocaleListPreference.java',
@@ -801,8 +801,8 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'widget/FaviconView.java',
     'widget/FilledCardView.java',
     'widget/FlowLayout.java',
-    'widget/GoannaActionProvider.java',
-    'widget/GoannaPopupMenu.java',
+    'widget/GeckoActionProvider.java',
+    'widget/GeckoPopupMenu.java',
     'widget/GridSpacingDecoration.java',
     'widget/HistoryDividerItemDecoration.java',
     'widget/IconTabWidget.java',
@@ -820,9 +820,9 @@ gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
     'ZoomedView.java',
 ]]
 # The following sources are checked in to version control but
-# generated by a script (java/org/mozilla/goanna/widget/themed/generate_themed_views.py).
+# generated by a script (java/org/mozilla/gecko/widget/themed/generate_themed_views.py).
 # If you're editing this list, make sure to edit that script.
-gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
+gbjar.sources += ['java/org/mozilla/gecko/' + x for x in [
     'widget/themed/ThemedEditText.java',
     'widget/themed/ThemedFrameLayout.java',
     'widget/themed/ThemedImageButton.java',
@@ -843,7 +843,7 @@ gbjar.extra_jars += [
 ]
 
 if CONFIG['MOZ_ANDROID_GCM']:
-    gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
+    gbjar.sources += ['java/org/mozilla/gecko/' + x for x in [
         'gcm/GcmInstanceIDListenerService.java',
         'gcm/GcmMessageListenerService.java',
         'gcm/GcmTokenClient.java',
@@ -864,7 +864,7 @@ else:
 # Only bother to include new tablet code if we're building for tablet-capable
 # OS releases.
 if max_sdk_version >= 11:
-    gbjar.sources += ['java/org/mozilla/goanna/' + x for x in [
+    gbjar.sources += ['java/org/mozilla/gecko/' + x for x in [
         'tabs/TabStrip.java',
         'tabs/TabStripAdapter.java',
         'tabs/TabStripDividerItem.java',
@@ -875,11 +875,11 @@ if max_sdk_version >= 11:
 
 gbjar.extra_jars += [
     OBJDIR + '/../javaaddons/javaaddons-1.0.jar',
-    'goanna-R.jar',
-    'goanna-mozglue.jar',
-    'goanna-thirdparty.jar',
-    'goanna-util.jar',
-    'goanna-view.jar',
+    'gecko-R.jar',
+    'gecko-mozglue.jar',
+    'gecko-thirdparty.jar',
+    'gecko-util.jar',
+    'gecko-view.jar',
     'sync-thirdparty.jar',
     'services.jar',
 ]
@@ -891,11 +891,11 @@ moz_native_devices_jars = [
     CONFIG['ANDROID_PLAY_SERVICES_BASEMENT_AAR_LIB'],
     CONFIG['ANDROID_PLAY_SERVICES_CAST_AAR_LIB'],
 ]
-moz_native_devices_sources = ['java/org/mozilla/goanna/' + x for x in [
+moz_native_devices_sources = ['java/org/mozilla/gecko/' + x for x in [
     'ChromeCastDisplay.java',
     'ChromeCastPlayer.java',
-    'GoannaMediaPlayer.java',
-    'GoannaPresentationDisplay.java',
+    'GeckoMediaPlayer.java',
+    'GeckoPresentationDisplay.java',
     'MediaPlayerManager.java',
     'PresentationMediaPlayerManager.java',
     'RemotePresentationService.java',
@@ -979,8 +979,8 @@ gbjar.extra_jars += [CONFIG['ANDROID_PALETTE_V7_AAR_LIB']]
 
 gbjar.javac_flags += ['-Xlint:all,-deprecation,-fallthrough', '-J-Xmx512m', '-J-Xms128m']
 
-# goanna-thirdparty is a good place to put small independent libraries
-gtjar = add_java_jar('goanna-thirdparty')
+# gecko-thirdparty is a good place to put small independent libraries
+gtjar = add_java_jar('gecko-thirdparty')
 gtjar.sources += [ thirdparty_source_dir + f for f in [
     'com/jakewharton/disklrucache/DiskLruCache.java',
     'com/jakewharton/disklrucache/StrictLineReader.java',
@@ -1037,7 +1037,7 @@ if not CONFIG['MOZILLA_OFFICIAL']:
     ] ]
 
 if CONFIG['MOZ_INSTALL_TRACKING']:
-    adjustjar = add_java_jar('goanna-thirdparty-adjust_sdk')
+    adjustjar = add_java_jar('gecko-thirdparty-adjust_sdk')
     adjustjar.sources += [ thirdparty_source_dir + f for f in [
         'com/adjust/sdk/ActivityHandler.java',
         'com/adjust/sdk/ActivityKind.java',
@@ -1143,8 +1143,8 @@ else:
 
 if CONFIG['MOZ_ANDROID_SEARCH_ACTIVITY']:
     # The Search Activity is mostly independent of Fennec proper, but
-    # it does depend on Goannaview.  Therefore, we build it as a jar
-    # that depends on the Goannaview jars.
+    # it does depend on Geckoview.  Therefore, we build it as a jar
+    # that depends on the Geckoview jars.
     search_source_dir = SRCDIR + '/../search'
     include('../search/search_activity_sources.mozbuild')
 
@@ -1156,12 +1156,12 @@ if CONFIG['MOZ_ANDROID_SEARCH_ACTIVITY']:
         CONFIG['ANDROID_SUPPORT_V4_AAR_LIB'],
         CONFIG['ANDROID_SUPPORT_V4_AAR_INTERNAL_LIB'],
         'constants.jar',
-        'goanna-R.jar',
-        'goanna-browser.jar',
-        'goanna-mozglue.jar',
-        'goanna-thirdparty.jar',
-        'goanna-util.jar',
-        'goanna-view.jar',
+        'gecko-R.jar',
+        'gecko-browser.jar',
+        'gecko-mozglue.jar',
+        'gecko-thirdparty.jar',
+        'gecko-util.jar',
+        'gecko-view.jar',
     ]
 
 FINAL_TARGET_PP_FILES += ['package-name.txt.in']
@@ -1173,7 +1173,7 @@ OBJDIR_PP_FILES.mobile.android.base += [
     'AndroidManifest.xml.in',
 ]
 
-gbjar.sources += ['generated/org/mozilla/goanna/' + x for x in [
+gbjar.sources += ['generated/org/mozilla/gecko/' + x for x in [
     'media/ICodec.java',
     'media/ICodecCallbacks.java',
     'media/IMediaDrmBridge.java',
@@ -1181,6 +1181,6 @@ gbjar.sources += ['generated/org/mozilla/goanna/' + x for x in [
     'media/IMediaManager.java',
 ]]
 
-gvjar.sources += ['generated/org/mozilla/goanna/' + x for x in [
+gvjar.sources += ['generated/org/mozilla/gecko/' + x for x in [
     'process/IChildProcess.java',
 ]]

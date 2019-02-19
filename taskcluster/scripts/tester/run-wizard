@@ -76,19 +76,19 @@ it may be missing the command you need. To see a list of commands, run:
 
 
 def clone():
-    """Clone the correct goanna repository and update to the proper revision."""
-    base_repo = os.environ['GOANNA_HEAD_REPOSITORY']
-    dest = os.path.expanduser(os.path.join('~', 'goanna'))
+    """Clone the correct gecko repository and update to the proper revision."""
+    base_repo = os.environ['GECKO_HEAD_REPOSITORY']
+    dest = os.path.expanduser(os.path.join('~', 'gecko'))
 
     # Specify method to checkout a revision. This defaults to revisions as
     # SHA-1 strings, but also supports symbolic revisions like `tip` via the
     # branch flag.
-    if os.environ.get('GOANNA_HEAD_REV'):
+    if os.environ.get('GECKO_HEAD_REV'):
         revision_flag = b'--revision'
-        revision = os.environ['GOANNA_HEAD_REV']
-    elif os.environ.get('GOANNA_HEAD_REF'):
+        revision = os.environ['GECKO_HEAD_REV']
+    elif os.environ.get('GECKO_HEAD_REF'):
         revision_flag = b'--branch'
-        revision = os.environ['GOANNA_HEAD_REF']
+        revision = os.environ['GECKO_HEAD_REF']
     else:
         print('revision is not specified for checkout')
         return 1
@@ -117,8 +117,8 @@ OPTIONS = [
      "Setup the task (download the application and tests) but don't run the "
      "tests just yet. The tests can be run with a custom configuration later. "
      "This will provide a mach environment (experimental)."),
-    ('Clone goanna', clone,
-     "Perform a clone of goanna using the task's repo and update it to the "
+    ('Clone gecko', clone,
+     "Perform a clone of gecko using the task's repo and update it to the "
      "task's revision."),
     ('Exit', exit, "Exit this wizard and return to the shell.")
 ]

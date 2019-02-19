@@ -400,7 +400,7 @@ GonkOmxPlatformLayer::AllocateOmxBuffer(OMX_DIRTYPE aType,
 
   // MemoryDealer is a IPC buffer allocator in Gonk because IOMX is actually
   // lives in mediaserver.
-  mMemoryDealer[aType] = new MemoryDealer(t, "Goanna-OMX");
+  mMemoryDealer[aType] = new MemoryDealer(t, "Gecko-OMX");
   for (OMX_U32 i = 0; i < def.nBufferCountActual; ++i) {
     RefPtr<GonkBufferData> buffer;
     IOMX::buffer_id bufferID;

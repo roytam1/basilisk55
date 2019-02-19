@@ -61,7 +61,7 @@ private:
     // Smart pointer for holding a pointer back to the nsWindow inside a native
     // object class. The nsWindow pointer is automatically cleared when the
     // nsWindow is destroyed, and a WindowPtr<Impl>::Locked class is provided
-    // for thread-safe access to the nsWindow pointer off of the Goanna thread.
+    // for thread-safe access to the nsWindow pointer off of the Gecko thread.
     template<class Impl> class WindowPtr;
 
     // Smart pointer for holding a pointer to a native object class. The
@@ -124,12 +124,12 @@ private:
     // Owned by the Java NativePanZoomController instance.
     NativePtr<NPZCSupport> mNPZCSupport;
 
-    class GoannaViewSupport;
-    // Object that implements native GoannaView calls and associated states.
-    // nullptr for nsWindows that were not opened from GoannaView.
+    class GeckoViewSupport;
+    // Object that implements native GeckoView calls and associated states.
+    // nullptr for nsWindows that were not opened from GeckoView.
     // Because other objects get destroyed in the mGeckOViewSupport destructor,
     // keep it last in the list, so its destructor is called first.
-    mozilla::UniquePtr<GoannaViewSupport> mGoannaViewSupport;
+    mozilla::UniquePtr<GeckoViewSupport> mGeckoViewSupport;
 
     // Class that implements native PresentationMediaPlayerManager calls.
     class PMPMSupport;
@@ -240,7 +240,7 @@ public:
 
     CompositorBridgeChild* GetCompositorBridgeChild() const;
 
-    mozilla::jni::DependentRef<mozilla::java::GoannaLayerClient> GetLayerClient();
+    mozilla::jni::DependentRef<mozilla::java::GeckoLayerClient> GetLayerClient();
 
 protected:
     void BringToFront();
@@ -257,7 +257,7 @@ protected:
     void ConfigureAPZControllerThread() override;
     void DispatchHitTest(const mozilla::WidgetTouchEvent& aEvent);
 
-    already_AddRefed<GoannaContentController> CreateRootContentController() override;
+    already_AddRefed<GeckoContentController> CreateRootContentController() override;
 
     // Call this function when the users activity is the direct cause of an
     // event (like a keypress or mouse click).

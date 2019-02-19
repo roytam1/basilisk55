@@ -24,7 +24,7 @@ StaticRefPtr<MessagePortService> gInstance;
 void
 AssertIsInMainProcess()
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_Default);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_Default);
 }
 
 } // namespace

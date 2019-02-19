@@ -31,7 +31,7 @@ add_task(function*() {
     version: "1.0",
     manifest_version: 2,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     },
@@ -95,7 +95,7 @@ add_task(function*() {
     version: "1.0",
     manifest_version: 2,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     },
@@ -141,7 +141,7 @@ add_task(function*() {
     version: "1.0",
     manifest_version: 2,
     applications: {
-      gecko: {
+      goanna: {
         id: ID
       }
     }

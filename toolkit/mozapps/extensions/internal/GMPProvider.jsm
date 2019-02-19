@@ -71,7 +71,7 @@ XPCOMUtils.defineConstant(this, "GMP_PLUGINS", GMP_PLUGINS);
 XPCOMUtils.defineLazyGetter(this, "pluginsBundle",
   () => Services.strings.createBundle("chrome://global/locale/plugins.properties"));
 XPCOMUtils.defineLazyGetter(this, "gmpService",
-  () => Cc["@mozilla.org/goanna-media-plugin-service;1"].getService(Ci.mozIGoannaMediaPluginChromeService));
+  () => Cc["@mozilla.org/gecko-media-plugin-service;1"].getService(Ci.mozIGeckoMediaPluginChromeService));
 
 var messageManager = Cc["@mozilla.org/globalmessagemanager;1"]
                        .getService(Ci.nsIMessageListenerManager);

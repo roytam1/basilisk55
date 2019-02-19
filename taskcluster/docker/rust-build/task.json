@@ -4,7 +4,7 @@
     "created": "{task_created}",
     "deadline": "{task_deadline}",
     "payload": {
-        "image": "quay.io/rust/goanna-rust-build",
+        "image": "quay.io/rust/gecko-rust-build",
         "env": {
             "RUST_BRANCH": "{rust_branch}"
         },
@@ -30,7 +30,7 @@
     ],
     "metadata": {
         "name": "Rust toolchain build",
-        "description": "Builds the rust toolchain for use in goanna builders.",
+        "description": "Builds the rust toolchain for use in gecko builders.",
         "owner": "giles@mozilla.com",
         "source": "https://github.com/rillian/rust-build/"
     }

@@ -144,7 +144,7 @@ WidevineVideoDecoder::Decode(GMPVideoEncodedFrame* aInputFrame,
   Log("WidevineVideoDecoder::Decode(timestamp=%lld) rv=%d", sample.timestamp, rv);
 
   // Destroy frame, so that the shmem is now free to be used to return
-  // output to the Goanna process.
+  // output to the Gecko process.
   aInputFrame->Destroy();
   aInputFrame = nullptr;
 

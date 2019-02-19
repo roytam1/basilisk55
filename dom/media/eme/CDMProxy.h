@@ -260,7 +260,7 @@ protected:
 
   const nsString mKeySystem;
 
-  // Onwer specified thread. e.g. Goanna Media Plugin thread.
+  // Onwer specified thread. e.g. Gecko Media Plugin thread.
   // All interactions with the out-of-process EME plugin must come from this thread.
   RefPtr<nsIThread> mOwnerThread;
 

@@ -110,14 +110,14 @@ class MobileSingleLocale(MockMixin, LocalesMixin, ReleaseMixin,
         ["--disable-mock"],
         {"dest": "disable_mock",
          "action": "store_true",
-         "help": "do not run under mock despite what goanna-config says",
+         "help": "do not run under mock despite what gecko-config says",
         }
     ], [
         ['--revision', ],
         {"action": "store",
          "dest": "revision",
          "type": "string",
-         "help": "Override the goanna revision to use (otherwise use buildbot supplied"
+         "help": "Override the gecko revision to use (otherwise use buildbot supplied"
                  " value, or en-US revision) "}
     ]]
 
@@ -251,7 +251,7 @@ class MobileSingleLocale(MockMixin, LocalesMixin, ReleaseMixin,
         return self.buildid
 
     def query_revision(self):
-        """ Get the goanna revision in this order of precedence
+        """ Get the gecko revision in this order of precedence
               * cached value
               * command line arg --revision   (development, taskcluster)
               * buildbot properties           (try with buildbot forced build)
@@ -275,7 +275,7 @@ class MobileSingleLocale(MockMixin, LocalesMixin, ReleaseMixin,
             revision = self.buildbot_config['sourcestamp']['revision']
         elif self.buildbot_config and self.buildbot_config.get('revision'):
             revision = self.buildbot_config['revision']
-        elif config.get("update_goanna_source_to_enUS", True):
+        elif config.get("update_gecko_source_to_enUS", True):
             revision = self._query_enUS_revision()
 
         if not revision:
@@ -289,7 +289,7 @@ class MobileSingleLocale(MockMixin, LocalesMixin, ReleaseMixin,
        """
         if self.enUS_revision:
             return self.enUS_revision
-        r = re.compile(r"^goanna_revision ([0-9a-f]+\+?)$")
+        r = re.compile(r"^gecko_revision ([0-9a-f]+\+?)$")
         output = self._query_make_ident_output()
         for line in output.splitlines():
             match = r.match(line)
@@ -480,7 +480,7 @@ class MobileSingleLocale(MockMixin, LocalesMixin, ReleaseMixin,
 
         # on try we want the source we already have, otherwise update to the
         # same as the en-US binary
-        if self.config.get("update_goanna_source_to_enUS", True):
+        if self.config.get("update_gecko_source_to_enUS", True):
             revision = self._query_enUS_revision()
             if not revision:
                 self.fatal("Can't determine revision!")

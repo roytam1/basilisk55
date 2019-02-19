@@ -64,7 +64,7 @@ SimpleTest.waitForFocus(()=>{
     var p = document.getElementById("p");
     ok(p, kDescription + ": <p> element shouldn't be removed by Backspace key press");
     is(p.tagName.toLowerCase(), "p", kDescription + ": <p> element shouldn't be removed by Backspace key press");
-    // When Backspace key is pressed even in empty text nodes, Goanna should not remove empty text nodes for now
+    // When Backspace key is pressed even in empty text nodes, Gecko should not remove empty text nodes for now
     // because we should keep our traditional behavior (same as Edge) for backward compatibility as far as possible.
     // In this case, Chromium removes all empty text nodes, but Edge doesn't remove any empty text nodes.
     is(p.childNodes.length, 5, kDescription + ": <p> should have 5 children after pressing Backspace key");

@@ -3,11 +3,11 @@
 
 package org.mozilla.android.sync.test.helpers;
 
-import org.mozilla.goanna.sync.net.AuthHeaderProvider;
-import org.mozilla.goanna.sync.net.BaseResource;
-import org.mozilla.goanna.sync.net.BasicAuthHeaderProvider;
-import org.mozilla.goanna.sync.net.SyncStorageRequestDelegate;
-import org.mozilla.goanna.sync.net.SyncStorageResponse;
+import org.mozilla.gecko.sync.net.AuthHeaderProvider;
+import org.mozilla.gecko.sync.net.BaseResource;
+import org.mozilla.gecko.sync.net.BasicAuthHeaderProvider;
+import org.mozilla.gecko.sync.net.SyncStorageRequestDelegate;
+import org.mozilla.gecko.sync.net.SyncStorageResponse;
 
 import java.io.IOException;
 

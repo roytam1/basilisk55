@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 public interface JavaAddonInterfaceV1 {
     /**
-     * Callback interface for Goanna requests.
+     * Callback interface for Gecko requests.
      * <p/>
      * For each instance of EventCallback, exactly one of sendResponse, sendError, must be called to prevent observer leaks.
      * If more than one send* method is called, or if a single send method is called multiple times, an
@@ -20,7 +20,7 @@ public interface JavaAddonInterfaceV1 {
         /**
          * Sends a success response with the given data.
          *
-         * @param response The response data to send to Goanna. Can be any of the types accepted by
+         * @param response The response data to send to Gecko. Can be any of the types accepted by
          *                 JSONObject#put(String, Object).
          */
         public void sendSuccess(Object response);
@@ -28,7 +28,7 @@ public interface JavaAddonInterfaceV1 {
         /**
          * Sends an error response with the given data.
          *
-         * @param response The response data to send to Goanna. Can be any of the types accepted by
+         * @param response The response data to send to Gecko. Can be any of the types accepted by
          *                 JSONObject#put(String, Object).
          */
         public void sendError(Object response);
@@ -38,7 +38,7 @@ public interface JavaAddonInterfaceV1 {
         void registerEventListener(EventListener listener, String... events);
         void unregisterEventListener(EventListener listener);
 
-        void sendRequestToGoanna(String event, JSONObject message, RequestCallback callback);
+        void sendRequestToGecko(String event, JSONObject message, RequestCallback callback);
     }
 
     interface EventListener {

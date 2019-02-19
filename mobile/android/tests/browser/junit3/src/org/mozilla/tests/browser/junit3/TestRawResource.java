@@ -8,7 +8,7 @@ import android.content.res.Resources;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContext;
 import android.test.mock.MockResources;
-import org.mozilla.goanna.util.RawResource;
+import org.mozilla.gecko.util.RawResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

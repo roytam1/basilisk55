@@ -46,7 +46,7 @@ ServoRestyleManager::PostRestyleEvent(Element* aElement,
   MOZ_ASSERT_IF(mInStyleRefresh, aRestyleHint == 0);
 
   // Processing change hints sometimes causes new change hints to be generated.
-  // Doing this after the goanna post-traversal is problematic, so instead we just
+  // Doing this after the gecko post-traversal is problematic, so instead we just
   // queue them up for special handling.
   if (mReentrantChanges) {
     MOZ_ASSERT(aRestyleHint == 0);
@@ -275,7 +275,7 @@ ServoRestyleManager::FrameForPseudoElement(const nsIContent* aContent,
     return nullptr;
   }
 
-  // NOTE: we probably need to special-case display: contents here. Goanna's
+  // NOTE: we probably need to special-case display: contents here. Gecko's
   // RestyleManager passes the primary frame of the parent instead.
   if (aPseudoTagOrNull == nsCSSPseudoElements::before) {
     return nsLayoutUtils::GetBeforeFrameForContent(primaryFrame, aContent);
@@ -364,9 +364,9 @@ ServoRestyleManager::RestyleForInsertOrChange(nsINode* aContainer,
                                               nsIContent* aChild)
 {
   //
-  // XXXbholley: We need the Goanna logic here to correctly restyle for things
+  // XXXbholley: We need the Gecko logic here to correctly restyle for things
   // like :empty and positional selectors (though we may not need to post
-  // restyle events as agressively as the Goanna path does).
+  // restyle events as agressively as the Gecko path does).
   //
   // Bug 1297899 tracks this work.
   //
@@ -383,9 +383,9 @@ ServoRestyleManager::RestyleForAppend(nsIContent* aContainer,
                                       nsIContent* aFirstNewContent)
 {
   //
-  // XXXbholley: We need the Goanna logic here to correctly restyle for things
+  // XXXbholley: We need the Gecko logic here to correctly restyle for things
   // like :empty and positional selectors (though we may not need to post
-  // restyle events as agressively as the Goanna path does).
+  // restyle events as agressively as the Gecko path does).
   //
   // Bug 1297899 tracks this work.
   //

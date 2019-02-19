@@ -40,7 +40,7 @@ class PageInfoWindow(BaseWindow):
          which gets triggered with the current :class:`PageInfoWindow` as parameter.
          Defaults to `shortcut`.
 
-        :param force: Optional, forces the closing of the window by using the Goanna API.
+        :param force: Optional, forces the closing of the window by using the Gecko API.
          Defaults to `False`.
         """
         def callback(win):

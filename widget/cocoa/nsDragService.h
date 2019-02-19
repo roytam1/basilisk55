@@ -62,7 +62,7 @@ private:
   NSString* GetTitleForURL(NSPasteboardItem* item);
   NSString* GetFilePath(NSPasteboardItem* item);
 
-  nsCOMPtr<nsIArray> mDataItems; // only valid for a drag started within goanna
+  nsCOMPtr<nsIArray> mDataItems; // only valid for a drag started within gecko
   ChildView* mNativeDragView;
   NSEvent* mNativeDragEvent;
 

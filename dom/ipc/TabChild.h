@@ -38,7 +38,7 @@
 #include "mozilla/dom/ipc/IdType.h"
 #include "AudioChannelService.h"
 #include "PuppetWidget.h"
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 #include "nsISHistoryListener.h"
 #include "nsIPartialSHistoryListener.h"
 
@@ -635,7 +635,7 @@ public:
                                  bool aPreventDefault) const;
   void SetTargetAPZC(uint64_t aInputBlockId,
                     const nsTArray<ScrollableLayerGuid>& aTargets) const;
-  mozilla::ipc::IPCResult RecvHandleTap(const layers::GoannaContentController::TapType& aType,
+  mozilla::ipc::IPCResult RecvHandleTap(const layers::GeckoContentController::TapType& aType,
                                         const LayoutDevicePoint& aPoint,
                                         const Modifiers& aModifiers,
                                         const ScrollableLayerGuid& aGuid,
@@ -645,7 +645,7 @@ public:
 
   bool UpdateFrame(const FrameMetrics& aFrameMetrics);
   bool NotifyAPZStateChange(const ViewID& aViewId,
-                            const layers::GoannaContentController::APZStateChange& aChange,
+                            const layers::GeckoContentController::APZStateChange& aChange,
                             const int& aArg);
   void StartScrollbarDrag(const layers::AsyncDragMetrics& aDragMetrics);
   void ZoomToRect(const uint32_t& aPresShellId,

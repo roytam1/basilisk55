@@ -16,7 +16,7 @@
 #include "nsNetCID.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIURI.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "prnetdb.h"
 #include "ProxyUtils.h"
 

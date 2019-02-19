@@ -19,8 +19,8 @@ import os
 
 
 # constants {{{1
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
-VERSION_PATH = os.path.join(GOANNA, "browser", "config", "version_display.txt")
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
+VERSION_PATH = os.path.join(GECKO, "browser", "config", "version_display.txt")
 
 """Map signing scope aliases to sets of projects.
 

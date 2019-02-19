@@ -8,7 +8,7 @@
 
 <merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:goanna="http://schemas.android.com/apk/res-auto">
+    xmlns:gecko="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:id="@+id/sharedialog"
         android:layout_width="300dp"
@@ -45,7 +45,7 @@
         <!-- TODO: Add back drop shadow (bug 1146488)? -->
         <!-- Buttons -->
         <!-- "Send to Firefox Sync" -->
-        <org.mozilla.goanna.overlays.ui.SendTabList
+        <org.mozilla.gecko.overlays.ui.SendTabList
             android:id="@+id/overlay_send_tab_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,25 +53,25 @@
             android:divider="@null"/>
 
         <!-- "Add bookmark" -->
-        <org.mozilla.goanna.overlays.ui.OverlayDialogButton
+        <org.mozilla.gecko.overlays.ui.OverlayDialogButton
             style="@style/ShareOverlayRow"
             android:id="@+id/overlay_share_bookmark_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            goanna:drawable="@drawable/overlay_share_bookmark_button"
-            goanna:enabledText="@string/overlay_share_bookmark_btn_label"
-            goanna:disabledText="@string/overlay_share_bookmark_btn_label_already"/>
+            gecko:drawable="@drawable/overlay_share_bookmark_button"
+            gecko:enabledText="@string/overlay_share_bookmark_btn_label"
+            gecko:disabledText="@string/overlay_share_bookmark_btn_label_already"/>
 
         <!-- "Open in Browser" -->
-        <org.mozilla.goanna.overlays.ui.OverlayDialogButton
+        <org.mozilla.gecko.overlays.ui.OverlayDialogButton
                 style="@style/ShareOverlayRow"
                 android:id="@+id/overlay_share_open_browser_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="false"
-                goanna:drawable="@drawable/icon_search_empty_firefox"
-                goanna:enabledText="@string/overlay_share_open_browser_btn_label"/>
+                gecko:drawable="@drawable/icon_search_empty_firefox"
+                gecko:enabledText="@string/overlay_share_open_browser_btn_label"/>
 
     </LinearLayout>
 

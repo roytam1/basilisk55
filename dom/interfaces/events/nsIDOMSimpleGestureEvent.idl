@@ -22,7 +22,7 @@
  * events, the default action of the swipe start event is *not* to
  * start a swipe. Call preventDefault() if you want a swipe to be
  * started. Doing so won't necessarily result in a swipe being started,
- * it only communicates an intention. Once Goanna determines whether a
+ * it only communicates an intention. Once Gecko determines whether a
  * swipe should actually be started, it will send a MozSwipeGestureStart
  * event.
  * The second question (swipe-able directions) is answered in the

@@ -449,7 +449,7 @@ public:
     mInited = mNotification->AddRefObject();
   }
 
-  // This is only required because Goanna runs script in a worker's onclose
+  // This is only required because Gecko runs script in a worker's onclose
   // handler (non-standard, Bug 790919) where calls to HoldWorker() will
   // fail. Due to non-standardness and added complications if we decide to
   // support this, attempts to create a Notification in onclose just throw

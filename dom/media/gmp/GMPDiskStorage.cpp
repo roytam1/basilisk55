@@ -13,7 +13,7 @@
 #include "mozilla/EndianUtils.h"
 #include "nsClassHashtable.h"
 #include "prio.h"
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "nsContentCID.h"
 #include "nsServiceManagerUtils.h"
 #include "nsISimpleEnumerator.h"
@@ -42,8 +42,8 @@ GetGMPStorageDir(nsIFile** aTempDir,
     return NS_ERROR_INVALID_ARG;
   }
 
-  nsCOMPtr<mozIGoannaMediaPluginChromeService> mps =
-    do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+  nsCOMPtr<mozIGeckoMediaPluginChromeService> mps =
+    do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   if (NS_WARN_IF(!mps)) {
     return NS_ERROR_FAILURE;
   }

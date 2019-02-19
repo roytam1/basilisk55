@@ -1710,9 +1710,9 @@ nsRuleNode::nsRuleNode(nsPresContext* aContext, nsRuleNode* aParent,
 
   NS_ASSERTION(IsRoot() || GetLevel() == aLevel, "not enough bits");
   NS_ASSERTION(IsRoot() || IsImportantRule() == aIsImportant, "yikes");
-  MOZ_ASSERT(aContext->StyleSet()->IsGoanna(),
+  MOZ_ASSERT(aContext->StyleSet()->IsGecko(),
              "ServoStyleSets should not have rule nodes");
-  aContext->StyleSet()->AsGoanna()->RuleNodeUnused(this, /* aMayGC = */ false);
+  aContext->StyleSet()->AsGecko()->RuleNodeUnused(this, /* aMayGC = */ false);
 
   // nsStyleSet::GetContext depends on there being only one animation
   // rule.
@@ -3963,10 +3963,10 @@ nsRuleNode::SetFont(nsPresContext* aPresContext, nsStyleContext* aContext,
 
     if (variantAlternates & NS_FONT_VARIANT_ALTERNATES_FUNCTIONAL_MASK) {
       // fetch the feature lookup object from the styleset
-      MOZ_ASSERT(aPresContext->StyleSet()->IsGoanna(),
+      MOZ_ASSERT(aPresContext->StyleSet()->IsGecko(),
                  "ServoStyleSets should not have rule nodes");
       aFont->mFont.featureValueLookup =
-        aPresContext->StyleSet()->AsGoanna()->GetFontFeatureValuesLookup();
+        aPresContext->StyleSet()->AsGecko()->GetFontFeatureValuesLookup();
 
       NS_ASSERTION(variantAlternatesValue->GetPairValue().mYValue.GetUnit() ==
                    eCSSUnit_List, "function list not a list value");

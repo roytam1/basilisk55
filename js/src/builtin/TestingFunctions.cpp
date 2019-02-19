@@ -4400,7 +4400,7 @@ JS_FN_HELP("rejectPromise", RejectPromise, 2, 0,
     JS_FN_HELP("reportLargeAllocationFailure", ReportLargeAllocationFailure, 0, 0,
 "reportLargeAllocationFailure()",
 "  Call the large allocation failure callback, as though a large malloc call failed,\n"
-"  then return undefined. In Goanna, this sends a memory pressure notification, which\n"
+"  then return undefined. In Gecko, this sends a memory pressure notification, which\n"
 "  can free up some memory."),
 
     JS_FN_HELP("findPath", FindPath, 2, 0,

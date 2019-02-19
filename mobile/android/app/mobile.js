@@ -419,7 +419,7 @@ pref("font.size.inflation.minTwips", 0);
 pref("browser.ui.zoom.force-user-scalable", false);
 
 // When removing this Nightly flag, also remember to remove the flags surrounding this feature
-// in GoannaPreferences and BrowserApp (see bug 1245930).
+// in GeckoPreferences and BrowserApp (see bug 1245930).
 #ifdef NIGHTLY_BUILD
 pref("ui.zoomedview.enabled", true);
 #else
@@ -607,7 +607,7 @@ pref("media.cache_readahead_limit", 30);
 // Number of video frames we buffer while decoding video.
 // On Android this is decided by a similar value which varies for
 // each OMX decoder |OMX_PARAM_PORTDEFINITIONTYPE::nBufferCountMin|. This
-// number must be less than the OMX equivalent or goanna will think it is
+// number must be less than the OMX equivalent or gecko will think it is
 // chronically starved of video frames. All decoders seen so far have a value
 // of at least 4.
 pref("media.video-queue.default-size", 3);

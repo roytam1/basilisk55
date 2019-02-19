@@ -50,7 +50,7 @@
 #endif
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracer.h"
+#include "GeckoTaskTracer.h"
 #endif
 
 using namespace mozilla::dom;

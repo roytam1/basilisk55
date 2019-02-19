@@ -15,7 +15,7 @@
 #include "base/thread.h"
 #include "chrome/common/child_process_host.h"
 
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 #include "mozilla/ipc/TaskFactory.h"
 #include "mozilla/UniquePtr.h"
 #include "nsCOMPtr.h"
@@ -38,7 +38,7 @@ protected:
     bool mLaunchSucceeded;
 };
 
-class PluginProcessParent : public mozilla::ipc::GoannaChildProcessHost
+class PluginProcessParent : public mozilla::ipc::GeckoChildProcessHost
 {
 public:
     explicit PluginProcessParent(const std::string& aPluginFilePath);
@@ -65,7 +65,7 @@ public:
 
     const std::string& GetPluginFilePath() { return mPluginFilePath; }
 
-    using mozilla::ipc::GoannaChildProcessHost::GetChannel;
+    using mozilla::ipc::GeckoChildProcessHost::GetChannel;
 
     void SetCallRunnableImmediately(bool aCallImmediately);
     virtual bool WaitUntilConnected(int32_t aTimeoutMs = 0) override;

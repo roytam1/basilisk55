@@ -516,7 +516,7 @@ public:
 #ifdef MOZ_WIDGET_ANDROID
     // This fires an intent that will start launching Fennec and foreground it,
     // if necessary.
-    java::GoannaAppShell::LaunchOrBringToFront();
+    java::GeckoAppShell::LaunchOrBringToFront();
 #endif
 
     nsCOMPtr<nsPIDOMWindowOuter> window;
@@ -811,7 +811,7 @@ ServiceWorkerClients::OpenWindow(const nsAString& aUrl,
   }
 
   // [[4. If this algorithm is not allowed to show a popup ..]]
-  // In Goanna the service worker is allowed to show a popup only if the user
+  // In Gecko the service worker is allowed to show a popup only if the user
   // just clicked on a notification.
   if (!workerPrivate->GlobalScope()->WindowInteractionAllowed()) {
     promise->MaybeReject(NS_ERROR_DOM_INVALID_ACCESS_ERR);

@@ -160,7 +160,7 @@ AudioChannelManager::GetAllowedAudioChannels(
   MOZ_ASSERT(aAudioChannels.IsEmpty());
 
   // Only main process is supported.
-  if (XRE_GetProcessType() != GoannaProcessType_Default) {
+  if (XRE_GetProcessType() != GeckoProcessType_Default) {
     aRv.Throw(NS_ERROR_FAILURE);
     return;
   }

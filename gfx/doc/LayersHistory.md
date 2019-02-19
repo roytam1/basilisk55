@@ -12,7 +12,7 @@ This is an overview of the major events in the history of our Layers infrastruct
 
 - Retained layers (July 7 2010 - Bug 564991)
 This was an important concept that introduced the idea of persisting the layer
-content across paints in goanna controlled buffers instead of just by the OS. This introduced
+content across paints in gecko controlled buffers instead of just by the OS. This introduced
 the concept of buffer rotation to deal with scrolling instead of using the
 native scrolling APIs like ScrollWindowEx
 

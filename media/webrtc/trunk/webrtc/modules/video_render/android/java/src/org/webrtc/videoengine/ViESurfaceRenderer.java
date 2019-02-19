@@ -27,7 +27,7 @@ import android.view.SurfaceHolder.Callback;
 
 import android.util.Log;
 
-import org.mozilla.goanna.annotation.WebRTCJNITarget;
+import org.mozilla.gecko.annotation.WebRTCJNITarget;
 
 public class ViESurfaceRenderer implements Callback {
 

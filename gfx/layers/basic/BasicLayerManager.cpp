@@ -9,7 +9,7 @@
 #include <stack>                        // for stack
 #include "BasicContainerLayer.h"        // for BasicContainerLayer
 #include "BasicLayersImpl.h"            // for ToData, BasicReadbackLayer, etc
-#include "GoannaProfiler.h"              // for PROFILER_LABEL
+#include "GeckoProfiler.h"              // for PROFILER_LABEL
 #include "ImageContainer.h"             // for ImageFactory
 #include "Layers.h"                     // for Layer, ContainerLayer, etc
 #include "ReadbackLayer.h"              // for ReadbackLayer

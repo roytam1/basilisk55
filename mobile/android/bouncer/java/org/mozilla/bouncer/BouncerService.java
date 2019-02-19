@@ -19,7 +19,7 @@ import java.util.List;
 
 public class BouncerService extends IntentService {
 
-    private static final String LOGTAG = "GoannaBouncerService";
+    private static final String LOGTAG = "GeckoBouncerService";
 
     public BouncerService() {
         super("BouncerService");

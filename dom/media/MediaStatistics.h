@@ -13,7 +13,7 @@ struct MediaStatistics {
   // Estimate of the current playback rate (bytes/second).
   double mPlaybackRate;
   // Estimate of the current download rate (bytes/second). This
-  // ignores time that the channel was paused by Goanna.
+  // ignores time that the channel was paused by Gecko.
   double mDownloadRate;
   // Total length of media stream in bytes; -1 if not known
   int64_t mTotalBytes;

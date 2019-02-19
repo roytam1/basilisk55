@@ -48,7 +48,7 @@ class TestCreate(unittest.TestCase):
 
         for tid, task in self.created_tasks.iteritems():
             self.assertEqual(task['payload'], 'hello world')
-            self.assertEqual(task['schedulerId'], 'goanna-level-4')
+            self.assertEqual(task['schedulerId'], 'gecko-level-4')
             # make sure the dependencies exist, at least
             for depid in task.get('dependencies', []):
                 if depid is 'decisiontask':

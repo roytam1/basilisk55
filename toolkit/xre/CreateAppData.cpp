@@ -64,8 +64,8 @@ XRE_ParseAppData(nsIFile* aINIFile, XREAppData& aAppData)
   ReadString(parser, "App", "ID", aAppData.ID);
   ReadString(parser, "App", "Copyright", aAppData.copyright);
   ReadString(parser, "App", "Profile", aAppData.profile);
-  ReadString(parser, "Goanna", "MinVersion", aAppData.minVersion);
-  ReadString(parser, "Goanna", "MaxVersion", aAppData.maxVersion);
+  ReadString(parser, "Gecko", "MinVersion", aAppData.minVersion);
+  ReadString(parser, "Gecko", "MaxVersion", aAppData.maxVersion);
   ReadString(parser, "Crash Reporter", "ServerURL", aAppData.crashReporterURL);
   ReadString(parser, "App", "UAName", aAppData.UAName);
   ReadFlag(parser, "XRE", "EnableProfileMigrator",

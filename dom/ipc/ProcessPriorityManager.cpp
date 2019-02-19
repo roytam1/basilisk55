@@ -55,11 +55,11 @@ using namespace mozilla::hal;
 #  include <android/log.h>
 #  define LOG(fmt, ...) \
      __android_log_print(ANDROID_LOG_INFO, \
-       "Goanna:ProcessPriorityManager", \
+       "Gecko:ProcessPriorityManager", \
        fmt, ## __VA_ARGS__)
 #  define LOGP(fmt, ...) \
     __android_log_print(ANDROID_LOG_INFO, \
-      "Goanna:ProcessPriorityManager", \
+      "Gecko:ProcessPriorityManager", \
       "[%schild-id=%" PRIu64 ", pid=%d] " fmt, \
       NameWithComma().get(), \
       static_cast<uint64_t>(ChildID()), Pid(), ## __VA_ARGS__)

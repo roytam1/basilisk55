@@ -13,7 +13,7 @@ job-defaults:
     treeherder:
         kind: build
         tier: 1
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000
@@ -34,7 +34,7 @@ jobs:
             using: hazard
             tooltool-manifest: "browser/config/tooltool-manifests/linux64/hazard.manifest"
             command: >
-                cd /home/worker/checkouts/goanna/taskcluster/scripts/builder
+                cd /home/worker/checkouts/gecko/taskcluster/scripts/builder
                 && ./build-haz-linux.sh --project shell $HOME/workspace
         when:
             files-changed:
@@ -54,5 +54,5 @@ jobs:
             tooltool-manifest: "browser/config/tooltool-manifests/linux64/hazard.manifest"
             mozconfig: "browser/config/mozconfigs/linux64/hazards"
             command: >
-                cd /home/worker/checkouts/goanna/taskcluster/scripts/builder
+                cd /home/worker/checkouts/gecko/taskcluster/scripts/builder
                 && ./build-haz-linux.sh --project browser $HOME/workspace

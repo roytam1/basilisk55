@@ -724,7 +724,7 @@ AudioManager::AudioManager()
   // Get the initial volume index from settings DB during boot up.
   InitVolumeFromDatabase();
 
-  // Goanna only control stream volume not master so set to default value
+  // Gecko only control stream volume not master so set to default value
   // directly.
   AudioSystem::setMasterVolume(1.0);
 

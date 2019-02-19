@@ -299,11 +299,11 @@ nsDOMCSSDeclaration::ParsePropertyValue(const nsCSSPropertyID aPropID,
   RefPtr<DeclarationBlock> decl = olddecl->EnsureMutable();
 
   bool changed;
-  if (decl->IsGoanna()) {
+  if (decl->IsGecko()) {
     nsCSSParser cssParser(env.mCSSLoader);
     cssParser.ParseProperty(aPropID, aPropValue,
                             env.mSheetURI, env.mBaseURI, env.mPrincipal,
-                            decl->AsGoanna(), &changed, aIsImportant);
+                            decl->AsGecko(), &changed, aIsImportant);
   } else {
     NS_ConvertUTF16toUTF8 value(aPropValue);
     changed = Servo_DeclarationBlock_SetPropertyById(
@@ -344,11 +344,11 @@ nsDOMCSSDeclaration::ParseCustomPropertyValue(const nsAString& aPropertyName,
   RefPtr<DeclarationBlock> decl = olddecl->EnsureMutable();
 
   bool changed;
-  if (decl->IsGoanna()) {
+  if (decl->IsGecko()) {
     nsCSSParser cssParser(env.mCSSLoader);
     auto propName = Substring(aPropertyName, CSS_CUSTOM_NAME_PREFIX_LENGTH);
     cssParser.ParseVariable(propName, aPropValue, env.mSheetURI,
-                            env.mBaseURI, env.mPrincipal, decl->AsGoanna(),
+                            env.mBaseURI, env.mPrincipal, decl->AsGecko(),
                             &changed, aIsImportant);
   } else {
     NS_ConvertUTF16toUTF8 property(aPropertyName);

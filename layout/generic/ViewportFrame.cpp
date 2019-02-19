@@ -15,7 +15,7 @@
 #include "nsSubDocumentFrame.h"
 #include "nsCanvasFrame.h"
 #include "nsAbsoluteContainingBlock.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsIMozBrowserFrame.h"
 #include "nsPlaceholderFrame.h"
 

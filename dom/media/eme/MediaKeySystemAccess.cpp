@@ -18,7 +18,7 @@
 #endif
 #include "nsContentCID.h"
 #include "nsServiceManagerUtils.h"
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "VideoUtils.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
@@ -196,7 +196,7 @@ ToEMEAPICodecString(const nsString& aCodec)
 }
 
 // A codec can be decrypted-and-decoded by the CDM, or only decrypted
-// by the CDM and decoded by Goanna. Not both.
+// by the CDM and decoded by Gecko. Not both.
 struct KeySystemContainerSupport
 {
   bool IsSupported() const
@@ -205,13 +205,13 @@ struct KeySystemContainerSupport
   }
 
   // CDM decrypts and decodes using a DRM robust decoder, and passes decoded
-  // samples back to Goanna for rendering.
+  // samples back to Gecko for rendering.
   bool DecryptsAndDecodes(EMECodecString aCodec) const
   {
     return mCodecsDecoded.Contains(aCodec);
   }
 
-  // CDM decrypts and passes the decrypted samples back to Goanna for decoding.
+  // CDM decrypts and passes the decrypted samples back to Gecko for decoding.
   bool Decrypts(EMECodecString aCodec) const
   {
     return mCodecsDecrypted.Contains(aCodec);
@@ -431,11 +431,11 @@ CanDecryptAndDecode(const nsString& aKeySystem,
     if (aContainerSupport.Decrypts(codec) &&
         NS_SUCCEEDED(MediaSource::IsTypeSupported(aContentType, aDiagnostics))) {
       // GMP can decrypt and is allowed to return compressed samples to
-      // Goanna to decode, and Goanna has a decoder.
+      // Gecko to decode, and Gecko has a decoder.
       continue;
     }
 
-    // Neither the GMP nor Goanna can both decrypt and decode. We don't
+    // Neither the GMP nor Gecko can both decrypt and decode. We don't
     // support this codec.
 
 #if defined(XP_WIN)

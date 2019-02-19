@@ -98,7 +98,7 @@ pub struct ParagraphInfo {
 /// Determine the bidirectional embedding levels for a single paragraph.
 ///
 /// TODO: In early steps, check for special cases that allow later steps to be skipped. like text
-/// that is entirely LTR.  See the `nsBidi` class from Goanna for comparison.
+/// that is entirely LTR.  See the `nsBidi` class from Gecko for comparison.
 pub fn process_text(text: &str, level: Option<u8>) -> BidiInfo {
     let InitialProperties { initial_classes, paragraphs } = initial_scan(text, level);
 

@@ -283,7 +283,7 @@ nsresult Update(mozIStorageConnection *aWorkerConnection)
 
     doVacuum = true;
 
-    // Ensure Goanna 1.9.1 storage table
+    // Ensure Gecko 1.9.1 storage table
     rv = aWorkerConnection->ExecuteSimpleSQL(NS_LITERAL_CSTRING(
            "CREATE TABLE IF NOT EXISTS webappsstore2 ("
            "scope TEXT, "
@@ -305,7 +305,7 @@ nsresult Update(mozIStorageConnection *aWorkerConnection)
                                            1, function1);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // Check if there is storage of Goanna 1.9.0 and if so, upgrade that storage
+    // Check if there is storage of Gecko 1.9.0 and if so, upgrade that storage
     // to actual webappsstore2 table and drop the obsolete table. First process
     // this newer table upgrade to priority potential duplicates from older
     // storage table.
@@ -322,7 +322,7 @@ nsresult Update(mozIStorageConnection *aWorkerConnection)
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    // Check if there is storage of Goanna 1.8 and if so, upgrade that storage
+    // Check if there is storage of Gecko 1.8 and if so, upgrade that storage
     // to actual webappsstore2 table and drop the obsolete table. Potential
     // duplicates will be ignored.
     if (moz_webappsstoreExists) {

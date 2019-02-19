@@ -33,7 +33,7 @@ bool CheckThread()
 {
     if (!NS_IsMainThread()) {
         jni::ThrowException("java/lang/IllegalThreadStateException",
-                            "Not on Goanna thread");
+                            "Not on Gecko thread");
         return false;
     }
     return true;
@@ -140,7 +140,7 @@ class NativeJSContainerImpl final
             // array. The workaround is to add a dummy first element to the
             // array that is a floating point value, i.e. [0.5, ...].
             jni::ThrowException(
-                "org/mozilla/goanna/util/NativeJSObject$InvalidPropertyException",
+                "org/mozilla/gecko/util/NativeJSObject$InvalidPropertyException",
                 "Property type mismatch");
             return false;
         }
@@ -567,7 +567,7 @@ class NativeJSContainerImpl final
                 return mozilla::Move(*fallback);
             }
             jni::ThrowException(
-                "org/mozilla/goanna/util/NativeJSObject$InvalidPropertyException",
+                "org/mozilla/gecko/util/NativeJSObject$InvalidPropertyException",
                 "Property does not exist");
             return typename Prop::NativeType();
         }

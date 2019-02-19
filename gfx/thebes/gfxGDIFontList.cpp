@@ -25,7 +25,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIWindowsRegKey.h"
 #include "gfxFontConstants.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/Telemetry.h"

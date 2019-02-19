@@ -21,7 +21,7 @@ using std::vector;
 using std::string;
 
 using mozilla::gmp::GMPProcessParent;
-using mozilla::ipc::GoannaChildProcessHost;
+using mozilla::ipc::GeckoChildProcessHost;
 using base::ProcessArchitecture;
 
 namespace mozilla {
@@ -32,7 +32,7 @@ extern LogModule* GetGMPLog();
 namespace gmp {
 
 GMPProcessParent::GMPProcessParent(const std::string& aGMPPath)
-: GoannaChildProcessHost(GoannaProcessType_GMPlugin),
+: GeckoChildProcessHost(GeckoProcessType_GMPlugin),
   mGMPPath(aGMPPath)
 {
   MOZ_COUNT_CTOR(GMPProcessParent);

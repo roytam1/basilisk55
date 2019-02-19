@@ -12,7 +12,7 @@
 #include "gfx2DGlue.h"
 #include "gfxUtils.h"
 #include "mozilla/gfx/2D.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 using namespace mozilla::gfx;
 

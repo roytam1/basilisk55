@@ -6678,7 +6678,7 @@ nsContentUtils::FindInternalContentViewer(const nsACString& aType,
   nsCOMPtr<nsIDocumentLoaderFactory> docFactory;
 
   nsXPIDLCString contractID;
-  nsresult rv = catMan->GetCategoryEntry("Goanna-Content-Viewers",
+  nsresult rv = catMan->GetCategoryEntry("Gecko-Content-Viewers",
                                          PromiseFlatCString(aType).get(),
                                          getter_Copies(contractID));
   if (NS_SUCCEEDED(rv)) {
@@ -9229,7 +9229,7 @@ ShouldEscape(nsIContent* aParent)
     // Per the current spec noscript should be escaped in case
     // scripts are disabled or if document doesn't have
     // browsing context. However the latter seems to be a spec bug
-    // and Goanna hasn't traditionally done the former.
+    // and Gecko hasn't traditionally done the former.
     nsGkAtoms::noscript
   };
   static mozilla::BloomFilter<12, nsIAtom> sFilter;

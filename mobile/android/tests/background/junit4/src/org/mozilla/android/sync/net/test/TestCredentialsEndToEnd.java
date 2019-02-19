@@ -5,11 +5,11 @@ package org.mozilla.android.sync.net.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.ExtendedJSONObject;
-import org.mozilla.goanna.sync.NonObjectJSONException;
-import org.mozilla.goanna.sync.Utils;
-import org.mozilla.goanna.sync.net.BasicAuthHeaderProvider;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.ExtendedJSONObject;
+import org.mozilla.gecko.sync.NonObjectJSONException;
+import org.mozilla.gecko.sync.Utils;
+import org.mozilla.gecko.sync.net.BasicAuthHeaderProvider;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

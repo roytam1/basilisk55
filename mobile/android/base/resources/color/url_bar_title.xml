@@ -4,16 +4,16 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <!-- private browsing mode -->
-    <item goanna:state_private="true" android:color="@color/private_active_text" />
+    <item gecko:state_private="true" android:color="@color/private_active_text" />
 
     <!-- dark theme -->
-    <item goanna:state_dark="true" android:color="@color/private_active_text"/>
+    <item gecko:state_dark="true" android:color="@color/private_active_text"/>
 
     <!-- light theme -->
-    <item goanna:state_light="true" android:color="@color/placeholder_active_grey"/>
+    <item gecko:state_light="true" android:color="@color/placeholder_active_grey"/>
 
     <!-- normal mode -->
     <item android:color="@color/placeholder_active_grey"/>

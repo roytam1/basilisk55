@@ -11,7 +11,7 @@
 #include "mozilla/dom/HTMLIFrameElement.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsAttrValueInlines.h"
 #include "nsContentUtils.h"
 #include "nsIDocShell.h"

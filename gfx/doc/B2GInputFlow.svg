@@ -258,8 +258,8 @@
     var apzTransform = makeAction("APZ transform\nupdate", 600, 0, "parentcompositor");
     var compositor = makeAction("Compositor", 750, 0, "parentcompositor");
     var nsAppShell = makeAction("nsAppShell", 150, 100, "parentmain");
-    var rootHitTest = makeAction("Goanna hit test\n(root process)", 300, 100, "parentmain");
-    var rootEsm = makeAction("Goanna ESM\n(root process)", 450, 100, "parentmain");
+    var rootHitTest = makeAction("Gecko hit test\n(root process)", 300, 100, "parentmain");
+    var rootEsm = makeAction("Gecko ESM\n(root process)", 450, 100, "parentmain");
     var isEdgeGesture = makeChoice("Edge gesture?", 300, 200, "parentmain");
     var edgeConsume = makeAction("Consume\nevent block", 150, 200, "parentmain");
     var bepjsm = makeAction("BEParent.jsm\nsendTouchEvent", 450, 200, "parentmain");
@@ -269,12 +269,12 @@
     var injectTouch = makeAction("injectTouchEvent", 750, 200, "parentmain");
     var targetESM = makeAction("Target window\nESM", 750, 450, "bothmain");
     var tabParent = makeAction("TabParent", 750, 350, "parentmain");
-    var goannaUntransform = makeAction("Goanna\nuntransform", 600, 350, "parentmain");
+    var geckoUntransform = makeAction("Gecko\nuntransform", 600, 350, "parentmain");
     var tabChild = makeAction("TabChild", 450, 350, "childmain");
     var isApzcEnabled = makeChoice("APZ\nenabled?", 300, 350, "childmain");
     var tabGesture = makeAction("TabChild gesture\ndetection", 150, 350, "childmain");
-    var childHitTest = makeAction("Goanna hit test\n(child process)", 300, 450, "childmain");
-    var childEsm = makeAction("Goanna ESM\n(child process)", 450, 450, "childmain");
+    var childHitTest = makeAction("Gecko hit test\n(child process)", 300, 450, "childmain");
+    var childEsm = makeAction("Gecko ESM\n(child process)", 450, 450, "childmain");
     var childContent = makeAction("Content\n(child process)", 600, 450, "childmain");
 
     document.documentElement.appendChild(android);
@@ -296,7 +296,7 @@
     document.documentElement.appendChild(injectTouch);
     document.documentElement.appendChild(targetESM);
     document.documentElement.appendChild(tabParent);
-    document.documentElement.appendChild(goannaUntransform);
+    document.documentElement.appendChild(geckoUntransform);
     document.documentElement.appendChild(tabChild);
     document.documentElement.appendChild(isApzcEnabled);
     document.documentElement.appendChild(tabGesture);
@@ -330,8 +330,8 @@
     arrows.appendChild(makeArrow(bottomOf(injectTouch), topOf(tabParent)));
     arrows.appendChild(makeVHArrow(topOf(isApzTarget), leftOf(sendTouchEvent)));
     arrows.appendChild(makeHVHArrow(rightOf(sendTouchEvent), rightOf(targetESM), 30));
-    arrows.appendChild(makeArrow(leftOf(tabParent), rightOf(goannaUntransform)));
-    arrows.appendChild(makeArrow(leftOf(goannaUntransform), rightOf(tabChild)));
+    arrows.appendChild(makeArrow(leftOf(tabParent), rightOf(geckoUntransform)));
+    arrows.appendChild(makeArrow(leftOf(geckoUntransform), rightOf(tabChild)));
     arrows.appendChild(makeArrow(leftOf(tabChild), rightOf(isApzcEnabled)));
     arrows.appendChild(makeArrow(leftOf(isApzcEnabled), rightOf(tabGesture)));
     arrows.appendChild(makeArrow(bottomOf(isApzcEnabled), topOf(childHitTest)));

@@ -11,7 +11,7 @@ const addedDevice = {
   "width": 320,
   "height": 570,
   "pixelRatio": 1.5,
-  "userAgent": "Mozilla/5.0 (Mobile; rv:39.0) Goanna/39.0 Firefox/39.0",
+  "userAgent": "Mozilla/5.0 (Mobile; rv:39.0) Gecko/39.0 Firefox/39.0",
   "touch": true,
   "firefoxOS": false,
   "os": "custom",

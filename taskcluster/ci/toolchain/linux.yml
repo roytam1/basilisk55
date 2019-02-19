@@ -13,7 +13,7 @@ linux64-clang/opt:
         using: toolchain-script
         script: build-clang-linux.sh
         tooltool-downloads: public
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         docker-image: {in-tree: desktop-build}
@@ -38,7 +38,7 @@ linux64-clang-tidy/opt:
         using: toolchain-script
         script: build-clang-tidy-linux.sh
         tooltool-downloads: public
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         docker-image: {in-tree: desktop-build}
@@ -60,7 +60,7 @@ linux64-gcc/opt:
     run:
         using: toolchain-script
         script: build-gcc-linux.sh
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         docker-image: {in-tree: desktop-build}
@@ -81,7 +81,7 @@ linux64-binutils/opt:
     run:
         using: toolchain-script
         script: build-binutils-linux.sh
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         docker-image: {in-tree: desktop-build}

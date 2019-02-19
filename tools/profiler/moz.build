@@ -7,8 +7,8 @@
 if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
     XPIDL_MODULE = 'profiler'
     XPIDL_SOURCES += [
-        'goanna/nsIProfiler.idl',
-        'goanna/nsIProfileSaveEvent.idl',
+        'gecko/nsIProfiler.idl',
+        'gecko/nsIProfileSaveEvent.idl',
     ]
     EXPORTS += [
         'public/ProfilerBacktrace.h',
@@ -20,10 +20,10 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
         'public/ProfileGatherer.h',
     ]
     EXTRA_JS_MODULES += [
-        'goanna/Profiler.jsm',
+        'gecko/Profiler.jsm',
     ]
     UNIFIED_SOURCES += [
-        'core/GoannaSampler.cpp',
+        'core/GeckoSampler.cpp',
         'core/platform.cpp',
         'core/ProfileBuffer.cpp',
         'core/ProfileEntry.cpp',
@@ -34,20 +34,20 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
         'core/SyncProfile.cpp',
         'core/ThreadInfo.cpp',
         'core/ThreadProfile.cpp',
-        'goanna/nsProfiler.cpp',
-        'goanna/nsProfilerFactory.cpp',
-        'goanna/nsProfilerStartParams.cpp',
-        'goanna/ProfilerIOInterposeObserver.cpp',
-        'goanna/SaveProfileTask.cpp',
-        'goanna/ThreadResponsiveness.cpp',
+        'gecko/nsProfiler.cpp',
+        'gecko/nsProfilerFactory.cpp',
+        'gecko/nsProfilerStartParams.cpp',
+        'gecko/ProfilerIOInterposeObserver.cpp',
+        'gecko/SaveProfileTask.cpp',
+        'gecko/ThreadResponsiveness.cpp',
     ]
     if CONFIG['OS_TARGET'] == 'Darwin':
         SOURCES += [
-            'goanna/ProfileGatherer.cpp',
+            'gecko/ProfileGatherer.cpp',
         ]
     else:
         UNIFIED_SOURCES += [
-            'goanna/ProfileGatherer.cpp',
+            'gecko/ProfileGatherer.cpp',
         ]
 
     if CONFIG['OS_TARGET'] in ('Android', 'Linux'):
@@ -94,7 +94,7 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
         '/mozglue/linker',
         '/toolkit/crashreporter/google-breakpad/src',
         '/tools/profiler/core/',
-        '/tools/profiler/goanna/',
+        '/tools/profiler/gecko/',
         '/xpcom/base',
     ]
 
@@ -119,24 +119,24 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
     FINAL_LIBRARY = 'xul'
 
 IPDL_SOURCES += [
-    'goanna/ProfilerTypes.ipdlh',
+    'gecko/ProfilerTypes.ipdlh',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')
 
 EXPORTS += [
-    'public/GoannaProfiler.h',
+    'public/GeckoProfiler.h',
 ]
 
 if CONFIG['MOZ_TASK_TRACER']:
     EXPORTS += [
-        'tasktracer/GoannaTaskTracer.h',
-        'tasktracer/GoannaTaskTracerImpl.h',
+        'tasktracer/GeckoTaskTracer.h',
+        'tasktracer/GeckoTaskTracerImpl.h',
         'tasktracer/SourceEventTypeMap.h',
         'tasktracer/TracedTaskCommon.h',
     ]
     UNIFIED_SOURCES += [
-        'tasktracer/GoannaTaskTracer.cpp',
+        'tasktracer/GeckoTaskTracer.cpp',
         'tasktracer/TracedTaskCommon.cpp',
     ]
 
@@ -149,4 +149,4 @@ if CONFIG['GNU_CXX']:
     ]
 
 with Files('**'):
-    BUG_COMPONENT = ('Core', 'Goanna Profiler')
+    BUG_COMPONENT = ('Core', 'Gecko Profiler')

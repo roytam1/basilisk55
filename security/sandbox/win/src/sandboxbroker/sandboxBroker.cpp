@@ -242,7 +242,7 @@ SandboxBroker::SetSecurityLevelForContentProcess(int32_t aSandboxLevel,
   // Add the policy for the client side of the crash server pipe.
   result = mPolicy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
                             sandbox::TargetPolicy::FILES_ALLOW_ANY,
-                            L"\\??\\pipe\\goanna-crash-server-pipe.*");
+                            L"\\??\\pipe\\gecko-crash-server-pipe.*");
   MOZ_RELEASE_ASSERT(sandbox::SBOX_ALL_OK == result,
                      "With these static arguments AddRule should never fail, what happened?");
 
@@ -346,7 +346,7 @@ SandboxBroker::SetSecurityLevelForPluginProcess(int32_t aSandboxLevel)
   // Add the policy for the client side of the crash server pipe.
   result = mPolicy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
                             sandbox::TargetPolicy::FILES_ALLOW_ANY,
-                            L"\\??\\pipe\\goanna-crash-server-pipe.*");
+                            L"\\??\\pipe\\gecko-crash-server-pipe.*");
   SANDBOX_ENSURE_SUCCESS(result,
                          "With these static arguments AddRule should never fail, what happened?");
 
@@ -449,7 +449,7 @@ SandboxBroker::SetSecurityLevelForGMPlugin(SandboxLevel aLevel)
   // Add the policy for the client side of the crash server pipe.
   result = mPolicy->AddRule(sandbox::TargetPolicy::SUBSYS_FILES,
                             sandbox::TargetPolicy::FILES_ALLOW_ANY,
-                            L"\\??\\pipe\\goanna-crash-server-pipe.*");
+                            L"\\??\\pipe\\gecko-crash-server-pipe.*");
   SANDBOX_ENSURE_SUCCESS(result,
                          "With these static arguments AddRule should never fail, what happened?");
 

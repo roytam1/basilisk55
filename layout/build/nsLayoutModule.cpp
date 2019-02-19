@@ -147,7 +147,7 @@ using mozilla::dom::AudioChannelAgent;
 
 class nsIDocumentLoaderFactory;
 
-#define PRODUCT_NAME "Goanna"
+#define PRODUCT_NAME "Gecko"
 
 /* 0ddf4df8-4dbb-4133-8b79-9afb966514f5 */
 #define NS_PLUGINDOCLOADERFACTORY_CID \
@@ -221,7 +221,7 @@ using mozilla::dom::workers::WorkerDebuggerManager;
 using mozilla::dom::UDPSocketChild;
 using mozilla::dom::time::TimeService;
 using mozilla::net::StreamingProtocolControllerService;
-using mozilla::gmp::GoannaMediaPluginService;
+using mozilla::gmp::GeckoMediaPluginService;
 using mozilla::dom::NotificationTelemetryService;
 
 #define NS_EDITORCOMMANDTABLE_CID \
@@ -349,7 +349,7 @@ Initialize()
     MOZ_CRASH("Recursive layout module initialization");
     return NS_ERROR_FAILURE;
   }
-  if (XRE_GetProcessType() == GoannaProcessType_GPU) {
+  if (XRE_GetProcessType() == GeckoProcessType_GPU) {
     // We mark the layout module as being available in the GPU process so that
     // XPCOM's component manager initializes the power manager service, which
     // is needed for nsAppShell. However, we don't actually need anything in
@@ -600,7 +600,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsStructuredCloneContainer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(OSFileConstantsService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(UDPSocketChild)
 
-NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(GoannaMediaPluginService, GoannaMediaPluginService::GetGoannaMediaPluginService)
+NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(GeckoMediaPluginService, GeckoMediaPluginService::GetGeckoMediaPluginService)
 
 #ifdef ACCESSIBILITY
 #include "xpcAccessibilityService.h"
@@ -769,7 +769,7 @@ NS_DEFINE_NAMED_CID(NS_SYNTHVOICEREGISTRY_CID);
 NS_DEFINE_NAMED_CID(NS_ACCESSIBILITY_SERVICE_CID);
 #endif
 
-NS_DEFINE_NAMED_CID(GOANNA_MEDIA_PLUGIN_SERVICE_CID);
+NS_DEFINE_NAMED_CID(GECKO_MEDIA_PLUGIN_SERVICE_CID);
 
 NS_DEFINE_NAMED_CID(PRESENTATION_SERVICE_CID);
 NS_DEFINE_NAMED_CID(PRESENTATION_DEVICE_MANAGER_CID);
@@ -1034,7 +1034,7 @@ static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
   { &kNS_POWERMANAGERSERVICE_CID, false, nullptr, nsIPowerManagerServiceConstructor, Module::ALLOW_IN_GPU_PROCESS },
   { &kOSFILECONSTANTSSERVICE_CID, true, nullptr, OSFileConstantsServiceConstructor },
   { &kUDPSOCKETCHILD_CID, false, nullptr, UDPSocketChildConstructor },
-  { &kGOANNA_MEDIA_PLUGIN_SERVICE_CID, true, nullptr, GoannaMediaPluginServiceConstructor },
+  { &kGECKO_MEDIA_PLUGIN_SERVICE_CID, true, nullptr, GeckoMediaPluginServiceConstructor },
   { &kNS_TIMESERVICE_CID, false, nullptr, nsITimeServiceConstructor },
   { &kNS_MEDIASTREAMCONTROLLERSERVICE_CID, false, nullptr, nsIStreamingProtocolControllerServiceConstructor },
 #if defined(MOZ_WIDGET_GONK) && !defined(DISABLE_MOZ_RIL_GEOLOC)
@@ -1187,7 +1187,7 @@ static const mozilla::Module::ContractIDEntry kLayoutContracts[] = {
   { "@mozilla.org/accessibilityService;1", &kNS_ACCESSIBILITY_SERVICE_CID },
   { "@mozilla.org/accessibleRetrieval;1", &kNS_ACCESSIBILITY_SERVICE_CID },
 #endif
-  { "@mozilla.org/goanna-media-plugin-service;1",  &kGOANNA_MEDIA_PLUGIN_SERVICE_CID },
+  { "@mozilla.org/gecko-media-plugin-service;1",  &kGECKO_MEDIA_PLUGIN_SERVICE_CID },
   { PRESENTATION_SERVICE_CONTRACTID, &kPRESENTATION_SERVICE_CID },
   { PRESENTATION_DEVICE_MANAGER_CONTRACTID, &kPRESENTATION_DEVICE_MANAGER_CID },
   { PRESENTATION_TCP_SESSION_TRANSPORT_CONTRACTID, &kPRESENTATION_TCP_SESSION_TRANSPORT_CID },
@@ -1223,7 +1223,7 @@ static const mozilla::Module::CategoryEntry kLayoutCategories[] = {
 static void
 LayoutModuleDtor()
 {
-  if (XRE_GetProcessType() == GoannaProcessType_GPU) {
+  if (XRE_GetProcessType() == GeckoProcessType_GPU) {
     return;
   }
 

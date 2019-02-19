@@ -360,7 +360,7 @@ class RootLists
         // whereas those containing a traceable structure are not.
         //
         // The purpose of this feature is to support lazy initialization of
-        // global references for the several places in Goanna that do not have
+        // global references for the several places in Gecko that do not have
         // access to a tighter context, but that still need to refer to GC
         // pointers. For such pointers, FinishPersistentRootedChains ensures
         // that the contained references are nulled out when the owning

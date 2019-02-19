@@ -11,13 +11,13 @@
 class APZHitTestingTester : public APZCTreeManagerTester {
 protected:
   ScreenToParentLayerMatrix4x4 transformToApzc;
-  ParentLayerToScreenMatrix4x4 transformToGoanna;
+  ParentLayerToScreenMatrix4x4 transformToGecko;
 
   already_AddRefed<AsyncPanZoomController> GetTargetAPZC(const ScreenPoint& aPoint) {
     RefPtr<AsyncPanZoomController> hit = manager->GetTargetAPZC(aPoint, nullptr);
     if (hit) {
       transformToApzc = manager->GetScreenToApzcTransform(hit.get());
-      transformToGoanna = manager->GetApzcToGoannaTransform(hit.get());
+      transformToGecko = manager->GetApzcToGeckoTransform(hit.get());
     }
     return hit.forget();
   }
@@ -111,7 +111,7 @@ TEST_F(APZHitTestingTester, HitTesting1) {
   TestAsyncPanZoomController* nullAPZC = nullptr;
   EXPECT_EQ(nullAPZC, hit.get());
   EXPECT_EQ(ScreenToParentLayerMatrix4x4(), transformToApzc);
-  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGoanna);
+  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGecko);
 
   uint32_t paintSequenceNumber = 0;
 
@@ -122,7 +122,7 @@ TEST_F(APZHitTestingTester, HitTesting1) {
   EXPECT_EQ(ApzcOf(root), hit.get());
   // expect hit point at LayerIntPoint(15, 15)
   EXPECT_EQ(ParentLayerPoint(15, 15), transformToApzc.TransformPoint(ScreenPoint(15, 15)));
-  EXPECT_EQ(ScreenPoint(15, 15), transformToGoanna.TransformPoint(ParentLayerPoint(15, 15)));
+  EXPECT_EQ(ScreenPoint(15, 15), transformToGecko.TransformPoint(ParentLayerPoint(15, 15)));
 
   // Now we have a sub APZC with a better fit
   SetScrollableFrameMetrics(layers[3], FrameMetrics::START_SCROLL_ID + 1);
@@ -132,7 +132,7 @@ TEST_F(APZHitTestingTester, HitTesting1) {
   EXPECT_EQ(ApzcOf(layers[3]), hit.get());
   // expect hit point at LayerIntPoint(25, 25)
   EXPECT_EQ(ParentLayerPoint(25, 25), transformToApzc.TransformPoint(ScreenPoint(25, 25)));
-  EXPECT_EQ(ScreenPoint(25, 25), transformToGoanna.TransformPoint(ParentLayerPoint(25, 25)));
+  EXPECT_EQ(ScreenPoint(25, 25), transformToGecko.TransformPoint(ParentLayerPoint(25, 25)));
 
   // At this point, layers[4] obscures layers[3] at the point (15, 15) so
   // hitting there should hit the root APZC
@@ -146,24 +146,24 @@ TEST_F(APZHitTestingTester, HitTesting1) {
   EXPECT_EQ(ApzcOf(layers[4]), hit.get());
   // expect hit point at LayerIntPoint(15, 15)
   EXPECT_EQ(ParentLayerPoint(15, 15), transformToApzc.TransformPoint(ScreenPoint(15, 15)));
-  EXPECT_EQ(ScreenPoint(15, 15), transformToGoanna.TransformPoint(ParentLayerPoint(15, 15)));
+  EXPECT_EQ(ScreenPoint(15, 15), transformToGecko.TransformPoint(ParentLayerPoint(15, 15)));
 
   // Hit test ouside the reach of layer[3,4] but inside root
   hit = GetTargetAPZC(ScreenPoint(90, 90));
   EXPECT_EQ(ApzcOf(root), hit.get());
   // expect hit point at LayerIntPoint(90, 90)
   EXPECT_EQ(ParentLayerPoint(90, 90), transformToApzc.TransformPoint(ScreenPoint(90, 90)));
-  EXPECT_EQ(ScreenPoint(90, 90), transformToGoanna.TransformPoint(ParentLayerPoint(90, 90)));
+  EXPECT_EQ(ScreenPoint(90, 90), transformToGecko.TransformPoint(ParentLayerPoint(90, 90)));
 
   // Hit test ouside the reach of any layer
   hit = GetTargetAPZC(ScreenPoint(1000, 10));
   EXPECT_EQ(nullAPZC, hit.get());
   EXPECT_EQ(ScreenToParentLayerMatrix4x4(), transformToApzc);
-  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGoanna);
+  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGecko);
   hit = GetTargetAPZC(ScreenPoint(-1000, 10));
   EXPECT_EQ(nullAPZC, hit.get());
   EXPECT_EQ(ScreenToParentLayerMatrix4x4(), transformToApzc);
-  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGoanna);
+  EXPECT_EQ(ParentLayerToScreenMatrix4x4(), transformToGecko);
 }
 
 // A more involved hit testing test that involves css and async transforms.
@@ -189,7 +189,7 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   RefPtr<AsyncPanZoomController> hit = GetTargetAPZC(ScreenPoint(75, 25));
   EXPECT_EQ(apzcroot, hit.get());
   EXPECT_EQ(ParentLayerPoint(75, 25), transformToApzc.TransformPoint(ScreenPoint(75, 25)));
-  EXPECT_EQ(ScreenPoint(75, 25), transformToGoanna.TransformPoint(ParentLayerPoint(75, 25)));
+  EXPECT_EQ(ScreenPoint(75, 25), transformToGecko.TransformPoint(ParentLayerPoint(75, 25)));
 
   // Hit an area on the root that would be on layers[3] if layers[2]
   // weren't transformed.
@@ -201,21 +201,21 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   hit = GetTargetAPZC(ScreenPoint(15, 75));
   EXPECT_EQ(apzcroot, hit.get());
   EXPECT_EQ(ParentLayerPoint(15, 75), transformToApzc.TransformPoint(ScreenPoint(15, 75)));
-  EXPECT_EQ(ScreenPoint(15, 75), transformToGoanna.TransformPoint(ParentLayerPoint(15, 75)));
+  EXPECT_EQ(ScreenPoint(15, 75), transformToGecko.TransformPoint(ParentLayerPoint(15, 75)));
 
   // Hit an area on layers[1].
   hit = GetTargetAPZC(ScreenPoint(25, 25));
   EXPECT_EQ(apzc1, hit.get());
   EXPECT_EQ(ParentLayerPoint(25, 25), transformToApzc.TransformPoint(ScreenPoint(25, 25)));
-  EXPECT_EQ(ScreenPoint(25, 25), transformToGoanna.TransformPoint(ParentLayerPoint(25, 25)));
+  EXPECT_EQ(ScreenPoint(25, 25), transformToGecko.TransformPoint(ParentLayerPoint(25, 25)));
 
   // Hit an area on layers[3].
   hit = GetTargetAPZC(ScreenPoint(25, 75));
   EXPECT_EQ(apzc3, hit.get());
   // transformToApzc should unapply layers[2]'s transform
   EXPECT_EQ(ParentLayerPoint(12.5, 75), transformToApzc.TransformPoint(ScreenPoint(25, 75)));
-  // and transformToGoanna should reapply it
-  EXPECT_EQ(ScreenPoint(25, 75), transformToGoanna.TransformPoint(ParentLayerPoint(12.5, 75)));
+  // and transformToGecko should reapply it
+  EXPECT_EQ(ScreenPoint(25, 75), transformToGecko.TransformPoint(ParentLayerPoint(12.5, 75)));
 
   // Hit an area on layers[3] that would be on the root if layers[2]
   // weren't transformed.
@@ -223,8 +223,8 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   EXPECT_EQ(apzc3, hit.get());
   // transformToApzc should unapply layers[2]'s transform
   EXPECT_EQ(ParentLayerPoint(37.5, 75), transformToApzc.TransformPoint(ScreenPoint(75, 75)));
-  // and transformToGoanna should reapply it
-  EXPECT_EQ(ScreenPoint(75, 75), transformToGoanna.TransformPoint(ParentLayerPoint(37.5, 75)));
+  // and transformToGecko should reapply it
+  EXPECT_EQ(ScreenPoint(75, 75), transformToGecko.TransformPoint(ParentLayerPoint(37.5, 75)));
 
   // Pan the root layer upward by 50 pixels.
   // This causes layers[1] to scroll out of view, and an async transform
@@ -232,7 +232,7 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   EXPECT_CALL(*mcc, RequestContentRepaint(_)).Times(1);
 
   // This first pan will move the APZC by 50 pixels, and dispatch a paint request.
-  // Since this paint request is in the queue to Goanna, transformToGoanna will
+  // Since this paint request is in the queue to Gecko, transformToGecko will
   // take it into account.
   ApzcPanNoFling(apzcroot, 100, 50);
 
@@ -241,10 +241,10 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   EXPECT_EQ(apzcroot, hit.get());
   // transformToApzc doesn't unapply the root's own async transform
   EXPECT_EQ(ParentLayerPoint(75, 75), transformToApzc.TransformPoint(ScreenPoint(75, 75)));
-  // and transformToGoanna unapplies it and then reapplies it, because by the
-  // time the event being transformed reaches Goanna the new paint request will
+  // and transformToGecko unapplies it and then reapplies it, because by the
+  // time the event being transformed reaches Gecko the new paint request will
   // have been handled.
-  EXPECT_EQ(ScreenPoint(75, 75), transformToGoanna.TransformPoint(ParentLayerPoint(75, 75)));
+  EXPECT_EQ(ScreenPoint(75, 75), transformToGecko.TransformPoint(ParentLayerPoint(75, 75)));
 
   // Hit where layers[1] used to be and where layers[3] should now be.
   hit = GetTargetAPZC(ScreenPoint(25, 25));
@@ -252,9 +252,9 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   // transformToApzc unapplies both layers[2]'s css transform and the root's
   // async transform
   EXPECT_EQ(ParentLayerPoint(12.5, 75), transformToApzc.TransformPoint(ScreenPoint(25, 25)));
-  // transformToGoanna reapplies both the css transform and the async transform
+  // transformToGecko reapplies both the css transform and the async transform
   // because we have already issued a paint request with it.
-  EXPECT_EQ(ScreenPoint(25, 25), transformToGoanna.TransformPoint(ParentLayerPoint(12.5, 75)));
+  EXPECT_EQ(ScreenPoint(25, 25), transformToGecko.TransformPoint(ParentLayerPoint(12.5, 75)));
 
   // This second pan will move the APZC by another 50 pixels.
   EXPECT_CALL(*mcc, RequestContentRepaint(_)).Times(1);
@@ -265,16 +265,16 @@ TEST_F(APZHitTestingTester, HitTesting2) {
   EXPECT_EQ(apzcroot, hit.get());
   // transformToApzc doesn't unapply the root's own async transform
   EXPECT_EQ(ParentLayerPoint(75, 75), transformToApzc.TransformPoint(ScreenPoint(75, 75)));
-  // transformToGoanna unapplies the full async transform of -100 pixels
-  EXPECT_EQ(ScreenPoint(75, 75), transformToGoanna.TransformPoint(ParentLayerPoint(75, 75)));
+  // transformToGecko unapplies the full async transform of -100 pixels
+  EXPECT_EQ(ScreenPoint(75, 75), transformToGecko.TransformPoint(ParentLayerPoint(75, 75)));
 
   // Hit where layers[1] used to be. It should now hit the root.
   hit = GetTargetAPZC(ScreenPoint(25, 25));
   EXPECT_EQ(apzcroot, hit.get());
   // transformToApzc doesn't unapply the root's own async transform
   EXPECT_EQ(ParentLayerPoint(25, 25), transformToApzc.TransformPoint(ScreenPoint(25, 25)));
-  // transformToGoanna unapplies the full async transform of -100 pixels
-  EXPECT_EQ(ScreenPoint(25, 25), transformToGoanna.TransformPoint(ParentLayerPoint(25, 25)));
+  // transformToGecko unapplies the full async transform of -100 pixels
+  EXPECT_EQ(ScreenPoint(25, 25), transformToGecko.TransformPoint(ParentLayerPoint(25, 25)));
 }
 
 TEST_F(APZHitTestingTester, ComplexMultiLayerTree) {
@@ -366,7 +366,7 @@ TEST_F(APZHitTestingTester, TestRepaintFlushOnNewInputBlock) {
   // The main purpose of this test is to verify that touch-start events (or anything
   // that starts a new input block) don't ever get untransformed. This should always
   // hold because the APZ code should flush repaints when we start a new input block
-  // and the transform to goanna space should be empty.
+  // and the transform to gecko space should be empty.
 
   CreateSimpleScrollingLayer();
   ScopedLayerTreeRegistration registration(manager, 0, root, mcc);

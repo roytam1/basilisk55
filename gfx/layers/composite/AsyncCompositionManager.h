@@ -241,7 +241,7 @@ private:
 
 #ifdef MOZ_WIDGET_ANDROID
   // The following two fields are only needed on Fennec with C++ APZ, because
-  // then we need to reposition the goanna scrollbar to deal with the
+  // then we need to reposition the gecko scrollbar to deal with the
   // dynamic toolbar shifting content around.
   FrameMetrics::ViewID mRootScrollableId;
   ScreenMargin mFixedLayerMargins;

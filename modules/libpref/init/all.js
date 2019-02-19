@@ -2280,7 +2280,7 @@ pref("mousewheel.acceleration.factor", 10);
 // speed is multiplied by the following factors.  The value will be used as
 // 1/100.  E.g., 200 means 2.00.
 // NOTE: Even if "mousewheel.system_scroll_override_on_root_content.enabled" is
-// true, when Goanna detects the user customized the system scrolling speed
+// true, when Gecko detects the user customized the system scrolling speed
 // settings, the override isn't executed.
 pref("mousewheel.system_scroll_override_on_root_content.vertical.factor", 200);
 pref("mousewheel.system_scroll_override_on_root_content.horizontal.factor", 200);
@@ -3548,11 +3548,11 @@ pref("intl.tsf.hack.ms_simplified_chinese.query_insert_result", true);
 pref("intl.tsf.hack.ms_traditional_chinese.query_insert_result", true);
 #endif
 
-// If composition_font is set, Goanna sets the font to IME.  IME may use
+// If composition_font is set, Gecko sets the font to IME.  IME may use
 // the fonts on their window like candidate window.  If they are empty,
-// Goanna uses the system default font which is set to the IM context.
+// Gecko uses the system default font which is set to the IM context.
 // The font name must not start with '@'.  When the writing mode is vertical,
-// Goanna inserts '@' to the start of the font name automatically.
+// Gecko inserts '@' to the start of the font name automatically.
 // FYI: Changing these prefs requires to restart.
 pref("intl.imm.composition_font", "");
 
@@ -3582,20 +3582,20 @@ pref("ui.panel.default_level_parent", false);
 pref("mousewheel.system_scroll_override_on_root_content.enabled", true);
 
 // Enable system settings cache for mouse wheel message handling.
-// Note that even if this pref is set to true, Goanna may not cache the system
-// settings if Goanna detects that the cache won't be refreshed properly when
+// Note that even if this pref is set to true, Gecko may not cache the system
+// settings if Gecko detects that the cache won't be refreshed properly when
 // the settings are changed.
 pref("mousewheel.system_settings_cache.enabled", true);
 
 // This is a pref to test system settings cache for mouse wheel message
-// handling.  If this is set to true, Goanna forcibly use the cache.
+// handling.  If this is set to true, Gecko forcibly use the cache.
 pref("mousewheel.system_settings_cache.force_enabled", false);
 
 // High resolution scrolling with supported mouse drivers on Vista or later.
 pref("mousewheel.enable_pixel_scrolling", true);
 
 // If your mouse drive sends WM_*SCROLL messages when you turn your mouse wheel,
-// set this to true.  Then, goanna processes them as mouse wheel messages.
+// set this to true.  Then, gecko processes them as mouse wheel messages.
 pref("mousewheel.emulate_at_wm_scroll", false);
 
 // Enables or disabled the TrackPoint hack, -1 is autodetect, 0 is off,
@@ -4515,7 +4515,7 @@ pref("stagefright.force-enabled", false);
 pref("stagefright.disabled", false);
 
 // sendbuffer of 0 means use OS default, sendbuffer unset means use
-// goanna default which varies depending on windows version and is OS
+// gecko default which varies depending on windows version and is OS
 // default on non windows
 // pref("network.tcp.sendbuffer", 0);
 
@@ -5389,7 +5389,7 @@ pref("narrate.filter-voices", true);
 
 #if defined(XP_LINUX) && defined(MOZ_GMP_SANDBOX)
 // Whether to allow, on a Linux system that doesn't support the necessary sandboxing
-// features, loading Goanna Media Plugins unsandboxed.  However, EME CDMs will not be
+// features, loading Gecko Media Plugins unsandboxed.  However, EME CDMs will not be
 // loaded without sandboxing even if this pref is changed.
 pref("media.gmp.insecure.allow", false);
 #endif

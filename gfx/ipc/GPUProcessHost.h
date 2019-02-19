@@ -9,7 +9,7 @@
 
 #include "mozilla/Maybe.h"
 #include "mozilla/UniquePtr.h"
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 #include "mozilla/ipc/ProtocolUtils.h"
 #include "mozilla/ipc/TaskFactory.h"
 
@@ -27,7 +27,7 @@ class GPUChild;
 // GPUProcessHosts are allocated and managed by GPUProcessManager. For all
 // intents and purposes it is a singleton, though more than one may be allocated
 // at a time due to its shutdown being asynchronous.
-class GPUProcessHost final : public ipc::GoannaChildProcessHost
+class GPUProcessHost final : public ipc::GeckoChildProcessHost
 {
   friend class GPUChild;
 

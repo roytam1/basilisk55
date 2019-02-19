@@ -716,7 +716,7 @@ nsChromeRegistry::GetSingleton()
   }
 
   RefPtr<nsChromeRegistry> cr;
-  if (GoannaProcessType_Content == XRE_GetProcessType())
+  if (GeckoProcessType_Content == XRE_GetProcessType())
     cr = new nsChromeRegistryContent();
   else
     cr = new nsChromeRegistryChrome();

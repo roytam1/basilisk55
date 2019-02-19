@@ -16,7 +16,7 @@ sdk_processor := \
   $(JAVA) \
   -Dcom.android.tools.lint.bindir='$(ANDROID_TOOLS)' \
   -classpath $(subst $(NULL) ,:,$(strip $(annotation_processor_jar_files))) \
-  org.mozilla.goanna.annotationProcessors.SDKProcessor
+  org.mozilla.gecko.annotationProcessors.SDKProcessor
 
 # For the benefit of readers: the following pattern rule says that,
 # for example, MediaCodec.cpp and MediaCodec.h can be produced from

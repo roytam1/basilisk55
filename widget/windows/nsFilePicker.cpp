@@ -26,7 +26,7 @@
 #include "nsToolkit.h"
 #include "WinUtils.h"
 #include "nsPIDOMWindow.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 using mozilla::IsVistaOrLater;
 using mozilla::IsWin8OrLater;

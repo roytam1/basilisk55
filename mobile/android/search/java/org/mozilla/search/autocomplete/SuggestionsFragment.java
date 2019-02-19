@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.support.v4.content.ContextCompat;
-import org.mozilla.goanna.R;
-import org.mozilla.goanna.search.SearchEngine;
-import org.mozilla.goanna.SuggestClient;
-import org.mozilla.goanna.Telemetry;
-import org.mozilla.goanna.TelemetryContract;
+import org.mozilla.gecko.R;
+import org.mozilla.gecko.search.SearchEngine;
+import org.mozilla.gecko.SuggestClient;
+import org.mozilla.gecko.Telemetry;
+import org.mozilla.gecko.TelemetryContract;
 import org.mozilla.search.AcceptsSearchQuery;
 import org.mozilla.search.AcceptsSearchQuery.SuggestionAnimation;
 
@@ -48,7 +48,7 @@ public class SuggestionsFragment extends Fragment {
     // Number of search suggestions to show.
     private static final int SUGGESTION_MAX = 5;
 
-    public static final String GOANNA_SEARCH_TERMS_URL_PARAM = "__searchTerms__";
+    public static final String GECKO_SEARCH_TERMS_URL_PARAM = "__searchTerms__";
 
     private AcceptsSearchQuery searchListener;
 
@@ -132,7 +132,7 @@ public class SuggestionsFragment extends Fragment {
     }
 
     public void setEngine(SearchEngine engine) {
-        suggestClient = new SuggestClient(getActivity(), engine.getSuggestionTemplate(GOANNA_SEARCH_TERMS_URL_PARAM),
+        suggestClient = new SuggestClient(getActivity(), engine.getSuggestionTemplate(GECKO_SEARCH_TERMS_URL_PARAM),
                                           SUGGESTION_TIMEOUT, SUGGESTION_MAX, true);
     }
 

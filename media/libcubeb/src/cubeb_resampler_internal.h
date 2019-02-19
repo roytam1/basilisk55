@@ -12,7 +12,7 @@
 #include <cassert>
 #include <algorithm>
 #include <memory>
-#ifdef CUBEB_GOANNA_BUILD
+#ifdef CUBEB_GECKO_BUILD
 #include "mozilla/UniquePtr.h"
 // In libc++, symbols such as std::unique_ptr may be defined in std::__1.
 // The _LIBCPP_BEGIN_NAMESPACE_STD and _LIBCPP_END_NAMESPACE_STD macros

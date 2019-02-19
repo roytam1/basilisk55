@@ -5,9 +5,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import gdb
-from gdbpp import GoannaPrettyPrinter
+from gdbpp import GeckoPrettyPrinter
 
-@GoannaPrettyPrinter('nsWeakPtr', '^nsCOMPtr<nsIWeakReference>$')
+@GeckoPrettyPrinter('nsWeakPtr', '^nsCOMPtr<nsIWeakReference>$')
 class weak_ptr_printer(object):
     def __init__(self, value):
         self.value = value
@@ -24,11 +24,11 @@ class weak_ptr_printer(object):
 
         return '[(%s) %s]' % (weak_ptr.dynamic_type, weak_ptr)
 
-@GoannaPrettyPrinter('mozilla::StaticAutoPtr', '^mozilla::StaticAutoPtr<.*>$')
-@GoannaPrettyPrinter('mozilla::StaticRefPtr', '^mozilla::StaticRefPtr<.*>$')
-@GoannaPrettyPrinter('nsAutoPtr', '^nsAutoPtr<.*>$')
-@GoannaPrettyPrinter('nsCOMPtr', '^nsCOMPtr<.*>$')
-@GoannaPrettyPrinter('RefPtr', '^RefPtr<.*>$')
+@GeckoPrettyPrinter('mozilla::StaticAutoPtr', '^mozilla::StaticAutoPtr<.*>$')
+@GeckoPrettyPrinter('mozilla::StaticRefPtr', '^mozilla::StaticRefPtr<.*>$')
+@GeckoPrettyPrinter('nsAutoPtr', '^nsAutoPtr<.*>$')
+@GeckoPrettyPrinter('nsCOMPtr', '^nsCOMPtr<.*>$')
+@GeckoPrettyPrinter('RefPtr', '^RefPtr<.*>$')
 class smartptr_printer(object):
     def __init__(self, value):
         self.value = value['mRawPtr']
@@ -41,7 +41,7 @@ class smartptr_printer(object):
 
         return '[(%s) %s]' % (type_name, str(self.value))
 
-@GoannaPrettyPrinter('UniquePtr', '^mozilla::UniquePtr<.*>$')
+@GeckoPrettyPrinter('UniquePtr', '^mozilla::UniquePtr<.*>$')
 class uniqueptr_printer(object):
     def __init__(self, value):
         self.value = value['mTuple']['mFirstA']

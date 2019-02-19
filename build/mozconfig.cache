@@ -61,7 +61,7 @@ if test -z "$bucket" -a -z "$SCCACHE_DISABLE" -a -z "$no_sccache" -a -z "$MOZ_PG
             # region is az with last letter trimmed
             region=${availability_zone%?}
             # set S3 bucket according to tree (level)
-            case "${GOANNA_HEAD_REPOSITORY}" in
+            case "${GECKO_HEAD_REPOSITORY}" in
             *hg.mozilla.org/try*)
                 bucket=taskcluster-level-1-sccache-${region}
                 ;;

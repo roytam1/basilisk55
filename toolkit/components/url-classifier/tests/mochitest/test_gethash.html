@@ -29,7 +29,7 @@ const NOTEXIST_URL = "http://mochi.test:8888/tests/toolkit/components/url-classi
 var shouldLoad = false;
 
 // In this testcase we store prefixes to localdb and send the fullhash to gethash server.
-// When access the test page goanna should trigger gethash request to server and
+// When access the test page gecko should trigger gethash request to server and
 // get the completion response.
 function loadTestFrame(id) {
   return new Promise(function(resolve, reject) {

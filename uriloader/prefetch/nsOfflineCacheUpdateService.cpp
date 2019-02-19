@@ -494,7 +494,7 @@ nsOfflineCacheUpdateService::Schedule(nsIURI *aManifestURI,
                                       nsIOfflineCacheUpdate **aUpdate)
 {
     nsCOMPtr<nsIOfflineCacheUpdate> update;
-    if (GoannaProcessType_Default != XRE_GetProcessType()) {
+    if (GeckoProcessType_Default != XRE_GetProcessType()) {
         update = new OfflineCacheUpdateChild(aWindow);
     }
     else {
@@ -549,7 +549,7 @@ NS_IMETHODIMP nsOfflineCacheUpdateService::CheckForUpdate(nsIURI *aManifestURI,
                                                           nsIPrincipal* aLoadingPrincipal,
                                                           nsIObserver *aObserver)
 {
-    if (GoannaProcessType_Default != XRE_GetProcessType()) {
+    if (GeckoProcessType_Default != XRE_GetProcessType()) {
         // Not intended to support this on child processes
         return NS_ERROR_NOT_IMPLEMENTED;
     }
@@ -707,7 +707,7 @@ nsOfflineCacheUpdateService::AllowOfflineApp(nsIPrincipal *aPrincipal)
         return NS_ERROR_NOT_AVAILABLE;
     }
 
-    if (GoannaProcessType_Default != XRE_GetProcessType()) {
+    if (GeckoProcessType_Default != XRE_GetProcessType()) {
         ContentChild* child = ContentChild::GetSingleton();
 
         if (!child->SendSetOfflinePermission(IPC::Principal(aPrincipal))) {

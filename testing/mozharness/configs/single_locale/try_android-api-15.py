@@ -24,7 +24,7 @@ config = {
     "exes": {
         'tooltool.py': '/builds/tooltool.py',
     },
-    "update_goanna_source_to_enUS": False,
+    "update_gecko_source_to_enUS": False,
     "repos": [{
         "vcs": "hg",
         "repo": "https://hg.mozilla.org/build/tools",

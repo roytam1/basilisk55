@@ -22,7 +22,7 @@
 #include "nsIObserver.h"
 #include "mozilla/Services.h"
 #include "nsXULAppAPI.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include <algorithm>
 

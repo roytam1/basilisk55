@@ -5,16 +5,16 @@
 package org.mozilla.search;
 
 import android.support.annotation.NonNull;
-import org.mozilla.goanna.GoannaAppShell;
-import org.mozilla.goanna.Locales;
-import org.mozilla.goanna.R;
-import org.mozilla.goanna.Telemetry;
-import org.mozilla.goanna.TelemetryContract;
-import org.mozilla.goanna.db.BrowserContract.SearchHistory;
-import org.mozilla.goanna.distribution.Distribution;
-import org.mozilla.goanna.search.SearchEngine;
-import org.mozilla.goanna.search.SearchEngineManager;
-import org.mozilla.goanna.search.SearchEngineManager.SearchEngineCallback;
+import org.mozilla.gecko.GeckoAppShell;
+import org.mozilla.gecko.Locales;
+import org.mozilla.gecko.R;
+import org.mozilla.gecko.Telemetry;
+import org.mozilla.gecko.TelemetryContract;
+import org.mozilla.gecko.db.BrowserContract.SearchHistory;
+import org.mozilla.gecko.distribution.Distribution;
+import org.mozilla.gecko.search.SearchEngine;
+import org.mozilla.gecko.search.SearchEngineManager;
+import org.mozilla.gecko.search.SearchEngineManager.SearchEngineCallback;
 import org.mozilla.search.autocomplete.SearchBar;
 import org.mozilla.search.autocomplete.SuggestionsFragment;
 
@@ -43,7 +43,7 @@ import android.animation.ObjectAnimator;
 public class SearchActivity extends Locales.LocaleAwareFragmentActivity
         implements AcceptsSearchQuery, SearchEngineCallback {
 
-    private static final String LOGTAG = "GoannaSearchActivity";
+    private static final String LOGTAG = "GeckoSearchActivity";
 
     private static final String KEY_SEARCH_STATE = "search_state";
     private static final String KEY_EDIT_STATE = "edit_state";
@@ -96,7 +96,7 @@ public class SearchActivity extends Locales.LocaleAwareFragmentActivity
 
     /**
      * An empty implementation of AsyncQueryHandler to avoid the "HandlerLeak" warning from Android
-     * Lint. See also {@see org.mozilla.goanna.util.WeakReferenceHandler}.
+     * Lint. See also {@see org.mozilla.gecko.util.WeakReferenceHandler}.
      */
     private static class AsyncQueryHandlerImpl extends AsyncQueryHandler {
         public AsyncQueryHandlerImpl(final ContentResolver that) {
@@ -106,7 +106,7 @@ public class SearchActivity extends Locales.LocaleAwareFragmentActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        GoannaAppShell.ensureCrashHandling();
+        GeckoAppShell.ensureCrashHandling();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_activity_main);

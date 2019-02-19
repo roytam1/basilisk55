@@ -20,7 +20,7 @@ const PREFS_PANEL_AUTH_PREFIX = "home_panels_auth_";
 const DEFAULT_WEIGHT = 100;
 
 // See bug 915424
-function resolveGoannaURI(aURI) {
+function resolveGeckoURI(aURI) {
   if (!aURI)
     throw "Can't resolve an empty uri";
 
@@ -42,7 +42,7 @@ function BannerMessage(options) {
     this.text = options.text;
 
   if ("icon" in options && options.icon != null)
-    this.iconURI = resolveGoannaURI(options.icon);
+    this.iconURI = resolveGeckoURI(options.icon);
 
   if ("onshown" in options && typeof options.onshown === "function")
     this.onshown = options.onshown;

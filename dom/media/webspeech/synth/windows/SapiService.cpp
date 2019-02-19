@@ -8,7 +8,7 @@
 #include "SapiService.h"
 #include "nsServiceManagerUtils.h"
 #include "nsWin32Locale.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsEscape.h"
 
 #include "mozilla/dom/nsSynthVoiceRegistry.h"
@@ -437,9 +437,9 @@ SapiService*
 SapiService::GetInstance()
 {
   MOZ_ASSERT(NS_IsMainThread());
-  if (XRE_GetProcessType() != GoannaProcessType_Default) {
+  if (XRE_GetProcessType() != GeckoProcessType_Default) {
     MOZ_ASSERT(false,
-               "SapiService can only be started on main goanna process");
+               "SapiService can only be started on main gecko process");
     return nullptr;
   }
 

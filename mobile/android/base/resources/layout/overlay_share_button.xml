@@ -5,13 +5,13 @@
 
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:goanna="http://schemas.android.com/apk/res-auto">
-    <org.mozilla.goanna.widget.themed.ThemedImageView
+       xmlns:gecko="http://schemas.android.com/apk/res-auto">
+    <org.mozilla.gecko.widget.themed.ThemedImageView
             android:id="@+id/overlaybtn_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="15dp"
-            goanna:drawableTintList="@color/action_bar_secondary_menu_item_colors"
+            gecko:drawableTintList="@color/action_bar_secondary_menu_item_colors"
             android:scaleType="centerInside"/>
 
     <TextView

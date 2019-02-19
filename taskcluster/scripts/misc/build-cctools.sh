@@ -43,7 +43,7 @@ chmod +x tooltool.py
 : TOOLTOOL_CACHE                ${TOOLTOOL_CACHE:=/home/worker/tooltool-cache}
 export TOOLTOOL_CACHE
 
-wget ${GOANNA_HEAD_REPOSITORY}/raw-file/${GOANNA_HEAD_REV}/browser/config/tooltool-manifests/linux64/clang.manifest
+wget ${GECKO_HEAD_REPOSITORY}/raw-file/${GECKO_HEAD_REV}/browser/config/tooltool-manifests/linux64/clang.manifest
 
 python tooltool.py -v --manifest=clang.manifest fetch
 

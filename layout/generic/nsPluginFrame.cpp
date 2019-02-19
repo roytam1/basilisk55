@@ -39,7 +39,7 @@
 #include "nsLayoutUtils.h"
 #include "nsFrameManager.h"
 #include "nsIObserverService.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include <algorithm>
 
 #include "nsIObjectFrame.h"
@@ -1024,7 +1024,7 @@ nsDisplayPlugin::ComputeVisibility(nsDisplayListBuilder* aBuilder,
 {
   if (aBuilder->IsForPluginGeometry()) {
     nsPluginFrame* f = static_cast<nsPluginFrame*>(mFrame);
-    if (!aBuilder->IsInTransform() || f->IsPaintedByGoanna()) {
+    if (!aBuilder->IsInTransform() || f->IsPaintedByGecko()) {
       // Since transforms induce reference frames, we don't need to worry
       // about this method fluffing out due to non-rectilinear transforms.
       nsRect rAncestor = nsLayoutUtils::TransformFrameRectToAncestor(f,
@@ -1663,7 +1663,7 @@ nsPluginFrame::HandleEvent(nsPresContext* aPresContext,
   if (mInstanceOwner->SendNativeEvents() &&
       anEvent->IsNativeEventDelivererForPlugin()) {
     *anEventStatus = mInstanceOwner->ProcessEvent(*anEvent);
-    // Due to plugin code reentering Goanna, this frame may be dead at this
+    // Due to plugin code reentering Gecko, this frame may be dead at this
     // point.
     return rv;
   }
@@ -1679,7 +1679,7 @@ nsPluginFrame::HandleEvent(nsPresContext* aPresContext,
        anEvent->mMessage == eWheel) &&
       mInstanceOwner->GetEventModel() == NPEventModelCocoa) {
     *anEventStatus = mInstanceOwner->ProcessEvent(*anEvent);
-    // Due to plugin code reentering Goanna, this frame may be dead at this
+    // Due to plugin code reentering Gecko, this frame may be dead at this
     // point.
     return rv;
   }
@@ -1877,7 +1877,7 @@ NS_NewObjectFrame(nsIPresShell* aPresShell, nsStyleContext* aContext)
 }
 
 bool
-nsPluginFrame::IsPaintedByGoanna() const
+nsPluginFrame::IsPaintedByGecko() const
 {
 #ifdef XP_MACOSX
   return true;

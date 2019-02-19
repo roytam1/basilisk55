@@ -73,7 +73,7 @@ RILSystemMessenger.prototype = {
   },
 
   _convertSmsMessageClass: function(aMessageClass) {
-    return RIL.GOANNA_SMS_MESSAGE_CLASSES[aMessageClass] || null;
+    return RIL.GECKO_SMS_MESSAGE_CLASSES[aMessageClass] || null;
   },
 
   _convertSmsDelivery: function(aDelivery) {
@@ -82,10 +82,10 @@ RILSystemMessenger.prototype = {
 
   _convertSmsDeliveryStatus: function(aDeliveryStatus) {
     return [
-      RIL.GOANNA_SMS_DELIVERY_STATUS_NOT_APPLICABLE,
-      RIL.GOANNA_SMS_DELIVERY_STATUS_SUCCESS,
-      RIL.GOANNA_SMS_DELIVERY_STATUS_PENDING,
-      RIL.GOANNA_SMS_DELIVERY_STATUS_ERROR
+      RIL.GECKO_SMS_DELIVERY_STATUS_NOT_APPLICABLE,
+      RIL.GECKO_SMS_DELIVERY_STATUS_SUCCESS,
+      RIL.GECKO_SMS_DELIVERY_STATUS_PENDING,
+      RIL.GECKO_SMS_DELIVERY_STATUS_ERROR
     ][aDeliveryStatus] || null;
   },
 
@@ -131,7 +131,7 @@ RILSystemMessenger.prototype = {
   },
 
   _convertCbMessageClass: function(aMessageClass) {
-    return RIL.GOANNA_SMS_MESSAGE_CLASSES[aMessageClass] || null;
+    return RIL.GECKO_SMS_MESSAGE_CLASSES[aMessageClass] || null;
   },
 
   _convertCbEtwsWarningType: function(aWarningType) {

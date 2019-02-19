@@ -40,7 +40,7 @@ frame.RemoteFrame = function (windowId, frameId) {
  * It handles explicit frame switching (switchToFrame), and implicit
  * frame switching, which occurs when a modal dialog is triggered in B2G.
  *
- * @param {GoannaDriver} driver
+ * @param {GeckoDriver} driver
  *     Reference to the driver instance.
  */
 frame.Manager = class {

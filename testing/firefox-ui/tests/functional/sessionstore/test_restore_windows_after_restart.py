@@ -35,7 +35,7 @@ class TestRestoreWindowsAfterRestart(PuppeteerMixin, MarionetteTestCase):
              self.marionette.absolute_url('layout/mozilla_mission.html')),
         ])
 
-        self.marionette.enforce_goanna_prefs({
+        self.marionette.enforce_gecko_prefs({
             # Set browser to restore previous session
             'browser.startup.page': 3,
             # Make the content load right away instead of waiting for

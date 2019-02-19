@@ -2,10 +2,10 @@
 
 [ -n "$WORKSPACE" ]
 [ -n "$MOZ_OBJDIR" ]
-[ -n "$GOANNA_DIR" ]
+[ -n "$GECKO_DIR" ]
 
 HAZARD_SHELL_OBJDIR=$WORKSPACE/obj-haz-shell
-JS_SRCDIR=$GOANNA_DIR/js/src
+JS_SRCDIR=$GECKO_DIR/js/src
 ANALYSIS_SRCDIR=$JS_SRCDIR/devtools/rootAnalysis
 
 export CC="$TOOLTOOL_DIR/gcc/bin/gcc"
@@ -20,7 +20,7 @@ fi
 function check_commit_msg () {
     ( set +e;
     if [[ -n "$AUTOMATION" ]]; then
-        hg --cwd "$GOANNA_DIR" log -r. --template '{desc}\n' | grep -F -q -- "$1"
+        hg --cwd "$GECKO_DIR" log -r. --template '{desc}\n' | grep -F -q -- "$1"
     else
         echo -- "$SCRIPT_FLAGS" | grep -F -q -- "$1"
     fi
@@ -65,7 +65,7 @@ function configure_analysis () {
 js = "$HAZARD_SHELL_OBJDIR/dist/bin/js"
 analysis_scriptdir = "$ANALYSIS_SRCDIR"
 objdir = "$MOZ_OBJDIR"
-source = "$GOANNA_DIR"
+source = "$GECKO_DIR"
 sixgill = "$TOOLTOOL_DIR/sixgill/usr/libexec/sixgill"
 sixgill_bin = "$TOOLTOOL_DIR/sixgill/usr/bin"
 EOF
@@ -94,7 +94,7 @@ function run_analysis () {
 
     (
         cd "$analysis_dir"
-        $PYTHON "$ANALYSIS_SRCDIR/analyze.py" --buildcommand="$GOANNA_DIR/testing/mozharness/scripts/spidermonkey/build.${build_type}"
+        $PYTHON "$ANALYSIS_SRCDIR/analyze.py" --buildcommand="$GECKO_DIR/testing/mozharness/scripts/spidermonkey/build.${build_type}"
     )
 }
 

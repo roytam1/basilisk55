@@ -1735,7 +1735,7 @@ public:
   /**
    * Draw a background image.  The image's dimensions are as specified in aDest;
    * the image itself is not consulted to determine a size.
-   * See https://wiki.mozilla.org/Goanna:Image_Snapping_and_Rendering
+   * See https://wiki.mozilla.org/Gecko:Image_Snapping_and_Rendering
    *   @param aRenderingContext Where to draw the image, set up with an
    *                            appropriate scale and transform for drawing in
    *                            app units.
@@ -1775,7 +1775,7 @@ public:
 
   /**
    * Draw an image.
-   * See https://wiki.mozilla.org/Goanna:Image_Snapping_and_Rendering
+   * See https://wiki.mozilla.org/Gecko:Image_Snapping_and_Rendering
    *   @param aRenderingContext Where to draw the image, set up with an
    *                            appropriate scale and transform for drawing in
    *                            app units.
@@ -2428,7 +2428,7 @@ public:
     return sTextCombineUprightDigitsEnabled;
   }
 
-  // Stylo (the Servo backend for Goanna's style system) is generally enabled
+  // Stylo (the Servo backend for Gecko's style system) is generally enabled
   // or disabled at compile-time. However, we provide the additional capability
   // to disable it dynamically in stylo-enabled builds via a pref.
   static bool StyloEnabled() {

@@ -6,9 +6,9 @@ package org.mozilla.android.sync.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.SyncConstants;
-import org.mozilla.goanna.sync.Utils;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.SyncConstants;
+import org.mozilla.gecko.sync.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;

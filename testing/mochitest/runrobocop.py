@@ -434,15 +434,15 @@ class RobocopTestRunner(MochitestDesktop):
                 "-e", "quit_and_finish", "1",
                 "-e", "deviceroot", self.deviceRoot,
                 "-e", "class",
-                "org.mozilla.goanna.tests.%s" % test['name'].split('/')[-1].split('.java')[0],
-                "org.mozilla.roboexample.test/org.mozilla.goanna.FennecInstrumentationTestRunner"]
+                "org.mozilla.gecko.tests.%s" % test['name'].split('/')[-1].split('.java')[0],
+                "org.mozilla.roboexample.test/org.mozilla.gecko.FennecInstrumentationTestRunner"]
         else:
             # This does not launch a test at all. It launches an activity
             # that starts Fennec and then waits indefinitely, since cat
             # never returns.
             browserArgs = ["start", "-n",
                            "org.mozilla.roboexample.test/org.mozilla."
-                           "goanna.LaunchFennecWithConfigurationActivity", "&&", "cat"]
+                           "gecko.LaunchFennecWithConfigurationActivity", "&&", "cat"]
             self.dm.default_timeout = sys.maxint  # Forever.
             self.log.info("")
             self.log.info("Serving mochi.test Robocop root at http://%s:%s/tests/robocop/" %

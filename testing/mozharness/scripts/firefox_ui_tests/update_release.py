@@ -172,7 +172,7 @@ class ReleaseFirefoxUIUpdateTests(FirefoxUIUpdateTests):
         if not hasattr(self, 'update_channel'):
             self.update_channel = uvc.channel
 
-        # Filter out any releases that are less than Goanna 38
+        # Filter out any releases that are less than Gecko 38
         uvc.releases = [r for r in uvc.releases
                         if int(r['release'].split('.')[0]) >= 38]
 

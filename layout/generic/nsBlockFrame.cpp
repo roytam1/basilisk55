@@ -165,13 +165,13 @@ static const BlockDebugFlags gFlags[] = {
 static void
 ShowDebugFlags()
 {
-  printf("Here are the available GOANNA_BLOCK_DEBUG_FLAGS:\n");
+  printf("Here are the available GECKO_BLOCK_DEBUG_FLAGS:\n");
   const BlockDebugFlags* bdf = gFlags;
   const BlockDebugFlags* end = gFlags + NUM_DEBUG_FLAGS;
   for (; bdf < end; bdf++) {
     printf("  %s\n", bdf->name);
   }
-  printf("Note: GOANNA_BLOCK_DEBUG_FLAGS is a comma separated list of flag\n");
+  printf("Note: GECKO_BLOCK_DEBUG_FLAGS is a comma separated list of flag\n");
   printf("names (no whitespace)\n");
 }
 
@@ -181,7 +181,7 @@ nsBlockFrame::InitDebugFlags()
   static bool firstTime = true;
   if (firstTime) {
     firstTime = false;
-    char* flags = PR_GetEnv("GOANNA_BLOCK_DEBUG_FLAGS");
+    char* flags = PR_GetEnv("GECKO_BLOCK_DEBUG_FLAGS");
     if (flags) {
       bool error = false;
       for (;;) {

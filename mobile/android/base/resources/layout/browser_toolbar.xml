@@ -31,13 +31,13 @@
                android:src="@drawable/url_bar_translating_edge"
                android:scaleType="fitXY"/>
 
-    <org.mozilla.goanna.toolbar.ShapedButtonFrameLayout
+    <org.mozilla.gecko.toolbar.ShapedButtonFrameLayout
             android:id="@+id/menu"
             style="@style/UrlBar.Menu"
             android:contentDescription="@string/menu"
             android:background="@drawable/shaped_button">
 
-        <org.mozilla.goanna.widget.themed.ThemedImageView
+        <org.mozilla.gecko.widget.themed.ThemedImageView
                 android:id="@+id/menu_icon"
                 style="@style/UrlBar.ImageButton"
                 android:layout_height="@dimen/browser_toolbar_menu_icon_height"
@@ -47,9 +47,9 @@
                 android:src="@drawable/menu"
                 android:tint="@color/tabs_tray_icon_grey"/>
 
-    </org.mozilla.goanna.toolbar.ShapedButtonFrameLayout>
+    </org.mozilla.gecko.toolbar.ShapedButtonFrameLayout>
 
-    <org.mozilla.goanna.toolbar.PhoneTabsButton android:id="@+id/tabs"
+    <org.mozilla.gecko.toolbar.PhoneTabsButton android:id="@+id/tabs"
                                                style="@style/UrlBar.Tabs"
                                                android:layout_width="64dip"
                                                android:layout_alignWithParentIfMissing="true"
@@ -61,7 +61,7 @@
          2 layers. Hence to center this, an additional 4dp is added to the left.
          The margins will be 40dp on left, 8dp on right, instead of ideal 30dp
          and 12dp. -->
-    <org.mozilla.goanna.toolbar.TabCounter android:id="@+id/tabs_counter"
+    <org.mozilla.gecko.toolbar.TabCounter android:id="@+id/tabs_counter"
                         style="@style/UrlBar.TabCounter"
                         android:layout_width="24dip"
                         android:layout_height="24dip"
@@ -73,7 +73,7 @@
 
     <!-- Note that the edit components are invisible so that the views
          depending on their location can properly layout. -->
-    <org.mozilla.goanna.widget.themed.ThemedImageView
+    <org.mozilla.gecko.widget.themed.ThemedImageView
             android:id="@+id/edit_cancel"
             style="@style/UrlBar.EditCancel"
             android:src="@drawable/close_edit_mode_selector"
@@ -84,12 +84,12 @@
     <!-- The space to the left of the cancel button would be larger than the right because
          the url bar drawable contains some whitespace, so we compensate by removing
          some padding from the right (value determined through experimentation). -->
-    <org.mozilla.goanna.toolbar.ToolbarEditLayout android:id="@+id/edit_layout"
+    <org.mozilla.gecko.toolbar.ToolbarEditLayout android:id="@+id/edit_layout"
                   style="@style/UrlBar.EditLayout"
                   android:visibility="invisible"
                   />
 
-    <org.mozilla.goanna.toolbar.ToolbarDisplayLayout android:id="@+id/display_layout"
+    <org.mozilla.gecko.toolbar.ToolbarDisplayLayout android:id="@+id/display_layout"
                   style="@style/UrlBar.DisplayLayout"
                   />
 

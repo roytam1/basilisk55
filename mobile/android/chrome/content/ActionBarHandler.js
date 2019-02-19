@@ -10,7 +10,7 @@ const PHONE_REGEX = /^\+?[0-9\s,-.\(\)*#pw]{1,30}$/; // Are we a phone #?
 
 
 /**
- * ActionBarHandler Object and methods. Interface between Goanna Text Selection code
+ * ActionBarHandler Object and methods. Interface between Gecko Text Selection code
  * (AccessibleCaret, etc) and the Mobile ActionBar UI.
  */
 var ActionBarHandler = {
@@ -129,7 +129,7 @@ var ActionBarHandler = {
   },
 
   /**
-   * Called when Goanna AccessibleCaret becomes visible.
+   * Called when Gecko AccessibleCaret becomes visible.
    */
   _init: function(boundingClientRect) {
     let [element, win] = this._getSelectionTargets();
@@ -137,7 +137,7 @@ var ActionBarHandler = {
       return this.START_TOUCH_ERROR.NO_CONTENT_WINDOW;
     }
 
-    // Hold the ActionBar ID provided by Goanna.
+    // Hold the ActionBar ID provided by Gecko.
     this._selectionID = this._nextSelectionID++;
     [this._targetElement, this._contentWindow] = [element, win];
     this._boundingClientRect = boundingClientRect;
@@ -196,7 +196,7 @@ var ActionBarHandler = {
   },
 
   /**
-   * Called when Goanna AccessibleCaret becomes hidden,
+   * Called when Gecko AccessibleCaret becomes hidden,
    * ActionBar is closed by user "close" request, or as a result of object
    * methods such as SELECT_ALL, PASTE, etc.
    */
@@ -218,7 +218,7 @@ var ActionBarHandler = {
     this._boundingClientRect = null;
 
     // Clear selection required if triggered by self, or TextSelection icon
-    // actions. If called by Goanna CaretStateChangedEvent,
+    // actions. If called by Gecko CaretStateChangedEvent,
     // visibility state is already correct.
     if (clearSelection) {
       this._clearSelection();

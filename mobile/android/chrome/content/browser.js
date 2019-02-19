@@ -161,7 +161,7 @@ var lazilyLoadedObserverScripts = [
   ["PermissionsHelper", ["Permissions:Check", "Permissions:Get", "Permissions:Clear"], "chrome://browser/content/PermissionsHelper.js"],
   ["FeedHandler", ["Feeds:Subscribe"], "chrome://browser/content/FeedHandler.js"],
   ["Feedback", ["Feedback:Show"], "chrome://browser/content/Feedback.js"],
-  ["EmbedRT", ["GoannaView:ImportScript"], "chrome://browser/content/EmbedRT.js"],
+  ["EmbedRT", ["GeckoView:ImportScript"], "chrome://browser/content/EmbedRT.js"],
   ["Reader", ["Reader:AddToCache", "Reader:RemoveFromCache"], "chrome://browser/content/Reader.js"],
   ["PrintHelper", ["Print:PDF"], "chrome://browser/content/PrintHelper.js"],
 ];
@@ -299,7 +299,7 @@ XPCOMUtils.defineLazyGetter(this, "ContentAreaUtils", function() {
 XPCOMUtils.defineLazyModuleGetter(this, "Rect", "resource://gre/modules/Geometry.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Point", "resource://gre/modules/Geometry.jsm");
 
-function resolveGoannaURI(aURI) {
+function resolveGeckoURI(aURI) {
   if (!aURI)
     throw "Can't resolve an empty uri";
 
@@ -518,8 +518,8 @@ var BrowserApp = {
       console.log("browser.js: not loading Firefox Accounts WebChannel; this profile cannot connect to Firefox Accounts.");
     }
 
-    // Notify Java that Goanna has loaded.
-    GlobalEventDispatcher.sendRequest({ type: "Goanna:Ready" });
+    // Notify Java that Gecko has loaded.
+    GlobalEventDispatcher.sendRequest({ type: "Gecko:Ready" });
 
     this.deck.addEventListener("DOMContentLoaded", function BrowserApp_delayedStartup() {
       BrowserApp.deck.removeEventListener("DOMContentLoaded", BrowserApp_delayedStartup);
@@ -527,7 +527,7 @@ var BrowserApp = {
       InitLater(() => Cu.import("resource://gre/modules/NotificationDB.jsm"));
 
       InitLater(() => Services.obs.notifyObservers(window, "browser-delayed-startup-finished", ""));
-      InitLater(() => GlobalEventDispatcher.sendRequest({ type: "Goanna:DelayedStartup" }));
+      InitLater(() => GlobalEventDispatcher.sendRequest({ type: "Gecko:DelayedStartup" }));
 
       if (!AppConstants.RELEASE_OR_BETA) {
         InitLater(() => WebcompatReporter.init());
@@ -1961,7 +1961,7 @@ var BrowserApp = {
         console.log("New OS locale.");
 
         // Ensure that this choice is immediately persisted, because
-        // Goanna won't be told again if it forgets.
+        // Gecko won't be told again if it forgets.
         Services.prefs.setCharPref("intl.locale.os", aData);
         Services.prefs.savePrefFile(null);
 
@@ -1973,7 +1973,7 @@ var BrowserApp = {
       case "Locale:Changed":
         if (aData) {
           // The value provided to Locale:Changed should be a BCP47 language tag
-          // understood by Goanna -- for example, "es-ES" or "de".
+          // understood by Gecko -- for example, "es-ES" or "de".
           console.log("Locale:Changed: " + aData);
 
           // We always write a localized pref, even though sometimes the value is a char pref.
@@ -1988,7 +1988,7 @@ var BrowserApp = {
         Services.prefs.setBoolPref("intl.locale.matchOS", !aData);
 
         // Ensure that this choice is immediately persisted, because
-        // Goanna won't be told again if it forgets.
+        // Gecko won't be told again if it forgets.
         Services.prefs.savePrefFile(null);
 
         // Blow away the string cache so that future lookups get the
@@ -2711,7 +2711,7 @@ var NativeWindow = {
       }
 
       // If the event was already defaultPrevented by somebody (web content, or
-      // some other part of goanna), then don't do anything with it.
+      // some other part of gecko), then don't do anything with it.
       if (event.defaultPrevented) {
         return;
       }
@@ -3197,17 +3197,17 @@ var LightWeightThemeWebInstaller = {
 var DesktopUserAgent = {
   DESKTOP_UA: null,
   TCO_DOMAIN: "t.co",
-  TCO_REPLACE: / Goanna.*/,
+  TCO_REPLACE: / Gecko.*/,
 
   init: function ua_init() {
     Services.obs.addObserver(this, "DesktopMode:Change", false);
     UserAgentOverrides.addComplexOverride(this.onRequest.bind(this));
 
-    // See https://developer.mozilla.org/en/Goanna_user_agent_string_reference
+    // See https://developer.mozilla.org/en/Gecko_user_agent_string_reference
     this.DESKTOP_UA = Cc["@mozilla.org/network/protocol;1?name=http"]
                         .getService(Ci.nsIHttpProtocolHandler).userAgent
                         .replace(/Android \d.+?; [a-zA-Z]+/, "X11; Linux x86_64")
-                        .replace(/Goanna\/[0-9\.]+/, "Goanna/20100101");
+                        .replace(/Gecko\/[0-9\.]+/, "Gecko/20100101");
   },
 
   onRequest: function(channel, defaultUA) {
@@ -3216,7 +3216,7 @@ var DesktopUserAgent = {
       channel.referrer = channel.URI;
 
       // Send a bot-like UA to t.co to get a real redirect. We strip off the
-      // "Goanna/x.y Firefox/x.y" part
+      // "Gecko/x.y Firefox/x.y" part
       return defaultUA.replace(this.TCO_REPLACE, "");
     }
 
@@ -3512,10 +3512,10 @@ Tab.prototype = {
     } catch (e) {}
 
     // When the tab is stubbed from Java, there's a window between the stub
-    // creation and the tab creation in Goanna where the stub could be removed
+    // creation and the tab creation in Gecko where the stub could be removed
     // or the selected tab can change (which is easiest to hit during startup).
     // To prevent these races, we need to differentiate between tab stubs from
-    // Java and new tabs from Goanna.
+    // Java and new tabs from Gecko.
     let stub = false;
 
     if (!aParams.zombifying) {
@@ -3524,7 +3524,7 @@ Tab.prototype = {
         stub = true;
       } else {
         let jenv = JNI.GetForThread();
-        let jTabs = JNI.LoadClass(jenv, "org.mozilla.goanna.Tabs", {
+        let jTabs = JNI.LoadClass(jenv, "org.mozilla.gecko.Tabs", {
           static_methods: [
             { name: "getNextTabId", sig: "()I" }
           ],
@@ -3801,7 +3801,7 @@ Tab.prototype = {
     return {
       type: "Link:Favicon",
       tabID: this.id,
-      href: resolveGoannaURI(eventTarget.href),
+      href: resolveGeckoURI(eventTarget.href),
       size: maxSize,
       mime: eventTarget.getAttribute("type") || ""
     };
@@ -4420,7 +4420,7 @@ Tab.prototype = {
     // notifications using nsBrowserStatusFilter.
   },
 
-  _getGoannaZoom: function() {
+  _getGeckoZoom: function() {
     let res = {};
     let cwu = this.browser.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
     cwu.getResolution(res);
@@ -4437,7 +4437,7 @@ Tab.prototype = {
     let cwu = this.browser.contentWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
 
     if (this._restoreZoom && cwu.isResolutionSet) {
-      return this._getGoannaZoom();
+      return this._getGeckoZoom();
     }
     return null;
   },

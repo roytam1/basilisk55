@@ -97,7 +97,7 @@ public:
   nsTArray<MetadataTag> mTags;
 
   // True if the track is gonna be (decrypted)/decoded and
-  // rendered directly by non-goanna components.
+  // rendered directly by non-gecko components.
   bool mIsRenderedExternally;
 
   virtual AudioInfo* GetAsAudioInfo()

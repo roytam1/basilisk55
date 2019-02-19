@@ -39,7 +39,7 @@ Notification" API, which provides the familiar pop-up and system notification
 based user interface.
 
 Throughout, we use Fennec to refer to the Java-and-Android application shell,
-and Goanna to refer to the embedded Goanna platform.
+and Gecko to refer to the embedded Gecko platform.
 
 Overview of the Fennec Push implementation
 ==========================================
@@ -54,31 +54,31 @@ application messaging channels, and bridges unauthenticated push messages to the
 GCM delivery queue.
 
 The Fennec Push implementation is designed to address the following technical
-challenge: **GCM events, including incoming push messages, can occur when Goanna
-is not running**. In case of an incoming push message, if Goanna is not running
-Fennec will request startup of necessary Goanna services and queue incoming
+challenge: **GCM events, including incoming push messages, can occur when Gecko
+is not running**. In case of an incoming push message, if Gecko is not running
+Fennec will request startup of necessary Gecko services and queue incoming
 push messages in the meantime. Once services are running, messages are sent over.
 
 It's worth noting that Fennec uses push to implement internal functionality like
 Sync and Firefox Accounts, and that these background services are *not* tied to
-Goanna being available.
+Gecko being available.
 
 Therefore, the principal constraints and requirements are:
 
 1) Fennec must be able to service GCM events, including incoming push messages,
-independently of Goanna.
+independently of Gecko.
 
-2) Goanna must be able to maintain push subscriptions across its entire
+2) Gecko must be able to maintain push subscriptions across its entire
 life-cycle.
 
-3) Fennec must be able to use push messages for non-Goanna purposes independently
-of Goanna.
+3) Fennec must be able to use push messages for non-Gecko purposes independently
+of Gecko.
 
 Significant previous experience building Fennec background services has shown
-that configuring such services across the Goanna-Fennec interface is both
+that configuring such services across the Gecko-Fennec interface is both
 valuable and difficult.  Therefore, we add the following requirement:
 
-4) Goanna must own the push configuration details where appropriate and possible.
+4) Gecko must own the push configuration details where appropriate and possible.
 
 We explicitly do not care to support push messages across multiple processes. This
 will matter more in a post-e10s-on-Android world.
@@ -96,9 +96,9 @@ state changes.
 
 There is a unique `PushManagerStorage` instance per-App that may only be
 accessed by the main process.  The `PushManagerStorage` maintains two mappings.
-The first is a one-to-one mapping from a Goanna profile to a `PushRegistration`:
+The first is a one-to-one mapping from a Gecko profile to a `PushRegistration`:
 a datum of User Agent state.  The `PushManager` maintains each profile's
-registration across Android life-cycle events, Goanna events, and GCM events.
+registration across Android life-cycle events, Gecko events, and GCM events.
 Each `PushRegistration` includes:
 
 * autopush server configuration details;
@@ -112,7 +112,7 @@ message channel from the autopush server to Fennec.  Each `PushSubscription`
 includes:
 
 * a Fennec service identifier, one of "webpush" or "fxa";
-* an associated Goanna profile;
+* an associated Gecko profile;
 * a unique channel identifier.
 
 The `PushManager` uses the `PushSubscription` service and profile maintained in
@@ -129,17 +129,17 @@ as part of regular maintainence.  The `PushManager` uses an `AutopushClient`
 instance to interact with the autopush server.
 
 Between the `PushManager`, the `PushManagerStorage`, and assorted GCM event
-broadcast receivers, push messages that do not target Goanna can be implemented.
+broadcast receivers, push messages that do not target Gecko can be implemented.
 
-Goanna components
+Gecko components
 ----------------
 
-The Goanna side of the architecture is implemented in JavaScript by the
+The Gecko side of the architecture is implemented in JavaScript by the
 `PushServiceAndroidGCM.jsm` module.  This registers a PushService, like the Web
 Socket and HTTP2 backed services, which simply delegates to the Fennec
 `PushManager` using `Messaging.jsm` and friends.
 
-There are some complications: first, Goanna must maintain the autopush
+There are some complications: first, Gecko must maintain the autopush
 configuration; and second, it is possible for the push system to change while
-Goanna is not running.  Therefore, the communication is bi-directional
-throughout, so that Goanna can react to Fennec events after-the-fact.
+Gecko is not running.  Therefore, the communication is bi-directional
+throughout, so that Gecko can react to Fennec events after-the-fact.

@@ -73,7 +73,7 @@ static NS_DEFINE_CID(kNSSComponentCID, NS_NSSCOMPONENT_CID);
 /*static*/ nsNSSCertificate*
 nsNSSCertificate::Create(CERTCertificate* cert)
 {
-  if (GoannaProcessType_Default != XRE_GetProcessType()) {
+  if (GeckoProcessType_Default != XRE_GetProcessType()) {
     NS_ERROR("Trying to initialize nsNSSCertificate in a non-chrome process!");
     return nullptr;
   }
@@ -87,7 +87,7 @@ nsNSSCertificate*
 nsNSSCertificate::ConstructFromDER(char* certDER, int derLen)
 {
   // On non-chrome process prevent instantiation
-  if (GoannaProcessType_Default != XRE_GetProcessType())
+  if (GeckoProcessType_Default != XRE_GetProcessType())
     return nullptr;
 
   nsNSSCertificate* newObject = nsNSSCertificate::Create();
@@ -129,7 +129,7 @@ nsNSSCertificate::nsNSSCertificate(CERTCertificate* cert)
   , mCertType(CERT_TYPE_NOT_YET_INITIALIZED)
 {
 #if defined(DEBUG)
-  if (GoannaProcessType_Default != XRE_GetProcessType())
+  if (GeckoProcessType_Default != XRE_GetProcessType())
     NS_ERROR("Trying to initialize nsNSSCertificate in a non-chrome process!");
 #endif
 
@@ -147,7 +147,7 @@ nsNSSCertificate::nsNSSCertificate()
   , mPermDelete(false)
   , mCertType(CERT_TYPE_NOT_YET_INITIALIZED)
 {
-  if (GoannaProcessType_Default != XRE_GetProcessType())
+  if (GeckoProcessType_Default != XRE_GetProcessType())
     NS_ERROR("Trying to initialize nsNSSCertificate in a non-chrome process!");
 }
 

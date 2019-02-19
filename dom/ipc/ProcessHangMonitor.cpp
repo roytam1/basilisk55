@@ -278,7 +278,7 @@ HangMonitorChild::HangMonitorChild(ProcessHangMonitor* aMonitor)
   MOZ_RELEASE_ASSERT(NS_IsMainThread());
   mContext = danger::GetJSContext();
   mForcePaintMonitor =
-    MakeUnique<mozilla::BackgroundHangMonitor>("Goanna_Child_ForcePaint",
+    MakeUnique<mozilla::BackgroundHangMonitor>("Gecko_Child_ForcePaint",
                                                128, /* ms timeout for microhangs */
                                                8192 /* ms timeout for permahangs */,
                                                BackgroundHangMonitor::THREAD_PRIVATE);

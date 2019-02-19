@@ -55,7 +55,7 @@ class NetworkInformation;
 } // namespace hal
 
 // The order and number of the members in this structure must correspond
-// to the attrsAppearance array in GoannaAppShell.getSystemColors()
+// to the attrsAppearance array in GeckoAppShell.getSystemColors()
 typedef struct AndroidSystemColors {
     nscolor textColorPrimary;
     nscolor textColorPrimaryInverse;
@@ -92,7 +92,7 @@ class AndroidBridge final
 {
 public:
     enum {
-        // Values for NotifyIME, in addition to values from the Goanna
+        // Values for NotifyIME, in addition to values from the Gecko
         // IMEMessage enum; use negative values here to prevent conflict
         NOTIFY_IME_OPEN_VKB = -2,
         NOTIFY_IME_REPLY_EVENT = -1,
@@ -100,7 +100,7 @@ public:
 
     enum {
         LAYER_CLIENT_TYPE_NONE = 0,
-        LAYER_CLIENT_TYPE_GL = 2            // AndroidGoannaGLLayerClient
+        LAYER_CLIENT_TYPE_GL = 2            // AndroidGeckoGLLayerClient
     };
 
     static bool IsJavaUiThread() {
@@ -153,7 +153,7 @@ public:
     // DeleteGlobalRef() when the context is no longer needed.
     jobject GetGlobalContextRef(void);
 
-    void HandleGoannaMessage(JSContext* cx, JS::HandleObject message);
+    void HandleGeckoMessage(JSContext* cx, JS::HandleObject message);
 
     void GetCurrentBatteryInformation(hal::BatteryInformation* aBatteryInfo);
 
@@ -272,12 +272,12 @@ class AutoJObject {
 public:
     AutoJObject(JNIEnv* aJNIEnv = nullptr) : mObject(nullptr)
     {
-        mJNIEnv = aJNIEnv ? aJNIEnv : jni::GetGoannaThreadEnv();
+        mJNIEnv = aJNIEnv ? aJNIEnv : jni::GetGeckoThreadEnv();
     }
 
     AutoJObject(JNIEnv* aJNIEnv, jobject aObject)
     {
-        mJNIEnv = aJNIEnv ? aJNIEnv : jni::GetGoannaThreadEnv();
+        mJNIEnv = aJNIEnv ? aJNIEnv : jni::GetGeckoThreadEnv();
         mObject = aObject;
     }
 
@@ -306,7 +306,7 @@ class AutoLocalJNIFrame {
 public:
     AutoLocalJNIFrame(int nEntries = 15)
         : mEntries(nEntries)
-        , mJNIEnv(jni::GetGoannaThreadEnv())
+        , mJNIEnv(jni::GetGeckoThreadEnv())
         , mHasFrameBeenPushed(false)
     {
         MOZ_ASSERT(mJNIEnv);
@@ -315,7 +315,7 @@ public:
 
     AutoLocalJNIFrame(JNIEnv* aJNIEnv, int nEntries = 15)
         : mEntries(nEntries)
-        , mJNIEnv(aJNIEnv ? aJNIEnv : jni::GetGoannaThreadEnv())
+        , mJNIEnv(aJNIEnv ? aJNIEnv : jni::GetGeckoThreadEnv())
         , mHasFrameBeenPushed(false)
     {
         MOZ_ASSERT(mJNIEnv);

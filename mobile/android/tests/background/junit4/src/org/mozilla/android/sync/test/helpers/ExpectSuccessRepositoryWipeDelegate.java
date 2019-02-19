@@ -4,8 +4,8 @@
 package org.mozilla.android.sync.test.helpers;
 
 import junit.framework.AssertionFailedError;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.repositories.delegates.RepositorySessionWipeDelegate;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.repositories.delegates.RepositorySessionWipeDelegate;
 
 import java.util.concurrent.ExecutorService;
 

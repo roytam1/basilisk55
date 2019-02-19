@@ -40,7 +40,7 @@ public:
   virtual bool IsTopLevelWidget() = 0;
 
   /*
-   * Init a standard goanna event for this widget.
+   * Init a standard gecko event for this widget.
    * @param aEvent the event to initialize.
    * @param aPoint message position in physical coordinates.
    */
@@ -54,28 +54,28 @@ public:
   virtual WidgetEventTime CurrentMessageWidgetEventTime() const = 0;
 
   /*
-   * Dispatch a goanna event for this widget.
+   * Dispatch a gecko event for this widget.
    * Returns true if it's consumed.  Otherwise, false.
    */
   virtual bool DispatchWindowEvent(mozilla::WidgetGUIEvent* aEvent) = 0;
 
   /*
-   * Dispatch a goanna keyboard event for this widget. This
-   * is called by KeyboardLayout to dispatch goanna events.
+   * Dispatch a gecko keyboard event for this widget. This
+   * is called by KeyboardLayout to dispatch gecko events.
    * Returns true if it's consumed.  Otherwise, false.
    */
   virtual bool DispatchKeyboardEvent(mozilla::WidgetKeyboardEvent* aEvent) = 0;
 
   /*
-   * Dispatch a goanna wheel event for this widget. This
-   * is called by ScrollHandler to dispatch goanna events.
+   * Dispatch a gecko wheel event for this widget. This
+   * is called by ScrollHandler to dispatch gecko events.
    * Returns true if it's consumed.  Otherwise, false.
    */
   virtual bool DispatchWheelEvent(mozilla::WidgetWheelEvent* aEvent) = 0;
 
   /*
-   * Dispatch a goanna content command event for this widget. This
-   * is called by ScrollHandler to dispatch goanna events.
+   * Dispatch a gecko content command event for this widget. This
+   * is called by ScrollHandler to dispatch gecko events.
    * Returns true if it's consumed.  Otherwise, false.
    */
   virtual bool DispatchContentCommandEvent(mozilla::WidgetContentCommandEvent* aEvent) = 0;

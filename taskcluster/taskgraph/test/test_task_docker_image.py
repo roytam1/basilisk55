@@ -11,7 +11,7 @@ from ..task import docker_image
 from mozunit import main
 
 
-KIND_PATH = os.path.join(docker_image.GOANNA, 'taskcluster', 'ci', 'docker-image')
+KIND_PATH = os.path.join(docker_image.GECKO, 'taskcluster', 'ci', 'docker-image')
 
 
 class TestDockerImageKind(unittest.TestCase):

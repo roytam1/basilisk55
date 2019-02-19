@@ -12,8 +12,8 @@ SOURCES += [
 ]
 
 if CONFIG['CPU_ARCH'] == 'x86_64':
-  GoannaSharedLibrary('qipcap64')
+  GeckoSharedLibrary('qipcap64')
 else:
-  GoannaSharedLibrary('qipcap')
+  GeckoSharedLibrary('qipcap')
 
 NO_VISIBILITY_FLAGS = True

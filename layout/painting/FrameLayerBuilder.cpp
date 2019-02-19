@@ -48,7 +48,7 @@
 #include "mozilla/layers/TextureClient.h"
 #include "mozilla/layers/TextureWrapperImage.h"
 #include "mozilla/Unused.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "LayersLogging.h"
 #include "gfxPrefs.h"
 

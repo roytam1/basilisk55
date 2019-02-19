@@ -7,8 +7,8 @@
 #include "mozilla/dom/ContentChild.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/StaticPtr.h"
-#include "mozIGoannaMediaPluginService.h"
-#include "mozIGoannaMediaPluginChromeService.h"
+#include "mozIGeckoMediaPluginService.h"
+#include "mozIGeckoMediaPluginChromeService.h"
 #include "nsCOMPtr.h"
 #include "GMPParent.h"
 #include "GMPContentParent.h"
@@ -36,24 +36,24 @@ namespace mozilla {
 
 namespace gmp {
 
-already_AddRefed<GoannaMediaPluginServiceChild>
-GoannaMediaPluginServiceChild::GetSingleton()
+already_AddRefed<GeckoMediaPluginServiceChild>
+GeckoMediaPluginServiceChild::GetSingleton()
 {
   MOZ_ASSERT(!XRE_IsParentProcess());
-  RefPtr<GoannaMediaPluginService> service(
-    GoannaMediaPluginService::GetGoannaMediaPluginService());
+  RefPtr<GeckoMediaPluginService> service(
+    GeckoMediaPluginService::GetGeckoMediaPluginService());
 #ifdef DEBUG
   if (service) {
-    nsCOMPtr<mozIGoannaMediaPluginChromeService> chromeService;
+    nsCOMPtr<mozIGeckoMediaPluginChromeService> chromeService;
     CallQueryInterface(service.get(), getter_AddRefs(chromeService));
     MOZ_ASSERT(!chromeService);
   }
 #endif
-  return service.forget().downcast<GoannaMediaPluginServiceChild>();
+  return service.forget().downcast<GeckoMediaPluginServiceChild>();
 }
 
 RefPtr<GetGMPContentParentPromise>
-GoannaMediaPluginServiceChild::GetContentParent(GMPCrashHelper* aHelper,
+GeckoMediaPluginServiceChild::GetContentParent(GMPCrashHelper* aHelper,
                                                const nsACString& aNodeId,
                                                const nsCString& aAPI,
                                                const nsTArray<nsCString>& aTags)
@@ -68,7 +68,7 @@ GoannaMediaPluginServiceChild::GetContentParent(GMPCrashHelper* aHelper,
   nsCString api(aAPI);
   nsTArray<nsCString> tags(aTags);
   RefPtr<GMPCrashHelper> helper(aHelper);
-  RefPtr<GoannaMediaPluginServiceChild> self(this);
+  RefPtr<GeckoMediaPluginServiceChild> self(this);
   GetServiceChild()->Then(thread, __func__,
     [self, nodeId, api, tags, helper, rawHolder](GMPServiceChild* child) {
       UniquePtr<MozPromiseHolder<GetGMPContentParentPromise>> holder(rawHolder);
@@ -98,7 +98,7 @@ GoannaMediaPluginServiceChild::GetContentParent(GMPCrashHelper* aHelper,
       }
 
       if (!ok || NS_FAILED(rv)) {
-        LOGD(("GoannaMediaPluginServiceChild::GetContentParent SendLaunchGMP failed rv=%d", rv));
+        LOGD(("GeckoMediaPluginServiceChild::GetContentParent SendLaunchGMP failed rv=%d", rv));
         holder->Reject(rv, __func__);
         return;
       }
@@ -185,7 +185,7 @@ GMPCapabilitiesToString()
 
 /* static */
 void
-GoannaMediaPluginServiceChild::UpdateGMPCapabilities(nsTArray<GMPCapabilityData>&& aCapabilities)
+GeckoMediaPluginServiceChild::UpdateGMPCapabilities(nsTArray<GMPCapabilityData>&& aCapabilities)
 {
   {
     // The mutex should unlock before sending the "gmp-changed" observer service notification.
@@ -212,7 +212,7 @@ GoannaMediaPluginServiceChild::UpdateGMPCapabilities(nsTArray<GMPCapabilityData>
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceChild::HasPluginForAPI(const nsACString& aAPI,
+GeckoMediaPluginServiceChild::HasPluginForAPI(const nsACString& aAPI,
                                               nsTArray<nsCString>* aTags,
                                               bool* aHasPlugin)
 {
@@ -235,7 +235,7 @@ GoannaMediaPluginServiceChild::HasPluginForAPI(const nsACString& aAPI,
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceChild::GetNodeId(const nsAString& aOrigin,
+GeckoMediaPluginServiceChild::GetNodeId(const nsAString& aOrigin,
                                         const nsAString& aTopLevelOrigin,
                                         const nsAString& aGMPName,
                                         UniquePtr<GetNodeIdCallback>&& aCallback)
@@ -268,7 +268,7 @@ GoannaMediaPluginServiceChild::GetNodeId(const nsAString& aOrigin,
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceChild::Observe(nsISupports* aSubject,
+GeckoMediaPluginServiceChild::Observe(nsISupports* aSubject,
                                       const char* aTopic,
                                       const char16_t* aSomeData)
 {
@@ -286,8 +286,8 @@ GoannaMediaPluginServiceChild::Observe(nsISupports* aSubject,
   return NS_OK;
 }
 
-RefPtr<GoannaMediaPluginServiceChild::GetServiceChildPromise>
-GoannaMediaPluginServiceChild::GetServiceChild()
+RefPtr<GeckoMediaPluginServiceChild::GetServiceChildPromise>
+GeckoMediaPluginServiceChild::GetServiceChild()
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
 
@@ -308,7 +308,7 @@ GoannaMediaPluginServiceChild::GetServiceChild()
 }
 
 void
-GoannaMediaPluginServiceChild::SetServiceChild(UniquePtr<GMPServiceChild>&& aServiceChild)
+GeckoMediaPluginServiceChild::SetServiceChild(UniquePtr<GMPServiceChild>&& aServiceChild)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
 
@@ -322,7 +322,7 @@ GoannaMediaPluginServiceChild::SetServiceChild(UniquePtr<GMPServiceChild>&& aSer
 }
 
 void
-GoannaMediaPluginServiceChild::RemoveGMPContentParent(GMPContentParent* aGMPContentParent)
+GeckoMediaPluginServiceChild::RemoveGMPContentParent(GMPContentParent* aGMPContentParent)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
 
@@ -402,8 +402,8 @@ public:
 
   NS_IMETHOD Run() override
   {
-    RefPtr<GoannaMediaPluginServiceChild> gmp =
-      GoannaMediaPluginServiceChild::GetSingleton();
+    RefPtr<GeckoMediaPluginServiceChild> gmp =
+      GeckoMediaPluginServiceChild::GetSingleton();
     MOZ_ASSERT(!gmp->mServiceChild);
     if (mGMPServiceChild->Open(mTransport, mOtherPid, XRE_GetIOMessageLoop(),
                                ipc::ChildSide)) {
@@ -424,8 +424,8 @@ private:
 PGMPServiceChild*
 GMPServiceChild::Create(Transport* aTransport, ProcessId aOtherPid)
 {
-  RefPtr<GoannaMediaPluginServiceChild> gmp =
-    GoannaMediaPluginServiceChild::GetSingleton();
+  RefPtr<GeckoMediaPluginServiceChild> gmp =
+    GeckoMediaPluginServiceChild::GetSingleton();
   MOZ_ASSERT(!gmp->mServiceChild);
 
   UniquePtr<GMPServiceChild> serviceChild(new GMPServiceChild());

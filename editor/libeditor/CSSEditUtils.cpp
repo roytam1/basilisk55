@@ -557,7 +557,7 @@ CSSEditUtils::GetCSSInlinePropertyBase(nsINode* aNode,
     nsCSSProps::LookupProperty(nsDependentAtomString(aProperty),
                                CSSEnabledState::eForAllContent);
   MOZ_ASSERT(prop != eCSSProperty_UNKNOWN);
-  decl->AsGoanna()->GetPropertyValueByID(prop, aValue);
+  decl->AsGecko()->GetPropertyValueByID(prop, aValue);
 
   return NS_OK;
 }

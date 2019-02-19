@@ -4,7 +4,7 @@
         android:title="@string/pref_content_notifications"
         android:summary="@string/pref_content_notifications_summary"
         android:defaultValue="true" />
-    <org.mozilla.goanna.preferences.AlignRightLinkPreference
+    <org.mozilla.gecko.preferences.AlignRightLinkPreference
         android:key="android.not_a_preference.notifications.content.learn_more"
         android:title="@string/pref_learn_more"
         android:persistent="false"

@@ -16,7 +16,7 @@ import mozprocess
 
 
 __all__ = ["SeleniumServer", "ChromeDriverServer",
-           "GoannaDriverServer", "ServoDriverServer",
+           "GeckoDriverServer", "ServoDriverServer",
            "WebDriverServer"]
 
 
@@ -148,7 +148,7 @@ class EdgeDriverServer(WebDriverServer):
                 "--port=%s" % str(self.port)]
 
 
-class GoannaDriverServer(WebDriverServer):
+class GeckoDriverServer(WebDriverServer):
     def __init__(self, logger, marionette_port=2828, binary="wires",
                  host="127.0.0.1", port=None):
         env = os.environ.copy()

@@ -163,7 +163,7 @@
 
 #include "mozilla/layers/CompositorBridgeChild.h"
 #include "ClientLayerManager.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "gfxPlatform.h"
 #include "Layers.h"
 #include "LayerTreeInvalidation.h"
@@ -201,7 +201,7 @@
 #include "nsIDocShellTreeOwner.h"
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracer.h"
+#include "GeckoTaskTracer.h"
 using namespace mozilla::tasktracer;
 #endif
 
@@ -265,7 +265,7 @@ struct RangePaintInfo {
 // ----------------------------------------------------------------------
 
 #ifdef DEBUG
-// Set the environment variable GOANNA_VERIFY_REFLOW_FLAGS to one or
+// Set the environment variable GECKO_VERIFY_REFLOW_FLAGS to one or
 // more of the following flags (comma separated) for handy debug
 // output.
 static uint32_t gVerifyReflowFlags;
@@ -290,14 +290,14 @@ static const VerifyReflowFlags gFlags[] = {
 static void
 ShowVerifyReflowFlags()
 {
-  printf("Here are the available GOANNA_VERIFY_REFLOW_FLAGS:\n");
+  printf("Here are the available GECKO_VERIFY_REFLOW_FLAGS:\n");
   const VerifyReflowFlags* flag = gFlags;
   const VerifyReflowFlags* limit = gFlags + NUM_VERIFY_REFLOW_FLAGS;
   while (flag < limit) {
     printf("  %s\n", flag->name);
     ++flag;
   }
-  printf("Note: GOANNA_VERIFY_REFLOW_FLAGS is a comma separated list of flag\n");
+  printf("Note: GECKO_VERIFY_REFLOW_FLAGS is a comma separated list of flag\n");
   printf("names (no whitespace)\n");
 }
 #endif
@@ -576,7 +576,7 @@ VerifyStyleTree(nsPresContext* aPresContext, nsFrameManager* aFrameManager)
       return;
     }
     nsIFrame* rootFrame = aFrameManager->GetRootFrame();
-    aPresContext->RestyleManager()->AsGoanna()->DebugVerifyStyleTree(rootFrame);
+    aPresContext->RestyleManager()->AsGecko()->DebugVerifyStyleTree(rootFrame);
   }
 }
 #define VERIFY_STYLE_TREE ::VerifyStyleTree(mPresContext, mFrameConstructor)
@@ -593,7 +593,7 @@ nsIPresShell::GetVerifyReflowEnable()
   static bool firstTime = true;
   if (firstTime) {
     firstTime = false;
-    char* flags = PR_GetEnv("GOANNA_VERIFY_REFLOW_FLAGS");
+    char* flags = PR_GetEnv("GECKO_VERIFY_REFLOW_FLAGS");
     if (flags) {
       bool error = false;
 
@@ -877,7 +877,7 @@ PresShell::Init(nsIDocument* aDocument,
   // Bind the context to the presentation shell.
   mPresContext = aPresContext;
   StyleBackendType backend = aStyleSet->IsServo() ? StyleBackendType::Servo
-                                                  : StyleBackendType::Goanna;
+                                                  : StyleBackendType::Gecko;
   aPresContext->AttachShell(this, backend);
 
   // Now we can initialize the style set. Make sure to set the member before
@@ -4240,7 +4240,7 @@ PresShell::DocumentStatesChanged(nsIDocument* aDocument,
   NS_PRECONDITION(!mIsDocumentGone, "Unexpected DocumentStatesChanged");
   NS_PRECONDITION(aDocument == mDocument, "Unexpected aDocument");
 
-  nsStyleSet* styleSet = mStyleSet->GetAsGoanna();
+  nsStyleSet* styleSet = mStyleSet->GetAsGecko();
   if (!styleSet) {
     // XXXheycam ServoStyleSets don't support document state selectors,
     // but these are only used in chrome documents, which we are not
@@ -4559,9 +4559,9 @@ PresShell::RecordStyleSheetChange(StyleSheet* aStyleSheet)
   if (mStylesHaveChanged)
     return;
 
-  if (aStyleSheet->IsGoanna()) {
+  if (aStyleSheet->IsGecko()) {
     // XXXheycam ServoStyleSheets don't support <style scoped> yet.
-    Element* scopeElement = aStyleSheet->AsGoanna()->GetScopeElement();
+    Element* scopeElement = aStyleSheet->AsGecko()->GetScopeElement();
     if (scopeElement) {
       mChangedScopeStyleRoots.AppendElement(scopeElement);
       return;
@@ -6845,9 +6845,9 @@ FlushThrottledStyles(nsIDocument *aDocument, void *aData)
   if (shell && shell->IsVisible()) {
     nsPresContext* presContext = shell->GetPresContext();
     if (presContext) {
-      if (presContext->RestyleManager()->IsGoanna()) {
+      if (presContext->RestyleManager()->IsGecko()) {
         // XXX stylo: ServoRestyleManager doesn't support animations yet.
-        presContext->RestyleManager()->AsGoanna()->UpdateOnlyAnimationStyles();
+        presContext->RestyleManager()->AsGecko()->UpdateOnlyAnimationStyles();
       }
     }
   }
@@ -9520,8 +9520,8 @@ PresShell::Observe(nsISupports* aSubject,
             MOZ_CRASH("stylo: PresShell::Observe(\"chrome-flush-skin-caches\") "
                       "not implemented for Servo-backed style system");
           }
-          restyleManager->AsGoanna()->ProcessRestyledFrames(changeList);
-          restyleManager->AsGoanna()->FlushOverflowChangedTracker();
+          restyleManager->AsGecko()->ProcessRestyledFrames(changeList);
+          restyleManager->AsGecko()->FlushOverflowChangedTracker();
           --mChangeNestCount;
         }
       }
@@ -10012,7 +10012,7 @@ PresShell::VerifyIncrementalReflow()
     NS_WARNING("VerifyIncrementalReflow cannot handle ServoStyleSets");
     return true;
   }
-  nsAutoPtr<nsStyleSet> newSet(CloneStyleSet(mStyleSet->AsGoanna()));
+  nsAutoPtr<nsStyleSet> newSet(CloneStyleSet(mStyleSet->AsGecko()));
   nsCOMPtr<nsIPresShell> sh = mDocument->CreateShell(cx, vm, newSet.get());
   NS_ENSURE_TRUE(sh, false);
   newSet.forget();
@@ -10856,7 +10856,7 @@ PresShell::AddSizeOfIncludingThis(MallocSizeOf aMallocSizeOf,
   *aPresShellSize += mFramesToDirty.ShallowSizeOfExcludingThis(aMallocSizeOf);
   *aPresShellSize += aArenaObjectsSize->mOther;
 
-  if (nsStyleSet* styleSet = StyleSet()->GetAsGoanna()) {
+  if (nsStyleSet* styleSet = StyleSet()->GetAsGecko()) {
     *aStyleSetsSize += styleSet->SizeOfIncludingThis(aMallocSizeOf);
   } else {
     NS_WARNING("ServoStyleSets do not support memory measurements yet");
@@ -10966,7 +10966,7 @@ nsIPresShell::RecomputeFontSizeInflationEnabled()
   // have any metadata about the width and/or height. On mobile, the screen size
   // and the size of the content area are very close, or the same value.
   // In XUL fennec, the content area is the size of the <browser> widget, but
-  // in native fennec, the content area is the size of the Goanna LayerView
+  // in native fennec, the content area is the size of the Gecko LayerView
   // object.
 
   // TODO:
@@ -11060,7 +11060,7 @@ nsIPresShell::HasRuleProcessorUsedByMultipleStyleSets(uint32_t aSheetType,
   }
 
   *aRetVal = false;
-  if (nsStyleSet* styleSet = mStyleSet->GetAsGoanna()) {
+  if (nsStyleSet* styleSet = mStyleSet->GetAsGecko()) {
     // ServoStyleSets do not have rule processors.
     *aRetVal = styleSet->HasRuleProcessorUsedByMultipleStyleSets(type);
   }

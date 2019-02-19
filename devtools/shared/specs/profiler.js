@@ -47,7 +47,7 @@ const profilerSpec = generateActorSpec({
       data: Arg(0, "json"),
     },
 
-    // Only for older goannas, pre-protocol.js ProfilerActor (<Fx42).
+    // Only for older geckos, pre-protocol.js ProfilerActor (<Fx42).
     // Emitted on other events as a transition from older profiler events
     // to newer ones.
     "eventNotification": {

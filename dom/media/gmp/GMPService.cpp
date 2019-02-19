@@ -12,7 +12,7 @@
 #include "GMPParent.h"
 #include "GMPVideoDecoderParent.h"
 #include "nsIObserverService.h"
-#include "GoannaChildProcessHost.h"
+#include "GeckoChildProcessHost.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/SyncRunnable.h"
 #include "nsXPCOMPrivate.h"
@@ -64,17 +64,17 @@ GetGMPLog()
 
 namespace gmp {
 
-static StaticRefPtr<GoannaMediaPluginService> sSingletonService;
+static StaticRefPtr<GeckoMediaPluginService> sSingletonService;
 
 class GMPServiceCreateHelper final : public mozilla::Runnable
 {
-  RefPtr<GoannaMediaPluginService> mService;
+  RefPtr<GeckoMediaPluginService> mService;
 
 public:
-  static already_AddRefed<GoannaMediaPluginService>
+  static already_AddRefed<GeckoMediaPluginService>
   GetOrCreate()
   {
-    RefPtr<GoannaMediaPluginService> service;
+    RefPtr<GeckoMediaPluginService> service;
 
     if (NS_IsMainThread()) {
       service = GetOrCreateOnMainThread();
@@ -102,20 +102,20 @@ private:
     MOZ_ASSERT(!mService);
   }
 
-  static already_AddRefed<GoannaMediaPluginService>
+  static already_AddRefed<GeckoMediaPluginService>
   GetOrCreateOnMainThread()
   {
     MOZ_ASSERT(NS_IsMainThread());
 
     if (!sSingletonService) {
       if (XRE_IsParentProcess()) {
-        RefPtr<GoannaMediaPluginServiceParent> service =
-          new GoannaMediaPluginServiceParent();
+        RefPtr<GeckoMediaPluginServiceParent> service =
+          new GeckoMediaPluginServiceParent();
         service->Init();
         sSingletonService = service;
       } else {
-        RefPtr<GoannaMediaPluginServiceChild> service =
-          new GoannaMediaPluginServiceChild();
+        RefPtr<GeckoMediaPluginServiceChild> service =
+          new GeckoMediaPluginServiceChild();
         service->Init();
         sSingletonService = service;
       }
@@ -123,7 +123,7 @@ private:
       ClearOnShutdown(&sSingletonService);
     }
 
-    RefPtr<GoannaMediaPluginService> service = sSingletonService.get();
+    RefPtr<GeckoMediaPluginService> service = sSingletonService.get();
     return service.forget();
   }
 
@@ -137,16 +137,16 @@ private:
   }
 };
 
-already_AddRefed<GoannaMediaPluginService>
-GoannaMediaPluginService::GetGoannaMediaPluginService()
+already_AddRefed<GeckoMediaPluginService>
+GeckoMediaPluginService::GetGeckoMediaPluginService()
 {
   return GMPServiceCreateHelper::GetOrCreate();
 }
 
-NS_IMPL_ISUPPORTS(GoannaMediaPluginService, mozIGoannaMediaPluginService, nsIObserver)
+NS_IMPL_ISUPPORTS(GeckoMediaPluginService, mozIGeckoMediaPluginService, nsIObserver)
 
-GoannaMediaPluginService::GoannaMediaPluginService()
-  : mMutex("GoannaMediaPluginService::mMutex")
+GeckoMediaPluginService::GeckoMediaPluginService()
+  : mMutex("GeckoMediaPluginService::mMutex")
   , mGMPThreadShutdown(false)
   , mShuttingDownOnGMPThread(false)
 {
@@ -158,18 +158,18 @@ GoannaMediaPluginService::GoannaMediaPluginService()
     nsAutoCString buildID;
     if (NS_SUCCEEDED(appInfo->GetVersion(version)) &&
         NS_SUCCEEDED(appInfo->GetAppBuildID(buildID))) {
-      LOGD(("GoannaMediaPluginService created; Goanna version=%s buildID=%s",
+      LOGD(("GeckoMediaPluginService created; Gecko version=%s buildID=%s",
             version.get(), buildID.get()));
     }
   }
 }
 
-GoannaMediaPluginService::~GoannaMediaPluginService()
+GeckoMediaPluginService::~GeckoMediaPluginService()
 {
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginService::RunPluginCrashCallbacks(uint32_t aPluginId,
+GeckoMediaPluginService::RunPluginCrashCallbacks(uint32_t aPluginId,
                                                  const nsACString& aPluginName)
 {
   MOZ_ASSERT(NS_IsMainThread());
@@ -216,7 +216,7 @@ GoannaMediaPluginService::RunPluginCrashCallbacks(uint32_t aPluginId,
 }
 
 nsresult
-GoannaMediaPluginService::Init()
+GeckoMediaPluginService::Init()
 {
   MOZ_ASSERT(NS_IsMainThread());
 
@@ -230,7 +230,7 @@ GoannaMediaPluginService::Init()
 }
 
 void
-GoannaMediaPluginService::ShutdownGMPThread()
+GeckoMediaPluginService::ShutdownGMPThread()
 {
   LOGD(("%s::%s", __CLASS__, __FUNCTION__));
   nsCOMPtr<nsIThread> gmpThread;
@@ -247,7 +247,7 @@ GoannaMediaPluginService::ShutdownGMPThread()
 }
 
 nsresult
-GoannaMediaPluginService::GMPDispatch(nsIRunnable* event,
+GeckoMediaPluginService::GMPDispatch(nsIRunnable* event,
                                      uint32_t flags)
 {
   nsCOMPtr<nsIRunnable> r(event);
@@ -255,7 +255,7 @@ GoannaMediaPluginService::GMPDispatch(nsIRunnable* event,
 }
 
 nsresult
-GoannaMediaPluginService::GMPDispatch(already_AddRefed<nsIRunnable> event,
+GeckoMediaPluginService::GMPDispatch(already_AddRefed<nsIRunnable> event,
                                      uint32_t flags)
 {
   nsCOMPtr<nsIRunnable> r(event);
@@ -269,7 +269,7 @@ GoannaMediaPluginService::GMPDispatch(already_AddRefed<nsIRunnable> event,
 
 // always call with getter_AddRefs, because it does
 NS_IMETHODIMP
-GoannaMediaPluginService::GetThread(nsIThread** aThread)
+GeckoMediaPluginService::GetThread(nsIThread** aThread)
 {
   MOZ_ASSERT(aThread);
 
@@ -300,14 +300,14 @@ GoannaMediaPluginService::GetThread(nsIThread** aThread)
 }
 
 RefPtr<AbstractThread>
-GoannaMediaPluginService::GetAbstractGMPThread()
+GeckoMediaPluginService::GetAbstractGMPThread()
 {
   MutexAutoLock lock(mMutex);
   return mAbstractGMPThread;
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginService::GetDecryptingGMPVideoDecoder(GMPCrashHelper* aHelper,
+GeckoMediaPluginService::GetDecryptingGMPVideoDecoder(GMPCrashHelper* aHelper,
                                                       nsTArray<nsCString>* aTags,
                                                       const nsACString& aNodeId,
                                                       UniquePtr<GetGMPVideoDecoderCallback>&& aCallback,
@@ -346,7 +346,7 @@ GoannaMediaPluginService::GetDecryptingGMPVideoDecoder(GMPCrashHelper* aHelper,
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginService::GetGMPVideoEncoder(GMPCrashHelper* aHelper,
+GeckoMediaPluginService::GetGMPVideoEncoder(GMPCrashHelper* aHelper,
                                             nsTArray<nsCString>* aTags,
                                             const nsACString& aNodeId,
                                             UniquePtr<GetGMPVideoEncoderCallback>&& aCallback)
@@ -384,14 +384,14 @@ GoannaMediaPluginService::GetGMPVideoEncoder(GMPCrashHelper* aHelper,
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginService::GetGMPDecryptor(GMPCrashHelper* aHelper,
+GeckoMediaPluginService::GetGMPDecryptor(GMPCrashHelper* aHelper,
                                          nsTArray<nsCString>* aTags,
                                          const nsACString& aNodeId,
                                          UniquePtr<GetGMPDecryptorCallback>&& aCallback)
 {
 #if defined(XP_LINUX) && defined(MOZ_GMP_SANDBOX)
   if (!SandboxInfo::Get().CanSandboxMedia()) {
-    NS_WARNING("GoannaMediaPluginService::GetGMPDecryptor: "
+    NS_WARNING("GeckoMediaPluginService::GetGMPDecryptor: "
                "EME decryption not available without sandboxing support.");
     return NS_ERROR_NOT_AVAILABLE;
   }
@@ -428,7 +428,7 @@ GoannaMediaPluginService::GetGMPDecryptor(GMPCrashHelper* aHelper,
 }
 
 void
-GoannaMediaPluginService::ConnectCrashHelper(uint32_t aPluginId, GMPCrashHelper* aHelper)
+GeckoMediaPluginService::ConnectCrashHelper(uint32_t aPluginId, GMPCrashHelper* aHelper)
 {
   if (!aHelper) {
     return;
@@ -444,7 +444,7 @@ GoannaMediaPluginService::ConnectCrashHelper(uint32_t aPluginId, GMPCrashHelper*
   helpers->AppendElement(aHelper);
 }
 
-void GoannaMediaPluginService::DisconnectCrashHelper(GMPCrashHelper* aHelper)
+void GeckoMediaPluginService::DisconnectCrashHelper(GMPCrashHelper* aHelper)
 {
   if (!aHelper) {
     return;

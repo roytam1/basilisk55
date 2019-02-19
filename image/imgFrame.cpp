@@ -16,7 +16,7 @@
 #include "gfxUtils.h"
 #include "gfxAlphaRecovery.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "MainThreadUtils.h"
 #include "mozilla/CheckedInt.h"
 #include "mozilla/gfx/Tools.h"

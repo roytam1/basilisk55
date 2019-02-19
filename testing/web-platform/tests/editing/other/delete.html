@@ -43,7 +43,7 @@ var tests = [
   ["<p><br></p><br>", "1", "<p><br></p>", "0,0", "delete"],
 
   // The trailing \n in these cases is actually significant, because it was
-  // necessary to trigger an actual Goanna bug (somehow!).
+  // necessary to trigger an actual Gecko bug (somehow!).
   ["<p><br></p><p><br></p>\n", "1,0", "<p><br></p>\n", "0,0", "delete"],
   ["<p><br></p><p><br></p>\n", "0,0", "<p><br></p>\n", "0,0", "forwarddelete"],
   ["\n<p><tt>x</tt></p><p><tt><br></tt></p><p><tt><br></tt></p>\n", "3,0,0",

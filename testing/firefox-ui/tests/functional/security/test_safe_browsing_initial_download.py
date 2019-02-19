@@ -72,7 +72,7 @@ class TestSafeBrowsingInitialDownload(PuppeteerMixin, MarionetteTestCase):
         # Force the preferences for the new profile
         enforce_prefs = self.prefs_safebrowsing
         enforce_prefs.update(self.prefs_provider_update_time)
-        self.marionette.enforce_goanna_prefs(enforce_prefs)
+        self.marionette.enforce_gecko_prefs(enforce_prefs)
 
         self.safebrowsing_path = os.path.join(self.marionette.instance.profile.profile,
                                               'safebrowsing')

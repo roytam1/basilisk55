@@ -4,7 +4,7 @@ TaskCluster Task-Graph Generation
 =================================
 
 The ``taskcluster`` directory contains support for defining the graph of tasks
-that must be executed to build and test the Goanna tree.  This is more complex
+that must be executed to build and test the Gecko tree.  This is more complex
 than you might suppose!  This implementation supports:
 
  * A huge array of tasks

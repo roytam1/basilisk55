@@ -9,9 +9,9 @@ import java.io.InputStream;
 import java.util.Stack;
 
 import android.test.InstrumentationTestCase;
-import org.mozilla.goanna.AppConstants;
-import org.mozilla.goanna.util.FileUtils;
-import org.mozilla.goanna.util.GoannaJarReader;
+import org.mozilla.gecko.AppConstants;
+import org.mozilla.gecko.util.FileUtils;
+import org.mozilla.gecko.util.GeckoJarReader;
 
 import android.content.Context;
 
@@ -27,38 +27,38 @@ public class TestJarReader extends InstrumentationTestCase {
 
         // Test reading a file from a jar url that looks correct.
         String url = "jar:file://" + appPath + "!/" + AppConstants.OMNIJAR_NAME;
-        InputStream stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
+        InputStream stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
         assertNotNull(stream);
 
         // Test looking for an non-existent file in a jar.
         url = "jar:file://" + appPath + "!/" + AppConstants.OMNIJAR_NAME;
-        stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/nonexistent_file.png");
+        stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/nonexistent_file.png");
         assertNull(stream);
 
         // Test looking for a file that doesn't exist in the APK.
         url = "jar:file://" + appPath + "!/" + "BAD" + AppConstants.OMNIJAR_NAME;
-        stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
+        stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
         assertNull(stream);
 
         // Test looking for a file that doesn't exist in the APK.
         // Bug 1174922, prefixed string / length error.
         url = "jar:file://" + appPath + "!/" + AppConstants.OMNIJAR_NAME + "BAD";
-        stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
+        stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
         assertNull(stream);
 
         // Test looking for an jar with an invalid url.
         url = "jar:file://" + appPath + "!" + "!/" + AppConstants.OMNIJAR_NAME;
-        stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/nonexistent_file.png");
+        stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/nonexistent_file.png");
         assertNull(stream);
 
         // Test looking for a file that doesn't exist on disk.
         url = "jar:file://" + appPath + "BAD" + "!/" + AppConstants.OMNIJAR_NAME;
-        stream = GoannaJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
+        stream = GeckoJarReader.getStream(context, "jar:" + url + "!/chrome/chrome/content/branding/favicon32.png");
         assertNull(stream);
     }
 
     protected void assertExtractStream(String url) throws IOException {
-        final File file = GoannaJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
+        final File file = GeckoJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
         assertNotNull(file);
         try {
             assertTrue(file.getName().endsWith("test"));
@@ -77,11 +77,11 @@ public class TestJarReader extends InstrumentationTestCase {
         // We don't have a lot of good files to choose from.  package-name.txt isn't included in Gradle APKs.
         assertExtractStream("jar:file://" + appPath + "!/resources.arsc");
 
-        final String url = GoannaJarReader.getJarURL(getInstrumentation().getTargetContext(), "chrome.manifest");
+        final String url = GeckoJarReader.getJarURL(getInstrumentation().getTargetContext(), "chrome.manifest");
         assertExtractStream(url);
 
         // Now use an extracted copy of chrome.manifest to test further.
-        final File file = GoannaJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
+        final File file = GeckoJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
         assertNotNull(file);
         try {
             assertExtractStream("file://" + file.getAbsolutePath()); // file:// URI.
@@ -92,7 +92,7 @@ public class TestJarReader extends InstrumentationTestCase {
     }
 
     protected void assertExtractStreamFails(String url) throws IOException {
-        final File file = GoannaJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
+        final File file = GeckoJarReader.extractStream(getInstrumentation().getTargetContext(), url, getInstrumentation().getContext().getCacheDir(), ".test");
         assertNull(file);
     }
 
@@ -107,12 +107,12 @@ public class TestJarReader extends InstrumentationTestCase {
         assertExtractStreamFails("jar:file://" + appPath + "!/BADresources.arsc");
 
         // Now a bad file in the omnijar.
-        final String badUrl = GoannaJarReader.getJarURL(getInstrumentation().getTargetContext(), "BADchrome.manifest");
+        final String badUrl = GeckoJarReader.getJarURL(getInstrumentation().getTargetContext(), "BADchrome.manifest");
         assertExtractStreamFails(badUrl);
 
         // Now use an extracted copy of chrome.manifest to test further.
-        final String goodUrl = GoannaJarReader.getJarURL(getInstrumentation().getTargetContext(), "chrome.manifest");
-        final File file = GoannaJarReader.extractStream(getInstrumentation().getTargetContext(), goodUrl, getInstrumentation().getContext().getCacheDir(), ".test");
+        final String goodUrl = GeckoJarReader.getJarURL(getInstrumentation().getTargetContext(), "chrome.manifest");
+        final File file = GeckoJarReader.extractStream(getInstrumentation().getTargetContext(), goodUrl, getInstrumentation().getContext().getCacheDir(), ".test");
         assertNotNull(file);
         try {
             assertExtractStreamFails("file://" + file.getAbsolutePath() + "BAD"); // Bad file:// URI.

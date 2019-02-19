@@ -35,8 +35,8 @@ enum class CallingThread
 {
     // Can be called from any thread (default).
     ANY,
-    // Can be called from the Goanna thread.
-    GOANNA,
+    // Can be called from the Gecko thread.
+    GECKO,
     // Can be called from the Java UI thread.
     UI,
 };
@@ -50,36 +50,36 @@ enum class DispatchTarget
     // wrapped in a function object and is passed thru UsesNativeCallProxy.
     // Method must return void.
     PROXY,
-    // Call is dispatched asynchronously on the Goanna thread. Method must
+    // Call is dispatched asynchronously on the Gecko thread. Method must
     // return void.
-    GOANNA,
+    GECKO,
 };
 
 
-extern JNIEnv* sGoannaThreadEnv;
+extern JNIEnv* sGeckoThreadEnv;
 
 inline bool IsAvailable()
 {
-    return !!sGoannaThreadEnv;
+    return !!sGeckoThreadEnv;
 }
 
-inline JNIEnv* GetGoannaThreadEnv()
+inline JNIEnv* GetGeckoThreadEnv()
 {
 #ifdef MOZ_CHECK_JNI
-    MOZ_RELEASE_ASSERT(NS_IsMainThread(), "Must be on Goanna thread");
-    MOZ_RELEASE_ASSERT(sGoannaThreadEnv, "Must have a JNIEnv");
+    MOZ_RELEASE_ASSERT(NS_IsMainThread(), "Must be on Gecko thread");
+    MOZ_RELEASE_ASSERT(sGeckoThreadEnv, "Must have a JNIEnv");
 #endif
-    return sGoannaThreadEnv;
+    return sGeckoThreadEnv;
 }
 
-void SetGoannaThreadEnv(JNIEnv* aEnv);
+void SetGeckoThreadEnv(JNIEnv* aEnv);
 
 JNIEnv* GetEnvForThread();
 
 #ifdef MOZ_CHECK_JNI
 #define MOZ_ASSERT_JNI_THREAD(thread) \
     do { \
-        if ((thread) == mozilla::jni::CallingThread::GOANNA) { \
+        if ((thread) == mozilla::jni::CallingThread::GECKO) { \
             MOZ_RELEASE_ASSERT(::NS_IsMainThread()); \
         } else if ((thread) == mozilla::jni::CallingThread::UI) { \
             const bool isOnUiThread = ::pthread_equal(::pthread_self(), \
@@ -133,11 +133,11 @@ struct AbstractCall
     virtual void operator()() = 0;
 };
 
-void DispatchToGoannaThread(UniquePtr<AbstractCall>&& aCall);
+void DispatchToGeckoThread(UniquePtr<AbstractCall>&& aCall);
 
 /**
- * Returns whether Goanna is running in a Fennec environment, as determined by
- * the presence of the GoannaApp class.
+ * Returns whether Gecko is running in a Fennec environment, as determined by
+ * the presence of the GeckoApp class.
  */
 bool IsFennec();
 

@@ -205,7 +205,7 @@ public:
 
 private:
   // Get a handle to the various stylesheet bits which live on the 'inner' for
-  // goanna stylesheets and live on the StyleSheet for Servo stylesheets.
+  // gecko stylesheets and live on the StyleSheet for Servo stylesheets.
   inline StyleSheetInfo& SheetInfo();
   inline const StyleSheetInfo& SheetInfo() const;
 

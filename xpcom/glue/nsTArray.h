@@ -477,10 +477,10 @@ public:
 };
 
 // Servo bindings.
-extern "C" void Goanna_EnsureTArrayCapacity(void* aArray,
+extern "C" void Gecko_EnsureTArrayCapacity(void* aArray,
                                            size_t aCapacity,
                                            size_t aElementSize);
-extern "C" void Goanna_ClearPODTArray(void* aArray,
+extern "C" void Gecko_ClearPODTArray(void* aArray,
                                      size_t aElementSize,
                                      size_t aElementAlign);
 
@@ -500,9 +500,9 @@ class nsTArray_base
   // the same free().
   template<class Allocator, class Copier>
   friend class nsTArray_base;
-  friend void Goanna_EnsureTArrayCapacity(void* aArray, size_t aCapacity,
+  friend void Gecko_EnsureTArrayCapacity(void* aArray, size_t aCapacity,
                                          size_t aElemSize);
-  friend void Goanna_ClearPODTArray(void* aTArray, size_t aElementSize,
+  friend void Gecko_ClearPODTArray(void* aTArray, size_t aElementSize,
                                    size_t aElementAlign);
 
 protected:

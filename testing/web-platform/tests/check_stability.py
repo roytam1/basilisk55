@@ -202,10 +202,10 @@ class Firefox(Browser):
             f.write(resp.content)
         call("pip", "install", "-r", os.path.join("w3c", "wptrunner", "requirements_firefox.txt"))
 
-    def _latest_goannadriver_version(self):
+    def _latest_geckodriver_version(self):
         # This is used rather than an API call to avoid rate limits
         tags = call("git", "ls-remote", "--tags", "--refs",
-                    "https://github.com/mozilla/goannadriver.git")
+                    "https://github.com/mozilla/geckodriver.git")
         release_re = re.compile(".*refs/tags/v(\d+)\.(\d+)\.(\d+)")
         latest_release = 0
         for item in tags.split("\n"):
@@ -218,9 +218,9 @@ class Firefox(Browser):
         return "v%s.%s.%s" % tuple(str(item) for item in latest_release)
 
     def install_webdriver(self):
-        version = self._latest_goannadriver_version()
-        logger.debug("Latest goannadriver release %s" % version)
-        url = "https://github.com/mozilla/goannadriver/releases/download/%s/goannadriver-%s-linux64.tar.gz" % (version, version)
+        version = self._latest_geckodriver_version()
+        logger.debug("Latest geckodriver release %s" % version)
+        url = "https://github.com/mozilla/geckodriver/releases/download/%s/geckodriver-%s-linux64.tar.gz" % (version, version)
         untar(get(url).raw)
 
     def wptrunner_args(self, root):
@@ -228,7 +228,7 @@ class Firefox(Browser):
             "product": "firefox",
             "binary": "%s/firefox/firefox" % root,
             "certutil_binary": "certutil",
-            "webdriver_binary": "%s/goannadriver" % root,
+            "webdriver_binary": "%s/geckodriver" % root,
             "prefs_root": "%s/profiles" % root,
         }
 

@@ -3,7 +3,7 @@
   "name": "test-devtools-webextension-nobg",
   "version": "1.0",
   "applications": {
-    "gecko": {
+    "goanna": {
       "id": "test-devtools-webextension-nobg@mozilla.org"
     }
   }

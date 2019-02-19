@@ -9,12 +9,12 @@
 #include "base/string_util.h"
 #include "base/thread_local.h"
 #include "base/waitable_event.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "mozilla/IOInterposer.h"
 #include "nsThreadUtils.h"
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracer.h"
+#include "GeckoTaskTracer.h"
 #endif
 
 namespace base {

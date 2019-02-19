@@ -25,7 +25,7 @@
 
 #include "nsRuleNode.h"
 #include "nsStyleContext.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsIDocument.h"
 #include "nsPrintfCString.h"
 #include "RubyUtils.h"
@@ -108,12 +108,12 @@ nsStyleContext::nsStyleContext(nsStyleContext* aParent,
                    aPseudoTag, aPseudoType)
 {
 #ifdef MOZ_STYLO
-  mPresContext = mSource.AsGoannaRuleNode()->PresContext();
+  mPresContext = mSource.AsGeckoRuleNode()->PresContext();
 #endif
 
   if (aParent) {
 #ifdef DEBUG
-    nsRuleNode *r1 = mParent->RuleNode(), *r2 = mSource.AsGoannaRuleNode();
+    nsRuleNode *r1 = mParent->RuleNode(), *r2 = mSource.AsGeckoRuleNode();
     while (r1->GetParent())
       r1 = r1->GetParent();
     while (r2->GetParent())
@@ -124,7 +124,7 @@ nsStyleContext::nsStyleContext(nsStyleContext* aParent,
     PresContext()->PresShell()->StyleSet()->RootStyleContextAdded();
   }
 
-  mSource.AsGoannaRuleNode()->SetUsedDirectly(); // before ApplyStyleFixups()!
+  mSource.AsGeckoRuleNode()->SetUsedDirectly(); // before ApplyStyleFixups()!
   FinishConstruction(aSkipParentDisplayBasedStyleFixup);
 }
 
@@ -201,10 +201,10 @@ nsStyleContext::~nsStyleContext()
 #endif
 
   nsPresContext *presContext = PresContext();
-  DebugOnly<nsStyleSet*> goannaStyleSet = presContext->PresShell()->StyleSet()->GetAsGoanna();
-  NS_ASSERTION(!goannaStyleSet ||
-               goannaStyleSet->GetRuleTree() == mSource.AsGoannaRuleNode()->RuleTree() ||
-               goannaStyleSet->IsInRuleTreeReconstruct(),
+  DebugOnly<nsStyleSet*> geckoStyleSet = presContext->PresShell()->StyleSet()->GetAsGecko();
+  NS_ASSERTION(!geckoStyleSet ||
+               geckoStyleSet->GetRuleTree() == mSource.AsGeckoRuleNode()->RuleTree() ||
+               geckoStyleSet->IsInRuleTreeReconstruct(),
                "destroying style context from old rule tree too late");
 
   if (mParent) {
@@ -457,8 +457,8 @@ const void* nsStyleContext::StyleData(nsStyleStructID aSID)
     return cachedData; // We have computed data stored on this node in the context tree.
   // Our style source will take care of it for us.
   const void* newData;
-  if (mSource.IsGoannaRuleNode()) {
-    newData = mSource.AsGoannaRuleNode()->GetStyleData(aSID, this, true);
+  if (mSource.IsGeckoRuleNode()) {
+    newData = mSource.AsGeckoRuleNode()->GetStyleData(aSID, this, true);
     if (!nsCachedStyleData::IsReset(aSID)) {
       // always cache inherited data on the style context; the rule
       // node set the bit in mBits for us if needed.
@@ -505,7 +505,7 @@ void*
 nsStyleContext::GetUniqueStyleData(const nsStyleStructID& aSID)
 {
   MOZ_ASSERT(!mSource.IsServoComputedValues(),
-             "Can't COW-mutate servo values from Goanna!");
+             "Can't COW-mutate servo values from Gecko!");
 
   // If we already own the struct and no kids could depend on it, then
   // just return it.  (We leak in this case if there are kids -- and this
@@ -723,7 +723,7 @@ void
 nsStyleContext::ApplyStyleFixups(bool aSkipParentDisplayBasedStyleFixup)
 {
   MOZ_ASSERT(!mSource.IsServoComputedValues(),
-             "Can't do Goanna style fixups on Servo values");
+             "Can't do Gecko style fixups on Servo values");
 
 #define GET_UNIQUE_STYLE_DATA(name_) \
   static_cast<nsStyle##name_*>(GetUniqueStyleData(eStyleStruct_##name_))
@@ -789,7 +789,7 @@ nsStyleContext::ApplyStyleFixups(bool aSkipParentDisplayBasedStyleFixup)
     mozilla::dom::Element* docElement = presContext->Document()->GetRootElement();
     if (docElement) {
       RefPtr<nsStyleContext> rootStyle =
-        presContext->StyleSet()->AsGoanna()->ResolveStyleFor(docElement, nullptr);
+        presContext->StyleSet()->AsGecko()->ResolveStyleFor(docElement, nullptr);
       auto dir = rootStyle->StyleVisibility()->mDirection;
       if (dir != StyleVisibility()->mDirection) {
         nsStyleVisibility* uniqueVisibility = GET_UNIQUE_STYLE_DATA(Visibility);
@@ -1299,10 +1299,10 @@ void nsStyleContext::List(FILE* out, int32_t aIndent, bool aListDescendants)
 
   if (mSource.IsServoComputedValues()) {
     fprintf_stderr(out, "%s{ServoComputedValues}\n", str.get());
-  } else if (mSource.IsGoannaRuleNode()) {
+  } else if (mSource.IsGeckoRuleNode()) {
     fprintf_stderr(out, "%s{\n", str.get());
     str.Truncate();
-    nsRuleNode* ruleNode = mSource.AsGoannaRuleNode();
+    nsRuleNode* ruleNode = mSource.AsGeckoRuleNode();
     while (ruleNode) {
       nsIStyleRule *styleRule = ruleNode->GetRule();
       if (styleRule) {

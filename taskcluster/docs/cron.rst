@@ -7,8 +7,8 @@ periodically, instead of on a push.
 Cron.yml
 --------
 
-In the root of the Goanna directory, you will find `.cron.yml`.  This defines
-the periodic tasks ("cron jobs") run for Goanna.  Each specifies a name, what to
+In the root of the Gecko directory, you will find `.cron.yml`.  This defines
+the periodic tasks ("cron jobs") run for Gecko.  Each specifies a name, what to
 do, and some parameters to determine when the cron job should occur.
 
 See ``taskcluster/taskgraph/cron/schema.py`` for details on the format and
@@ -20,7 +20,7 @@ How It Works
 The `TaskCluster Hooks Service <https://tools.taskcluster.net/hooks>`_ has a
 hook configured for each repository supporting periodic task graphs.  The hook
 runs every 15 minutes, and the resulting task is referred to as a "cron task".
-That cron task runs `./mach taskgraph cron` in a checkout of the Goanna source
+That cron task runs `./mach taskgraph cron` in a checkout of the Gecko source
 tree.
 
 The mach subcommand reads ``.cron.yml``, then consults the current time

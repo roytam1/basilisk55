@@ -52,7 +52,7 @@ public:
   public:
     friend class ::mozilla::StyleSetHandle;
 
-    bool IsGoanna() const { return !IsServo(); }
+    bool IsGecko() const { return !IsServo(); }
     bool IsServo() const
     {
       MOZ_ASSERT(mValue, "StyleSetHandle null pointer dereference");
@@ -65,13 +65,13 @@ public:
 
     StyleBackendType BackendType() const
     {
-      return IsGoanna() ? StyleBackendType::Goanna :
+      return IsGecko() ? StyleBackendType::Gecko :
                          StyleBackendType::Servo;
     }
 
-    nsStyleSet* AsGoanna()
+    nsStyleSet* AsGecko()
     {
-      MOZ_ASSERT(IsGoanna());
+      MOZ_ASSERT(IsGecko());
       return reinterpret_cast<nsStyleSet*>(mValue);
     }
 
@@ -81,12 +81,12 @@ public:
       return reinterpret_cast<ServoStyleSet*>(mValue & ~SERVO_BIT);
     }
 
-    nsStyleSet* GetAsGoanna() { return IsGoanna() ? AsGoanna() : nullptr; }
+    nsStyleSet* GetAsGecko() { return IsGecko() ? AsGecko() : nullptr; }
     ServoStyleSet* GetAsServo() { return IsServo() ? AsServo() : nullptr; }
 
-    const nsStyleSet* AsGoanna() const
+    const nsStyleSet* AsGecko() const
     {
-      return const_cast<Ptr*>(this)->AsGoanna();
+      return const_cast<Ptr*>(this)->AsGecko();
     }
 
     const ServoStyleSet* AsServo() const
@@ -95,7 +95,7 @@ public:
       return const_cast<Ptr*>(this)->AsServo();
     }
 
-    const nsStyleSet* GetAsGoanna() const { return IsGoanna() ? AsGoanna() : nullptr; }
+    const nsStyleSet* GetAsGecko() const { return IsGecko() ? AsGecko() : nullptr; }
     const ServoStyleSet* GetAsServo() const { return IsServo() ? AsServo() : nullptr; }
 
     // These inline methods are defined in StyleSetHandleInlines.h.

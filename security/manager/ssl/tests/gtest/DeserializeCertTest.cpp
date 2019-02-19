@@ -23,9 +23,9 @@
 // We would like to move away from this binary compatibility requirement
 // in service workers.  See bug 1248628.
 
-TEST(psm_DeserializeCert, goanna33)
+TEST(psm_DeserializeCert, gecko33)
 {
-  // Goanna 33+ vintage Security info serialized with UUIDs:
+  // Gecko 33+ vintage Security info serialized with UUIDs:
   //  - nsISupports  00000000-0000-0000-c000-000000000046
   //  - nsISSLStatus fa9ba95b-ca3b-498a-b889-7c79cf28fee8
   //  - nsIX509Cert  f8ed8364-ced9-4c6e-86ba-48af53c393e6
@@ -59,9 +59,9 @@ TEST(psm_DeserializeCert, goanna33)
   ASSERT_TRUE(cert);
 }
 
-TEST(psm_DeserializeCert, goanna46)
+TEST(psm_DeserializeCert, gecko46)
 {
-  // Goanna 46+ vintage Security info serialized with UUIDs:
+  // Gecko 46+ vintage Security info serialized with UUIDs:
   //  - nsISupports  00000000-0000-0000-c000-000000000046
   //  - nsISSLStatus fa9ba95b-ca3b-498a-b889-7c79cf28fee8
   //  - nsIX509Cert  bdc3979a-5422-4cd5-8589-696b6e96ea83

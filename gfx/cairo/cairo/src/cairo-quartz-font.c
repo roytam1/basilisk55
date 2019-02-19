@@ -343,8 +343,8 @@ CreateCTFontFromCGFontWithVariations(CGFontRef aCGFont, CGFloat aSize)
     // Avoid calling potentially buggy variation APIs on pre-Sierra macOS
     // versions (see bug 1331683)
     // Declare helper provided by widget/cocoa/nsCocoaFeatures.mm
-    extern bool Goanna_OnSierraOrLater();
-    if (!Goanna_OnSierraOrLater()) {
+    extern bool Gecko_OnSierraOrLater();
+    if (!Gecko_OnSierraOrLater()) {
         return CTFontCreateWithGraphicsFont(aCGFont, aSize, NULL, NULL);
     }
     CFDictionaryRef vars = CGFontCopyVariations(aCGFont);

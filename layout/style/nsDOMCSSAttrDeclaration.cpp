@@ -133,7 +133,7 @@ nsDOMCSSAttributeDeclaration::GetCSSDeclaration(Operation aOperation)
     decl = new ServoDeclarationBlock();
   } else {
     decl = new css::Declaration();
-    decl->AsGoanna()->InitializeEmpty();
+    decl->AsGecko()->InitializeEmpty();
   }
 
   // this *can* fail (inside SetAttrAndNotify, at least).

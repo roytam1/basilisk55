@@ -19,15 +19,15 @@
  */
 
 // Element data
-SERVO_BINDING_FUNC(Servo_Element_ClearData, void, RawGoannaElementBorrowed node)
-SERVO_BINDING_FUNC(Servo_Element_ShouldTraverse, bool, RawGoannaElementBorrowed node)
+SERVO_BINDING_FUNC(Servo_Element_ClearData, void, RawGeckoElementBorrowed node)
+SERVO_BINDING_FUNC(Servo_Element_ShouldTraverse, bool, RawGeckoElementBorrowed node)
 
 // Styleset and Stylesheet management
 SERVO_BINDING_FUNC(Servo_StyleSheet_Empty, RawServoStyleSheetStrong,
                    mozilla::css::SheetParsingMode parsing_mode)
 SERVO_BINDING_FUNC(Servo_StyleSheet_FromUTF8Bytes, RawServoStyleSheetStrong,
                    mozilla::css::Loader* loader,
-                   mozilla::ServoStyleSheet* goanna_stylesheet,
+                   mozilla::ServoStyleSheet* gecko_stylesheet,
                    const nsACString* data,
                    mozilla::css::SheetParsingMode parsing_mode,
                    const nsACString* base_url,
@@ -41,7 +41,7 @@ SERVO_BINDING_FUNC(Servo_StyleSheet_ClearAndUpdate,
                    void,
                    RawServoStyleSheetBorrowed stylesheet,
                    mozilla::css::Loader* loader,
-                   mozilla::ServoStyleSheet* goanna_stylesheet,
+                   mozilla::ServoStyleSheet* gecko_stylesheet,
                    const nsACString* data,
                    ThreadSafeURIHolder* base,
                    ThreadSafeURIHolder* referrer,
@@ -50,7 +50,7 @@ SERVO_BINDING_FUNC(Servo_StyleSheet_HasRules, bool,
                    RawServoStyleSheetBorrowed sheet)
 SERVO_BINDING_FUNC(Servo_StyleSheet_GetRules, ServoCssRulesStrong,
                    RawServoStyleSheetBorrowed sheet)
-SERVO_BINDING_FUNC(Servo_StyleSet_Init, RawServoStyleSetOwned, RawGoannaPresContextOwned pres_context)
+SERVO_BINDING_FUNC(Servo_StyleSet_Init, RawServoStyleSetOwned, RawGeckoPresContextOwned pres_context)
 SERVO_BINDING_FUNC(Servo_StyleSet_RebuildData, void,
                    RawServoStyleSetBorrowed set)
 SERVO_BINDING_FUNC(Servo_StyleSet_Drop, void, RawServoStyleSetOwned set)
@@ -108,11 +108,11 @@ SERVO_BINDING_FUNC(Servo_RestyleWithAddedDeclaration,
 
 // AnimationValues handling
 SERVO_BINDING_FUNC(Servo_AnimationValues_Populate, void,
-                   RawGoannaAnimationValueListBorrowedMut,
+                   RawGeckoAnimationValueListBorrowedMut,
                    RawServoDeclarationBlockBorrowed,
                    ServoComputedValuesBorrowed,
                    ServoComputedValuesBorrowedOrNull,
-                   RawGoannaPresContextBorrowed)
+                   RawGeckoPresContextBorrowed)
 
 // Style attribute
 SERVO_BINDING_FUNC(Servo_ParseStyleAttribute, RawServoDeclarationBlockStrong,
@@ -182,17 +182,17 @@ SERVO_BINDING_FUNC(Servo_Shutdown, void)
 // Gets the snapshot for the element. This will return null if the element
 // has never been styled, since snapshotting in that case is wasted work.
 SERVO_BINDING_FUNC(Servo_Element_GetSnapshot, ServoElementSnapshot*,
-                   RawGoannaElementBorrowed element)
+                   RawGeckoElementBorrowed element)
 
 // Restyle and change hints.
-SERVO_BINDING_FUNC(Servo_NoteExplicitHints, void, RawGoannaElementBorrowed element,
+SERVO_BINDING_FUNC(Servo_NoteExplicitHints, void, RawGeckoElementBorrowed element,
                    nsRestyleHint restyle_hint, nsChangeHint change_hint)
-SERVO_BINDING_FUNC(Servo_TakeChangeHint, nsChangeHint, RawGoannaElementBorrowed element)
+SERVO_BINDING_FUNC(Servo_TakeChangeHint, nsChangeHint, RawGeckoElementBorrowed element)
 SERVO_BINDING_FUNC(Servo_ResolveStyle, ServoComputedValuesStrong,
-                   RawGoannaElementBorrowed element,
+                   RawGeckoElementBorrowed element,
                    RawServoStyleSetBorrowed set)
 SERVO_BINDING_FUNC(Servo_ResolvePseudoStyle, ServoComputedValuesStrong,
-                   RawGoannaElementBorrowed element, nsIAtom* pseudo_tag,
+                   RawGeckoElementBorrowed element, nsIAtom* pseudo_tag,
                    bool is_probe, RawServoStyleSetBorrowed set)
 
 // Resolves style for an element or pseudo-element without processing pending
@@ -204,16 +204,16 @@ SERVO_BINDING_FUNC(Servo_ResolvePseudoStyle, ServoComputedValuesStrong,
 // The tree must be in a consistent state such that a normal traversal could be
 // performed, and this function maintains that invariant.
 SERVO_BINDING_FUNC(Servo_ResolveStyleLazily, ServoComputedValuesStrong,
-                   RawGoannaElementBorrowed element, nsIAtom* pseudo_tag,
+                   RawGeckoElementBorrowed element, nsIAtom* pseudo_tag,
                    RawServoStyleSetBorrowed set)
 
 // Restyle the given subtree.
 SERVO_BINDING_FUNC(Servo_TraverseSubtree, void,
-                   RawGoannaElementBorrowed root, RawServoStyleSetBorrowed set,
+                   RawGeckoElementBorrowed root, RawServoStyleSetBorrowed set,
                    mozilla::TraversalRootBehavior root_behavior)
 
 // Assert that the tree has no pending or unconsumed restyles.
-SERVO_BINDING_FUNC(Servo_AssertTreeIsClean, void, RawGoannaElementBorrowed root)
+SERVO_BINDING_FUNC(Servo_AssertTreeIsClean, void, RawGeckoElementBorrowed root)
 
 // Style-struct management.
 #define STYLE_STRUCT(name, checkdata_cb)                            \

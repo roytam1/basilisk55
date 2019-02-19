@@ -101,7 +101,7 @@ StyleSheet::IsComplete() const
 void
 StyleSheet::SetComplete()
 {
-  NS_ASSERTION(!IsGoanna() || !AsGoanna()->mDirty,
+  NS_ASSERTION(!IsGecko() || !AsGecko()->mDirty,
                "Can't set a dirty sheet complete!");
   SheetInfo().mComplete = true;
   if (mDocument && !mDisabled) {
@@ -264,7 +264,7 @@ StyleSheet::DeleteRule(uint32_t aIndex)
   if (IsServo()) { \
     return AsServo()->method_ args_; \
   } \
-  return AsGoanna()->method_ args_;
+  return AsGecko()->method_ args_;
 
 dom::CSSRuleList*
 StyleSheet::GetCssRules(nsIPrincipal& aSubjectPrincipal,

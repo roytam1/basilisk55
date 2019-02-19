@@ -19,14 +19,14 @@ from io import BytesIO
 
 from taskgraph.util import docker
 
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 INDEX_URL = 'https://index.taskcluster.net/v1/task/' + docker.INDEX_PREFIX + '.{}.{}.hash.{}'
 ARTIFACT_URL = 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'
 
 
 def load_image_by_name(image_name, tag=None):
-    context_path = os.path.join(GOANNA, 'taskcluster', 'docker', image_name)
-    context_hash = docker.generate_context_hash(GOANNA, context_path, image_name)
+    context_path = os.path.join(GECKO, 'taskcluster', 'docker', image_name)
+    context_hash = docker.generate_context_hash(GECKO, context_path, image_name)
 
     image_index_url = INDEX_URL.format('level-3', image_name, context_hash)
     print("Fetching", image_index_url)
@@ -59,7 +59,7 @@ def build_context(name, outputFile):
     if not os.path.isdir(image_dir):
         raise Exception('image directory does not exist: %s' % image_dir)
 
-    docker.create_context_tar(GOANNA, image_dir, outputFile, "")
+    docker.create_context_tar(GECKO, image_dir, outputFile, "")
 
 
 def build_image(name):
@@ -92,7 +92,7 @@ def build_image(name):
     fd, context_path = tempfile.mkstemp()
     os.close(fd)
     try:
-        docker.create_context_tar(GOANNA, image_dir, context_path, name)
+        docker.create_context_tar(GECKO, image_dir, context_path, name)
         docker.build_from_context(docker_bin, context_path, name, tag)
     finally:
         os.unlink(context_path)

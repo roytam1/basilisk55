@@ -184,10 +184,10 @@ private:
   (mozilla::EventStates(mozilla::EventStates::InternalType(1) << _val))
 
 /*
- * In order to efficiently convert Goanna EventState values into Servo
+ * In order to efficiently convert Gecko EventState values into Servo
  * ElementState values [1], we maintain the invariant that the low bits of
  * EventState can be masked off to form an ElementState (this works so
- * long as Servo never supports a state that Goanna doesn't).
+ * long as Servo never supports a state that Gecko doesn't).
  *
  * This is unfortunately rather fragile for now, but we should soon have
  * the infrastructure to statically-assert that these match up. If you

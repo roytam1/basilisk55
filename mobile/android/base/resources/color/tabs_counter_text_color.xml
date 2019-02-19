@@ -4,9 +4,9 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
-    <item goanna:state_private="true"
+    <item gecko:state_private="true"
           android:color="@color/tabs_tray_grey_pressed"/>
 
     <item android:color="@color/toolbar_grey"/>

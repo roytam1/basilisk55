@@ -88,7 +88,7 @@ add_task(function () {
     "The .A node's function cell displays the correct line.");
   is($fun(".call-tree-host", $$(".call-tree-item")[1]).textContent.trim(), "foo",
     "The .A node's function cell displays the correct host.");
-  is($fun(".call-tree-category", $$(".call-tree-item")[1]).textContent.trim(), "Goanna",
+  is($fun(".call-tree-category", $$(".call-tree-item")[1]).textContent.trim(), "Gecko",
     "The .A node's function cell displays the correct category.");
 
   ok($$(".call-tree-item")[1].getAttribute("tooltiptext").includes(MANGLED_FN),

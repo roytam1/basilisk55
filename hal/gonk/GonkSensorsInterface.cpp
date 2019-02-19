@@ -233,8 +233,8 @@ GonkSensorsInterface::SetNotificationHandler(
  *      socket.
  *
  *  (2) Start the Sensors daemon: When the daemon starts up it will open
- *      a socket connection to Goanna and thus create the data channel.
- *      Goanna already opened the listen socket in step (1). Step (2) ends
+ *      a socket connection to Gecko and thus create the data channel.
+ *      Gecko already opened the listen socket in step (1). Step (2) ends
  *      with the creation of the data channel.
  *
  *  (3) Signal success to the caller.

@@ -33,7 +33,7 @@
 #include "nsAnimationManager.h"
 #include "nsStyleSheetService.h"
 #include "mozilla/dom/Element.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsHTMLCSSStyleSheet.h"
 #include "nsHTMLStyleSheet.h"
 #include "SVGAttrAnimationRuleProcessor.h"
@@ -754,9 +754,9 @@ nsStyleSet::AppendAllXBLStyleSheets(nsTArray<mozilla::CSSStyleSheet*>& aArray) c
     AutoTArray<StyleSheet*, 32> sheets;
     mBindingManager->AppendAllSheets(sheets);
     for (StyleSheet* handle : sheets) {
-      MOZ_ASSERT(handle->IsGoanna(), "stylo: AppendAllSheets shouldn't give us "
+      MOZ_ASSERT(handle->IsGecko(), "stylo: AppendAllSheets shouldn't give us "
                                     "ServoStyleSheets yet");
-      aArray.AppendElement(handle->AsGoanna());
+      aArray.AppendElement(handle->AsGecko());
     }
   }
 }
@@ -1771,10 +1771,10 @@ nsStyleSet::ResolveStyleByRemovingAnimation(dom::Element* aTarget,
              pseudoType == CSSPseudoElementType::before ||
              pseudoType == CSSPseudoElementType::after,
              "unexpected type for animations");
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
              "stylo: the style set and restyle manager must have the same "
              "StyleBackendType");
-  RestyleManager* restyleManager = PresContext()->RestyleManager()->AsGoanna();
+  RestyleManager* restyleManager = PresContext()->RestyleManager()->AsGecko();
 
   bool oldSkipAnimationRules = restyleManager->SkipAnimationRules();
   restyleManager->SetSkipAnimationRules(true);
@@ -1793,7 +1793,7 @@ already_AddRefed<nsStyleContext>
 nsStyleSet::ResolveStyleWithoutAnimation(Element* aTarget,
                                          nsStyleContext* aParentContext)
 {
-  RestyleManager* restyleManager = PresContext()->RestyleManager()->AsGoanna();
+  RestyleManager* restyleManager = PresContext()->RestyleManager()->AsGecko();
 
   TreeMatchContext treeContext(true, nsRuleWalker::eRelevantLinkUnvisited,
                                aTarget->OwnerDoc());
@@ -2313,10 +2313,10 @@ nsStyleSet::ReparentStyleContext(nsStyleContext* aStyleContext,
   CSSPseudoElementType pseudoType = aStyleContext->GetPseudoType();
   nsRuleNode* ruleNode = aStyleContext->RuleNode();
 
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
              "stylo: the style set and restyle manager must have the same "
              "StyleBackendType");
-  NS_ASSERTION(!PresContext()->RestyleManager()->AsGoanna()->SkipAnimationRules(),
+  NS_ASSERTION(!PresContext()->RestyleManager()->AsGecko()->SkipAnimationRules(),
                "we no longer handle SkipAnimationRules()");
 
   nsRuleNode* visitedRuleNode = nullptr;
@@ -2551,9 +2551,9 @@ nsStyleSet::EnsureUniqueInnerOnCSSSheets()
     // CSSStyleSheets).
     mBindingManager->AppendAllSheets(sheets);
     for (StyleSheet* sheet : sheets) {
-      MOZ_ASSERT(sheet->IsGoanna(), "stylo: AppendAllSheets shouldn't give us "
+      MOZ_ASSERT(sheet->IsGecko(), "stylo: AppendAllSheets shouldn't give us "
                                    "ServoStyleSheets yet");
-      queue.AppendElement(sheet->AsGoanna());
+      queue.AppendElement(sheet->AsGecko());
     }
   }
 
@@ -2601,8 +2601,8 @@ nsStyleSet::ClearSelectors()
   if (!mRuleTree) {
     return;
   }
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
              "stylo: the style set and restyle manager must have the same "
              "StyleBackendType");
-  PresContext()->RestyleManager()->AsGoanna()->ClearSelectors();
+  PresContext()->RestyleManager()->AsGecko()->ClearSelectors();
 }

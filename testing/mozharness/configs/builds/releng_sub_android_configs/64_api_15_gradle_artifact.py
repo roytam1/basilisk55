@@ -5,13 +5,13 @@ config = {
     'src_mozconfig': 'mobile/android/config/mozconfigs/android-api-15-gradle/nightly-artifact',
     'tooltool_manifest_src': 'mobile/android/config/tooltool-manifests/android/releng.manifest',
     'multi_locale_config_platform': 'android',
-    # It's not obvious, but postflight_build is after packaging, so the Goanna
+    # It's not obvious, but postflight_build is after packaging, so the Gecko
     # binaries are in the object directory, ready to be packaged into the
-    # GoannaView AAR.
+    # GeckoView AAR.
     'postflight_build_mach_commands': [
         ['gradle',
-         'goannaview:assembleWithGoannaBinaries',
-         'goannaview_example:assembleWithGoannaBinaries',
+         'geckoview:assembleWithGeckoBinaries',
+         'geckoview_example:assembleWithGeckoBinaries',
          'uploadArchives',
         ],
     ],

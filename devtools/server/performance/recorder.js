@@ -83,7 +83,7 @@ exports.PerformanceRecorder = Class({
 
     // Sets `this._profiler`, `this._timeline` and `this._memory`.
     // Only initialize the timeline and memory fronts if the respective actors
-    // are available. Older Goanna versions don't have existing implementations,
+    // are available. Older Gecko versions don't have existing implementations,
     // in which case all the methods we need can be easily mocked.
     this._connectComponents();
     this._registerListeners();
@@ -331,7 +331,7 @@ exports.PerformanceRecorder = Class({
       );
 
       // If no current time is exposed from starting, set it to 0 -- this is an
-      // older Goanna that does not return its starting time, and uses an epoch based
+      // older Gecko that does not return its starting time, and uses an epoch based
       // on the profiler's start time.
       if (startData.currentTime == null) {
         startData.currentTime = 0;

@@ -5,7 +5,7 @@
 #ifndef TLSServer_h
 #define TLSServer_h
 
-// This is a standalone server for testing SSL features of Goanna.
+// This is a standalone server for testing SSL features of Gecko.
 // The client is expected to connect and initiate an SSL handshake (with SNI
 // to indicate which "server" to connect to). If all is good, the client then
 // sends one encrypted byte and receives that same byte back.

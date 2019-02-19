@@ -5,7 +5,7 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <org.mozilla.goanna.widget.FaviconView android:id="@+id/suggestion_icon"
+    <org.mozilla.gecko.widget.FaviconView android:id="@+id/suggestion_icon"
                                           android:layout_width="@dimen/favicon_bg"
                                           android:layout_height="@dimen/favicon_bg"
                                           android:layout_marginLeft="16dip"
@@ -16,7 +16,7 @@
                                           android:minWidth="@dimen/favicon_bg"
                                           android:minHeight="@dimen/favicon_bg"/>
 
-    <org.mozilla.goanna.widget.FlowLayout android:id="@+id/suggestion_layout"
+    <org.mozilla.gecko.widget.FlowLayout android:id="@+id/suggestion_layout"
                                          android:layout_toRightOf="@id/suggestion_icon"
                                          android:layout_toEndOf="@id/suggestion_icon"
                                          android:layout_centerVertical="true"
@@ -29,6 +29,6 @@
         <include layout="@layout/suggestion_item"
                  android:id="@+id/suggestion_user_entered"/>
 
-    </org.mozilla.goanna.widget.FlowLayout>
+    </org.mozilla.gecko.widget.FlowLayout>
 
 </merge>

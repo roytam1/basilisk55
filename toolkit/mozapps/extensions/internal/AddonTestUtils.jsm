@@ -422,7 +422,7 @@ var AddonTestUtils = {
 
     let manifest = yield body.json();
     try {
-      return manifest.applications.gecko.id;
+      return manifest.applications.goanna.id;
     } catch (e) {
       // IDs for WebExtensions are extracted from the certificate when
       // not present in the manifest, so just generate a random one.

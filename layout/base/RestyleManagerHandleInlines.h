@@ -11,9 +11,9 @@
 #include "mozilla/ServoRestyleManager.h"
 #include "mozilla/ServoRestyleManagerInlines.h"
 
-#define FORWARD_CONCRETE(method_, goannaargs_, servoargs_) \
-  if (IsGoanna()) { \
-    return AsGoanna()->method_ goannaargs_; \
+#define FORWARD_CONCRETE(method_, geckoargs_, servoargs_) \
+  if (IsGecko()) { \
+    return AsGecko()->method_ geckoargs_; \
   } else { \
     return AsServo()->method_ servoargs_; \
   }

@@ -34,7 +34,7 @@ class X11CompositorWidget;
 class AndroidCompositorWidget;
 class CompositorWidgetInitData;
 
-// Goanna widgets usually need to communicate with the CompositorWidget with
+// Gecko widgets usually need to communicate with the CompositorWidget with
 // platform-specific messages (for example to update the window size or
 // transparency). This functionality is controlled through a "host". Since
 // this functionality is platform-dependent, it is only forward declared

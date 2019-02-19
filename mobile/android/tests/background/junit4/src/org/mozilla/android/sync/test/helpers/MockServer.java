@@ -3,8 +3,8 @@
 
 package org.mozilla.android.sync.test.helpers;
 
-import org.mozilla.goanna.background.common.log.Logger;
-import org.mozilla.goanna.sync.Utils;
+import org.mozilla.gecko.background.common.log.Logger;
+import org.mozilla.gecko.sync.Utils;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;

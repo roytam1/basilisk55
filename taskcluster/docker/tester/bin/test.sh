@@ -2,8 +2,8 @@
 
 set -x -e
 
-: GOANNA_HEAD_REPOSITORY         ${GOANNA_HEAD_REPOSITORY:=https://hg.mozilla.org/mozilla-central}
-: GOANNA_HEAD_REV                ${GOANNA_HEAD_REV:=default}
+: GECKO_HEAD_REPOSITORY         ${GECKO_HEAD_REPOSITORY:=https://hg.mozilla.org/mozilla-central}
+: GECKO_HEAD_REV                ${GECKO_HEAD_REV:=default}
 : WORKSPACE                     ${WORKSPACE:=/home/worker/workspace}
 
 
@@ -16,7 +16,7 @@ if [ $(id -u) = 0 ]; then
 fi
 
 ####
-# Now get the test-linux.sh script from the given Goanna tree and run it with
+# Now get the test-linux.sh script from the given Gecko tree and run it with
 # the same arguments.
 ####
 
@@ -24,7 +24,7 @@ fi
 cd $WORKSPACE
 
 script=taskcluster/scripts/tester/test-b2g.sh
-url=${GOANNA_HEAD_REPOSITORY}/raw-file/${GOANNA_HEAD_REV}/${script}
+url=${GECKO_HEAD_REPOSITORY}/raw-file/${GECKO_HEAD_REV}/${script}
 curl --fail -o ./test-b2g.sh --retry 10 $url
 chmod +x ./test-b2g.sh
 exec ./test-b2g.sh "${@}"

@@ -5,8 +5,8 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
-<org.mozilla.goanna.ZoomedView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:goanna="http://schemas.android.com/apk/res-auto"
+<org.mozilla.gecko.ZoomedView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gecko="http://schemas.android.com/apk/res-auto"
     android:id="@+id/zoomed_view_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -48,4 +48,4 @@
             android:layout_height="wrap_content"/>
     </RelativeLayout>
 
-</org.mozilla.goanna.ZoomedView>
+</org.mozilla.gecko.ZoomedView>

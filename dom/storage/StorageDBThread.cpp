@@ -27,7 +27,7 @@
 #include "mozilla/IOInterposer.h"
 #include "mozilla/Services.h"
 #include "mozilla/Tokenizer.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 // How long we collect write oprerations
 // before they are flushed to the database

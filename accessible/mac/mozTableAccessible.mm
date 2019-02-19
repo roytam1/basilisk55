@@ -11,7 +11,7 @@
 @implementation mozTablePartAccessible
 - (BOOL)isLayoutTablePart;
 {
-  if (Accessible* accWrap = [self getGoannaAccessible]) {
+  if (Accessible* accWrap = [self getGeckoAccessible]) {
     while (accWrap) {
       if (accWrap->IsTable()) {
         return accWrap->AsTable()->IsProbablyLayoutTable();
@@ -66,7 +66,7 @@
 
 - (id)accessibilityAttributeValue:(NSString*)attribute
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     TableAccessible* table = accWrap->AsTable();
     if ([attribute isEqualToString:NSAccessibilityRowCountAttribute])
       return @(table->RowCount());
@@ -79,7 +79,7 @@
       for (uint32_t i = 0; i < totalCount; i++) {
         if (accWrap->GetChildAt(i)->IsTableRow()) {
           mozAccessible* curNative =
-            GetNativeFromGoannaAccessible(accWrap->GetChildAt(i));
+            GetNativeFromGeckoAccessible(accWrap->GetChildAt(i));
           if (curNative)
             [nativeArray addObject:GetObjectOrRepresentedView(curNative)];
         }
@@ -136,7 +136,7 @@
 
 - (id)accessibilityAttributeValue:(NSString*)attribute
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     if ([attribute isEqualToString:NSAccessibilityIndexAttribute]) {
       // Count the number of rows before that one to obtain the row index.
       uint32_t index = 0;
@@ -198,7 +198,7 @@
 
 - (id)accessibilityAttributeValue:(NSString*)attribute
 {
-  if (AccessibleWrap* accWrap = [self getGoannaAccessible]) {
+  if (AccessibleWrap* accWrap = [self getGeckoAccessible]) {
     TableCellAccessible* cell = accWrap->AsTableCell();
     if ([attribute isEqualToString:NSAccessibilityRowIndexRangeAttribute])
       return [NSValue valueWithRange:NSMakeRange(cell->RowIdx(),

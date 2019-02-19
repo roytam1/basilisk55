@@ -9,12 +9,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import android.support.v4.content.ContextCompat;
-import org.mozilla.goanna.AppConstants;
-import org.mozilla.goanna.GoannaApplication;
-import org.mozilla.goanna.R;
-import org.mozilla.goanna.search.SearchEngine;
-import org.mozilla.goanna.Telemetry;
-import org.mozilla.goanna.TelemetryContract;
+import org.mozilla.gecko.AppConstants;
+import org.mozilla.gecko.GeckoApplication;
+import org.mozilla.gecko.R;
+import org.mozilla.gecko.search.SearchEngine;
+import org.mozilla.gecko.Telemetry;
+import org.mozilla.gecko.TelemetryContract;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -79,7 +79,7 @@ public class PostSearchFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
-        GoannaApplication.watchReference(getActivity(), this);
+        GeckoApplication.watchReference(getActivity(), this);
     }
 
     public void startSearch(SearchEngine engine, String query) {

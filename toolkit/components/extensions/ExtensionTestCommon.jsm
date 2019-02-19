@@ -215,7 +215,7 @@ class ExtensionTestCommon {
           <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                xmlns:em="http://www.mozilla.org/2004/em-rdf#">
               <Description about="urn:mozilla:install-manifest"
-                  em:id="${manifest.applications.gecko.id}"
+                  em:id="${manifest.applications.goanna.id}"
                   em:name="${manifest.name}"
                   em:type="2"
                   em:version="${manifest.version}"
@@ -327,10 +327,10 @@ class ExtensionTestCommon {
 
     let id;
     if (data.manifest) {
-      if (data.manifest.applications && data.manifest.applications.gecko) {
-        id = data.manifest.applications.gecko.id;
-      } else if (data.manifest.browser_specific_settings && data.manifest.browser_specific_settings.gecko) {
-        id = data.manifest.browser_specific_settings.gecko.id;
+      if (data.manifest.applications && data.manifest.applications.goanna) {
+        id = data.manifest.applications.goanna.id;
+      } else if (data.manifest.browser_specific_settings && data.manifest.browser_specific_settings.goanna) {
+        id = data.manifest.browser_specific_settings.goanna.id;
       }
     }
     if (!id) {

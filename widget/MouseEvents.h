@@ -654,7 +654,7 @@ public:
       aEvent.mAllowToOverrideSystemScrollSpeed;
   }
 
-  // System scroll speed settings may be too slow at using Goanna.  In such
+  // System scroll speed settings may be too slow at using Gecko.  In such
   // case, we should override the scroll speed computed with system settings.
   // Following methods return preferred delta values which are multiplied by
   // factors specified by prefs.  If system scroll speed shouldn't be

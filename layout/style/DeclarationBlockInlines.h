@@ -30,8 +30,8 @@ already_AddRefed<DeclarationBlock>
 DeclarationBlock::Clone() const
 {
   RefPtr<DeclarationBlock> result;
-  if (IsGoanna()) {
-    result = new css::Declaration(*AsGoanna());
+  if (IsGecko()) {
+    result = new css::Declaration(*AsGecko());
   } else {
     result = new ServoDeclarationBlock(*AsServo());
   }
@@ -42,8 +42,8 @@ already_AddRefed<DeclarationBlock>
 DeclarationBlock::EnsureMutable()
 {
 #ifdef DEBUG
-  if (IsGoanna()) {
-    AsGoanna()->AssertNotExpanded();
+  if (IsGecko()) {
+    AsGecko()->AssertNotExpanded();
   }
 #endif
   if (!IsMutable()) {

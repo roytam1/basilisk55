@@ -7,7 +7,7 @@
 DEFINES['ANDROID_PACKAGE_NAME'] = CONFIG['ANDROID_PACKAGE_NAME']
 
 ANDROID_APK_NAME = 'background-junit3-debug'
-ANDROID_APK_PACKAGE = 'org.mozilla.goanna.background.tests'
+ANDROID_APK_PACKAGE = 'org.mozilla.gecko.background.tests'
 
 include('background_junit3_sources.mozbuild')
 
@@ -17,12 +17,12 @@ jar.extra_jars += [
     CONFIG['ANDROID_SUPPORT_V4_AAR_LIB'],
     CONFIG['ANDROID_RECYCLERVIEW_V7_AAR_LIB'],
     TOPOBJDIR + '/mobile/android/base/constants.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-R.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-browser.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-mozglue.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-thirdparty.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-util.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-view.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-R.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-browser.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-mozglue.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-thirdparty.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-util.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-view.jar',
     TOPOBJDIR + '/mobile/android/base/services.jar',
     TOPOBJDIR + '/mobile/android/base/sync-thirdparty.jar',
 ]

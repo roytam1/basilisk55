@@ -27,7 +27,7 @@
 #include "mozilla/dom/BaseAudioContextBinding.h"
 #include "mozilla/media/MediaUtils.h"
 #include <algorithm>
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "VideoFrameContainer.h"
 #include "mozilla/AbstractThread.h"
 #include "mozilla/Unused.h"
@@ -56,7 +56,7 @@ LazyLogModule gMediaStreamGraphLog("MediaStreamGraph");
 #ifdef ENABLE_LIFECYCLE_LOG
 #  ifdef ANDROID
 #    include "android/log.h"
-#    define LIFECYCLE_LOG(...)  __android_log_print(ANDROID_LOG_INFO, "Goanna - MSG", ## __VA_ARGS__);
+#    define LIFECYCLE_LOG(...)  __android_log_print(ANDROID_LOG_INFO, "Gecko - MSG", ## __VA_ARGS__);
 #  else
 #    define LIFECYCLE_LOG(...) printf(__VA_ARGS__);printf("\n");
 #  endif

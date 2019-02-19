@@ -77,7 +77,7 @@ SPSProfiler::enable(bool enabled)
      */
     ReleaseAllJITCode(rt->defaultFreeOp());
 
-    // This function is called when the Goanna profiler makes a new TableTicker
+    // This function is called when the Gecko profiler makes a new TableTicker
     // (and thus, a new circular buffer). Set all current entries in the
     // JitcodeGlobalTable as expired and reset the buffer generation and lap
     // count.

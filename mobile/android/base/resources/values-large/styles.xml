@@ -51,7 +51,7 @@
         <!-- layout_width/height doesn't work here, likely because it's only
              added programmatically, so we use padding for the width instead.
              layout_height is set to MATCH_PARENT programmatically in
-             org.mozilla.goanna.toolbar.BrowserToolbarTabletBase.addActionItem(View) -->
+             org.mozilla.gecko.toolbar.BrowserToolbarTabletBase.addActionItem(View) -->
 
         <item name="android:paddingLeft">@dimen/tablet_browser_toolbar_menu_item_padding_horizontal</item>
         <item name="android:paddingRight">@dimen/tablet_browser_toolbar_menu_item_padding_horizontal</item>

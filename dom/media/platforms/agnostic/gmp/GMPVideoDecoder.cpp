@@ -17,7 +17,7 @@ namespace mozilla {
 #if defined(DEBUG)
 static bool IsOnGMPThread()
 {
-  nsCOMPtr<mozIGoannaMediaPluginService> mps = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+  nsCOMPtr<mozIGeckoMediaPluginService> mps = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   MOZ_ASSERT(mps);
 
   nsCOMPtr<nsIThread> gmpThread;
@@ -307,7 +307,7 @@ GMPVideoDecoder::Init()
 {
   MOZ_ASSERT(IsOnGMPThread());
 
-  mMPS = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+  mMPS = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   MOZ_ASSERT(mMPS);
 
   RefPtr<InitPromise> promise(mInitPromise.Ensure(__func__));

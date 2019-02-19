@@ -107,7 +107,7 @@ class Proto2Response(Response):
 class TcpTransport(object):
     """Socket client that communciates with Marionette via TCP.
 
-    It speaks the protocol of the remote debugger in Goanna, in which
+    It speaks the protocol of the remote debugger in Gecko, in which
     messages are always preceded by the message length and a colon, e.g.:
 
         7:MESSAGE

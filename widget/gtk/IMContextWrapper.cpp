@@ -391,10 +391,10 @@ IMContextWrapper::NotifyIME(TextEventDispatcher* aTextEventDispatcher,
             return EndIMEComposition(window);
         }
         case NOTIFY_IME_OF_FOCUS:
-            OnFocusChangeInGoanna(true);
+            OnFocusChangeInGecko(true);
             return NS_OK;
         case NOTIFY_IME_OF_BLUR:
-            OnFocusChangeInGoanna(false);
+            OnFocusChangeInGecko(false);
             return NS_OK;
         case NOTIFY_IME_OF_POSITION_CHANGE:
             OnLayoutChange();
@@ -698,10 +698,10 @@ IMContextWrapper::OnKeyEvent(nsWindow* aCaller,
 }
 
 void
-IMContextWrapper::OnFocusChangeInGoanna(bool aFocus)
+IMContextWrapper::OnFocusChangeInGecko(bool aFocus)
 {
     MOZ_LOG(gGtkIMLog, LogLevel::Info,
-        ("0x%p OnFocusChangeInGoanna(aFocus=%s), "
+        ("0x%p OnFocusChangeInGecko(aFocus=%s), "
          "mCompositionState=%s, mIsIMFocused=%s",
          this, ToChar(aFocus), GetCompositionStateName(),
          ToChar(mIsIMFocused)));

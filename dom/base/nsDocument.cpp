@@ -996,7 +996,7 @@ nsExternalResourceMap::PendingLoad::SetupViewer(nsIRequest* aRequest,
     do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
   NS_ENSURE_TRUE(catMan, NS_ERROR_NOT_AVAILABLE);
   nsXPIDLCString contractId;
-  nsresult rv = catMan->GetCategoryEntry("Goanna-Content-Viewers", type.get(),
+  nsresult rv = catMan->GetCategoryEntry("Gecko-Content-Viewers", type.get(),
                                          getter_Copies(contractId));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIDocumentLoaderFactory> docLoaderFactory =
@@ -2194,7 +2194,7 @@ nsDocument::ResetStylesheetsToURI(nsIURI* aURI)
     RemoveStyleSheetsFromStyleSets(mAdditionalSheets[eUserSheet], SheetType::User);
     RemoveStyleSheetsFromStyleSets(mAdditionalSheets[eAuthorSheet], SheetType::Doc);
 
-    if (GetStyleBackendType() == StyleBackendType::Goanna) {
+    if (GetStyleBackendType() == StyleBackendType::Gecko) {
       nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
       if (sheetService) {
         RemoveStyleSheetsFromStyleSets(*sheetService->AuthorStyleSheets(), SheetType::Doc);
@@ -2267,7 +2267,7 @@ nsDocument::FillStyleSet(StyleSetHandle aStyleSet)
     }
   }
 
-  if (aStyleSet->IsGoanna()) {
+  if (aStyleSet->IsGecko()) {
     nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
     if (sheetService) {
       for (StyleSheet* sheet : *sheetService->AuthorStyleSheets()) {
@@ -6272,9 +6272,9 @@ nsDocument::EnableStyleSheetsForSetInternal(const nsAString& aSheetSet,
       continue;
     }
 
-    sheet->AsGoanna()->GetTitle(title);
+    sheet->AsGecko()->GetTitle(title);
     if (!title.IsEmpty()) {
-      sheet->AsGoanna()->SetEnabled(title.Equals(aSheetSet));
+      sheet->AsGecko()->SetEnabled(title.Equals(aSheetSet));
     }
   }
   if (aUpdateCSSLoader) {
@@ -9907,9 +9907,9 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
         if (sheet) {
           if (sheet->IsApplicable()) {
             // XXXheycam Need to make ServoStyleSheet cloning work.
-            if (sheet->IsGoanna()) {
+            if (sheet->IsGecko()) {
               RefPtr<CSSStyleSheet> clonedSheet =
-                sheet->AsGoanna()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+                sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
               NS_WARNING_ASSERTION(clonedSheet,
                                    "Cloning a stylesheet didn't work!");
               if (clonedSheet) {
@@ -9927,9 +9927,9 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
         if (sheet) {
           if (sheet->IsApplicable()) {
             // XXXheycam Need to make ServoStyleSheet cloning work.
-            if (sheet->IsGoanna()) {
+            if (sheet->IsGecko()) {
               RefPtr<CSSStyleSheet> clonedSheet =
-                sheet->AsGoanna()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+                sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
               NS_WARNING_ASSERTION(clonedSheet,
                                    "Cloning a stylesheet didn't work!");
               if (clonedSheet) {
@@ -10632,7 +10632,7 @@ nsIDocument::ExitFullscreen()
 static void
 AskWindowToExitFullscreen(nsIDocument* aDoc)
 {
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     nsContentUtils::DispatchEventOnlyToChrome(
       aDoc, ToSupports(aDoc), NS_LITERAL_STRING("MozDOMFullscreen:Exit"),
       /* Bubbles */ true, /* Cancelable */ false,
@@ -11368,7 +11368,7 @@ static bool
 ShouldApplyFullscreenDirectly(nsIDocument* aDoc,
                               nsPIDOMWindowOuter* aRootWin)
 {
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     // If we are in the content process, we can apply the fullscreen
     // state directly only if we have been in DOM fullscreen, because
     // otherwise we always need to notify the chrome.
@@ -11427,7 +11427,7 @@ nsDocument::RequestFullScreen(UniquePtr<FullscreenRequest>&& aRequest)
   }
 
   PendingFullscreenRequestList::Add(Move(aRequest));
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     // If we are not the top level process, dispatch an event to make
     // our parent process go fullscreen first.
     nsContentUtils::DispatchEventOnlyToChrome(
@@ -12788,8 +12788,8 @@ nsIDocument::FlushUserFontSet()
       nsIPresShell* shell = GetShell();
       if (shell) {
         // XXXheycam ServoStyleSets don't support exposing @font-face rules yet.
-        if (shell->StyleSet()->IsGoanna()) {
-          if (!shell->StyleSet()->AsGoanna()->AppendFontFaceRules(rules)) {
+        if (shell->StyleSet()->IsGecko()) {
+          if (!shell->StyleSet()->AsGecko()->AppendFontFaceRules(rules)) {
             return;
           }
         } else {
@@ -12886,8 +12886,8 @@ nsIDocument::UpdateStyleBackendType()
   MOZ_ASSERT(mStyleBackendType == StyleBackendType(0),
              "no need to call UpdateStyleBackendType now");
 
-  // Assume Goanna by default.
-  mStyleBackendType = StyleBackendType::Goanna;
+  // Assume Gecko by default.
+  mStyleBackendType = StyleBackendType::Gecko;
 
 #ifdef MOZ_STYLO
   // XXX For now we use a Servo-backed style set only for (X)HTML documents
@@ -12895,10 +12895,10 @@ nsIDocument::UpdateStyleBackendType()
   // CSS features.  And apart from not supporting SVG properties in Servo
   // yet, the root SVG element likes to create a style sheet for an SVG
   // document before we have a pres shell (i.e. before we make the decision
-  // here about whether to use a Goanna- or Servo-backed style system), so
+  // here about whether to use a Gecko- or Servo-backed style system), so
   // we avoid Servo-backed style sets for SVG documents.
   if (!mDocumentContainer) {
-    NS_WARNING("stylo: No docshell yet, assuming Goanna style system");
+    NS_WARNING("stylo: No docshell yet, assuming Gecko style system");
   } else if (nsLayoutUtils::SupportsServoStyleBackend(this)) {
     mStyleBackendType = StyleBackendType::Servo;
   }

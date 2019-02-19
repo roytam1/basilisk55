@@ -244,7 +244,7 @@ Structure:
 
     "threadHangStats" : [
       {
-        "name" : "Goanna",
+        "name" : "Gecko",
         "activity" : {...}, // a time histogram of all task run times
         "hangs" : [
           {

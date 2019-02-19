@@ -17,10 +17,10 @@ enum MacSandboxType {
 
 enum MacSandboxPluginType {
   MacSandboxPluginType_Default = 0,
-  MacSandboxPluginType_GMPlugin_Default,      // Any Goanna Media Plugin
-  MacSandboxPluginType_GMPlugin_OpenH264,     // Goanna Media Plugin, OpenH264
-  MacSandboxPluginType_GMPlugin_EME,          // Goanna Media Plugin, EME
-  MacSandboxPluginType_GMPlugin_EME_Widevine, // Goanna Media Plugin, Widevine
+  MacSandboxPluginType_GMPlugin_Default,      // Any Gecko Media Plugin
+  MacSandboxPluginType_GMPlugin_OpenH264,     // Gecko Media Plugin, OpenH264
+  MacSandboxPluginType_GMPlugin_EME,          // Gecko Media Plugin, EME
+  MacSandboxPluginType_GMPlugin_EME_Widevine, // Gecko Media Plugin, Widevine
   MacSandboxPluginType_Invalid
 };
 

@@ -3,7 +3,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:goanna="http://schemas.android.com/apk/res-auto"
+    xmlns:gecko="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
         android:orientation="horizontal"
         android:background="?android:attr/selectableItemBackground">
 
-        <org.mozilla.goanna.widget.FaviconView
+        <org.mozilla.gecko.widget.FaviconView
             android:id="@+id/icon"
             android:layout_width="@dimen/favicon_bg"
             android:layout_height="@dimen/favicon_bg"
@@ -30,7 +30,7 @@
             android:layout_marginTop="@dimen/activity_stream_base_margin"
             android:layout_marginBottom="@dimen/activity_stream_base_margin"
             android:layout_gravity="center"
-            goanna:enableRoundCorners="false"
+            gecko:enableRoundCorners="false"
             tools:background="@drawable/favicon_globe" />
 
         <ImageView

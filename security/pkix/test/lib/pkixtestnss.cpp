@@ -150,7 +150,7 @@ private:
 
 } // namespace
 
-// This private function is also used by Goanna's PSM test framework
+// This private function is also used by Gecko's PSM test framework
 // (OCSPCommon.cpp).
 //
 // Ownership of privateKey is transfered.

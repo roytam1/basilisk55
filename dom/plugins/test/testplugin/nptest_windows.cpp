@@ -870,7 +870,7 @@ bool pluginNativeWidgetIsVisible(InstanceData* instanceData)
   HWND hWnd = (HWND)instanceData->window.window;
   wchar_t className[60];
   if (::GetClassNameW(hWnd, className, sizeof(className) / sizeof(char16_t)) &&
-      !wcsicmp(className, L"GoannaPluginWindow")) {
+      !wcsicmp(className, L"GeckoPluginWindow")) {
     return ::IsWindowVisible(hWnd);
   }
   // something isn't right, fail the check

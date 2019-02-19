@@ -3,8 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<org.mozilla.goanna.tabs.TabsLayoutItemView xmlns:android="http://schemas.android.com/apk/res/android"
-                                           xmlns:goanna="http://schemas.android.com/apk/res-auto"
+<org.mozilla.gecko.tabs.TabsLayoutItemView xmlns:android="http://schemas.android.com/apk/res/android"
+                                           xmlns:gecko="http://schemas.android.com/apk/res-auto"
                                            style="@style/TabsItem"
                                            android:id="@+id/info"
                                            android:layout_width="match_parent"
@@ -20,7 +20,7 @@
                   android:paddingRight="@dimen/tab_highlight_stroke_width"
                   android:paddingBottom="@dimen/tab_highlight_stroke_width">
 
-       <org.mozilla.goanna.widget.FadedSingleColorTextView
+       <org.mozilla.gecko.widget.FadedSingleColorTextView
                android:id="@+id/title"
                android:layout_width="0dip"
                android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
                android:textColor="@color/tab_item_title"
                android:singleLine="true"
                android:duplicateParentState="true"
-               goanna:fadeWidth="15dp"
+               gecko:fadeWidth="15dp"
                android:paddingRight="5dp"
                android:paddingEnd="5dp"
                android:paddingLeft="0dp"
@@ -53,7 +53,7 @@
     </LinearLayout>
 
     <!-- We set state_private on this View dynamically in TabsGridLayout. -->
-    <org.mozilla.goanna.widget.TabThumbnailWrapper
+    <org.mozilla.gecko.widget.TabThumbnailWrapper
             android:id="@+id/wrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,13 +62,13 @@
             android:duplicateParentState="true"
             android:clipToPadding="false">
 
-        <org.mozilla.goanna.tabs.TabsPanelThumbnailView android:id="@+id/thumbnail"
+        <org.mozilla.gecko.tabs.TabsPanelThumbnailView android:id="@+id/thumbnail"
                                                        android:layout_width="match_parent"
                                                        android:layout_height="wrap_content"
                                                        android:elevation="2dp"
                                                        android:outlineProvider="bounds"
                                                 />
 
-    </org.mozilla.goanna.widget.TabThumbnailWrapper>
+    </org.mozilla.gecko.widget.TabThumbnailWrapper>
 
-</org.mozilla.goanna.tabs.TabsLayoutItemView>
+</org.mozilla.gecko.tabs.TabsLayoutItemView>

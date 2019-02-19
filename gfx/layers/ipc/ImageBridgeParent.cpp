@@ -87,7 +87,7 @@ ImageBridgeParent::CreateSameProcess()
 /* static */ bool
 ImageBridgeParent::CreateForGPUProcess(Endpoint<PImageBridgeParent>&& aEndpoint)
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_GPU);
 
   MessageLoop* loop = CompositorThreadHolder::Loop();
   RefPtr<ImageBridgeParent> parent = new ImageBridgeParent(loop, aEndpoint.OtherPid());

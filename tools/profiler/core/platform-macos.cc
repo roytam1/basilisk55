@@ -36,7 +36,7 @@
 #include "nsMemoryReporterManager.h"
 
 #include "platform.h"
-#include "GoannaSampler.h"
+#include "GeckoSampler.h"
 #include "mozilla/TimeStamp.h"
 
 using mozilla::TimeStamp;

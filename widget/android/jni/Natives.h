@@ -493,13 +493,13 @@ struct Dispatcher
     template<class Traits, bool IsStatic = Traits::isStatic,
              typename ThisArg, typename... ProxyArgs>
     static typename EnableIf<
-            Traits::dispatchTarget == DispatchTarget::GOANNA, void>::Type
+            Traits::dispatchTarget == DispatchTarget::GECKO, void>::Type
     Run(ThisArg thisArg, ProxyArgs&&... args)
     {
         // For a static method, do not forward the "this arg" (i.e. the class
         // local ref) if the implementation does not request it. This saves us
         // a pair of calls to add/delete global ref.
-        DispatchToGoannaThread(MakeUnique<ProxyNativeCall<
+        DispatchToGeckoThread(MakeUnique<ProxyNativeCall<
                 Impl, typename Traits::Owner, IsStatic, HasThisArg,
                 Args...>>(HasThisArg || !IsStatic ? thisArg : nullptr,
                           Forward<ProxyArgs>(args)...));

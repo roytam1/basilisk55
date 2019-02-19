@@ -96,7 +96,7 @@ function messageReceived({ target, data }) {
   emit(this.port, data.event, this, ...data.args);
 }
 
-// Process represents a goanna process that can load webpages. Each process
+// Process represents a gecko process that can load webpages. Each process
 // contains a number of Frames. This class is used to send and receive messages
 // from a single process.
 const Process = Class({

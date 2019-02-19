@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "ANRReporter.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include <unistd.h>
 
@@ -36,7 +36,7 @@ ANRReporter::RequestNativeStack(bool aUnwind)
     }
 
     const char *NATIVE_STACK_THREADS[] =
-        {"GoannaMain", "Compositor"};
+        {"GeckoMain", "Compositor"};
     // Buffer one sample and let the profiler wait a long time
     profiler_start(100, 10000, features, features_size / sizeof(char*),
         NATIVE_STACK_THREADS, sizeof(NATIVE_STACK_THREADS) / sizeof(char*));

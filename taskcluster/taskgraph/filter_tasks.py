@@ -13,7 +13,7 @@ from . import (
 
 logger = logging.getLogger(__name__)
 
-GOANNA = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+GECKO = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 filter_task_functions = {}
 
@@ -41,7 +41,7 @@ def filter_target_tasks(graph, parameters):
 @filter_task('check_servo')
 def filter_servo(graph, parameters):
     """Filters out tasks requiring Servo if Servo isn't present."""
-    if os.path.exists(os.path.join(GOANNA, 'servo', 'components', 'style')):
+    if os.path.exists(os.path.join(GECKO, 'servo', 'components', 'style')):
         return graph.tasks.keys()
 
     logger.info('servo/ directory not present; removing tasks requiring it')

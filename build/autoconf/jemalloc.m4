@@ -103,7 +103,7 @@ if test "$MOZ_BUILD_APP" != js -o -n "$JS_STANDALONE"; then
     fi
 
     # jemalloc's configure runs git to determine the version. But when building
-    # from a goanna git clone, the git commands it uses is going to pick goanna's
+    # from a gecko git clone, the git commands it uses is going to pick gecko's
     # information, not jemalloc's, which is useless. So pretend we don't have git
     # at all. That will make jemalloc's configure pick the in-tree VERSION file.
     (PATH="$srcdir/memory/jemalloc/helper:$PATH";

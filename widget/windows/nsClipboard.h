@@ -56,7 +56,7 @@ public:
   // for a given Mime string. The default is to map kHTMLMime ("text/html")
   // to the clipboard format CF_HTML ("HTLM Format"), but it can also be
   // registered as clipboard format "text/html" to support previous versions
-  // of Goanna.
+  // of Gecko.
   static UINT     GetFormat(const char* aMimeStr, bool aMapHTMLMime = true);
 
   static UINT     CF_HTML;

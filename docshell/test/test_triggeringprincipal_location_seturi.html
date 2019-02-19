@@ -32,7 +32,7 @@ document.documentElement.appendChild(myFrame1);
 
 function checkLoadFrame1() {
   myFrame1.removeEventListener('load', checkLoadFrame1, false);
-  // window.location.href is no longer cross-origin accessible in goanna.
+  // window.location.href is no longer cross-origin accessible in gecko.
   is(SpecialPowers.wrap(myFrame1.contentWindow).location.href, SAME_ORIGIN_URI,
     "initial same origin dummy loaded into frame1");
 

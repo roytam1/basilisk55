@@ -3,8 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<org.mozilla.goanna.home.BookmarkScreenshotRow
-        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:goanna="http://schemas.android.com/apk/res-auto"
+<org.mozilla.gecko.home.BookmarkScreenshotRow
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:gecko="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="@dimen/page_row_height"
         android:minHeight="@dimen/page_row_height"
@@ -14,22 +14,22 @@
         android:paddingRight="16dp"
 >
 
-    <org.mozilla.goanna.widget.FadedSingleColorTextView
+    <org.mozilla.gecko.widget.FadedSingleColorTextView
             android:id="@+id/title"
             style="@style/Widget.TwoLinePageRow.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            goanna:fadeWidth="30dp"
+            gecko:fadeWidth="30dp"
     />
 
-    <org.mozilla.goanna.widget.FadedSingleColorTextView
+    <org.mozilla.gecko.widget.FadedSingleColorTextView
             android:id="@+id/date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Widget.Home.ItemDescription"
             android:textColor="@color/link_blue"
             android:singleLine="true"
-            goanna:fadeWidth="30dp"
+            gecko:fadeWidth="30dp"
     />
 
-</org.mozilla.goanna.home.BookmarkScreenshotRow>
+</org.mozilla.gecko.home.BookmarkScreenshotRow>

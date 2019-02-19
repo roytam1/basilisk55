@@ -366,7 +366,7 @@ config = {
                 "--address=%(address)s",
                 "%(test_manifest)s",
                 "--disable-e10s",
-                "--goanna-log=%(goanna_log)s",
+                "--gecko-log=%(gecko_log)s",
                 "--log-raw=%(raw_log_file)s",
                 "--log-errorsummary=%(error_summary_file)s",
                 "--symbols-path=%(symbols_path)s",

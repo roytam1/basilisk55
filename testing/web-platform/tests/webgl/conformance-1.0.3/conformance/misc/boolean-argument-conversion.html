@@ -45,7 +45,7 @@
 var wtu = WebGLTestUtils;
 description("Test that conversion of boolean arguments of WebGL functions follows EcmaScript 9.2. ToBoolean");
 debug("");
-debug("When an object is converted to a boolean, it should always evaluate as true. Any valueOf() method should not even get called. See Mozilla bug 727590 where Goanna incorrectly converted such an argument to a Number instead of a Boolean, giving the wrong behavior. See 9.2 and 9.3 in the EcmaScript specification.");
+debug("When an object is converted to a boolean, it should always evaluate as true. Any valueOf() method should not even get called. See Mozilla bug 727590 where Gecko incorrectly converted such an argument to a Number instead of a Boolean, giving the wrong behavior. See 9.2 and 9.3 in the EcmaScript specification.");
 debug("");
 var gl = wtu.create3DContext();
 var program = wtu.loadStandardProgram(gl);

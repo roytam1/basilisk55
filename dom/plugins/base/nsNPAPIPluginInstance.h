@@ -54,15 +54,15 @@ const NPDrawingModel kDefaultDrawingModel = static_cast<NPDrawingModel>(0);
 #endif
 
 /**
- * Used to indicate whether it's OK to reenter Goanna and repaint, flush frames,
+ * Used to indicate whether it's OK to reenter Gecko and repaint, flush frames,
  * run scripts, etc, during this plugin call.
- * When NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GOANNA is set, we try to avoid dangerous
- * Goanna activities when the plugin spins a nested event loop, on a best-effort
+ * When NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GECKO is set, we try to avoid dangerous
+ * Gecko activities when the plugin spins a nested event loop, on a best-effort
  * basis.
  */
 enum NSPluginCallReentry {
-  NS_PLUGIN_CALL_SAFE_TO_REENTER_GOANNA,
-  NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GOANNA
+  NS_PLUGIN_CALL_SAFE_TO_REENTER_GECKO,
+  NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GECKO
 };
 
 class nsNPAPITimer
@@ -96,7 +96,7 @@ public:
   nsresult NewStreamFromPlugin(const char* type, const char* target, nsIOutputStream* *result);
   nsresult Print(NPPrint* platformPrint);
   nsresult HandleEvent(void* event, int16_t* result,
-                       NSPluginCallReentry aSafeToReenterGoanna = NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GOANNA);
+                       NSPluginCallReentry aSafeToReenterGecko = NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GECKO);
   nsresult GetValueFromPlugin(NPPVariable variable, void* value);
   nsresult GetDrawingModel(int32_t* aModel);
   nsresult IsRemoteDrawingCoreAnimation(bool* aDrawing);
@@ -317,13 +317,13 @@ public:
   static bool InPluginCallUnsafeForReentry() { return gInUnsafePluginCalls > 0; }
   static void BeginPluginCall(NSPluginCallReentry aReentryState)
   {
-    if (aReentryState == NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GOANNA) {
+    if (aReentryState == NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GECKO) {
       ++gInUnsafePluginCalls;
     }
   }
   static void EndPluginCall(NSPluginCallReentry aReentryState)
   {
-    if (aReentryState == NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GOANNA) {
+    if (aReentryState == NS_PLUGIN_CALL_UNSAFE_TO_REENTER_GECKO) {
       NS_ASSERTION(gInUnsafePluginCalls > 0, "Must be in plugin call");
       --gInUnsafePluginCalls;
     }

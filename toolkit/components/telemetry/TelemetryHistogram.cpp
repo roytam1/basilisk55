@@ -405,27 +405,27 @@ internal_HistogramGet(const char *name, const char *expiration,
 
 // Read the process type from the given histogram name. The process type, if
 // one exists, is embedded in a suffix.
-GoannaProcessType
+GeckoProcessType
 GetProcessFromName(const nsACString& aString)
 {
   if (StringEndsWith(aString, NS_LITERAL_CSTRING(CONTENT_HISTOGRAM_SUFFIX))) {
-    return GoannaProcessType_Content;
+    return GeckoProcessType_Content;
   }
   if (StringEndsWith(aString, NS_LITERAL_CSTRING(GPU_HISTOGRAM_SUFFIX))) {
-    return GoannaProcessType_GPU;
+    return GeckoProcessType_GPU;
   }
-  return GoannaProcessType_Default;
+  return GeckoProcessType_Default;
 }
 
 const char*
-SuffixForProcessType(GoannaProcessType aProcessType)
+SuffixForProcessType(GeckoProcessType aProcessType)
 {
   switch (aProcessType) {
-    case GoannaProcessType_Default:
+    case GeckoProcessType_Default:
       return nullptr;
-    case GoannaProcessType_Content:
+    case GeckoProcessType_Content:
       return CONTENT_HISTOGRAM_SUFFIX;
-    case GoannaProcessType_GPU:
+    case GeckoProcessType_GPU:
       return GPU_HISTOGRAM_SUFFIX;
     default:
       MOZ_ASSERT_UNREACHABLE("unknown process type");
@@ -437,7 +437,7 @@ CharPtrEntryType*
 internal_GetHistogramMapEntry(const char* aName)
 {
   nsDependentCString name(aName);
-  GoannaProcessType process = GetProcessFromName(name);
+  GeckoProcessType process = GetProcessFromName(name);
   const char* suffix = SuffixForProcessType(process);
   if (!suffix) {
     return gHistogramMap.GetEntry(aName);
@@ -464,7 +464,7 @@ internal_GetHistogramEnumId(const char *name, mozilla::Telemetry::ID *id)
 
 // O(1) histogram lookup by numeric id
 nsresult
-internal_GetHistogramByEnumId(mozilla::Telemetry::ID id, Histogram **ret, GoannaProcessType aProcessType)
+internal_GetHistogramByEnumId(mozilla::Telemetry::ID id, Histogram **ret, GeckoProcessType aProcessType)
 {
   static Histogram* knownHistograms[mozilla::Telemetry::HistogramCount] = {0};
   static Histogram* knownContentHistograms[mozilla::Telemetry::HistogramCount] = {0};
@@ -473,13 +473,13 @@ internal_GetHistogramByEnumId(mozilla::Telemetry::ID id, Histogram **ret, Goanna
   Histogram** knownList = nullptr;
 
   switch (aProcessType) {
-  case GoannaProcessType_Default:
+  case GeckoProcessType_Default:
     knownList = knownHistograms;
     break;
-  case GoannaProcessType_Content:
+  case GeckoProcessType_Content:
     knownList = knownContentHistograms;
     break;
-  case GoannaProcessType_GPU:
+  case GeckoProcessType_GPU:
     knownList = knownGPUHistograms;
     break;
   default:
@@ -541,7 +541,7 @@ internal_GetHistogramByName(const nsACString &name, Histogram **ret)
     return rv;
   }
 
-  GoannaProcessType process = GetProcessFromName(name);
+  GeckoProcessType process = GetProcessFromName(name);
   rv = internal_GetHistogramByEnumId(id, ret, process);
   if (NS_FAILED(rv))
     return rv;
@@ -582,7 +582,7 @@ internal_CloneHistogram(const nsACString& newName,
   return clone;
 }
 
-GoannaProcessType
+GeckoProcessType
 GetProcessFromName(const std::string& aString)
 {
   nsDependentCString string(aString.c_str(), aString.length());
@@ -605,15 +605,15 @@ internal_GetSubsessionHistogram(Histogram& existing)
 
   Histogram** cache = nullptr;
 
-  GoannaProcessType process = GetProcessFromName(existing.histogram_name());
+  GeckoProcessType process = GetProcessFromName(existing.histogram_name());
   switch (process) {
-  case GoannaProcessType_Default:
+  case GeckoProcessType_Default:
     cache = subsession;
     break;
-  case GoannaProcessType_Content:
+  case GeckoProcessType_Content:
     cache = subsessionContent;
     break;
-  case GoannaProcessType_GPU:
+  case GeckoProcessType_GPU:
     cache = subsessionGPU;
     break;
   default:
@@ -1280,7 +1280,7 @@ internal_SetHistogramRecordingEnabled(mozilla::Telemetry::ID aID, bool aEnabled)
     }
   } else {
     Histogram *h;
-    nsresult rv = internal_GetHistogramByEnumId(aID, &h, GoannaProcessType_Default);
+    nsresult rv = internal_GetHistogramByEnumId(aID, &h, GeckoProcessType_Default);
     if (NS_SUCCEEDED(rv)) {
       h->SetRecordingEnabled(aEnabled);
       return;
@@ -1297,7 +1297,7 @@ internal_RemoteAccumulate(mozilla::Telemetry::ID aId, uint32_t aSample)
     return false;
   }
   Histogram *h;
-  nsresult rv = internal_GetHistogramByEnumId(aId, &h, GoannaProcessType_Default);
+  nsresult rv = internal_GetHistogramByEnumId(aId, &h, GeckoProcessType_Default);
   if (NS_SUCCEEDED(rv) && !h->IsRecordingEnabled()) {
     return true;
   }
@@ -1330,7 +1330,7 @@ void internal_Accumulate(mozilla::Telemetry::ID aHistogram, uint32_t aSample)
     return;
   }
   Histogram *h;
-  nsresult rv = internal_GetHistogramByEnumId(aHistogram, &h, GoannaProcessType_Default);
+  nsresult rv = internal_GetHistogramByEnumId(aHistogram, &h, GeckoProcessType_Default);
   if (NS_SUCCEEDED(rv)) {
     internal_HistogramAdd(*h, aSample, gHistograms[aHistogram].dataset);
   }
@@ -1382,7 +1382,7 @@ internal_Accumulate(KeyedHistogram& aKeyed,
 }
 
 void
-internal_AccumulateChild(GoannaProcessType aProcessType, mozilla::Telemetry::ID aId, uint32_t aSample)
+internal_AccumulateChild(GeckoProcessType aProcessType, mozilla::Telemetry::ID aId, uint32_t aSample)
 {
   if (!internal_CanRecordBase()) {
     return;
@@ -1397,7 +1397,7 @@ internal_AccumulateChild(GoannaProcessType aProcessType, mozilla::Telemetry::ID 
 }
 
 void
-internal_AccumulateChildKeyed(GoannaProcessType aProcessType, mozilla::Telemetry::ID aId,
+internal_AccumulateChildKeyed(GeckoProcessType aProcessType, mozilla::Telemetry::ID aId,
                               const nsCString& aKey, uint32_t aSample)
 {
   if (!gInitDone || !internal_CanRecordBase()) {
@@ -2191,7 +2191,7 @@ TelemetryHistogram::AccumulateCategorical(mozilla::Telemetry::ID aId,
 }
 
 void
-TelemetryHistogram::AccumulateChild(GoannaProcessType aProcessType,
+TelemetryHistogram::AccumulateChild(GeckoProcessType aProcessType,
                                     const nsTArray<Accumulation>& aAccumulations)
 {
   MOZ_ASSERT(XRE_IsParentProcess());
@@ -2210,7 +2210,7 @@ TelemetryHistogram::AccumulateChild(GoannaProcessType aProcessType,
 }
 
 void
-TelemetryHistogram::AccumulateChildKeyed(GoannaProcessType aProcessType,
+TelemetryHistogram::AccumulateChildKeyed(GeckoProcessType aProcessType,
                                          const nsTArray<KeyedAccumulation>& aAccumulations)
 {
   MOZ_ASSERT(XRE_IsParentProcess());
@@ -2306,14 +2306,14 @@ TelemetryHistogram::CreateHistogramSnapshots(JSContext *cx,
       mozilla::DebugOnly<nsresult> rv;
       mozilla::Telemetry::ID id = mozilla::Telemetry::ID(i);
 
-      rv = internal_GetHistogramByEnumId(id, &h, GoannaProcessType_Default);
+      rv = internal_GetHistogramByEnumId(id, &h, GeckoProcessType_Default);
       MOZ_ASSERT(NS_SUCCEEDED(rv));
 
-      rv = internal_GetHistogramByEnumId(id, &h, GoannaProcessType_Content);
+      rv = internal_GetHistogramByEnumId(id, &h, GeckoProcessType_Content);
       MOZ_ASSERT(NS_SUCCEEDED(rv));
 
       if (includeGPUProcess) {
-        rv = internal_GetHistogramByEnumId(id, &h, GoannaProcessType_GPU);
+        rv = internal_GetHistogramByEnumId(id, &h, GeckoProcessType_GPU);
         MOZ_ASSERT(NS_SUCCEEDED(rv));
       }
     }

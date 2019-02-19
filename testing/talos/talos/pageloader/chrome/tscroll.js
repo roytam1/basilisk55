@@ -145,7 +145,7 @@ function testScroll(target, stepSize, opt_reportFunc, opt_numSteps)
     this.dummyEnsureScroll += win.screenY + getPos();
   }
 
-  // For reference, rAF should fire on vsync, but Goanna currently doesn't use vsync.
+  // For reference, rAF should fire on vsync, but Gecko currently doesn't use vsync.
   // Instead, it uses 1000/layout.frame_rate
   // (with 60 as default value when layout.frame_rate == -1).
   function P_syncScrollTest() {

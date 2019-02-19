@@ -818,9 +818,9 @@ DisableSensorNotificationsDaemon(SensorType aSensor)
 // Public interface
 //
 
-// TODO: Remove in-Goanna sensors code. Until all devices' base
+// TODO: Remove in-Gecko sensors code. Until all devices' base
 // images come with sensorsd installed, we have to support the
-// in-Goanna implementation as well. So we test for the existance
+// in-Gecko implementation as well. So we test for the existance
 // of the binary. If it's there, we use it. Otherwise we run the
 // old code.
 static bool

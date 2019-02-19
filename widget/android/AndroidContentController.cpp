@@ -119,12 +119,12 @@ AndroidContentController::NotifyAPZStateChange(const ScrollableLayerGuid& aGuid,
   ChromeProcessController::NotifyAPZStateChange(aGuid, aChange, aArg);
   if (NS_IsMainThread()) {
     nsCOMPtr<nsIObserverService> observerService = mozilla::services::GetObserverService();
-    if (aChange == layers::GoannaContentController::APZStateChange::eTransformEnd) {
+    if (aChange == layers::GeckoContentController::APZStateChange::eTransformEnd) {
       // This is used by tests to determine when the APZ is done doing whatever
       // it's doing. XXX generify this as needed when writing additional tests.
       observerService->NotifyObservers(nullptr, "APZ:TransformEnd", nullptr);
       observerService->NotifyObservers(nullptr, "PanZoom:StateChange", u"NOTHING");
-    } else if (aChange == layers::GoannaContentController::APZStateChange::eTransformBegin) {
+    } else if (aChange == layers::GeckoContentController::APZStateChange::eTransformBegin) {
       observerService->NotifyObservers(nullptr, "PanZoom:StateChange", u"PANNING");
     }
   }

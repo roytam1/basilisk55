@@ -727,7 +727,7 @@ nsPicoService::GetInstance()
 {
   MOZ_ASSERT(NS_IsMainThread());
   if (!XRE_IsParentProcess()) {
-    MOZ_ASSERT(false, "nsPicoService can only be started on main goanna process");
+    MOZ_ASSERT(false, "nsPicoService can only be started on main gecko process");
     return nullptr;
   }
 

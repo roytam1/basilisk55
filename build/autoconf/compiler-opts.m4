@@ -184,7 +184,7 @@ if test "$GNU_CC"; then
         4.*)
             ;;
         *)
-            # Lifetime Dead Store Elimination level 2 (default in GCC6+) breaks Goanna.
+            # Lifetime Dead Store Elimination level 2 (default in GCC6+) breaks Gecko.
             # Ideally, we'd use -flifetime-dse=1, but that means we'd forcefully
             # enable it on optimization levels where it would otherwise not be enabled.
             # So we disable it entirely. But since that would mean inconsistency with

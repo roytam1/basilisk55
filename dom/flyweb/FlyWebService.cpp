@@ -925,7 +925,7 @@ FlyWebService::Init()
   // Instead FlyWebService in the child is mainly responsible for tracking
   // publishedServer lifetimes. Other functions are handled by the
   // FlyWebService running in the parent.
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     return ErrorResult(NS_OK);
   }
 
@@ -1009,7 +1009,7 @@ FlyWebService::PublishServer(const nsAString& aName,
   }
 
   RefPtr<FlyWebPublishedServer> server;
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     server = new FlyWebPublishedServerChild(aWindow, aName, aOptions);
   } else {
     server = new FlyWebPublishedServerImpl(aWindow, aName, aOptions);
@@ -1039,7 +1039,7 @@ FlyWebService::PublishServer(const nsAString& aName,
     // If aWindow is null, we're definitely in the e10s parent process.
     // In this case, we know that permission has already been granted
     // by the user because of content-process prompt.
-    MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_Default);
+    MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_Default);
     server->PermissionGranted(true);
   }
 

@@ -6,7 +6,7 @@
 
 #include "mozilla/mscom/MainThreadInvoker.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "MainThreadUtils.h"
 #include "mozilla/Assertions.h"
 #include "mozilla/Atomics.h"
@@ -169,7 +169,7 @@ MainThreadInvoker::Invoke(already_AddRefed<nsIRunnable>&& aRunnable)
 /* static */ VOID CALLBACK
 MainThreadInvoker::MainThreadAPC(ULONG_PTR aParam)
 {
-  GoannaProfilerWakeRAII wakeProfiler;
+  GeckoProfilerWakeRAII wakeProfiler;
   mozilla::HangMonitor::NotifyActivity(mozilla::HangMonitor::kGeneralActivity);
   MOZ_ASSERT(NS_IsMainThread());
   auto runnable = reinterpret_cast<SyncRunnable*>(aParam);

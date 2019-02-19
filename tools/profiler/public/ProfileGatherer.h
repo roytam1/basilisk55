@@ -8,7 +8,7 @@
 #include "mozilla/dom/Promise.h"
 #include "nsIFile.h"
 
-class GoannaSampler;
+class GeckoSampler;
 
 namespace mozilla {
 
@@ -18,7 +18,7 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIOBSERVER
 
-  explicit ProfileGatherer(GoannaSampler* aTicker);
+  explicit ProfileGatherer(GeckoSampler* aTicker);
   void WillGatherOOPProfile();
   void GatheredOOPProfile();
   void Start(double aSinceTime, mozilla::dom::Promise* aPromise);
@@ -35,7 +35,7 @@ private:
   nsTArray<nsCString> mExitProfiles;
   RefPtr<mozilla::dom::Promise> mPromise;
   nsCOMPtr<nsIFile> mFile;
-  GoannaSampler* mTicker;
+  GeckoSampler* mTicker;
   double mSinceTime;
   uint32_t mPendingProfiles;
   bool mGathering;

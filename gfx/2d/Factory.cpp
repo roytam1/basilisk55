@@ -155,7 +155,7 @@ HasCPUIDBit(unsigned int level, CPUIDRegister reg, unsigned int bit)
 namespace mozilla {
 namespace gfx {
 
-// In Goanna, this value is managed by gfx.logging.level in gfxPrefs.
+// In Gecko, this value is managed by gfx.logging.level in gfxPrefs.
 int32_t LoggingPrefs::sGfxLogLevel = LOG_DEFAULT;
 
 #ifdef MOZ_ENABLE_FREETYPE

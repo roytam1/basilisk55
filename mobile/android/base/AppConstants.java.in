@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.goanna;
+package org.mozilla.gecko;
 
 import android.os.Build;
 
@@ -15,7 +15,7 @@ import android.os.Build;
  * other things.
  *
  * See also SysInfo.java, which includes some of the values available from
- * nsSystemInfo inside Goanna.
+ * nsSystemInfo inside Gecko.
  */
 // Normally, we'd annotate with @RobocopTarget.  Since AppConstants is compiled
 // before RobocopTarget, we instead add o.m.g.AppConstants directly to the
@@ -132,13 +132,13 @@ public class AppConstants {
 
     public static final String USER_AGENT_FENNEC_MOBILE = "Mozilla/5.0 (Android " +
         Build.VERSION.RELEASE + "; Mobile; rv:" +
-        AppConstants.MOZ_APP_VERSION + ") Goanna/" +
+        AppConstants.MOZ_APP_VERSION + ") Gecko/" +
         AppConstants.MOZ_APP_VERSION + " Firefox/" +
         AppConstants.MOZ_APP_VERSION;
 
     public static final String USER_AGENT_FENNEC_TABLET = "Mozilla/5.0 (Android " +
         Build.VERSION.RELEASE + "; Tablet; rv:" +
-        AppConstants.MOZ_APP_VERSION + ") Goanna/" +
+        AppConstants.MOZ_APP_VERSION + ") Gecko/" +
         AppConstants.MOZ_APP_VERSION + " Firefox/" +
         AppConstants.MOZ_APP_VERSION;
 

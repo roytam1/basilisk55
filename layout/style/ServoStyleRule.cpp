@@ -210,7 +210,7 @@ ServoStyleRule::GetSelectorText(nsAString& aSelectorText)
 NS_IMETHODIMP
 ServoStyleRule::SetSelectorText(const nsAString& aSelectorText)
 {
-  // XXX We need to implement this... But Goanna doesn't have this either
+  // XXX We need to implement this... But Gecko doesn't have this either
   //     so it's probably okay to leave it unimplemented currently?
   //     See bug 37468 and mozilla::css::StyleRule::SetSelectorText.
   return NS_OK;

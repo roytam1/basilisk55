@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:goanna="http://schemas.android.com/apk/res-auto"
+                  xmlns:gecko="http://schemas.android.com/apk/res-auto"
                   android:title="@string/pref_category_privacy_short"
                   android:enabled="false">
 
@@ -13,7 +13,7 @@
                       android:summary="@string/pref_donottrack_summary"
                       android:persistent="false" />
 
-    <org.mozilla.goanna.preferences.AlignRightLinkPreference
+    <org.mozilla.gecko.preferences.AlignRightLinkPreference
             android:key="android.not_a_preference.donottrackheader.learn_more"
             android:title="@string/pref_learn_more"
             android:persistent="false"
@@ -30,7 +30,7 @@
                     android:entryValues="@array/pref_tracking_protection_values"
                     android:persistent="false" />
 
-    <org.mozilla.goanna.preferences.AlignRightLinkPreference
+    <org.mozilla.gecko.preferences.AlignRightLinkPreference
             android:key="android.not_a_preference.trackingprotection.learn_more"
             android:title="@string/pref_learn_more"
             android:persistent="false"
@@ -43,12 +43,12 @@
                     android:persistent="false" />
 
 
-    <!-- This pref is persisted in both Goanna and Java -->
-    <org.mozilla.goanna.preferences.ListCheckboxPreference
+    <!-- This pref is persisted in both Gecko and Java -->
+    <org.mozilla.gecko.preferences.ListCheckboxPreference
                         android:key="android.not_a_preference.history.clear_on_exit"
-                        goanna:entries="@array/pref_private_data_entries"
-                        goanna:entryValues="@array/pref_private_data_values"
-                        goanna:initialValues="@array/pref_clear_on_exit_defaults"
+                        gecko:entries="@array/pref_private_data_entries"
+                        gecko:entryValues="@array/pref_private_data_values"
+                        gecko:initialValues="@array/pref_clear_on_exit_defaults"
 
                         android:title="@string/pref_clear_on_exit_title"
                         android:summary="@string/pref_clear_on_exit_summary2"
@@ -58,7 +58,7 @@
 
     <PreferenceCategory android:title="@string/pref_category_logins">
 
-        <org.mozilla.goanna.preferences.LinkPreference
+        <org.mozilla.gecko.preferences.LinkPreference
             android:key="android.not_a_preference.signon.manage"
             android:title="@string/pref_manage_logins"
             url="about:logins"/>
@@ -91,7 +91,7 @@
                             android:title="@string/datareporting_wifi_title"
                             android:summary="@string/datareporting_wifi_geolocation_summary" />
 
-        <org.mozilla.goanna.preferences.AlignRightLinkPreference android:key="android.not_a_preference.geo.learn_more"
+        <org.mozilla.gecko.preferences.AlignRightLinkPreference android:key="android.not_a_preference.geo.learn_more"
                                                                 android:title="@string/pref_learn_more"
                                                                 android:persistent="false"
                                                                 url="https://location.services.mozilla.com/" />
@@ -101,7 +101,7 @@
                             android:summary="@string/datareporting_fhr_summary2"
                             android:defaultValue="true" />
 
-        <org.mozilla.goanna.preferences.AlignRightLinkPreference android:key="android.not_a_preference.healthreport.link"
+        <org.mozilla.gecko.preferences.AlignRightLinkPreference android:key="android.not_a_preference.healthreport.link"
                                                                 android:title="@string/datareporting_abouthr_title"
                                                                 android:persistent="false"
                                                                 url="about:healthreport" />

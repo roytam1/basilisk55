@@ -11,10 +11,10 @@ import org.junit.runner.RunWith;
 import org.mozilla.android.sync.test.helpers.HTTPServerTestHelper;
 import org.mozilla.android.sync.test.helpers.MockResourceDelegate;
 import org.mozilla.android.sync.test.helpers.MockServer;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.background.testhelpers.WaitHelper;
-import org.mozilla.goanna.sync.net.BaseResource;
-import org.mozilla.goanna.sync.net.HttpResponseObserver;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.background.testhelpers.WaitHelper;
+import org.mozilla.gecko.sync.net.BaseResource;
+import org.mozilla.gecko.sync.net.HttpResponseObserver;
 
 import java.net.URISyntaxException;
 

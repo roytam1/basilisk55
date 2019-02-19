@@ -105,7 +105,7 @@ DeviceManagerDx::ReleaseD3D11()
 static inline bool
 ProcessOwnsCompositor()
 {
-  return XRE_GetProcessType() == GoannaProcessType_GPU ||
+  return XRE_GetProcessType() == GeckoProcessType_GPU ||
          (XRE_IsParentProcess() && !gfxConfig::IsEnabled(Feature::GPU_PROCESS));
 }
 
@@ -152,7 +152,7 @@ DeviceManagerDx::ExportDeviceInfo(D3D11DeviceStatus* aOut)
   // Even though the parent process might not own the compositor, we still
   // populate DeviceManagerDx with device statistics (for simplicity).
   // That means it still gets queried for compositor information.
-  MOZ_ASSERT(XRE_IsParentProcess() || XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_IsParentProcess() || XRE_GetProcessType() == GeckoProcessType_GPU);
 
   if (mDeviceStatus) {
     *aOut = mDeviceStatus.value();

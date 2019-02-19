@@ -41,7 +41,7 @@ public:
       // Windows: It's messy, see gfxWindowsPlatform.
       // Android: TODO
       // All platforms should normalize to the vsync that just occured.
-      // Large parts of Goanna assume TimeStamps should not be in the future such as animations
+      // Large parts of Gecko assume TimeStamps should not be in the future such as animations
       virtual void NotifyVsync(TimeStamp aVsyncTimestamp);
 
       RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();

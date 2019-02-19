@@ -501,12 +501,12 @@ nsTransitionManager::StyleContextChanged(dom::Element *aElement,
     return;
   }
 
-  MOZ_ASSERT(mPresContext->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(mPresContext->RestyleManager()->IsGecko(),
              "ServoRestyleManager should not use nsTransitionManager "
              "for transitions");
   if (collection &&
       collection->mCheckGeneration ==
-        mPresContext->RestyleManager()->AsGoanna()->GetAnimationGeneration()) {
+        mPresContext->RestyleManager()->AsGecko()->GetAnimationGeneration()) {
     // When we start a new transition, we immediately post a restyle.
     // If the animation generation on the collection is current, that
     // means *this* is that restyle, since we bump the animation
@@ -533,10 +533,10 @@ nsTransitionManager::StyleContextChanged(dom::Element *aElement,
   // not stopping or starting right now.
   RefPtr<nsStyleContext> afterChangeStyle;
   if (collection) {
-    MOZ_ASSERT(mPresContext->StyleSet()->IsGoanna(),
+    MOZ_ASSERT(mPresContext->StyleSet()->IsGecko(),
                "ServoStyleSets should not use nsTransitionManager "
                "for transitions");
-    nsStyleSet* styleSet = mPresContext->StyleSet()->AsGoanna();
+    nsStyleSet* styleSet = mPresContext->StyleSet()->AsGecko();
     afterChangeStyle =
       styleSet->ResolveStyleByRemovingAnimation(aElement, newStyleContext,
                                                 eRestyle_CSSTransitions);
@@ -914,7 +914,7 @@ nsTransitionManager::ConsiderInitiatingTransition(
                                           Move(startValue), Move(endValue), tf),
                    aNewStyleContext);
 
-  MOZ_ASSERT(mPresContext->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(mPresContext->RestyleManager()->IsGecko(),
              "ServoRestyleManager should not use nsTransitionManager "
              "for transitions");
 
@@ -924,7 +924,7 @@ nsTransitionManager::ConsiderInitiatingTransition(
     OwningElementRef(*aElement, aNewStyleContext->GetPseudoType()));
   animation->SetTimelineNoUpdate(timeline);
   animation->SetCreationSequence(
-    mPresContext->RestyleManager()->AsGoanna()->GetAnimationGeneration());
+    mPresContext->RestyleManager()->AsGecko()->GetAnimationGeneration());
   animation->SetEffectFromStyle(pt);
   animation->PlayFromStyle();
 

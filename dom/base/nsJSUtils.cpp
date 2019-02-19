@@ -20,7 +20,7 @@
 #include "nsCOMPtr.h"
 #include "nsIScriptSecurityManager.h"
 #include "nsPIDOMWindow.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsJSPrincipals.h"
 #include "xpcpublic.h"
 #include "nsContentUtils.h"
@@ -103,7 +103,7 @@ nsJSUtils::CompileFunction(AutoJSAPI& jsapi,
                 js::IsObjectInContextCompartment(aScopeChain[0], cx));
   MOZ_ASSERT_IF(aOptions.versionSet, aOptions.version != JSVERSION_UNKNOWN);
 
-  // Do the junk Goanna is supposed to do before calling into JSAPI.
+  // Do the junk Gecko is supposed to do before calling into JSAPI.
   for (size_t i = 0; i < aScopeChain.length(); ++i) {
     JS::ExposeObjectToActiveJS(aScopeChain[i]);
   }

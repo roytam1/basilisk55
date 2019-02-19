@@ -11,7 +11,7 @@ extern "C" {
 
 JNIEXPORT
 void JNICALL
-Java_org_mozilla_goanna_mozglue_SharedMemBuffer_nativeReadFromDirectBuffer(JNIEnv* jenv, jclass, jobject src, jlong dest, jint offset, jint size)
+Java_org_mozilla_gecko_mozglue_SharedMemBuffer_nativeReadFromDirectBuffer(JNIEnv* jenv, jclass, jobject src, jlong dest, jint offset, jint size)
 {
   uint8_t* from = static_cast<uint8_t*>(jenv->GetDirectBufferAddress(src));
   if (from == nullptr) {
@@ -30,7 +30,7 @@ Java_org_mozilla_goanna_mozglue_SharedMemBuffer_nativeReadFromDirectBuffer(JNIEn
 
 JNIEXPORT
 void JNICALL
-Java_org_mozilla_goanna_mozglue_SharedMemBuffer_nativeWriteToDirectBuffer(JNIEnv* jenv, jclass, jlong src, jobject dest, jint offset, jint size)
+Java_org_mozilla_gecko_mozglue_SharedMemBuffer_nativeWriteToDirectBuffer(JNIEnv* jenv, jclass, jlong src, jobject dest, jint offset, jint size)
 {
   uint8_t* from = reinterpret_cast<uint8_t*>(src);
   if (from == nullptr) {
@@ -49,7 +49,7 @@ Java_org_mozilla_goanna_mozglue_SharedMemBuffer_nativeWriteToDirectBuffer(JNIEnv
 
 JNIEXPORT
 jlong JNICALL
-Java_org_mozilla_goanna_mozglue_SharedMemory_map(JNIEnv *env, jobject jobj, jint fd, jint length)
+Java_org_mozilla_gecko_mozglue_SharedMemory_map(JNIEnv *env, jobject jobj, jint fd, jint length)
 {
   void* address = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   return jlong(address);
@@ -57,7 +57,7 @@ Java_org_mozilla_goanna_mozglue_SharedMemory_map(JNIEnv *env, jobject jobj, jint
 
 JNIEXPORT
 void JNICALL
-Java_org_mozilla_goanna_mozglue_SharedMemory_unmap(JNIEnv *env, jobject jobj, jlong address, jint size)
+Java_org_mozilla_gecko_mozglue_SharedMemory_unmap(JNIEnv *env, jobject jobj, jlong address, jint size)
 {
   munmap((void*)address, (size_t)size);
 }

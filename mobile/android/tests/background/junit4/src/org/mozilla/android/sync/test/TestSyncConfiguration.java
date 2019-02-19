@@ -6,10 +6,10 @@ package org.mozilla.android.sync.test;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mozilla.goanna.background.testhelpers.MockSharedPreferences;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
-import org.mozilla.goanna.sync.Sync11Configuration;
-import org.mozilla.goanna.sync.SyncConfiguration;
+import org.mozilla.gecko.background.testhelpers.MockSharedPreferences;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
+import org.mozilla.gecko.sync.Sync11Configuration;
+import org.mozilla.gecko.sync.SyncConfiguration;
 
 import java.net.URI;
 

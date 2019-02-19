@@ -5,7 +5,7 @@
 package org.mozilla.tests.browser.junit3;
 
 import android.test.InstrumentationTestCase;
-import org.mozilla.goanna.distribution.ReferrerDescriptor;
+import org.mozilla.gecko.distribution.ReferrerDescriptor;
 
 public class TestDistribution extends InstrumentationTestCase {
     private static final String TEST_REFERRER_STRING = "utm_source=campsource&utm_medium=campmed&utm_term=term%2Bhere&utm_content=content&utm_campaign=name";

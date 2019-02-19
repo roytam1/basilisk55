@@ -10,7 +10,7 @@ Localization
 The documentation here is targeted at developers, writing localizable code
 for Firefox and Firefox for Android, as well as Thunderbird and SeaMonkey.
 
-If you haven't dealt with localization in goanna code before, it's a good
+If you haven't dealt with localization in gecko code before, it's a good
 idea to check the :doc:`./glossary` for what localization is, and which terms
 we use for what.
 
@@ -125,7 +125,7 @@ in the en-US file.
 l10n-merge
 ----------
 
-Goanna doesn't support fallback from a localization to ``en-US`` at runtime.
+Gecko doesn't support fallback from a localization to ``en-US`` at runtime.
 Thus, the build needs to ensure that the localization as it's built into
 the package has all required strings, and that the strings don't contain
 errors. To ensure that, we're *merging* the localization and ``en-US``

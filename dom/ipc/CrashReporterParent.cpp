@@ -56,7 +56,7 @@ CrashReporterParent::SetChildData(const NativeThreadId& tid,
 {
   mInitialized = true;
   mMainThread = tid;
-  mProcessType = GoannaProcessType(processType);
+  mProcessType = GeckoProcessType(processType);
 }
 
 } // namespace dom

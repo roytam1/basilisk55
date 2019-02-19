@@ -11,8 +11,8 @@ import android.test.InstrumentationTestCase;
 import android.test.RenamingDelegatingContext;
 import android.test.mock.MockResources;
 import android.util.DisplayMetrics;
-import org.mozilla.goanna.distribution.Distribution;
-import org.mozilla.goanna.home.ImageLoader.ImageDownloader;
+import org.mozilla.gecko.distribution.Distribution;
+import org.mozilla.gecko.home.ImageLoader.ImageDownloader;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,7 +139,7 @@ public class TestImageDownloader extends InstrumentationTestCase {
 
     public void testAccessedFiles() {
         // Filename only.
-        checkAccessedFilesForUri(Uri.parse("goanna.distribution://file"),
+        checkAccessedFilesForUri(Uri.parse("gecko.distribution://file"),
                                  DisplayMetrics.DENSITY_MEDIUM,
                                  new String[] {
                                     "mdpi/file.png",
@@ -148,7 +148,7 @@ public class TestImageDownloader extends InstrumentationTestCase {
                                  });
 
         // Directory and filename.
-        checkAccessedFilesForUri(Uri.parse("goanna.distribution://dir/file"),
+        checkAccessedFilesForUri(Uri.parse("gecko.distribution://dir/file"),
                                  DisplayMetrics.DENSITY_MEDIUM,
                                  new String[] {
                                     "dir/mdpi/file.png",
@@ -157,7 +157,7 @@ public class TestImageDownloader extends InstrumentationTestCase {
                                  });
 
         // Sub-directories and filename.
-        checkAccessedFilesForUri(Uri.parse("goanna.distribution://dir/subdir/file"),
+        checkAccessedFilesForUri(Uri.parse("gecko.distribution://dir/subdir/file"),
                                  DisplayMetrics.DENSITY_MEDIUM,
                                  new String[] {
                                     "dir/subdir/mdpi/file.png",
@@ -167,7 +167,7 @@ public class TestImageDownloader extends InstrumentationTestCase {
     }
 
     public void testDensityLookup() {
-        Uri uri = Uri.parse("goanna.distribution://file");
+        Uri uri = Uri.parse("gecko.distribution://file");
 
         // Medium density
         checkAccessedFilesForUri(uri,

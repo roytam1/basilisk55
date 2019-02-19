@@ -96,14 +96,14 @@ STDMETHODIMP_(ULONG) nsNativeDragTarget::Release(void)
 }
 
 void
-nsNativeDragTarget::GetGoannaDragAction(DWORD grfKeyState, LPDWORD pdwEffect,
-                                       uint32_t * aGoannaAction)
+nsNativeDragTarget::GetGeckoDragAction(DWORD grfKeyState, LPDWORD pdwEffect,
+                                       uint32_t * aGeckoAction)
 {
   // If a window is disabled or a modal window is on top of it
   // (which implies it is disabled), then we should not allow dropping.
   if (!mWidget->IsEnabled()) {
     *pdwEffect = DROPEFFECT_NONE;
-    *aGoannaAction = nsIDragService::DRAGDROP_ACTION_NONE;
+    *aGeckoAction = nsIDragService::DRAGDROP_ACTION_NONE;
     return;
   }
 
@@ -133,16 +133,16 @@ nsNativeDragTarget::GetGoannaDragAction(DWORD grfKeyState, LPDWORD pdwEffect,
   // from MOVE, COPY, or LINK.
   if (desiredEffect & DROPEFFECT_MOVE) {
     *pdwEffect = DROPEFFECT_MOVE;
-    *aGoannaAction = nsIDragService::DRAGDROP_ACTION_MOVE;
+    *aGeckoAction = nsIDragService::DRAGDROP_ACTION_MOVE;
   } else if (desiredEffect & DROPEFFECT_COPY) {
     *pdwEffect = DROPEFFECT_COPY;
-    *aGoannaAction = nsIDragService::DRAGDROP_ACTION_COPY;
+    *aGeckoAction = nsIDragService::DRAGDROP_ACTION_COPY;
   } else if (desiredEffect & DROPEFFECT_LINK) {
     *pdwEffect = DROPEFFECT_LINK;
-    *aGoannaAction = nsIDragService::DRAGDROP_ACTION_LINK;
+    *aGeckoAction = nsIDragService::DRAGDROP_ACTION_LINK;
   } else {
     *pdwEffect = DROPEFFECT_NONE;
-    *aGoannaAction = nsIDragService::DRAGDROP_ACTION_NONE;
+    *aGeckoAction = nsIDragService::DRAGDROP_ACTION_NONE;
   } 
 }
 
@@ -189,19 +189,19 @@ nsNativeDragTarget::ProcessDrag(EventMessage aEventMessage,
                                 DWORD*       pdwEffect)
 {
   // Before dispatching the event make sure we have the correct drop action set
-  uint32_t goannaAction;
-  GetGoannaDragAction(grfKeyState, pdwEffect, &goannaAction);
+  uint32_t geckoAction;
+  GetGeckoDragAction(grfKeyState, pdwEffect, &geckoAction);
 
-  // Set the current action into the Goanna specific type
+  // Set the current action into the Gecko specific type
   nsCOMPtr<nsIDragSession> currSession;
   mDragService->GetCurrentSession(getter_AddRefs(currSession));
   if (!currSession) {
     return;
   }
 
-  currSession->SetDragAction(goannaAction);
+  currSession->SetDragAction(geckoAction);
 
-  // Dispatch the event into Goanna
+  // Dispatch the event into Gecko
   DispatchDragDropEvent(aEventMessage, ptl);
 
   // If TakeChildProcessDragAction returns something other than
@@ -209,20 +209,20 @@ nsNativeDragTarget::ProcessDrag(EventMessage aEventMessage,
   // to the child process and this event is also being sent to the child
   // process. In this case, use the last event's action instead.
   nsDragService* dragService = static_cast<nsDragService *>(mDragService);
-  currSession->GetDragAction(&goannaAction);
+  currSession->GetDragAction(&geckoAction);
 
   int32_t childDragAction = dragService->TakeChildProcessDragAction();
   if (childDragAction != nsIDragService::DRAGDROP_ACTION_UNINITIALIZED) {
-    goannaAction = childDragAction;
+    geckoAction = childDragAction;
   }
 
-  if (nsIDragService::DRAGDROP_ACTION_LINK & goannaAction) {
+  if (nsIDragService::DRAGDROP_ACTION_LINK & geckoAction) {
     *pdwEffect = DROPEFFECT_LINK;
   }
-  else if (nsIDragService::DRAGDROP_ACTION_COPY & goannaAction) {
+  else if (nsIDragService::DRAGDROP_ACTION_COPY & geckoAction) {
     *pdwEffect = DROPEFFECT_COPY;
   }
-  else if (nsIDragService::DRAGDROP_ACTION_MOVE & goannaAction) {
+  else if (nsIDragService::DRAGDROP_ACTION_MOVE & geckoAction) {
     *pdwEffect = DROPEFFECT_MOVE;
   }
   else {
@@ -372,7 +372,7 @@ nsNativeDragTarget::DragLeave()
     GetDropTargetHelper()->DragLeave();
   }
 
-  // dispatch the event into Goanna
+  // dispatch the event into Gecko
   DispatchDragDropEvent(eDragExit, gDragLastPoint);
 
   nsCOMPtr<nsIDragSession> currentDragSession;

@@ -88,10 +88,10 @@
 <!ENTITY performanceUI.invertFlameGraph.tooltiptext "Inverting the flame chart displays the profiled call paths starting from the youngest frames and expanding out to the older frames.">
 
 <!-- LOCALIZATION NOTE (performanceUI.showPlatformData): This is the
-  -  label for the checkbox that toggles whether or not Goanna platform data
+  -  label for the checkbox that toggles whether or not Gecko platform data
   -  is displayed in the profiler. -->
-<!ENTITY performanceUI.showPlatformData             "Show Goanna Platform Data">
-<!ENTITY performanceUI.showPlatformData.tooltiptext "Showing platform data enables the JavaScript Profiler reports to include Goanna platform symbols.">
+<!ENTITY performanceUI.showPlatformData             "Show Gecko Platform Data">
+<!ENTITY performanceUI.showPlatformData.tooltiptext "Showing platform data enables the JavaScript Profiler reports to include Gecko platform symbols.">
 
 <!-- LOCALIZATION NOTE (performanceUI.showJITOptimizations): This string
   -  is displayed next to a checkbox determining whether or not JIT optimization data

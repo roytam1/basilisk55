@@ -173,7 +173,7 @@ EnvironmentCoordinateFunctionScript(JSScript* script, jsbytecode* pc);
  *
  *    Does not hold 'var' bindings.
  *
- * The embedding (Goanna) uses non-syntactic envs for various things, some of
+ * The embedding (Gecko) uses non-syntactic envs for various things, some of
  * which are detailed below. All env chain listings below are, from top to
  * bottom, outermost to innermost.
  *

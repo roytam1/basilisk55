@@ -13,7 +13,7 @@ apply plugin: 'java'
 // that we accept it.
 sourceSets {
     main {
-        // Depend on the Goanna resources in mobile/android.
+        // Depend on the Gecko resources in mobile/android.
         resources {
             srcDir "${topsrcdir}/mobile/android/chrome"
             srcDir "${topsrcdir}/mobile/android/components"

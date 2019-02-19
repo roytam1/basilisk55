@@ -263,7 +263,7 @@ var CodeMirror =
 	  var userAgent = navigator.userAgent;
 	  var platform = navigator.platform;
 
-	  var goanna = /goanna\/\d/i.test(userAgent);
+	  var gecko = /gecko\/\d/i.test(userAgent);
 	  var ie_upto10 = /MSIE \d/.test(userAgent);
 	  var ie_11up = /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(userAgent);
 	  var ie = ie_upto10 || ie_11up;
@@ -288,7 +288,7 @@ var CodeMirror =
 	  if (presto_version && presto_version >= 15) { presto = false; webkit = true; }
 	  // Some browsers use the wrong event properties to signal cmd/ctrl on OS X
 	  var flipCtrlCmd = mac && (qtwebkit || presto && (presto_version == null || presto_version < 12.11));
-	  var captureRightClick = goanna || (ie && ie_version >= 9);
+	  var captureRightClick = gecko || (ie && ie_version >= 9);
 
 	  // Optimize some code when these features are not used.
 	  var sawReadOnlySpans = false, sawCollapsedSpans = false;
@@ -416,7 +416,7 @@ var CodeMirror =
 
 	    // Work around IE7 z-index bug (not perfect, hence IE7 not really being supported)
 	    if (ie && ie_version < 8) { d.gutters.style.zIndex = -1; d.scroller.style.paddingRight = 0; }
-	    if (!webkit && !(goanna && mobile)) d.scroller.draggable = true;
+	    if (!webkit && !(gecko && mobile)) d.scroller.draggable = true;
 
 	    if (place) {
 	      if (place.appendChild) place.appendChild(d.wrapper);
@@ -1936,7 +1936,7 @@ var CodeMirror =
 	      try { var rng = range(start.node, start.offset, end.offset, end.node); }
 	      catch(e) {} // Our model of the DOM might be outdated, in which case the range we try to set can be impossible
 	      if (rng) {
-	        if (!goanna && this.cm.state.focused) {
+	        if (!gecko && this.cm.state.focused) {
 	          sel.collapse(start.node, start.offset);
 	          if (!rng.collapsed) sel.addRange(rng);
 	        } else {
@@ -1944,7 +1944,7 @@ var CodeMirror =
 	          sel.addRange(rng);
 	        }
 	        if (old && sel.anchorNode == null) sel.addRange(old);
-	        else if (goanna) this.startGracePeriod();
+	        else if (gecko) this.startGracePeriod();
 	      }
 	      this.rememberSelection();
 	    },
@@ -4205,10 +4205,10 @@ var CodeMirror =
 	  function setScrollTop(cm, val) {
 	    if (Math.abs(cm.doc.scrollTop - val) < 2) return;
 	    cm.doc.scrollTop = val;
-	    if (!goanna) updateDisplaySimple(cm, {top: val});
+	    if (!gecko) updateDisplaySimple(cm, {top: val});
 	    if (cm.display.scroller.scrollTop != val) cm.display.scroller.scrollTop = val;
 	    cm.display.scrollbars.setScrollTop(val);
-	    if (goanna) updateDisplaySimple(cm);
+	    if (gecko) updateDisplaySimple(cm);
 	    startWorker(cm, 100);
 	  }
 	  // Sync scroller and scrollbar, ensure the gutter elements are
@@ -4239,7 +4239,7 @@ var CodeMirror =
 	  // being wrong would just be a slight flicker on the first wheel
 	  // scroll (if it is large enough).
 	  if (ie) wheelPixelsPerUnit = -.53;
-	  else if (goanna) wheelPixelsPerUnit = 15;
+	  else if (gecko) wheelPixelsPerUnit = 15;
 	  else if (chrome) wheelPixelsPerUnit = -.7;
 	  else if (safari) wheelPixelsPerUnit = -1/3;
 
@@ -4287,7 +4287,7 @@ var CodeMirror =
 	    // estimated pixels/delta value, we just handle horizontal
 	    // scrolling entirely here. It'll be slightly off from native, but
 	    // better than glitching out.
-	    if (dx && !goanna && !presto && wheelPixelsPerUnit != null) {
+	    if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
 	      if (dy && canScrollY)
 	        setScrollTop(cm, Math.max(0, Math.min(scroll.scrollTop + dy * wheelPixelsPerUnit, scroll.scrollHeight - scroll.clientHeight)));
 	      setScrollLeft(cm, Math.max(0, Math.min(scroll.scrollLeft + dx * wheelPixelsPerUnit, scroll.scrollWidth - scroll.clientWidth)));

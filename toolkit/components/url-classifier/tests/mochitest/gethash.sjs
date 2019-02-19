@@ -34,7 +34,7 @@ function handleRequest(request, response)
 
     return;
   // gethash count return how many gethash request received.
-  // This is used by client to know if a gethash request is triggered by goanna
+  // This is used by client to know if a gethash request is triggered by gecko
   } else if ("gethashcount" == request.queryString) {
     var counter = getState("counter");
     responseBody = counter == "" ? "0" : counter;

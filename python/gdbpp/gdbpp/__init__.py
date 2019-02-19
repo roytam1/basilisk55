@@ -7,15 +7,15 @@
 import gdb
 import gdb.printing
 
-class GoannaPrettyPrinter(object):
-    pp = gdb.printing.RegexpCollectionPrettyPrinter('GoannaPrettyPrinters')
+class GeckoPrettyPrinter(object):
+    pp = gdb.printing.RegexpCollectionPrettyPrinter('GeckoPrettyPrinters')
 
     def __init__(self, name, regexp):
         self.name = name
         self.regexp = regexp
 
     def __call__(self, wrapped):
-        GoannaPrettyPrinter.pp.add_printer(self.name, self.regexp, wrapped)
+        GeckoPrettyPrinter.pp.add_printer(self.name, self.regexp, wrapped)
         return wrapped
 
 import gdbpp.linkedlist
@@ -25,4 +25,4 @@ import gdbpp.string
 import gdbpp.tarray
 import gdbpp.thashtable
 
-gdb.printing.register_pretty_printer(None, GoannaPrettyPrinter.pp)
+gdb.printing.register_pretty_printer(None, GeckoPrettyPrinter.pp)

@@ -134,7 +134,7 @@ SubstitutingProtocolHandler::CollectSubstitutions(InfallibleTArray<SubstitutionM
 nsresult
 SubstitutingProtocolHandler::SendSubstitution(const nsACString& aRoot, nsIURI* aBaseURI)
 {
-  if (GoannaProcessType_Content == XRE_GetProcessType()) {
+  if (GeckoProcessType_Content == XRE_GetProcessType()) {
     return NS_OK;
   }
 

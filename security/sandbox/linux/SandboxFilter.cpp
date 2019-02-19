@@ -842,7 +842,7 @@ GetContentSandboxPolicy(SandboxBrokerClient* aMaybeBroker)
 
 
 #ifdef MOZ_GMP_SANDBOX
-// Unlike for content, the GoannaMediaPlugin seccomp-bpf policy needs
+// Unlike for content, the GeckoMediaPlugin seccomp-bpf policy needs
 // to be an effective sandbox by itself, because we allow GMP on Linux
 // systems where that's the only sandboxing mechanism we can use.
 //

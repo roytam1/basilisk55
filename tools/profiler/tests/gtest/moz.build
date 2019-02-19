@@ -13,7 +13,7 @@ if CONFIG['OS_TARGET'] in ('Android', 'Linux'):
 
 LOCAL_INCLUDES += [
     '/tools/profiler/core',
-    '/tools/profiler/goanna',
+    '/tools/profiler/gecko',
     '/tools/profiler/lul',
 ]
 

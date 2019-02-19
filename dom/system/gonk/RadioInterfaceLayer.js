@@ -874,7 +874,7 @@ RadioInterface.prototype = {
                              aMessage.sender,
                              aMessage.pid,
                              aMessage.encoding,
-                             RIL.GOANNA_SMS_MESSAGE_CLASSES
+                             RIL.GECKO_SMS_MESSAGE_CLASSES
                                .indexOf(aMessage.messageClass),
                              aMessage.language || null,
                              segmentRef,
@@ -997,7 +997,7 @@ RadioInterface.prototype = {
   },
 
   _convertCbMessageClass: function(aMessageClass) {
-    let index = RIL.GOANNA_SMS_MESSAGE_CLASSES.indexOf(aMessageClass);
+    let index = RIL.GECKO_SMS_MESSAGE_CLASSES.indexOf(aMessageClass);
     return (index != -1)
       ? index
       : Ci.nsICellBroadcastService.GSM_MESSAGE_CLASS_NORMAL;

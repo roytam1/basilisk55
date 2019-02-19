@@ -52,7 +52,7 @@ namespace dom {
  * iframe            | TYPE_INTERNAL_IFRAME
  * image             | TYPE_INTERNAL_IMAGE, TYPE_INTERNAL_IMAGE_PRELOAD, TYPE_INTERNAL_IMAGE_FAVICON
  * imageset          | TYPE_IMAGESET
- * import            | Not supported by Goanna
+ * import            | Not supported by Gecko
  * internal          | TYPE_DOCUMENT, TYPE_XBL, TYPE_OTHER
  * location          |
  * manifest          | TYPE_WEB_MANIFEST
@@ -62,7 +62,7 @@ namespace dom {
  * prefetch          |
  * script            | TYPE_INTERNAL_SCRIPT, TYPE_INTERNAL_SCRIPT_PRELOAD
  * sharedworker      | TYPE_INTERNAL_SHARED_WORKER
- * subresource       | Not supported by Goanna
+ * subresource       | Not supported by Gecko
  * style             | TYPE_INTERNAL_STYLESHEET, TYPE_INTERNAL_STYLESHEET_PRELOAD
  * track             | TYPE_INTERNAL_TRACK
  * video             | TYPE_INTERNAL_VIDEO

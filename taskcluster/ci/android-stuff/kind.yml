@@ -26,7 +26,7 @@ jobs:
             kind: other
             tier: 2
             symbol: tc(Deps)
-        worker-type: aws-provisioner-v1/goanna-{level}-b-android
+        worker-type: aws-provisioner-v1/gecko-{level}-b-android
         worker:
             implementation: docker-worker
             docker-image: {in-tree: android-gradle-build}
@@ -75,7 +75,7 @@ jobs:
             kind: test
             tier: 2
             symbol: tc(test)
-        worker-type: aws-provisioner-v1/goanna-{level}-b-android
+        worker-type: aws-provisioner-v1/gecko-{level}-b-android
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}
@@ -124,7 +124,7 @@ jobs:
             kind: test
             tier: 2
             symbol: tc(lint)
-        worker-type: aws-provisioner-v1/goanna-{level}-b-android
+        worker-type: aws-provisioner-v1/gecko-{level}-b-android
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}
@@ -184,7 +184,7 @@ jobs:
             kind: test
             tier: 2
             symbol: tc(checkstyle)
-        worker-type: aws-provisioner-v1/goanna-{level}-b-android
+        worker-type: aws-provisioner-v1/gecko-{level}-b-android
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}
@@ -234,7 +234,7 @@ jobs:
             kind: test
             tier: 2
             symbol: tc(findbugs)
-        worker-type: aws-provisioner-v1/goanna-{level}-b-android
+        worker-type: aws-provisioner-v1/gecko-{level}-b-android
         worker:
             implementation: docker-worker
             docker-image: {in-tree: desktop-build}

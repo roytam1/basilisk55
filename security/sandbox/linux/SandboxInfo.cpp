@@ -257,10 +257,10 @@ SandboxInfo::ThreadingCheck()
                     " namespace sandboxing.%s",
                     // getenv isn't thread-safe, but see below.
                     getenv("LD_PRELOAD") ? "  (If you're LD_PRELOAD'ing"
-                    " nVidia GL: that's not necessary for Goanna.)" : "");
+                    " nVidia GL: that's not necessary for Gecko.)" : "");
 
   // Propagate this information for use by child processes.  (setenv
-  // isn't thread-safe, but other threads are from non-Goanna code so
+  // isn't thread-safe, but other threads are from non-Gecko code so
   // they wouldn't be using NSPR; we have to hope for the best.)
   setenv("MOZ_SANDBOX_UNEXPECTED_THREADS", "1", 0);
   int flags = sSingleton.mFlags;

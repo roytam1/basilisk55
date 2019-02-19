@@ -545,9 +545,9 @@ SpeechDispatcherService::GetServiceType(SpeechServiceType* aServiceType)
 SpeechDispatcherService*
 SpeechDispatcherService::GetInstance(bool create)
 {
-  if (XRE_GetProcessType() != GoannaProcessType_Default) {
+  if (XRE_GetProcessType() != GeckoProcessType_Default) {
     MOZ_ASSERT(false,
-               "SpeechDispatcherService can only be started on main goanna process");
+               "SpeechDispatcherService can only be started on main gecko process");
     return nullptr;
   }
 

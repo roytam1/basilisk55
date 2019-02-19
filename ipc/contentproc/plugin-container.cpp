@@ -100,7 +100,7 @@ content_process_main(mozilla::Bootstrap* bootstrap, int argc, char* argv[])
     // For plugins, this is done in PluginProcessChild::Init, as we need to
     // avoid it for unsupported plugins.  See PluginProcessChild::Init for
     // the details.
-    if (bootstrap->XRE_GetProcessType() != GoannaProcessType_Plugin) {
+    if (bootstrap->XRE_GetProcessType() != GeckoProcessType_Plugin) {
         mozilla::SanitizeEnvironmentVariables();
         SetDllDirectoryW(L"");
     }
@@ -108,7 +108,7 @@ content_process_main(mozilla::Bootstrap* bootstrap, int argc, char* argv[])
 #if !defined(XP_LINUX) && defined(MOZ_PLUGIN_CONTAINER)
     // On Windows and MacOS, the GMPLoader lives in plugin-container, so that its
     // code can be covered by an EME/GMP vendor's voucher.
-    if (bootstrap->XRE_GetProcessType() == GoannaProcessType_GMPlugin) {
+    if (bootstrap->XRE_GetProcessType() == GeckoProcessType_GMPlugin) {
         childData.gmpLoader = mozilla::gmp::CreateGMPLoader(MakeSandboxStarter());
     }
 #endif

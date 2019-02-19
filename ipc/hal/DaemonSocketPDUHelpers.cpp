@@ -7,7 +7,7 @@
 #include "DaemonSocketPDUHelpers.h"
 #include <limits>
 
-// Enable this constant to abort Goanna on IPC errors. This is helpful
+// Enable this constant to abort Gecko on IPC errors. This is helpful
 // for debugging, but should *never* be enabled by default.
 #define MOZ_HAL_ABORT_ON_IPC_ERRORS (0)
 

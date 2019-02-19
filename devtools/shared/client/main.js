@@ -997,7 +997,7 @@ DebuggerClient.prototype = {
       this._clients.get(packet.from)._onThreadState(packet);
     }
 
-    // TODO: Bug 1151156 - Remove once Goanna 40 is on b2g-stable.
+    // TODO: Bug 1151156 - Remove once Gecko 40 is on b2g-stable.
     if (!this.traits.noNeedToFakeResumptionOnNavigation) {
       // On navigation the server resumes, so the client must resume as well.
       // We achieve that by generating a fake resumption packet that triggers

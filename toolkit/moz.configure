@@ -10,7 +10,7 @@
 # Some of the options here imply an option from js/moz.configure,
 # so, need to be declared before the include.
 option('--enable-systrace', env='MOZ_USE_SYSTRACE',
-       help='Turn on systrace for the Goanna profiler on android/b2g')
+       help='Turn on systrace for the Gecko profiler on android/b2g')
 
 @depends('--enable-systrace', target)
 def systrace(value, target):
@@ -463,7 +463,7 @@ simple_keyfile('Adjust SDK')
 # ==============================================================
 option('--enable-stylo', env='STYLO_ENABLED', nargs=0,
        help='Enables experimental integration with the servo style system. '
-            'This requires either building servo within Goanna\'s cargo phase '
+            'This requires either building servo within Gecko\'s cargo phase '
             'or passing --with-servo')
 
 # We support setting up the appropriate options for Stylo's build-time
@@ -575,7 +575,7 @@ def jemalloc(stylo, dmd):
         return True
 
 option('--with-servo', env='SERVO_TARGET_DIR', nargs=1,
-       help='Absolute path of the target directory where libgoannaservo can '
+       help='Absolute path of the target directory where libgeckoservo can '
             'be found. This is generally servo_src_dir/target/release.')
 
 @depends_if('--with-servo')
@@ -584,7 +584,7 @@ def servo_target_dir(value):
 
 set_config('SERVO_TARGET_DIR', servo_target_dir)
 
-# Goanna integrated IPC fuzzer
+# Gecko integrated IPC fuzzer
 # ==============================================================
 option('--enable-ipc-fuzzer', env='MOZ_FAULTY',
        help='Enable IPC fuzzer')
@@ -862,10 +862,10 @@ option('--enable-mortar', help='Enable mortar extension')
 set_config('MOZ_MORTAR', True, when='--enable-mortar')
 
 # Marionette is a Web Driver / Selenium comamnd server and client automation
-# driver for Mozilla's Goanna engine.  For more, see
+# driver for Mozilla's Gecko engine.  For more, see
 # https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette.
 #
-# Marionette isn't really a toolkit feature, it's a Goanna engine feature, but
+# Marionette isn't really a toolkit feature, it's a Gecko engine feature, but
 # it's enabled based on the toolkit (and target), so here it lives.
 
 @depends(target, toolkit)

@@ -287,7 +287,7 @@ class Descriptor(DescriptorProvider):
         if self.wantsXrays:
             # We could try to restrict self.wantsXrayExpandoClass further.  For
             # example, we could set it to false if all of our slots store
-            # Goanna-interface-typed things, because we don't use Xray expando
+            # Gecko-interface-typed things, because we don't use Xray expando
             # slots for those.  But note that we would need to check the types
             # of not only the members of "interface" but also of all its
             # ancestors, because those can have members living in our slots too.

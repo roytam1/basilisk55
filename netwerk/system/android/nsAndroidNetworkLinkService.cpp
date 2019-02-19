@@ -33,7 +33,7 @@ nsAndroidNetworkLinkService::GetIsLinkUp(bool *aIsUp)
     return NS_OK;
   }
 
-  *aIsUp = java::GoannaAppShell::IsNetworkLinkUp();
+  *aIsUp = java::GeckoAppShell::IsNetworkLinkUp();
   return NS_OK;
 }
 
@@ -42,7 +42,7 @@ nsAndroidNetworkLinkService::GetLinkStatusKnown(bool *aIsKnown)
 {
   NS_ENSURE_TRUE(mozilla::AndroidBridge::Bridge(), NS_ERROR_NOT_IMPLEMENTED);
 
-  *aIsKnown = java::GoannaAppShell::IsNetworkLinkKnown();
+  *aIsKnown = java::GeckoAppShell::IsNetworkLinkKnown();
   return NS_OK;
 }
 
@@ -58,6 +58,6 @@ nsAndroidNetworkLinkService::GetLinkType(uint32_t *aLinkType)
     return NS_OK;
   }
 
-  *aLinkType = java::GoannaAppShell::GetNetworkLinkType();
+  *aLinkType = java::GeckoAppShell::GetNetworkLinkType();
   return NS_OK;
 }

@@ -210,9 +210,9 @@
                 <li>simon <a href="https://github.com/servo/servo/pull/9333">created</a> a script that parses all of the CSS properties parsed by Servo</li>
                 <li>ms2ger <a href="https://github.com/servo/servo/pull/9293">removed</a> the legacy reftest framework</li>
                 <li>fernando <a href="https://github.com/servo/crowbot/pull/33">made</a> crowbot able to rejoin IRC after it accidentally floods the channel</li>
-                <li>jack <a href="https://github.com/servo/saltfs/pull/193">added</a> testing the <code>goannalib</code> target to our CI</li>
+                <li>jack <a href="https://github.com/servo/saltfs/pull/193">added</a> testing the <code>geckolib</code> target to our CI</li>
                 <li>antrik <a href="https://github.com/servo/ipc-channel/pull/25">fixed</a> transfer corruption in ipc-channel on 32-bit</li>
-                <li>valentin <a href="https://github.com/servo/rust-url/pull/119">added</a> and simon <a href="https://github.com/servo/rust-url/pull/152">extended</a> IDNA support in rust-url, which is required for both web and Goanna compatibility</li>
+                <li>valentin <a href="https://github.com/servo/rust-url/pull/119">added</a> and simon <a href="https://github.com/servo/rust-url/pull/152">extended</a> IDNA support in rust-url, which is required for both web and Gecko compatibility</li>
             </ul>
 
             <h3 id="new-contributors">New Contributors</h3>
@@ -686,7 +686,7 @@
             <p><b>Improve CI pipeline:</b></p>
 
             <p>Vlad and Amy repurposed 10 Windows XP machines as Windows 7 to improve the wait times in that test pool (<a href="https://bugzil.la/1239785" target="_blank">https://bugzil.la/1239785</a>)
-                Armen and Joel have been working on porting the Goanna tests to run under TaskCluster, and have narrowed the failures down to the single digits.  This puts us on-track to enable Linux debug builds and tests in TaskCluster as the canonical build/test process.</p>
+                Armen and Joel have been working on porting the Gecko tests to run under TaskCluster, and have narrowed the failures down to the single digits.  This puts us on-track to enable Linux debug builds and tests in TaskCluster as the canonical build/test process.</p>
 
             <p><b>Release:</b></p>
 
@@ -2131,9 +2131,9 @@
 
     <entry xml:lang="en-US">
         <id>http://blog.mozilla.org/nfroyd/?p=452</id>
-        <link href="https://blog.mozilla.org/nfroyd/2016/01/20/goanna-and-c-onboarding-presentation/" rel="alternate" type="text/html"/>
-        <title>goanna and c++ onboarding presentation</title>
-        <summary>One of the things the Firefox team has been doing recently is having onboarding sessions for new hires. This onboarding currently covers: 1st day setup Bugzilla Building Firefox Desktop Firefox Architecture / Product Communication and Community Javascript and the DOM C++ and Goanna Shipping Software Telemetry Org structure and career development My first day consisted […]</summary>
+        <link href="https://blog.mozilla.org/nfroyd/2016/01/20/gecko-and-c-onboarding-presentation/" rel="alternate" type="text/html"/>
+        <title>gecko and c++ onboarding presentation</title>
+        <summary>One of the things the Firefox team has been doing recently is having onboarding sessions for new hires. This onboarding currently covers: 1st day setup Bugzilla Building Firefox Desktop Firefox Architecture / Product Communication and Community Javascript and the DOM C++ and Gecko Shipping Software Telemetry Org structure and career development My first day consisted […]</summary>
         <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"><p>One of the things the Firefox team has been doing recently is having onboarding sessions for new hires. This onboarding currently covers:</p>
             <ul>
                 <li>1st day setup</li>
@@ -2142,13 +2142,13 @@
                 <li>Desktop Firefox Architecture / Product</li>
                 <li>Communication and Community</li>
                 <li>Javascript and the DOM</li>
-                <li>C++ and Goanna</li>
+                <li>C++ and Gecko</li>
                 <li>Shipping Software</li>
                 <li>Telemetry</li>
                 <li>Org structure and career development</li>
             </ul>
             <p>My first day consisted of some useful HR presentations and then I was given my laptop and a pointer to a wiki page on building Firefox.  Needless to say, it took me a while to get started!  It would have been super convenient to have an introduction to all the stuff above.</p>
-            <p>I’ve been asked to do the C++ and Goanna session three times.  All of the sessions are open to whoever wants to come, not just the new hires, and I think yesterday’s session was easily the most well-attended yet: somewhere between 10 and 20 people showed up.  Yesterday’s session was the first session where I made the slides available to attendees (should have been doing that from the start…) and it seemed equally useful to make the slides available to a broader audience as well. The <a href="https://docs.google.com/presentation/d/1ZHUkNzZK2TrF5_4MWd_lqEq7Ph5B6CDbNsizIkBxbnQ/edit?usp=sharing">Goanna and C++ Onboarding slides</a> are up now!</p>
+            <p>I’ve been asked to do the C++ and Gecko session three times.  All of the sessions are open to whoever wants to come, not just the new hires, and I think yesterday’s session was easily the most well-attended yet: somewhere between 10 and 20 people showed up.  Yesterday’s session was the first session where I made the slides available to attendees (should have been doing that from the start…) and it seemed equally useful to make the slides available to a broader audience as well. The <a href="https://docs.google.com/presentation/d/1ZHUkNzZK2TrF5_4MWd_lqEq7Ph5B6CDbNsizIkBxbnQ/edit?usp=sharing">Gecko and C++ Onboarding slides</a> are up now!</p>
             <p>This presentation is a “living” presentation; it will get updated for future sessions with feedback and as I think of things that should have been in the presentation or better ways to set things up (some diagrams would be nice…).  If you have feedback (good, bad, or ugly) on particular things in the slides or you have suggestions on what other things should be covered, please contact me!  Next time I do this I’ll try to record the presentation so folks can watch that if they prefer.</p></div>
         </content>
         <updated>2016-01-20T16:48:29Z</updated>
@@ -2190,7 +2190,7 @@
             <p class="p1">Brave basically consists of two parts: part one blocks third party ad content and tracking signals. Instead of these Brave inserts alternative ad content. Sites can sign up to get a fair share of any ads that Brave displays for them. The big change in comparison to the status quo is that the Brave user agent is in control and can regulate what you see. It’s like a speed limit for advertisement on the Web, with the goal to restore balance and give sites a fair way to monetize while giving the user control through the user agent.</p>
             <p class="p1"><strong>Making money with a better Web</strong></p>
             <p class="p1">The ironic part of Brave is that its for-profit. Brave can make money by reducing obnoxious ads and protecting your privacy at the same time. If Brave succeeds, it’s going to drain money away from the crappy privacy-invasive obnoxious advertisement world we have today, and publishers and sites will start transacting in the new Brave world that is regulated by the user agent. Brave will take a cut of these transactions. And I think this is key. It aligns the incentives right. The current funding structure of major browsers encourages them to keep things as they are. Brave’s incentive is to bring down the whole diseased temple and usher in a better Web. Exciting.</p>
-            <p class="p1"><strong>Quick update:</strong> I had a chance to look over the Brave GitHub repo. It looks like the Brave Desktop browser is based on Chromium, not Goanna. Yes, you read that right. <span style="text-decoration: underline;">Brave is using Google’s rendering engine, not Mozilla’s.</span> Much to write about this one, but it will definitely help Brave “hide” better in the large volume of Chrome users, making it harder for sites to identify and block Brave users. Brave for iOS seems to be a <span style="text-decoration: underline;">fork of Firefox for iOS, but it manages to block ads</span> (Mozilla says they can’t).</p><br/>Filed under: <a href="http://andreasgal.com/category/mozilla/">Mozilla</a>  <a href="http://feeds.wordpress.com/1.0/gocomments/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/comments/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/godelicious/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/delicious/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gofacebook/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/facebook/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gotwitter/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/twitter/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gostumble/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/stumble/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/godigg/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/digg/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/goreddit/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/reddit/andreasgal.wordpress.com/573/"/></a> <img alt="" border="0" height="1" src="http://pixel.wp.com/b.gif?host=andreasgal.com&amp;blog=891661&amp;post=573&amp;subd=andreasgal&amp;ref=&amp;feed=1" width="1"/></div>
+            <p class="p1"><strong>Quick update:</strong> I had a chance to look over the Brave GitHub repo. It looks like the Brave Desktop browser is based on Chromium, not Gecko. Yes, you read that right. <span style="text-decoration: underline;">Brave is using Google’s rendering engine, not Mozilla’s.</span> Much to write about this one, but it will definitely help Brave “hide” better in the large volume of Chrome users, making it harder for sites to identify and block Brave users. Brave for iOS seems to be a <span style="text-decoration: underline;">fork of Firefox for iOS, but it manages to block ads</span> (Mozilla says they can’t).</p><br/>Filed under: <a href="http://andreasgal.com/category/mozilla/">Mozilla</a>  <a href="http://feeds.wordpress.com/1.0/gocomments/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/comments/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/godelicious/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/delicious/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gofacebook/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/facebook/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gotwitter/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/twitter/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/gostumble/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/stumble/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/godigg/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/digg/andreasgal.wordpress.com/573/"/></a> <a href="http://feeds.wordpress.com/1.0/goreddit/andreasgal.wordpress.com/573/" rel="nofollow"><img alt="" border="0" src="http://feeds.wordpress.com/1.0/reddit/andreasgal.wordpress.com/573/"/></a> <img alt="" border="0" height="1" src="http://pixel.wp.com/b.gif?host=andreasgal.com&amp;blog=891661&amp;post=573&amp;subd=andreasgal&amp;ref=&amp;feed=1" width="1"/></div>
         </content>
         <updated>2016-01-20T16:00:00Z</updated>
         <category term="Mozilla"/>
@@ -2320,7 +2320,7 @@
                 We welcome contributors, and would love your help.</p><p/>
             <p/><p>Some of the repositories include:</p><p/>
             <ul>
-                <li><a href="https://github.com/brave/browser-laptop">Brave OSX and Windows x64 browsers</a>: Prototyped as a Goanna based browser, but now replaced with a powerful new browser built on top of the electron framework. The electron framework is the same one in use by Slack and the Atom editor.  It uses the latest libchromiumcontent and Node.</li>
+                <li><a href="https://github.com/brave/browser-laptop">Brave OSX and Windows x64 browsers</a>: Prototyped as a Gecko based browser, but now replaced with a powerful new browser built on top of the electron framework. The electron framework is the same one in use by Slack and the Atom editor.  It uses the latest libchromiumcontent and Node.</li>
                 <li><a href="https://github.com/brave/link-bubble">Brave for Android</a>: Formerly Link Bubble, working as a background service so you can use other apps as your pages load.</li>
                 <li><a href="https://github.com/brave/browser-ios">Brave for iOS</a>: Originally forked from Firefox for iOS but with all of the built-in greatness described above.</li>
                 <li>And many others: Website, updater code, vault, electron fork, and others.</li>
@@ -2333,7 +2333,7 @@
         <category term="firefox"/>
         <category term="firefox-ios"/>
         <category term="mozilla"/>
-        <category term="goanna"/>
+        <category term="gecko"/>
         <author>
             <name>Brian R. Bondy</name>
         </author>
@@ -2553,7 +2553,7 @@
             <h3><a href="http://chrislord.net/">Chris</a></h3>
             <p>Exploring the Pebble with Linux. There’s a libpebble, and he managed to connect…</p>
             <p><del datetime="2016-01-20T11:22:33+00:00"><em><small>(sorry, I had to leave early so I do not know what else did Chris do!)</small></em></del></p>
-            <p>Updated, 20 January: Chris told me he just managed to successfully connect to the Pebble watch using the bluetooth WebAPI. It requires two Goanna patches (one regression patch and one obvious logic error that he hasn’t filed yet). PROGRESS!</p>
+            <p>Updated, 20 January: Chris told me he just managed to successfully connect to the Pebble watch using the bluetooth WebAPI. It requires two Gecko patches (one regression patch and one obvious logic error that he hasn’t filed yet). PROGRESS!</p>
             <p>~~~</p>
             <p>So as you can see we didn’t really get super far in just a day, and I even ended up with unusable hardware. BUT! we all learned something, and next time we know what NOT to do (or at least I DO KNOW what NOT to do!).</p>
             <p><a href="http://soledadpenades.com/?flattrss_redirect&amp;id=6335&amp;md5=40427d69faa3b9c2d1530732fd78e66d" target="_blank" title="Flattr"><img alt="flattr this!" src="http://soledadpenades.com/wp-content/plugins/flattr/img/flattr-badge-large.png"/></a></p></div>
@@ -4825,7 +4825,7 @@
                 <li>It is now possible to attach/graft git-cinnabar metadata to existing commits<br/>
                     matching mercurial changesets. This allows to migrate from some other<br/>
                     hg-to-git tool to git-cinnabar while preserving the existing git commits.<br/>
-                    See <a href="http://glandium.org/blog/Mozilla%3A-Using-a-git-clone-of-goanna%E2%80%90dev-to-push-to-mercurial">an example of how this works with the git clone of the Goanna mercurial<br/>
+                    See <a href="http://glandium.org/blog/Mozilla%3A-Using-a-git-clone-of-gecko%E2%80%90dev-to-push-to-mercurial">an example of how this works with the git clone of the Gecko mercurial<br/>
                         repository</a>
                 </li>
                 <li>Avoid mercurial printing its progress bar, messing up with git-cinnabar’s<br/>

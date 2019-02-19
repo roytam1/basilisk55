@@ -18,7 +18,7 @@ import errors
 import transport
 
 from .decorators import do_process_check
-from .goannainstance import GoannaInstance
+from .geckoinstance import GeckoInstance
 from .keys import Keys
 from .timeout import Timeouts
 
@@ -576,10 +576,10 @@ class Marionette(object):
         :param startup_timeout: Seconds to wait for a connection with
             binary.
         :param bin: Path to browser binary.  If any truthy value is given
-            this will attempt to start a Goanna instance with the specified
+            this will attempt to start a Gecko instance with the specified
             `app`.
         :param app: Type of ``instance_class`` to use for managing app
-            instance. See ``marionette_driver.goannainstance``.
+            instance. See ``marionette_driver.geckoinstance``.
         :param instance_args: Arguments to pass to ``instance_class``.
 
         """
@@ -605,7 +605,7 @@ class Marionette(object):
                 ex_msg = "{0}:{1} is unavailable.".format(self.host, self.port)
                 raise errors.MarionetteException(message=ex_msg)
 
-            self.instance = GoannaInstance.create(
+            self.instance = GeckoInstance.create(
                 app, host=self.host, port=self.port, bin=self.bin, **instance_args)
             self.instance.start()
             self.raise_for_port(timeout=startup_timeout)
@@ -805,7 +805,7 @@ class Marionette(object):
 
             if returncode is None:
                 message = ('Process killed because the connection to Marionette server is '
-                           'lost. Check goanna.log for errors')
+                           'lost. Check gecko.log for errors')
                 # This will force-close the application without sending any other message.
                 self.cleanup()
             else:
@@ -1084,7 +1084,7 @@ class Marionette(object):
             self.set_prefs(original_prefs, default_branch=default_branch)
 
     @do_process_check
-    def enforce_goanna_prefs(self, prefs):
+    def enforce_gecko_prefs(self, prefs):
         """Checks if the running instance has the given prefs. If not,
         it will kill the currently running instance, and spawn a new
         instance with the requested preferences.
@@ -1092,8 +1092,8 @@ class Marionette(object):
         : param prefs: A dictionary whose keys are preference names.
         """
         if not self.instance:
-            raise errors.MarionetteException("enforce_goanna_prefs() can only be called "
-                                             "on Goanna instances launched by Marionette")
+            raise errors.MarionetteException("enforce_gecko_prefs() can only be called "
+                                             "on Gecko instances launched by Marionette")
         pref_exists = True
         with self.using_context(self.CONTEXT_CHROME):
             for pref, value in prefs.iteritems():
@@ -1171,7 +1171,7 @@ class Marionette(object):
         """
         if not self.instance:
             raise errors.MarionetteException("quit() can only be called "
-                                             "on Goanna instances launched by Marionette")
+                                             "on Gecko instances launched by Marionette")
 
         if in_app:
             if callable(callback):
@@ -1206,7 +1206,7 @@ class Marionette(object):
         """
         if not self.instance:
             raise errors.MarionetteException("restart() can only be called "
-                                             "on Goanna instances launched by Marionette")
+                                             "on Gecko instances launched by Marionette")
 
         context = self._send_message("getContext", key="value")
         session_id = self.session_id
@@ -1284,7 +1284,7 @@ class Marionette(object):
             self.socket_timeout)
 
         # Call wait_for_port() before attempting to connect in
-        # the event goanna hasn't started yet.
+        # the event gecko hasn't started yet.
         self.wait_for_port(timeout=timeout)
         self.protocol, _ = self.client.connect()
 

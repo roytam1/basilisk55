@@ -78,7 +78,7 @@ LegacyProfilerFront.prototype = {
   start: Task.async(function* (options = {}) {
     // Check for poller status even if the profiler is already active --
     // profiler can be activated via `console.profile` or another source, like
-    // the Goanna Profiler.
+    // the Gecko Profiler.
     if (!this._poller) {
       this._poller = new Poller(this._checkProfilerStatus, this._PROFILER_CHECK_TIMER,
                                 false);
@@ -143,7 +143,7 @@ LegacyProfilerFront.prototype = {
 
     // If TEST_PROFILER_FILTER_STATUS defined (via array of fields), filter
     // out any field from isActive, used only in tests. Used to filter out
-    // buffer status fields to simulate older goannas.
+    // buffer status fields to simulate older geckos.
     if (this._target.TEST_PROFILER_FILTER_STATUS) {
       data = Object.keys(data).reduce((acc, prop) => {
         if (this._target.TEST_PROFILER_FILTER_STATUS.indexOf(prop) === -1) {

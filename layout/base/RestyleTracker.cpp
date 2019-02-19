@@ -10,7 +10,7 @@
 
 #include "RestyleTracker.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsDocShell.h"
 #include "nsFrameManager.h"
 #include "nsIDocument.h"
@@ -255,7 +255,7 @@ RestyleTracker::DoProcessRestyles()
               data->mRestyleHint, MarkerTracingType::START)));
         }
 
-        Maybe<GoannaProfilerTracingRAII> profilerRAII;
+        Maybe<GeckoProfilerTracingRAII> profilerRAII;
         if (profiler_feature_active("restyle")) {
           profilerRAII.emplace("Paint", "Styles", Move(data->mBacktrace));
         }
@@ -359,7 +359,7 @@ RestyleTracker::DoProcessRestyles()
                       index++, count);
           LOG_RESTYLE_INDENT();
 
-          Maybe<GoannaProfilerTracingRAII> profilerRAII;
+          Maybe<GeckoProfilerTracingRAII> profilerRAII;
           if (profiler_feature_active("restyle")) {
             profilerRAII.emplace("Paint", "Styles", Move(currentRestyle->mBacktrace));
           }

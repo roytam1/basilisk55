@@ -33,7 +33,7 @@ getNativeViewFromRootAccessible(Accessible* aAccessible)
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   // if we're expired, we don't support any attributes.
-  if (![self getGoannaAccessible])
+  if (![self getGeckoAccessible])
     return [NSArray array];
 
   // standard attributes that are shared and supported by root accessible (AXMain) elements.
@@ -95,7 +95,7 @@ getNativeViewFromRootAccessible(Accessible* aAccessible)
   if (mParallelView)
     return (id)mParallelView;
 
-  mParallelView = getNativeViewFromRootAccessible ([self getGoannaAccessible]);
+  mParallelView = getNativeViewFromRootAccessible ([self getGeckoAccessible]);
 
   NSAssert(mParallelView, @"can't return root accessible's native parallel view.");
   return mParallelView;

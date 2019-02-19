@@ -242,7 +242,7 @@ class JSObject : public js::gc::Cell
     // free variable references can be statically bound to the global.
     //
     // Finally, there are non-syntactic qualified varobjs used by embedders
-    // (e.g., Goanna and XPConnect), as they often wish to run scripts under a
+    // (e.g., Gecko and XPConnect), as they often wish to run scripts under a
     // scope that captures var bindings.
     inline bool isQualifiedVarObj() const;
     static bool setQualifiedVarObj(js::ExclusiveContext* cx, JS::HandleObject obj) {

@@ -65,7 +65,7 @@
 #include <stdarg.h>
 #include "prenv.h"
 #include "platform.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "mozilla/Mutex.h"
 #include "mozilla/Atomics.h"
 #include "mozilla/LinuxSignal.h"
@@ -73,7 +73,7 @@
 #include "mozilla/DebugOnly.h"
 #include "ProfileEntry.h"
 #include "nsThreadUtils.h"
-#include "GoannaSampler.h"
+#include "GeckoSampler.h"
 #include "ThreadResponsiveness.h"
 
 #if defined(__ARM_EABI__) && defined(ANDROID)

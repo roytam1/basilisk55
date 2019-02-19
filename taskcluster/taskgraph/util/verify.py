@@ -67,12 +67,12 @@ def verify_task_graph_symbol(task, taskgraph, scratch_pad):
                 scratch_pad[key] = task.label
 
 
-def verify_goanna_v2_routes(task, taskgraph, scratch_pad):
+def verify_gecko_v2_routes(task, taskgraph, scratch_pad):
     """
         This function ensures that any two
         tasks have distinct index.v2.routes
     """
-    route_prefix = "index.goanna.v2"
+    route_prefix = "index.gecko.v2"
     task_dict = task.task
     routes = task_dict.get('routes', [])
 

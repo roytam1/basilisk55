@@ -233,9 +233,9 @@ nsLayoutStylesheetCache::DesignModeSheet()
 void
 nsLayoutStylesheetCache::Shutdown()
 {
-  gCSSLoader_Goanna = nullptr;
+  gCSSLoader_Gecko = nullptr;
   gCSSLoader_Servo = nullptr;
-  gStyleCache_Goanna = nullptr;
+  gStyleCache_Gecko = nullptr;
   gStyleCache_Servo = nullptr;
   MOZ_ASSERT(!gUserContentSheetURL, "Got the URL but never used?");
 }
@@ -291,7 +291,7 @@ nsLayoutStylesheetCache::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf
 
   // Measurement of the following members may be added later if DMD finds it is
   // worthwhile:
-  // - gCSSLoader_Goanna
+  // - gCSSLoader_Gecko
   // - gCSSLoader_Servo
 
   return n;
@@ -355,8 +355,8 @@ nsLayoutStylesheetCache::For(StyleBackendType aType)
 {
   MOZ_ASSERT(NS_IsMainThread());
 
-  bool mustInit = !gStyleCache_Goanna && !gStyleCache_Servo;
-  auto& cache = aType == StyleBackendType::Goanna ? gStyleCache_Goanna :
+  bool mustInit = !gStyleCache_Gecko && !gStyleCache_Servo;
+  auto& cache = aType == StyleBackendType::Gecko ? gStyleCache_Gecko :
                                                    gStyleCache_Servo;
 
   if (!cache) {
@@ -473,8 +473,8 @@ nsLayoutStylesheetCache::LoadSheet(nsIURI* aURI,
     return;
   }
 
-  auto& loader = mBackendType == StyleBackendType::Goanna ?
-    gCSSLoader_Goanna :
+  auto& loader = mBackendType == StyleBackendType::Gecko ?
+    gCSSLoader_Gecko :
     gCSSLoader_Servo;
 
   if (!loader) {
@@ -494,40 +494,40 @@ nsLayoutStylesheetCache::LoadSheet(nsIURI* aURI,
 }
 
 /* static */ void
-nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGoannaSheet,
+nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGeckoSheet,
                                          RefPtr<StyleSheet>* aServoSheet)
 {
-  MOZ_ASSERT(gCSSLoader_Goanna || gCSSLoader_Servo,
+  MOZ_ASSERT(gCSSLoader_Gecko || gCSSLoader_Servo,
              "pref changed before we loaded a sheet?");
 
-  const bool gotGoannaSheet = aGoannaSheet && *aGoannaSheet;
+  const bool gotGeckoSheet = aGeckoSheet && *aGeckoSheet;
   const bool gotServoSheet = aServoSheet && *aServoSheet;
 
   // Make sure sheets have the expected types
-  MOZ_ASSERT(!gotGoannaSheet || (*aGoannaSheet)->IsGoanna());
+  MOZ_ASSERT(!gotGeckoSheet || (*aGeckoSheet)->IsGecko());
   MOZ_ASSERT(!gotServoSheet || (*aServoSheet)->IsServo());
   // Make sure the URIs match
-  MOZ_ASSERT(!gotServoSheet || !gotGoannaSheet ||
-             (*aGoannaSheet)->GetSheetURI() == (*aServoSheet)->GetSheetURI(),
+  MOZ_ASSERT(!gotServoSheet || !gotGeckoSheet ||
+             (*aGeckoSheet)->GetSheetURI() == (*aServoSheet)->GetSheetURI(),
              "Sheets passed should have the same URI");
 
   nsIURI* uri;
-  if (gotGoannaSheet) {
-    uri = (*aGoannaSheet)->GetSheetURI();
+  if (gotGeckoSheet) {
+    uri = (*aGeckoSheet)->GetSheetURI();
   } else if (gotServoSheet) {
     uri = (*aServoSheet)->GetSheetURI();
   } else {
     return;
   }
 
-  if (gCSSLoader_Goanna) {
-    gCSSLoader_Goanna->ObsoleteSheet(uri);
+  if (gCSSLoader_Gecko) {
+    gCSSLoader_Gecko->ObsoleteSheet(uri);
   }
   if (gCSSLoader_Servo) {
     gCSSLoader_Servo->ObsoleteSheet(uri);
   }
-  if (gotGoannaSheet) {
-    *aGoannaSheet = nullptr;
+  if (gotGeckoSheet) {
+    *aGeckoSheet = nullptr;
   }
   if (gotServoSheet) {
     *aServoSheet = nullptr;
@@ -537,16 +537,16 @@ nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGoannaSheet,
 /* static */ void
 nsLayoutStylesheetCache::DependentPrefChanged(const char* aPref, void* aData)
 {
-  MOZ_ASSERT(gStyleCache_Goanna || gStyleCache_Servo,
+  MOZ_ASSERT(gStyleCache_Gecko || gStyleCache_Servo,
              "pref changed after shutdown?");
 
   // Cause any UA style sheets whose parsing depends on the value of prefs
-  // to be re-parsed by dropping the sheet from gCSSLoader_{Goanna,Servo}'s cache
+  // to be re-parsed by dropping the sheet from gCSSLoader_{Gecko,Servo}'s cache
   // then setting our cached sheet pointer to null.  This will only work for
   // sheets that are loaded lazily.
 
 #define INVALIDATE(sheet_) \
-  InvalidateSheet(gStyleCache_Goanna ? &gStyleCache_Goanna->sheet_ : nullptr, \
+  InvalidateSheet(gStyleCache_Gecko ? &gStyleCache_Gecko->sheet_ : nullptr, \
                   gStyleCache_Servo ? &gStyleCache_Servo->sheet_ : nullptr);
 
   INVALIDATE(mUASheet);  // for layout.css.grid.enabled
@@ -557,9 +557,9 @@ nsLayoutStylesheetCache::DependentPrefChanged(const char* aPref, void* aData)
 /* static */ void
 nsLayoutStylesheetCache::InvalidatePreferenceSheets()
 {
-  if (gStyleCache_Goanna) {
-    gStyleCache_Goanna->mContentPreferenceSheet = nullptr;
-    gStyleCache_Goanna->mChromePreferenceSheet = nullptr;
+  if (gStyleCache_Gecko) {
+    gStyleCache_Gecko->mContentPreferenceSheet = nullptr;
+    gStyleCache_Gecko->mChromePreferenceSheet = nullptr;
   }
   if (gStyleCache_Servo) {
     gStyleCache_Servo->mContentPreferenceSheet = nullptr;
@@ -571,7 +571,7 @@ void
 nsLayoutStylesheetCache::BuildPreferenceSheet(RefPtr<StyleSheet>* aSheet,
                                               nsPresContext* aPresContext)
 {
-  if (mBackendType == StyleBackendType::Goanna) {
+  if (mBackendType == StyleBackendType::Gecko) {
     *aSheet = new CSSStyleSheet(eAgentSheetFeatures, CORS_NONE,
                                 mozilla::net::RP_Unset);
   } else {
@@ -672,8 +672,8 @@ nsLayoutStylesheetCache::BuildPreferenceSheet(RefPtr<StyleSheet>* aSheet,
                "kPreallocSize should be big enough to build preference style "
                "sheet without reallocation");
 
-  if (sheet->IsGoanna()) {
-    sheet->AsGoanna()->ReparseSheet(sheetText);
+  if (sheet->IsGecko()) {
+    sheet->AsGecko()->ReparseSheet(sheetText);
   } else {
     ServoStyleSheet* servoSheet = sheet->AsServo();
     // NB: The pref sheet never has @import rules.
@@ -688,13 +688,13 @@ nsLayoutStylesheetCache::BuildPreferenceSheet(RefPtr<StyleSheet>* aSheet,
 }
 
 mozilla::StaticRefPtr<nsLayoutStylesheetCache>
-nsLayoutStylesheetCache::gStyleCache_Goanna;
+nsLayoutStylesheetCache::gStyleCache_Gecko;
 
 mozilla::StaticRefPtr<nsLayoutStylesheetCache>
 nsLayoutStylesheetCache::gStyleCache_Servo;
 
 mozilla::StaticRefPtr<mozilla::css::Loader>
-nsLayoutStylesheetCache::gCSSLoader_Goanna;
+nsLayoutStylesheetCache::gCSSLoader_Gecko;
 
 mozilla::StaticRefPtr<mozilla::css::Loader>
 nsLayoutStylesheetCache::gCSSLoader_Servo;

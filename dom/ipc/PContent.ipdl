@@ -455,7 +455,7 @@ child:
     async LoadPluginResult(uint32_t aPluginId, bool aResult);
 
     /**
-     * Control the Goanna Profiler in the child process.
+     * Control the Gecko Profiler in the child process.
      */
     async StartProfiler(ProfilerInitParams params);
     async StopProfiler();

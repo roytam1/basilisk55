@@ -251,7 +251,7 @@ HRESULT
 Interceptor::QueryInterfaceTarget(REFIID aIid, void** aOutput)
 {
   // NB: This QI needs to run on the main thread because the target object
-  // is probably Goanna code that is not thread-safe. Note that this main
+  // is probably Gecko code that is not thread-safe. Note that this main
   // thread invocation is *synchronous*.
   MainThreadInvoker invoker;
   HRESULT hr;

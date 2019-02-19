@@ -194,7 +194,7 @@ NS_NewSVGFEUnstyledLeafFrame(nsIPresShell* aPresShell, nsStyleContext* aContext)
 #include "nsContentCreatorFunctions.h"
 
 #ifdef DEBUG
-// Set the environment variable GOANNA_FRAMECTOR_DEBUG_FLAGS to one or
+// Set the environment variable GECKO_FRAMECTOR_DEBUG_FLAGS to one or
 // more of the following flags (comma separated) for handy debug
 // output.
 static bool gNoisyContentUpdates = false;
@@ -1558,7 +1558,7 @@ nsCSSFrameConstructor::nsCSSFrameConstructor(nsIDocument* aDocument,
   static bool gFirstTime = true;
   if (gFirstTime) {
     gFirstTime = false;
-    char* flags = PR_GetEnv("GOANNA_FRAMECTOR_DEBUG_FLAGS");
+    char* flags = PR_GetEnv("GECKO_FRAMECTOR_DEBUG_FLAGS");
     if (flags) {
       bool error = false;
       for (;;) {
@@ -1590,14 +1590,14 @@ nsCSSFrameConstructor::nsCSSFrameConstructor(nsIDocument* aDocument,
       }
 
       if (error) {
-        printf("Here are the available GOANNA_FRAMECTOR_DEBUG_FLAGS:\n");
+        printf("Here are the available GECKO_FRAMECTOR_DEBUG_FLAGS:\n");
         FrameCtorDebugFlags* flag = gFlags;
         FrameCtorDebugFlags* limit = gFlags + NUM_DEBUG_FLAGS;
         while (flag < limit) {
           printf("  %s\n", flag->name);
           ++flag;
         }
-        printf("Note: GOANNA_FRAMECTOR_DEBUG_FLAGS is a comma separated list of flag\n");
+        printf("Note: GECKO_FRAMECTOR_DEBUG_FLAGS is a comma separated list of flag\n");
         printf("names (no whitespace)\n");
       }
     }
@@ -1878,9 +1878,9 @@ nsCSSFrameConstructor::CreateGeneratedContentItem(nsFrameConstructorState& aStat
   // stylo: ServoRestyleManager does not handle transitions yet, and when it
   // does it probably won't need to track reframed style contexts to start
   // transitions correctly.
-  if (mozilla::RestyleManager* goannaRM = RestyleManager()->GetAsGoanna()) {
+  if (mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko()) {
     RestyleManager::ReframingStyleContexts* rsc =
-      goannaRM->GetReframingStyleContexts();
+      geckoRM->GetReframingStyleContexts();
     if (rsc) {
       nsStyleContext* oldStyleContext = rsc->Get(container, aPseudoElement);
       if (oldStyleContext) {
@@ -2431,7 +2431,7 @@ nsCSSFrameConstructor::ConstructDocElementFrame(Element*                 aDocEle
   // this document.  Unlike in AddFrameConstructionItems, it's safe to
   // unset all element restyle flags, since we don't have any
   // siblings.
-  aDocElement->UnsetRestyleFlagsIfGoanna();
+  aDocElement->UnsetRestyleFlagsIfGecko();
 
   // --------- CREATE AREA OR BOX FRAME -------
   // FIXME: Should this use ResolveStyleContext?  (The calls in this
@@ -2695,10 +2695,10 @@ nsCSSFrameConstructor::ConstructRootFrame()
 
   // Set up our style rule observer.
   // XXXbz wouldn't this make more sense as part of presshell init?
-  if (styleSet->IsGoanna()) {
+  if (styleSet->IsGecko()) {
     // XXXheycam We don't support XBL bindings providing style to
     // ServoStyleSets yet.
-    styleSet->AsGoanna()->SetBindingManager(mDocument->BindingManager());
+    styleSet->AsGecko()->SetBindingManager(mDocument->BindingManager());
   } else {
     NS_WARNING("stylo: cannot get ServoStyleSheets from XBL bindings yet. See bug 1290276.");
   }
@@ -5068,9 +5068,9 @@ nsCSSFrameConstructor::ResolveStyleContext(nsStyleContext* aParentStyleContext,
   // ServoRestyleManager does not handle transitions yet, and when it does
   // it probably won't need to track reframed style contexts to start
   // transitions correctly.
-  if (mozilla::RestyleManager* goannaRM = RestyleManager()->GetAsGoanna()) {
+  if (mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko()) {
     RestyleManager::ReframingStyleContexts* rsc =
-      goannaRM->GetReframingStyleContexts();
+      geckoRM->GetReframingStyleContexts();
     if (rsc) {
       nsStyleContext* oldStyleContext =
         rsc->Get(aContent, CSSPseudoElementType::NotPseudo);
@@ -10727,7 +10727,7 @@ nsCSSFrameConstructor::AddFCItemsForAnonymousContent(
                  "CreateAnonymousFrames manually and not follow the standard "
                  "ProcessChildren() codepath for this frame");
 #endif
-    // Goanna-styled nodes should have no pending restyle flags.
+    // Gecko-styled nodes should have no pending restyle flags.
     MOZ_ASSERT_IF(!content->IsStyledByServo(),
                   !content->IsElement() ||
                   !(content->GetFlags() & ELEMENT_ALL_RESTYLE_FLAGS));
@@ -10895,7 +10895,7 @@ nsCSSFrameConstructor::ProcessChildren(nsFrameConstructorState& aState,
 
       // Frame construction item construction should not post
       // restyles, so removing restyle flags here is safe.
-      child->UnsetRestyleFlagsIfGoanna();
+      child->UnsetRestyleFlagsIfGecko();
       if (addChildItems) {
         AddFrameConstructionItems(aState, child, iter.XBLInvolved(), insertion,
                                   itemsToConstruct);
@@ -12210,7 +12210,7 @@ nsCSSFrameConstructor::BuildInlineChildItems(nsFrameConstructorState& aState,
       // restyle root" flags in AddFrameConstructionItems.  But note
       // that we can remove all restyle flags, just like in
       // ProcessChildren and for the same reason.
-      content->UnsetRestyleFlagsIfGoanna();
+      content->UnsetRestyleFlagsIfGecko();
 
       RefPtr<nsStyleContext> childContext =
         ResolveStyleContext(parentStyleContext, content, &aState);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.mozilla.goanna.widget.FilledCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:goanna="http://schemas.android.com/apk/res-auto"
+<org.mozilla.gecko.widget.FilledCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gecko="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground">
 
-        <org.mozilla.goanna.widget.FaviconView
+        <org.mozilla.gecko.widget.FaviconView
             android:id="@+id/favicon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
-            goanna:enableRoundCorners="false"
+            gecko:enableRoundCorners="false"
             tools:background="@drawable/favicon_globe" />
 
         <View
@@ -58,4 +58,4 @@
             android:src="@drawable/menu" />
 
     </RelativeLayout>
-</org.mozilla.goanna.widget.FilledCardView>
+</org.mozilla.gecko.widget.FilledCardView>

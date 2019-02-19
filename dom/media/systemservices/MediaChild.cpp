@@ -28,7 +28,7 @@ GetPrincipalKey(const ipc::PrincipalInfo& aPrincipalInfo, bool aPersist)
   RefPtr<Pledge<nsCString>> p = new Pledge<nsCString>();
   uint32_t id = mgr->mGetPrincipalKeyPledges.Append(*p);
 
-  if (XRE_GetProcessType() == GoannaProcessType_Default) {
+  if (XRE_GetProcessType() == GeckoProcessType_Default) {
     mgr->GetNonE10sParent()->RecvGetPrincipalKey(id, aPrincipalInfo, aPersist);
   } else {
     Child::Get()->SendGetPrincipalKey(id, aPrincipalInfo, aPersist);
@@ -42,7 +42,7 @@ SanitizeOriginKeys(const uint64_t& aSinceWhen, bool aOnlyPrivateBrowsing)
   LOG(("SanitizeOriginKeys since %llu %s", aSinceWhen,
        (aOnlyPrivateBrowsing? "in Private Browsing." : ".")));
 
-  if (XRE_GetProcessType() == GoannaProcessType_Default) {
+  if (XRE_GetProcessType() == GeckoProcessType_Default) {
     // Avoid opening MediaManager in this case, since this is called by
     // sanitize.js when cookies are cleared, which can happen on startup.
     RefPtr<Parent<NonE10s>> tmpParent = new Parent<NonE10s>();
@@ -56,7 +56,7 @@ static Child* sChild;
 
 Child* Child::Get()
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_Content);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_Content);
   MOZ_ASSERT(NS_IsMainThread());
   if (!sChild) {
     sChild = static_cast<Child*>(dom::ContentChild::GetSingleton()->SendPMediaConstructor());

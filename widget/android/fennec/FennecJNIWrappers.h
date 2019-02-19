@@ -96,7 +96,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -117,7 +117,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -125,19 +125,19 @@ public:
     static auto ScanMedia(mozilla::jni::String::Param, mozilla::jni::String::Param) -> void;
 
     static const mozilla::jni::CallingThread callingThread =
-            mozilla::jni::CallingThread::GOANNA;
+            mozilla::jni::CallingThread::GECKO;
 
 };
 
-class GoannaJavaSampler : public mozilla::jni::ObjectBase<GoannaJavaSampler>
+class GeckoJavaSampler : public mozilla::jni::ObjectBase<GeckoJavaSampler>
 {
 public:
     static const char name[];
 
-    explicit GoannaJavaSampler(const Context& ctx) : ObjectBase<GoannaJavaSampler>(ctx) {}
+    explicit GeckoJavaSampler(const Context& ctx) : ObjectBase<GeckoJavaSampler>(ctx) {}
 
     struct GetFrameName_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef mozilla::jni::String::LocalRef ReturnType;
         typedef mozilla::jni::String::Param SetterType;
         typedef mozilla::jni::Args<
@@ -159,7 +159,7 @@ public:
     static auto GetFrameName(int32_t, int32_t, int32_t) -> mozilla::jni::String::LocalRef;
 
     struct GetProfilerTime_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef double ReturnType;
         typedef double SetterType;
         typedef mozilla::jni::Args<> Args;
@@ -176,7 +176,7 @@ public:
     };
 
     struct GetSampleTime_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef double ReturnType;
         typedef double SetterType;
         typedef mozilla::jni::Args<
@@ -197,7 +197,7 @@ public:
     static auto GetSampleTime(int32_t, int32_t) -> double;
 
     struct GetThreadName_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef mozilla::jni::String::LocalRef ReturnType;
         typedef mozilla::jni::String::Param SetterType;
         typedef mozilla::jni::Args<
@@ -217,7 +217,7 @@ public:
     static auto GetThreadName(int32_t) -> mozilla::jni::String::LocalRef;
 
     struct Pause_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef void ReturnType;
         typedef void SetterType;
         typedef mozilla::jni::Args<> Args;
@@ -236,7 +236,7 @@ public:
     static auto Pause() -> void;
 
     struct Start_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef void ReturnType;
         typedef void SetterType;
         typedef mozilla::jni::Args<
@@ -257,7 +257,7 @@ public:
     static auto Start(int32_t, int32_t) -> void;
 
     struct Stop_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef void ReturnType;
         typedef void SetterType;
         typedef mozilla::jni::Args<> Args;
@@ -276,7 +276,7 @@ public:
     static auto Stop() -> void;
 
     struct Unpause_t {
-        typedef GoannaJavaSampler Owner;
+        typedef GeckoJavaSampler Owner;
         typedef void ReturnType;
         typedef void SetterType;
         typedef mozilla::jni::Args<> Args;
@@ -346,7 +346,7 @@ public:
                 mozilla::jni::Object::Param> Args;
         static constexpr char name[] = "addPresentationSurface";
         static constexpr char signature[] =
-                "(Lorg/mozilla/goanna/GoannaView;Landroid/view/Surface;)V";
+                "(Lorg/mozilla/gecko/GeckoView;Landroid/view/Surface;)V";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -364,7 +364,7 @@ public:
                 mozilla::jni::Object::Param> Args;
         static constexpr char name[] = "invalidateAndScheduleComposite";
         static constexpr char signature[] =
-                "(Lorg/mozilla/goanna/GoannaView;)V";
+                "(Lorg/mozilla/gecko/GeckoView;)V";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -420,7 +420,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct AddKeyedHistogram_t {
@@ -440,7 +440,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct AddUIEvent_t {
@@ -461,7 +461,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct StartUISession_t {
@@ -480,7 +480,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct StopUISession_t {
@@ -500,7 +500,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     static const mozilla::jni::CallingThread callingThread =
@@ -527,12 +527,12 @@ public:
                 bool> Args;
         static constexpr char name[] = "notifyThumbnail";
         static constexpr char signature[] =
-                "(Ljava/nio/ByteBuffer;Lorg/mozilla/goanna/Tab;ZZ)V";
+                "(Ljava/nio/ByteBuffer;Lorg/mozilla/gecko/Tab;ZZ)V";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -551,7 +551,7 @@ public:
                 int32_t> Args;
         static constexpr char name[] = "requestThumbnailLocked";
         static constexpr char signature[] =
-                "(Ljava/nio/ByteBuffer;Lorg/mozilla/goanna/Tab;III)V";
+                "(Ljava/nio/ByteBuffer;Lorg/mozilla/gecko/Tab;III)V";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -595,7 +595,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     static const mozilla::jni::CallingThread callingThread =
@@ -623,7 +623,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -642,7 +642,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -650,7 +650,7 @@ public:
     static auto NotifyStoppedPlaying() -> void;
 
     static const mozilla::jni::CallingThread callingThread =
-            mozilla::jni::CallingThread::GOANNA;
+            mozilla::jni::CallingThread::GECKO;
 
 };
 
@@ -674,7 +674,7 @@ public:
                 mozilla::jni::String::Param> Args;
         static constexpr char name[] = "create";
         static constexpr char signature[] =
-                "(Landroid/media/MediaFormat;Landroid/view/Surface;Lorg/mozilla/goanna/media/CodecProxy$Callbacks;Ljava/lang/String;)Lorg/mozilla/goanna/media/CodecProxy;";
+                "(Landroid/media/MediaFormat;Landroid/view/Surface;Lorg/mozilla/gecko/media/CodecProxy$Callbacks;Ljava/lang/String;)Lorg/mozilla/gecko/media/CodecProxy;";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -774,7 +774,7 @@ public:
                 bool> Args;
         static constexpr char name[] = "releaseOutput";
         static constexpr char signature[] =
-                "(Lorg/mozilla/goanna/media/Sample;Z)Z";
+                "(Lorg/mozilla/gecko/media/Sample;Z)Z";
         static const bool isStatic = false;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -877,7 +877,7 @@ public:
                 mozilla::jni::Object::Param> Args;
         static constexpr char name[] = "onOutput";
         static constexpr char signature[] =
-                "(Lorg/mozilla/goanna/media/Sample;)V";
+                "(Lorg/mozilla/gecko/media/Sample;)V";
         static const bool isStatic = false;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
@@ -992,12 +992,12 @@ public:
                 bool> Args;
         static constexpr char name[] = "create";
         static constexpr char signature[] =
-                "(Ljava/lang/String;Lorg/mozilla/goanna/media/MediaDrmProxy$Callbacks;Z)Lorg/mozilla/goanna/media/MediaDrmProxy;";
+                "(Ljava/lang/String;Lorg/mozilla/gecko/media/MediaDrmProxy$Callbacks;Z)Lorg/mozilla/gecko/media/MediaDrmProxy;";
         static const bool isStatic = true;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -1078,7 +1078,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -1163,7 +1163,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -1186,7 +1186,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionBatchedKeyChanged_t {
@@ -1198,14 +1198,14 @@ public:
                 mozilla::jni::ObjectArray::Param> Args;
         static constexpr char name[] = "onSessionBatchedKeyChanged";
         static constexpr char signature[] =
-                "([B[Lorg/mozilla/goanna/media/SessionKeyInfo;)V";
+                "([B[Lorg/mozilla/gecko/media/SessionKeyInfo;)V";
         static const bool isStatic = false;
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionClosed_t {
@@ -1224,7 +1224,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionCreated_t {
@@ -1245,7 +1245,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionError_t {
@@ -1264,7 +1264,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionMessage_t {
@@ -1284,7 +1284,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     struct OnSessionUpdated_t {
@@ -1303,7 +1303,7 @@ public:
         static const mozilla::jni::CallingThread callingThread =
                 mozilla::jni::CallingThread::ANY;
         static const mozilla::jni::DispatchTarget dispatchTarget =
-                mozilla::jni::DispatchTarget::GOANNA;
+                mozilla::jni::DispatchTarget::GECKO;
     };
 
     static const mozilla::jni::CallingThread callingThread =
@@ -1461,7 +1461,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -1480,7 +1480,7 @@ public:
         static const mozilla::jni::ExceptionMode exceptionMode =
                 mozilla::jni::ExceptionMode::ABORT;
         static const mozilla::jni::CallingThread callingThread =
-                mozilla::jni::CallingThread::GOANNA;
+                mozilla::jni::CallingThread::GECKO;
         static const mozilla::jni::DispatchTarget dispatchTarget =
                 mozilla::jni::DispatchTarget::CURRENT;
     };
@@ -1488,7 +1488,7 @@ public:
     static auto IsUserRestricted() -> bool;
 
     static const mozilla::jni::CallingThread callingThread =
-            mozilla::jni::CallingThread::GOANNA;
+            mozilla::jni::CallingThread::GECKO;
 
 };
 

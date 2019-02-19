@@ -62,7 +62,7 @@ class MediaTestRunner(BaseMarionetteTestRunner):
         BaseMarionetteTestRunner.__init__(self, **kwargs)
         if not self.server_root:
             self.server_root = external_media_tests.resources
-        # pick up prefs from marionette_driver.goannainstance.DesktopInstance
+        # pick up prefs from marionette_driver.geckoinstance.DesktopInstance
         self.app = 'fxdesktop'
         self.test_handlers = [MediaTestCase]
 

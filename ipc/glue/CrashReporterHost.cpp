@@ -14,7 +14,7 @@
 namespace mozilla {
 namespace ipc {
 
-CrashReporterHost::CrashReporterHost(GoannaProcessType aProcessType,
+CrashReporterHost::CrashReporterHost(GeckoProcessType aProcessType,
                                      const Shmem& aShmem)
  : mProcessType(aProcessType),
    mShmem(aShmem),

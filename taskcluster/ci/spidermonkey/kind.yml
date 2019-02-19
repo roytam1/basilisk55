@@ -16,7 +16,7 @@ job-defaults:
         tier: 1
     index:
         product: firefox
-    worker-type: aws-provisioner-v1/goanna-{level}-b-linux
+    worker-type: aws-provisioner-v1/gecko-{level}-b-linux
     worker:
         implementation: docker-worker
         max-run-time: 36000

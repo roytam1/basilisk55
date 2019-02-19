@@ -56,19 +56,19 @@ CancelVibrate(const WindowIdentifier &)
 {
   // Ignore WindowIdentifier parameter.
 
-  java::GoannaAppShell::CancelVibrate();
+  java::GeckoAppShell::CancelVibrate();
 }
 
 void
 EnableBatteryNotifications()
 {
-  java::GoannaAppShell::EnableBatteryNotifications();
+  java::GeckoAppShell::EnableBatteryNotifications();
 }
 
 void
 DisableBatteryNotifications()
 {
-  java::GoannaAppShell::DisableBatteryNotifications();
+  java::GeckoAppShell::DisableBatteryNotifications();
 }
 
 void
@@ -80,13 +80,13 @@ GetCurrentBatteryInformation(hal::BatteryInformation* aBatteryInfo)
 void
 EnableNetworkNotifications()
 {
-  java::GoannaAppShell::EnableNetworkNotifications();
+  java::GeckoAppShell::EnableNetworkNotifications();
 }
 
 void
 DisableNetworkNotifications()
 {
-  java::GoannaAppShell::DisableNetworkNotifications();
+  java::GeckoAppShell::DisableNetworkNotifications();
 }
 
 void
@@ -98,13 +98,13 @@ GetCurrentNetworkInformation(hal::NetworkInformation* aNetworkInfo)
 void
 EnableScreenConfigurationNotifications()
 {
-  java::GoannaAppShell::EnableScreenOrientationNotifications();
+  java::GeckoAppShell::EnableScreenOrientationNotifications();
 }
 
 void
 DisableScreenConfigurationNotifications()
 {
-  java::GoannaAppShell::DisableScreenOrientationNotifications();
+  java::GeckoAppShell::DisableScreenOrientationNotifications();
 }
 
 void
@@ -157,7 +157,7 @@ LockScreenOrientation(const ScreenOrientationInternal& aOrientation)
     case eScreenOrientation_LandscapeSecondary:
     case eScreenOrientation_LandscapePrimary | eScreenOrientation_LandscapeSecondary:
     case eScreenOrientation_Default:
-      java::GoannaAppShell::LockScreenOrientation(orientation);
+      java::GeckoAppShell::LockScreenOrientation(orientation);
       return true;
     default:
       return false;
@@ -167,7 +167,7 @@ LockScreenOrientation(const ScreenOrientationInternal& aOrientation)
 void
 UnlockScreenOrientation()
 {
-  java::GoannaAppShell::UnlockScreenOrientation();
+  java::GeckoAppShell::UnlockScreenOrientation();
 }
 
 } // hal_impl

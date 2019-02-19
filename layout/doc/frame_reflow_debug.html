@@ -41,7 +41,7 @@ start of its reflow
 <li>Enter this line  in the text file <pre>* 1</pre>
 <li>Save the text file in the <code>%DIST%</code> directory
 <li>Go to the <code>%DIST%</code> directory
-<li>enter from command line: <code>set GOANNA_DISPLAY_REFLOW_RULES_FILE=reflow_rules.txt</code>
+<li>enter from command line: <code>set GECKO_DISPLAY_REFLOW_RULES_FILE=reflow_rules.txt</code>
 <li> Run <code>viewer &gt; logfile.txt</code> and load your testcase. The
 logfile will contain all the promised information.
 </ul>
@@ -198,9 +198,9 @@ The entries in the reflow log can be controlled on a frame level.  For instance 
 
 <h2>Other reflow debug options</h2>
 
-<h3>GOANNA_DISPLAY_REFLOW_FLAG_PIXEL_ERRORS</h3>
+<h3>GECKO_DISPLAY_REFLOW_FLAG_PIXEL_ERRORS</h3>
 <p>
-Setting this option via <code>set GOANNA_DISPLAY_REFLOW_FLAG_PIXEL_ERRORS = 1</code> enables a verification for each coordinate value that the coordinates are aligned at pixel boundaries.
+Setting this option via <code>set GECKO_DISPLAY_REFLOW_FLAG_PIXEL_ERRORS = 1</code> enables a verification for each coordinate value that the coordinates are aligned at pixel boundaries.
 <table class="log"><tr><td>
 <pre>
               row 0268A594 r=0 a=UC,UC c=UC,20 cnt=870 
@@ -217,8 +217,8 @@ VALUE 695 is not a whole pixel</pre>
 <p>
 While unaligned values at the entrance of a frame reflow can be ignored,  when they appear at the exit of a routine this can cause display errors like stray lines. OS2 is very vulnerable to pixel alignement errors as text is drawn on pixel boundaries.
 
-<h3>GOANNA_DISPLAY_REFLOW_INDENT_UNDISPLAYED_FRAMES</h3>
+<h3>GECKO_DISPLAY_REFLOW_INDENT_UNDISPLAYED_FRAMES</h3>
 <p>
-Setting this option via <code>set GOANNA_DISPLAY_REFLOW_INDENT_UNDISPLAYED_FRAMES = 1</code> will cause an advance of the indent even for frames which are blocked via the reflow rules file.  
+Setting this option via <code>set GECKO_DISPLAY_REFLOW_INDENT_UNDISPLAYED_FRAMES = 1</code> will cause an advance of the indent even for frames which are blocked via the reflow rules file.  
  </body>
 </html>

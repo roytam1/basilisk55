@@ -26,7 +26,7 @@ A choice was made to represent the CPU cost in *clock cycles* at low-level, as e
 
 ## SpiderMonkey-level
 
-The instrumentation of SpiderMonkey lives in `js/src/vm/Stopwatch.*`. As SpiderMonkey does not know about the Goanna event loop, or DOM events, or windows, so any such information must be provided by the embedding. To communicate with higher levels, SpiderMonkey exposes a virtual class `js::PerformanceGroup` designed to be subclassed and instantiated by the embedding based on its interests.
+The instrumentation of SpiderMonkey lives in `js/src/vm/Stopwatch.*`. As SpiderMonkey does not know about the Gecko event loop, or DOM events, or windows, so any such information must be provided by the embedding. To communicate with higher levels, SpiderMonkey exposes a virtual class `js::PerformanceGroup` designed to be subclassed and instantiated by the embedding based on its interests.
 
 An instance of `js::PerformanceGroup` may be acquired (to mark that it is currently being monitored) and released (once monitoring is complete or cancelled) by SpiderMonkey. Furthermore, a `js::PerformanceGroup` can be marked as active (to mark that the embedding is currently interested in its performance) or inactive (otherwise) by the embedding.
 
@@ -73,7 +73,7 @@ The instrumentation of XPConnect lives in `js/xpconnect/src/XPCJSContext.cpp`.
 
 ## nsIPerformanceStatsService-level
 
-This code lives in `toolkit/components/perfmonitoring/ns*`. Its role is to orchestrate the information provided by SpiderMonkey at the scale of a single thread of a single process. At the time of this writing, this instrumentation is only activated on the main thread, for all Goanna processes.
+This code lives in `toolkit/components/perfmonitoring/ns*`. Its role is to orchestrate the information provided by SpiderMonkey at the scale of a single thread of a single process. At the time of this writing, this instrumentation is only activated on the main thread, for all Gecko processes.
 
 The service defines a class `nsPerformanceGroup`, designed to be the sole concrete implementation of `js::PerformanceGroup`.  `nsPerformanceGroup` extends `js::PerformanceGroup` with the global performance information gathered for the group since the start of the service. The information is:
 - total CPU time measured;

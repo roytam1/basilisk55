@@ -1089,7 +1089,7 @@ class AndroidExtraResDirs(ContextDerived):
 
     Extra resources are resources provided by libraries and including in a
     packaged APK, but not otherwise redistributed.  In practice, this means
-    resources included in Fennec but not in GoannaView.
+    resources included in Fennec but not in GeckoView.
     """
 
     __slots__ = (

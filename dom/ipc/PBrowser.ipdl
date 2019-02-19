@@ -38,7 +38,7 @@ using struct mozilla::layers::FrameMetrics from "FrameMetrics.h";
 using struct mozilla::layers::ScrollableLayerGuid from "FrameMetrics.h";
 using struct mozilla::layers::ZoomConstraints from "FrameMetrics.h";
 using mozilla::layers::MaybeZoomConstraints from "FrameMetrics.h";
-using mozilla::layers::GoannaContentController::TapType from "mozilla/layers/GoannaContentController.h";
+using mozilla::layers::GeckoContentController::TapType from "mozilla/layers/GeckoContentController.h";
 using FrameMetrics::ViewID from "FrameMetrics.h";
 using struct mozilla::void_t from "ipc/IPCMessageUtils.h";
 using mozilla::WindowsHandle from "ipc/IPCMessageUtils.h";

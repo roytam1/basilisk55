@@ -39,8 +39,8 @@
 //    MOZ_LOG_FILE environment variable to point to the full path of a file.
 //    My favorite Win32 Example: SET MOZ_LOG_FILE=c:\temp\pluginLog.txt
 
-// 4. For complete information see the Goanna Developer guide:
-// https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Goanna_Logging
+// 4. For complete information see the Gecko Developer guide:
+// https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Gecko_Logging
 
 
 #ifdef PLUGIN_LOGGING

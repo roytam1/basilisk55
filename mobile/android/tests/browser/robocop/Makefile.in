@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-TESTPATH := $(srcdir)/src/org/mozilla/goanna/tests
+TESTPATH := $(srcdir)/src/org/mozilla/gecko/tests
 
 ANDROID_EXTRA_JARS += \
   $(srcdir)/libs/robotium-solo-5.5.4.jar \
@@ -28,7 +28,7 @@ _JAVA_HARNESS := \
   StructuredLogger.java \
   $(NULL)
 
-java-harness := $(addprefix $(srcdir)/src/org/mozilla/goanna/,$(_JAVA_HARNESS))
+java-harness := $(addprefix $(srcdir)/src/org/mozilla/gecko/,$(_JAVA_HARNESS))
 java-tests   := \
   $(wildcard $(TESTPATH)/*.java) \
   $(wildcard $(TESTPATH)/components/*.java) \

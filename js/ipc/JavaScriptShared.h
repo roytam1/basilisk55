@@ -164,8 +164,8 @@ class JavaScriptShared : public CPOWManager
     bool toObjectOrNullVariant(JSContext* cx, JSObject* obj, ObjectOrNullVariant* objVarp);
     JSObject* fromObjectOrNullVariant(JSContext* cx, const ObjectOrNullVariant& objVar);
 
-    bool convertIdToGoannaString(JSContext* cx, JS::HandleId id, nsString* to);
-    bool convertGoannaStringToId(JSContext* cx, const nsString& from, JS::MutableHandleId id);
+    bool convertIdToGeckoString(JSContext* cx, JS::HandleId id, nsString* to);
+    bool convertGeckoStringToId(JSContext* cx, const nsString& from, JS::MutableHandleId id);
 
     virtual bool toObjectVariant(JSContext* cx, JSObject* obj, ObjectVariant* objVarp) = 0;
     virtual JSObject* fromObjectVariant(JSContext* cx, const ObjectVariant& objVar) = 0;

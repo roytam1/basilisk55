@@ -33,7 +33,7 @@
 
          (for paddingLeft) We use left padding to center the
          arrow in the visible area as opposed to the true width. -->
-    <org.mozilla.goanna.toolbar.ForwardButton
+    <org.mozilla.gecko.toolbar.ForwardButton
             style="@style/UrlBar.ForwardButton"
             android:id="@+id/forward"
             android:contentDescription="@string/forward"
@@ -50,7 +50,7 @@
             android:layout_width="@dimen/tablet_nav_button_width_plus_half"
         />
 
-    <org.mozilla.goanna.toolbar.BackButton android:id="@+id/back"
+    <org.mozilla.gecko.toolbar.BackButton android:id="@+id/back"
                                           style="@style/UrlBar.BackButton"
                                           android:layout_width="@dimen/tablet_nav_button_width"
                                           android:layout_height="@dimen/tablet_nav_button_width"
@@ -60,14 +60,14 @@
                                           android:background="@drawable/url_bar_nav_button"
         />
 
-    <org.mozilla.goanna.toolbar.ToolbarEditLayout android:id="@+id/edit_layout"
+    <org.mozilla.gecko.toolbar.ToolbarEditLayout android:id="@+id/edit_layout"
                   style="@style/UrlBar.EditLayout"
                   android:visibility="gone"
                   android:orientation="horizontal"
         />
 
     <!-- Note: we set the padding on the site security icon to increase its tappable area. -->
-    <org.mozilla.goanna.toolbar.ToolbarDisplayLayout android:id="@+id/display_layout"
+    <org.mozilla.gecko.toolbar.ToolbarDisplayLayout android:id="@+id/display_layout"
         style="@style/UrlBar.DisplayLayout"
         />
 
@@ -78,14 +78,14 @@
                   android:gravity="center_vertical"
                   android:orientation="horizontal"/>
 
-    <org.mozilla.goanna.widget.themed.ThemedImageButton
+    <org.mozilla.gecko.widget.themed.ThemedImageButton
             android:id="@+id/tabs"
             style="@style/UrlBar.Tabs"
             android:layout_alignWithParentIfMissing="true"
             android:background="@drawable/browser_toolbar_action_bar_button"/>
 
     <!-- In a 56x60dp space, centering 24dp image will leave 16x18dp. -->
-    <org.mozilla.goanna.toolbar.TabCounter android:id="@+id/tabs_counter"
+    <org.mozilla.gecko.toolbar.TabCounter android:id="@+id/tabs_counter"
                         style="@style/UrlBar.TabCounter"
                         android:layout_alignTop="@id/tabs"
                         android:layout_alignBottom="@id/tabs"
@@ -102,14 +102,14 @@
           android:clickable="true"
           android:visibility="gone"/>
 
-    <org.mozilla.goanna.widget.themed.ThemedFrameLayout
+    <org.mozilla.gecko.widget.themed.ThemedFrameLayout
             android:id="@+id/menu"
             style="@style/UrlBar.Menu"
             android:layout_alignWithParentIfMissing="true"
             android:contentDescription="@string/menu"
             android:background="@drawable/browser_toolbar_action_bar_button">
 
-        <org.mozilla.goanna.widget.themed.ThemedImageView
+        <org.mozilla.gecko.widget.themed.ThemedImageView
                 android:id="@+id/menu_icon"
                 style="@style/UrlBar.ImageButton.BrowserToolbarColors"
                 android:layout_height="@dimen/browser_toolbar_menu_icon_height"
@@ -118,11 +118,11 @@
                 android:src="@drawable/menu"
                 android:layout_gravity="center"/>
 
-    </org.mozilla.goanna.widget.themed.ThemedFrameLayout>
+    </org.mozilla.gecko.widget.themed.ThemedFrameLayout>
 
     <!-- We draw after the menu items so when they are hidden, the cancel button,
          which is thus drawn on top, may be pressed. -->
-    <org.mozilla.goanna.widget.themed.ThemedImageView
+    <org.mozilla.gecko.widget.themed.ThemedImageView
             android:id="@+id/edit_cancel"
             style="@style/UrlBar.EditCancel"
             android:layout_width="@dimen/browser_toolbar_icon_width"

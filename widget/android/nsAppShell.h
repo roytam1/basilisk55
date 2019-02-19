@@ -142,7 +142,7 @@ public:
                 mozilla::Move(lambda)));
     }
 
-    // Post a event and wait for it to finish running on the Goanna thread.
+    // Post a event and wait for it to finish running on the Gecko thread.
     static void SyncRunEvent(Event&& event,
                              mozilla::UniquePtr<Event>(*eventFactory)(
                                     mozilla::UniquePtr<Event>&&) = nullptr);

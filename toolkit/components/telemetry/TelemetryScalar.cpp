@@ -932,7 +932,7 @@ internal_GetEnumByScalarName(const nsACString& aName, mozilla::Telemetry::Scalar
  * @param aProcessStorage This drives the selection of the map to use to store
  *        the scalar data coming from child processes. This is only meaningful when
  *        this function is called in parent process. If that's the case, if
- *        this is not |GoannaProcessType_Default|, the process id is used to
+ *        this is not |GeckoProcessType_Default|, the process id is used to
  *        allocate and store the scalars.
  * @param aRes The output variable that stores scalar object.
  * @return
@@ -942,7 +942,7 @@ internal_GetEnumByScalarName(const nsACString& aName, mozilla::Telemetry::Scalar
  *   valid pointer to a scalar type.
  */
 nsresult
-internal_GetScalarByEnum(mozilla::Telemetry::ScalarID aId, GoannaProcessType aProcessStorage,
+internal_GetScalarByEnum(mozilla::Telemetry::ScalarID aId, GeckoProcessType aProcessStorage,
                          ScalarBase** aRet)
 {
   if (!IsValidEnumId(aId)) {
@@ -998,7 +998,7 @@ internal_GetRecordableScalar(mozilla::Telemetry::ScalarID aId)
 {
   // Get the scalar by the enum (it also internally checks for aId validity).
   ScalarBase* scalar = nullptr;
-  nsresult rv = internal_GetScalarByEnum(aId, GoannaProcessType_Default, &scalar);
+  nsresult rv = internal_GetScalarByEnum(aId, GeckoProcessType_Default, &scalar);
   if (NS_FAILED(rv)) {
     return nullptr;
   }
@@ -1058,7 +1058,7 @@ internal_UpdateScalar(const nsACString& aName, ScalarActionType aType,
 
   // Finally get the scalar.
   ScalarBase* scalar = nullptr;
-  rv = internal_GetScalarByEnum(id, GoannaProcessType_Default, &scalar);
+  rv = internal_GetScalarByEnum(id, GeckoProcessType_Default, &scalar);
   if (NS_FAILED(rv)) {
     // Don't throw on expired scalars.
     if (rv == NS_ERROR_NOT_AVAILABLE) {
@@ -1095,7 +1095,7 @@ namespace {
  * @param aProcessStorage This drives the selection of the map to use to store
  *        the scalar data coming from child processes. This is only meaningful when
  *        this function is called in parent process. If that's the case, if
- *        this is not |GoannaProcessType_Default|, the process id is used to
+ *        this is not |GeckoProcessType_Default|, the process id is used to
  *        allocate and store the scalars.
  * @param aRet The output variable that stores scalar object.
  * @return
@@ -1106,7 +1106,7 @@ namespace {
  *   valid pointer to a scalar type.
  */
 nsresult
-internal_GetKeyedScalarByEnum(mozilla::Telemetry::ScalarID aId, GoannaProcessType aProcessStorage,
+internal_GetKeyedScalarByEnum(mozilla::Telemetry::ScalarID aId, GeckoProcessType aProcessStorage,
                               KeyedScalar** aRet)
 {
   if (!IsValidEnumId(aId)) {
@@ -1167,7 +1167,7 @@ internal_GetRecordableKeyedScalar(mozilla::Telemetry::ScalarID aId)
 {
   // Get the scalar by the enum (it also internally checks for aId validity).
   KeyedScalar* scalar = nullptr;
-  nsresult rv = internal_GetKeyedScalarByEnum(aId, GoannaProcessType_Default, &scalar);
+  nsresult rv = internal_GetKeyedScalarByEnum(aId, GeckoProcessType_Default, &scalar);
   if (NS_FAILED(rv)) {
     return nullptr;
   }
@@ -1228,7 +1228,7 @@ internal_UpdateKeyedScalar(const nsACString& aName, const nsAString& aKey,
 
   // Finally get the scalar.
   KeyedScalar* scalar = nullptr;
-  rv = internal_GetKeyedScalarByEnum(id, GoannaProcessType_Default, &scalar);
+  rv = internal_GetKeyedScalarByEnum(id, GeckoProcessType_Default, &scalar);
   if (NS_FAILED(rv)) {
     // Don't throw on expired scalars.
     if (rv == NS_ERROR_NOT_AVAILABLE) {
@@ -1899,7 +1899,7 @@ TelemetryScalar::CreateSnapshots(unsigned int aDataset, bool aClearScalars, JSCo
   for (auto iter = scalarsToReflect.Iter(); !iter.Done(); iter.Next()) {
     ScalarArray& processScalars = iter.Data();
     const char* processName =
-      XRE_ChildProcessTypeToString(static_cast<GoannaProcessType>(iter.Key()));
+      XRE_ChildProcessTypeToString(static_cast<GeckoProcessType>(iter.Key()));
 
     // Create the object that will hold the scalars for this process and add it
     // to the returned root object.
@@ -2003,7 +2003,7 @@ TelemetryScalar::CreateKeyedSnapshots(unsigned int aDataset, bool aClearScalars,
   for (auto iter = scalarsToReflect.Iter(); !iter.Done(); iter.Next()) {
     ScalarArray& processScalars = iter.Data();
     const char* processName =
-      XRE_ChildProcessTypeToString(static_cast<GoannaProcessType>(iter.Key()));
+      XRE_ChildProcessTypeToString(static_cast<GeckoProcessType>(iter.Key()));
 
     // Create the object that will hold the scalars for this process and add it
     // to the returned root object.
@@ -2100,7 +2100,7 @@ TelemetryScalar::GetScalarSizesOfIncludingThis(mozilla::MallocSizeOf aMallocSize
 }
 
 void
-TelemetryScalar::UpdateChildData(GoannaProcessType aProcessType,
+TelemetryScalar::UpdateChildData(GeckoProcessType aProcessType,
                                  const nsTArray<mozilla::Telemetry::ScalarAction>& aScalarActions)
 {
   MOZ_ASSERT(XRE_IsParentProcess(),
@@ -2149,7 +2149,7 @@ TelemetryScalar::UpdateChildData(GoannaProcessType aProcessType,
 }
 
 void
-TelemetryScalar::UpdateChildKeyedData(GoannaProcessType aProcessType,
+TelemetryScalar::UpdateChildKeyedData(GeckoProcessType aProcessType,
                                       const nsTArray<mozilla::Telemetry::KeyedScalarAction>& aScalarActions)
 {
   MOZ_ASSERT(XRE_IsParentProcess(),

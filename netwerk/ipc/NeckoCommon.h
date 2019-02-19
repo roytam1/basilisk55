@@ -91,7 +91,7 @@ IsNeckoChild()
 
   if (!didCheck) {
     didCheck = true;
-    amChild = (XRE_GetProcessType() == GoannaProcessType_Content);
+    amChild = (XRE_GetProcessType() == GeckoProcessType_Content);
   }
   return amChild;
 }

@@ -72,7 +72,7 @@ will be upstreamed next time the tests are imported.
 test runner. Again the contents of this directory will be overwritten
 on update.
 
-`meta/` contains Goanna-specific expectation data. This is explained in
+`meta/` contains Gecko-specific expectation data. This is explained in
 the following section.
 
 `mozilla/tests` contains tests that will not be upstreamed and may
@@ -84,7 +84,7 @@ Expectation Data
 ----------------
 
 With the tests coming from upstream, it is not guaranteed that they
-all pass in Goanna-based browsers. For this reason it is necessary to
+all pass in Gecko-based browsers. For this reason it is necessary to
 provide metadata about the expected results of each test. This is
 provided in a set of manifest files in the `meta/` subdirectories.
 
@@ -198,7 +198,7 @@ Test Format
 
 Javascript tests are written using
 [testharness.js](http://github.com/w3c/testharness.js/). Reftests are
-similar to standard Goanna reftests without an explicit manifest file,
+similar to standard Gecko reftests without an explicit manifest file,
 but with in-test or filename conventions for identifying the
 reference.
 
@@ -229,7 +229,7 @@ to test in Chrome:
 1. Download the chromedriver binary and place it somewhere sensible
    e.g. `~/bin`
 
-2. In your goanna source tree activate the virtualenv created by mach,
+2. In your gecko source tree activate the virtualenv created by mach,
    since this has most dependencies already installed. This is typically
    in objdir/_virtualenv and is activated via e.g.
 
@@ -263,4 +263,4 @@ to test in Chrome:
         python runtests.py --product=chrome --binary=~/bin/chromedriver --log-mach=-
 
 By default this will use the same test checkout and metadata as are in
-the Goanna tree, so it's easy to compare behaviour relative to Firefox.
+the Gecko tree, so it's easy to compare behaviour relative to Firefox.

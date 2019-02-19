@@ -11,7 +11,7 @@
 #include "mozilla/dom/MediaKeys.h"
 #include "mozilla/dom/MediaKeySession.h"
 
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "nsContentCID.h"
 #include "nsIConsoleService.h"
 #include "nsPrintfCString.h"
@@ -65,8 +65,8 @@ GMPCDMProxy::Init(PromiseId aPromiseId,
 
   nsCString pluginVersion;
   if (!mOwnerThread) {
-    nsCOMPtr<mozIGoannaMediaPluginService> mps =
-      do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+    nsCOMPtr<mozIGeckoMediaPluginService> mps =
+      do_GetService("@mozilla.org/gecko-media-plugin-service;1");
     if (!mps) {
       RejectPromise(aPromiseId, NS_ERROR_DOM_INVALID_STATE_ERR,
                     NS_LITERAL_CSTRING("Couldn't get MediaPluginService in GMPCDMProxy::Init"));
@@ -191,8 +191,8 @@ GMPCDMProxy::gmp_Init(UniquePtr<InitData>&& aData)
 {
   MOZ_ASSERT(IsOnOwnerThread());
 
-  nsCOMPtr<mozIGoannaMediaPluginService> mps =
-    do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+  nsCOMPtr<mozIGeckoMediaPluginService> mps =
+    do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   if (!mps) {
     RejectPromise(aData->mPromiseId, NS_ERROR_DOM_INVALID_STATE_ERR,
                   NS_LITERAL_CSTRING("Couldn't get MediaPluginService in GMPCDMProxy::gmp_Init"));
@@ -229,8 +229,8 @@ GMPCDMProxy::gmp_InitGetGMPDecryptor(nsresult aResult,
   mNodeId = aNodeId;
   MOZ_ASSERT(!GetNodeId().IsEmpty());
 
-  nsCOMPtr<mozIGoannaMediaPluginService> mps =
-    do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+  nsCOMPtr<mozIGeckoMediaPluginService> mps =
+    do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   if (!mps) {
     RejectPromise(promiseID, NS_ERROR_DOM_INVALID_STATE_ERR,
                   NS_LITERAL_CSTRING("Couldn't get MediaPluginService in GMPCDMProxy::gmp_InitGetGMPDecryptor"));

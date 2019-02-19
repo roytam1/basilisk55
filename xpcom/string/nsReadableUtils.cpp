@@ -1370,12 +1370,12 @@ AppendUCS4ToUTF16(const uint32_t aSource, nsAString& aDest)
 
 extern "C" {
 
-void Goanna_AppendUTF16toCString(nsACString* aThis, const nsAString* aOther)
+void Gecko_AppendUTF16toCString(nsACString* aThis, const nsAString* aOther)
 {
   AppendUTF16toUTF8(*aOther, *aThis);
 }
 
-void Goanna_AppendUTF8toString(nsAString* aThis, const nsACString* aOther)
+void Gecko_AppendUTF8toString(nsAString* aThis, const nsACString* aOther)
 {
   AppendUTF8toUTF16(*aOther, *aThis);
 }

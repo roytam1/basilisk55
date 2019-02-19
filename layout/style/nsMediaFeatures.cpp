@@ -294,7 +294,7 @@ static void
 GetScan(nsPresContext* aPresContext, const nsMediaFeature*,
         nsCSSValue& aResult)
 {
-  // Since Goanna doesn't support the 'tv' media type, the 'scan'
+  // Since Gecko doesn't support the 'tv' media type, the 'scan'
   // feature is never present.
   aResult.Reset();
 }
@@ -340,7 +340,7 @@ static void
 GetGrid(nsPresContext* aPresContext, const nsMediaFeature*,
         nsCSSValue& aResult)
 {
-  // Goanna doesn't support grid devices (e.g., ttys), so the 'grid'
+  // Gecko doesn't support grid devices (e.g., ttys), so the 'grid'
   // feature is always 0.
   aResult.SetIntValue(0, eCSSUnit_Integer);
 }
@@ -361,7 +361,7 @@ static void
 GetTransform3d(nsPresContext* aPresContext, const nsMediaFeature*,
                nsCSSValue& aResult)
 {
-  // Goanna supports 3d transforms, so this feature is always 1.
+  // Gecko supports 3d transforms, so this feature is always 1.
   aResult.SetIntValue(1, eCSSUnit_Integer);
 }
 

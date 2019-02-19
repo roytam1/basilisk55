@@ -447,7 +447,7 @@ nsHTMLDocument::TryTLD(int32_t& aCharsetSource, nsACString& aCharset)
   }
   int32_t index = host.RFindChar('.');
   if (index == kNotFound) {
-    // We have an intranet host, Goanna-internal URL or an IPv6 address.
+    // We have an intranet host, Gecko-internal URL or an IPv6 address.
     return;
   }
   // Since the string didn't end with a dot and we found a dot,
@@ -3439,7 +3439,7 @@ bool
 nsHTMLDocument::QueryCommandSupported(const nsAString& commandID,
                                       CallerType aCallerType)
 {
-  // Goanna technically supports all the clipboard commands including
+  // Gecko technically supports all the clipboard commands including
   // cut/copy/paste, but non-privileged content will be unable to call
   // paste, and depending on the pref "dom.allow_cut_copy", cut and copy
   // may also be disallowed to be called from non-privileged content.

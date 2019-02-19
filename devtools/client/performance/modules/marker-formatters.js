@@ -11,7 +11,7 @@ const { Ci } = require("chrome");
 const { L10N, PREFS } = require("devtools/client/performance/modules/global");
 
 // String used to fill in platform data when it should be hidden.
-const GOANNA_SYMBOL = "(Goanna)";
+const GECKO_SYMBOL = "(Gecko)";
 
 /**
  * Mapping of JS marker causes to a friendlier form. Only
@@ -95,7 +95,7 @@ exports.Formatters = {
 
   JSFields: function (marker) {
     if ("causeName" in marker && !JS_MARKER_MAP[marker.causeName]) {
-      let label = PREFS["show-platform-data"] ? marker.causeName : GOANNA_SYMBOL;
+      let label = PREFS["show-platform-data"] ? marker.causeName : GECKO_SYMBOL;
       return {
         [L10N.getStr("marker.field.causeName")]: label
       };

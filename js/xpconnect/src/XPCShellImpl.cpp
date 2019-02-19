@@ -318,7 +318,7 @@ Dump(JSContext* cx, unsigned argc, Value* vp)
         return false;
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "Goanna", "%s", utf8str.ptr());
+    __android_log_print(ANDROID_LOG_INFO, "Gecko", "%s", utf8str.ptr());
 #endif
 #ifdef XP_WIN
     if (IsDebuggerPresent()) {
@@ -1564,7 +1564,7 @@ XRE_XPCShellMain(int argc, char** argv, char** envp,
 
             {
                 // We are almost certainly going to run script here, so we need an
-                // AutoEntryScript. This is Goanna-specific and not in any spec.
+                // AutoEntryScript. This is Gecko-specific and not in any spec.
                 AutoEntryScript aes(backstagePass, "xpcshell argument processing");
 
                 // If an exception is thrown, we'll set our return code

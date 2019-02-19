@@ -63,7 +63,7 @@ TCPServerSocket::Init()
     return NS_ERROR_FAILURE;
   }
 
-  if (XRE_GetProcessType() == GoannaProcessType_Content) {
+  if (XRE_GetProcessType() == GeckoProcessType_Content) {
     mServerBridgeChild = new TCPServerSocketChild(this, mPort, mBacklog, mUseArrayBuffers);
     return NS_OK;
   }

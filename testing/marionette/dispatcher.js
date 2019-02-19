@@ -29,8 +29,8 @@ const logger = Log.repository.getLogger("Marionette");
  *     Unique identifier of the connection this dispatcher should handle.
  * @param {DebuggerTransport} transport
  *     Debugger transport connection to the client.
- * @param {function(): GoannaDriver} driverFactory
- *     A factory function that produces a GoannaDriver.
+ * @param {function(): GeckoDriver} driverFactory
+ *     A factory function that produces a GeckoDriver.
  */
 this.Dispatcher = function (connId, transport, driverFactory) {
   this.connId = connId;
@@ -94,8 +94,8 @@ Dispatcher.prototype.onPacket = function (data) {
  * Executes a WebDriver command and sends back a response when it has
  * finished executing.
  *
- * Commands implemented in GoannaDriver and registered in its
- * {@code GoannaDriver.commands} attribute.  The return values from
+ * Commands implemented in GeckoDriver and registered in its
+ * {@code GeckoDriver.commands} attribute.  The return values from
  * commands are expected to be Promises.  If the resolved value of said
  * promise is not an object, the response body will be wrapped in an object
  * under a "value" field.
@@ -155,7 +155,7 @@ Dispatcher.prototype.sendError = function (err, cmdId) {
  */
 Dispatcher.prototype.sayHello = function() {
   let whatHo = {
-    applicationType: "goanna",
+    applicationType: "gecko",
     marionetteProtocol: PROTOCOL_VERSION,
   };
   this.sendRaw(whatHo);

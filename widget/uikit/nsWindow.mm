@@ -35,7 +35,7 @@
 #include "mozilla/TouchEvents.h"
 #include "mozilla/Unused.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -77,14 +77,14 @@ private:
 @interface ChildView : UIView
 {
 @public
-    nsWindow* mGoannaChild; // weak ref
+    nsWindow* mGeckoChild; // weak ref
     BOOL mWaitingForPaint;
     CFMutableDictionaryRef mTouches;
     int mNextTouchID;
 }
-// sets up our view, attaching it to its owning goanna view
-- (id)initWithFrame:(CGRect)inFrame goannaChild:(nsWindow*)inChild;
-// Our Goanna child was Destroy()ed
+// sets up our view, attaching it to its owning gecko view
+- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild;
+// Our Gecko child was Destroy()ed
 - (void)widgetDestroyed;
 // Tear down this ChildView
 - (void)delayedTearDown;
@@ -106,13 +106,13 @@ private:
     return [CAEAGLLayer class];
 }
 
-- (id)initWithFrame:(CGRect)inFrame goannaChild:(nsWindow*)inChild
+- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild
 {
     self.multipleTouchEnabled = YES;
     if ((self = [super initWithFrame:inFrame])) {
-      mGoannaChild = inChild;
+      mGeckoChild = inChild;
     }
-    ALOG("[ChildView[%p] initWithFrame:] (mGoannaChild = %p)", (void*)self, (void*)mGoannaChild);
+    ALOG("[ChildView[%p] initWithFrame:] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
     self.opaque = YES;
     self.alpha = 1.0;
 
@@ -128,7 +128,7 @@ private:
 
 - (void)widgetDestroyed
 {
-  mGoannaChild = nullptr;
+  mGeckoChild = nullptr;
   CFRelease(mTouches);
 }
 
@@ -158,9 +158,9 @@ private:
     if (sender.state == UIGestureRecognizerStateEnded) {
         ALOG("[ChildView[%p] handleTap]", self);
         LayoutDeviceIntPoint lp = UIKitPointsToDevPixels([sender locationInView:self], [self contentScaleFactor]);
-        [self sendMouseEvent:eMouseMove point:lp widget:mGoannaChild];
-        [self sendMouseEvent:eMouseDown point:lp widget:mGoannaChild];
-        [self sendMouseEvent:eMouseUp point:lp widget:mGoannaChild];
+        [self sendMouseEvent:eMouseMove point:lp widget:mGeckoChild];
+        [self sendMouseEvent:eMouseDown point:lp widget:mGeckoChild];
+        [self sendMouseEvent:eMouseUp point:lp widget:mGeckoChild];
     }
 }
 
@@ -191,7 +191,7 @@ private:
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     ALOG("[ChildView[%p] touchesBegan", self);
-    if (!mGoannaChild)
+    if (!mGeckoChild)
         return;
 
     for (UITouch* touch : touches) {
@@ -200,13 +200,13 @@ private:
     }
     [self sendTouchEvent:eTouchStart
                  touches:[event allTouches]
-                  widget:mGoannaChild];
+                  widget:mGeckoChild];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     ALOG("[ChildView[%p] touchesCancelled", self);
-    [self sendTouchEvent:eTouchCancel touches:touches widget:mGoannaChild];
+    [self sendTouchEvent:eTouchCancel touches:touches widget:mGeckoChild];
     for (UITouch* touch : touches) {
         CFDictionaryRemoveValue(mTouches, touch);
     }
@@ -218,10 +218,10 @@ private:
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     ALOG("[ChildView[%p] touchesEnded", self);
-    if (!mGoannaChild)
+    if (!mGeckoChild)
         return;
 
-    [self sendTouchEvent:eTouchEnd touches:touches widget:mGoannaChild];
+    [self sendTouchEvent:eTouchEnd touches:touches widget:mGeckoChild];
     for (UITouch* touch : touches) {
         CFDictionaryRemoveValue(mTouches, touch);
     }
@@ -233,12 +233,12 @@ private:
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     ALOG("[ChildView[%p] touchesMoved", self);
-    if (!mGoannaChild)
+    if (!mGeckoChild)
         return;
 
     [self sendTouchEvent:eTouchMove
                  touches:[event allTouches]
-                  widget:mGoannaChild];
+                  widget:mGeckoChild];
 }
 
 - (void)setNeedsDisplayInRect:(CGRect)aRect
@@ -261,10 +261,10 @@ private:
 
 - (BOOL)isUsingMainThreadOpenGL
 {
-  if (!mGoannaChild || ![self window])
+  if (!mGeckoChild || ![self window])
     return NO;
 
-  return mGoannaChild->GetLayerManager(nullptr)->GetBackendType() == mozilla::layers::LayersBackend::LAYERS_OPENGL;
+  return mGeckoChild->GetLayerManager(nullptr)->GetBackendType() == mozilla::layers::LayersBackend::LAYERS_OPENGL;
 }
 
 - (void)drawUsingOpenGL
@@ -273,15 +273,15 @@ private:
   PROFILER_LABEL("ChildView", "drawUsingOpenGL",
     js::ProfileEntry::Category::GRAPHICS);
 
-  if (!mGoannaChild->IsVisible())
+  if (!mGeckoChild->IsVisible())
     return;
 
   mWaitingForPaint = NO;
 
-  LayoutDeviceIntRect goannaBounds = mGoannaChild->GetBounds();
-  LayoutDeviceIntRegion region(goannaBounds);
+  LayoutDeviceIntRect geckoBounds = mGeckoChild->GetBounds();
+  LayoutDeviceIntRegion region(geckoBounds);
 
-  mGoannaChild->PaintWindow(region);
+  mGeckoChild->PaintWindow(region);
 }
 
 // Called asynchronously after setNeedsDisplay in order to avoid entering the
@@ -294,7 +294,7 @@ private:
 }
 
 // The display system has told us that a portion of our view is dirty. Tell
-// goanna to paint it
+// gecko to paint it
 - (void)drawRect:(CGRect)aRect
 {
     CGContextRef cgContext = UIGraphicsGetCurrentContext();
@@ -304,19 +304,19 @@ private:
 - (void)drawRect:(CGRect)aRect inContext:(CGContextRef)aContext
 {
 #ifdef DEBUG_UPDATE
-  LayoutDeviceIntRect goannaBounds = mGoannaChild->GetBounds();
+  LayoutDeviceIntRect geckoBounds = mGeckoChild->GetBounds();
 
-  fprintf (stderr, "---- Update[%p][%p] [%f %f %f %f] cgc: %p\n  goanna bounds: [%d %d %d %d]\n",
-           self, mGoannaChild,
+  fprintf (stderr, "---- Update[%p][%p] [%f %f %f %f] cgc: %p\n  gecko bounds: [%d %d %d %d]\n",
+           self, mGeckoChild,
            aRect.origin.x, aRect.origin.y, aRect.size.width, aRect.size.height, aContext,
-           goannaBounds.x, goannaBounds.y, goannaBounds.width, goannaBounds.height);
+           geckoBounds.x, geckoBounds.y, geckoBounds.width, geckoBounds.height);
 
   CGAffineTransform xform = CGContextGetCTM(aContext);
   fprintf (stderr, "  xform in: [%f %f %f %f %f %f]\n", xform.a, xform.b, xform.c, xform.d, xform.tx, xform.ty);
 #endif
 
   if (true) {
-    // For Goanna-initiated repaints in OpenGL mode, drawUsingOpenGL is
+    // For Gecko-initiated repaints in OpenGL mode, drawUsingOpenGL is
     // directly called from a delayed perform callback - without going through
     // drawRect.
     // Paints that come through here are triggered by something that Cocoa
@@ -331,9 +331,9 @@ private:
 
   // The CGContext that drawRect supplies us with comes with a transform that
   // scales one user space unit to one Cocoa point, which can consist of
-  // multiple dev pixels. But Goanna expects its supplied context to be scaled
+  // multiple dev pixels. But Gecko expects its supplied context to be scaled
   // to device pixels, so we need to reverse the scaling.
-  double scale = mGoannaChild->BackingScaleFactor();
+  double scale = mGeckoChild->BackingScaleFactor();
   CGContextSaveGState(aContext);
   CGContextScaleCTM(aContext, 1.0 / scale, 1.0 / scale);
 
@@ -381,13 +381,13 @@ private:
 
   //nsAutoRetainCocoaObject kungFuDeathGrip(self);
   bool painted = false;
-  if (mGoannaChild->GetLayerManager()->GetBackendType() == LayersBackend::LAYERS_BASIC) {
+  if (mGeckoChild->GetLayerManager()->GetBackendType() == LayersBackend::LAYERS_BASIC) {
     nsBaseWidget::AutoLayerManagerSetup
-      setupLayerManager(mGoannaChild, targetContext, BufferMode::BUFFER_NONE);
-    painted = mGoannaChild->PaintWindow(region);
-  } else if (mGoannaChild->GetLayerManager()->GetBackendType() == LayersBackend::LAYERS_CLIENT) {
+      setupLayerManager(mGeckoChild, targetContext, BufferMode::BUFFER_NONE);
+    painted = mGeckoChild->PaintWindow(region);
+  } else if (mGeckoChild->GetLayerManager()->GetBackendType() == LayersBackend::LAYERS_CLIENT) {
     // We only need this so that we actually get DidPaintWindow fired
-    painted = mGoannaChild->PaintWindow(region);
+    painted = mGeckoChild->PaintWindow(region);
   }
 
   targetContext = nullptr;
@@ -399,7 +399,7 @@ private:
   // CocoaPoints again.
   CGContextRestoreGState(aContext);
   if (!painted && [self isOpaque]) {
-    // Goanna refused to draw, but we've claimed to be opaque, so we have to
+    // Gecko refused to draw, but we've claimed to be opaque, so we have to
     // draw something--fill with white.
     CGContextSetRGBFillColor(aContext, 1, 1, 1, 1);
     CGContextFillRect(aContext, aRect);
@@ -469,7 +469,7 @@ nsWindow::Create(nsIWidget* aParent,
     ChildView* nativeParent = (ChildView*)aNativeParent;
 
     if (parent == nullptr && nativeParent)
-        parent = nativeParent->mGoannaChild;
+        parent = nativeParent->mGeckoChild;
     if (parent && nativeParent == nullptr)
         nativeParent = parent->mNativeView;
 
@@ -499,7 +499,7 @@ nsWindow::Create(nsIWidget* aParent,
 
     NS_ASSERTION(IsTopLevel() || parent, "non top level window doesn't have a parent!");
 
-    mNativeView = [[ChildView alloc] initWithFrame:DevPixelsToUIKitPoints(mBounds, BackingScaleFactor()) goannaChild:this];
+    mNativeView = [[ChildView alloc] initWithFrame:DevPixelsToUIKitPoints(mBounds, BackingScaleFactor()) geckoChild:this];
     mNativeView.hidden = YES;
 
     if (parent) {
@@ -579,7 +579,7 @@ nsWindow::Move(double aX, double aY)
     return;
 
   //XXX: handle this
-  // The point we have is in Goanna coordinates (origin top-left). Convert
+  // The point we have is in Gecko coordinates (origin top-left). Convert
   // it to Cocoa ones (origin bottom-left).
   mBounds.x = aX;
   mBounds.y = aY;

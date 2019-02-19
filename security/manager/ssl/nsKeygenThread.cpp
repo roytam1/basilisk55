@@ -9,7 +9,7 @@
 #include "mozilla/Assertions.h"
 #include "mozilla/DebugOnly.h"
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "PSMRunnable.h"
 #include "nsCOMPtr.h"
 #include "nsIObserver.h"

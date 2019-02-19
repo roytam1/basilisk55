@@ -20,8 +20,8 @@ browsing data, this creates some additional complications when compared to quitt
 Technical details
 =================
 
-When the "Quit" button is used, the UI sends a ``Browser:Quit`` notification to Goanna's ``BrowserApp``,
-which initiates the normal Goanna shutdown procedure. At the same time however, the native UI needs to
+When the "Quit" button is used, the UI sends a ``Browser:Quit`` notification to Gecko's ``BrowserApp``,
+which initiates the normal Gecko shutdown procedure. At the same time however, the native UI needs to
 shutdown as well, so as to
 
 1) provide an immediate visual feedback to the user that Firefox is indeed quitting
@@ -30,21 +30,21 @@ shutdown as well, so as to
    shutting down, which could lead to loosing incoming external tabs if they were to arrive within
    that period.
 
-Therefore, shutdown of the native UI was originally started simultaneously with notifying Goanna.
-Because the clearing of private data during shutdown is handled by Goanna's ``Sanitizer``, while some
+Therefore, shutdown of the native UI was originally started simultaneously with notifying Gecko.
+Because the clearing of private data during shutdown is handled by Gecko's ``Sanitizer``, while some
 private data, e.g. the browsing history, is held in a database by the native UI, this means that
-Goanna needs to message the native UI during shutdown if the user wants the browsing history to be
+Gecko needs to message the native UI during shutdown if the user wants the browsing history to be
 cleared on quitting.
-Shutting down the UI simultaneously with Goanna therefore introduced a race condition where the data
-clearing could fail because the native UI thread responsible for receiving Goanna's sanitization
-messages had already exited by the time Goanna's ``Sanitizer`` was attempting to e.g. clear the
+Shutting down the UI simultaneously with Gecko therefore introduced a race condition where the data
+clearing could fail because the native UI thread responsible for receiving Gecko's sanitization
+messages had already exited by the time Gecko's ``Sanitizer`` was attempting to e.g. clear the
 user's browsing history (for further reading, compare `bug 1266594
 <https://bugzilla.mozilla.org/show_bug.cgi?id=1266594>`_).
 
-To fix this issue, the native UI (in ``GoannaApp``) now waits for the ``Sanitizer`` to run and
+To fix this issue, the native UI (in ``GeckoApp``) now waits for the ``Sanitizer`` to run and
 message all necessary sanitization handlers and only starts its shutdown after receiving a
 ``Sanitize:Finished`` message with a ``shutdown: true`` parameter set. While this introduces a
-certain delay in closing the UI, it is still faster than having to wait for Goanna to exit completely
+certain delay in closing the UI, it is still faster than having to wait for Gecko to exit completely
 before starting to close the UI.
 
 Currently, quitting Firefox therefore proceeds roughly as follows:
@@ -53,7 +53,7 @@ Currently, quitting Firefox therefore proceeds roughly as follows:
    to ``BrowserApp``. This notification also contains additional parameters indicating which types
    of private user data - if any - to clear during shutdown.
 
-2) ``BrowserApp.quit`` runs, which initiates Goanna shutdown by sending out a
+2) ``BrowserApp.quit`` runs, which initiates Gecko shutdown by sending out a
    ``quit-application-requested`` notification.
 
 3) If nobody cancelled shutdown in response to the ``quit-application-requested`` notification,
@@ -66,12 +66,12 @@ Currently, quitting Firefox therefore proceeds roughly as follows:
    native Java UI side, e.g. for the browsing history) and finished running, it sends a
    ``Sanitize:Finished`` message back to the native UI.
 
-5) On receiving the ``Sanitize:Finished`` message, ``GoannaApp`` starts the shutdown of the native UI
+5) On receiving the ``Sanitize:Finished`` message, ``GeckoApp`` starts the shutdown of the native UI
    as well by calling ``doShutdown()``.
 
-6) After sending the ``Sanitize:Finished`` message, Goanna's ``Sanitizer`` runs the callback provided
+6) After sending the ``Sanitize:Finished`` message, Gecko's ``Sanitizer`` runs the callback provided
    by ``BrowserApp.quit``, which is ``appStartup.quit(Ci.nsIAppStartup.eForceQuit)``, thereby
-   starting the actual and final shutting down of Goanna.
+   starting the actual and final shutting down of Gecko.
 
 7) On receiving the final ``quit-application`` notification, the ``SessionStore`` synchronously
    writes its current state to disk.

@@ -41,7 +41,7 @@ Minidump Analyzer
 How Main-Process Crash Handling Works
 =====================================
 
-The crash handler is hooked up very early in the Goanna process lifetime.
+The crash handler is hooked up very early in the Gecko process lifetime.
 It all starts in ``XREMain::XRE_mainInit()`` from ``nsAppRunner.cpp``.
 Assuming crash reporting is enabled, this startup function registers an
 exception handler for the process and tells the crash reporter subsystem

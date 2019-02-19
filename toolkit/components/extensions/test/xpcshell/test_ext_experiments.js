@@ -84,7 +84,7 @@ add_task(function* test_experiments_api() {
 
   let addonFile = Extension.generateXPI({
     manifest: {
-      applications: {gecko: {id: "meh@web.extension"}},
+      applications: {goanna: {id: "meh@web.extension"}},
       permissions: ["experiments.meh"],
     },
 
@@ -104,7 +104,7 @@ add_task(function* test_experiments_api() {
 
   let boringAddonFile = Extension.generateXPI({
     manifest: {
-      applications: {gecko: {id: "boring@web.extension"}},
+      applications: {goanna: {id: "boring@web.extension"}},
     },
     background() {
       if (browser.meh) {

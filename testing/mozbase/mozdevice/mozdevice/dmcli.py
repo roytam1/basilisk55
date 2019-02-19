@@ -124,7 +124,7 @@ class DMCli(object):
                                                    {'name': '--url', 'action': 'store'},
                                                    {'name': '--extra-args', 'action': 'store'},
                                                    {'name': '--mozenv', 'action': 'store',
-                                                    'help': 'Goanna environment variables to set'
+                                                    'help': 'Gecko environment variables to set'
                                                     ' in "KEY1=VAL1 KEY2=VAL2" format'},
                                                    {'name': '--no-fail-if-running',
                                                     'action': 'store_true',

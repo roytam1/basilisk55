@@ -321,7 +321,7 @@ nsStyleLinkElement::DoUpdateStyleSheet(nsIDocument* aOldDocument,
     if (mStyleSheet->IsServo()) {
       NS_WARNING("stylo: ServoStyleSheets don't support <style scoped>");
     } else {
-      oldScopeElement = mStyleSheet->AsGoanna()->GetScopeElement();
+      oldScopeElement = mStyleSheet->AsGecko()->GetScopeElement();
     }
   }
 
@@ -486,7 +486,7 @@ nsStyleLinkElement::UpdateStyleSheetScopedness(bool aIsNowScoped)
     return;
   }
 
-  CSSStyleSheet* sheet = mStyleSheet->AsGoanna();
+  CSSStyleSheet* sheet = mStyleSheet->AsGecko();
 
   nsCOMPtr<nsIContent> thisContent;
   CallQueryInterface(this, getter_AddRefs(thisContent));

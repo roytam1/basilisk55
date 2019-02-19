@@ -84,7 +84,7 @@ CompositorVsyncScheduler::CompositorVsyncScheduler(CompositorVsyncSchedulerOwner
   , mSetNeedsCompositeMonitor("SetNeedsCompositeMonitor")
   , mSetNeedsCompositeTask(nullptr)
 {
-  MOZ_ASSERT(NS_IsMainThread() || XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(NS_IsMainThread() || XRE_GetProcessType() == GeckoProcessType_GPU);
   mVsyncObserver = new Observer(this);
 
   // mAsapScheduling is set on the main thread during init,
@@ -199,7 +199,7 @@ CompositorVsyncScheduler::NotifyVsync(TimeStamp aVsyncTimestamp)
   // Called from the vsync dispatch thread. When in the GPU Process, that's
   // the same as the compositor thread.
   MOZ_ASSERT_IF(XRE_IsParentProcess(), !CompositorThreadHolder::IsInCompositorThread());
-  MOZ_ASSERT_IF(XRE_GetProcessType() == GoannaProcessType_GPU, CompositorThreadHolder::IsInCompositorThread());
+  MOZ_ASSERT_IF(XRE_GetProcessType() == GeckoProcessType_GPU, CompositorThreadHolder::IsInCompositorThread());
   MOZ_ASSERT(!NS_IsMainThread());
   PostCompositeTask(aVsyncTimestamp);
   return true;

@@ -90,7 +90,7 @@ cd /home/worker
 
 python2.7 $WORKSPACE/build/src/testing/${MOZHARNESS_SCRIPT} \
   --disable-mock \
-  --revision ${GOANNA_HEAD_REV} \
+  --revision ${GECKO_HEAD_REV} \
   $actions \
   $options \
   ${config_cmds} \

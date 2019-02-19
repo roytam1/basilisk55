@@ -19,12 +19,12 @@ CrashReporterChild::GetCrashReporter()
 {
   const ManagedContainer<PCrashReporterChild>* reporters = nullptr;
   switch (XRE_GetProcessType()) {
-    case GoannaProcessType_Content: {
+    case GeckoProcessType_Content: {
       ContentChild* child = ContentChild::GetSingleton();
       reporters = &child->ManagedPCrashReporterChild();
       break;
     }
-    case GoannaProcessType_Plugin: {
+    case GeckoProcessType_Plugin: {
       PluginModuleChild* child = PluginModuleChild::GetChrome();
       reporters = &child->ManagedPCrashReporterChild();
       break;

@@ -5,11 +5,11 @@
 
 package org.mozilla.search;
 
-import org.mozilla.goanna.AboutPages;
-import org.mozilla.goanna.AppConstants;
-import org.mozilla.goanna.R;
-import org.mozilla.goanna.Telemetry;
-import org.mozilla.goanna.TelemetryContract;
+import org.mozilla.gecko.AboutPages;
+import org.mozilla.gecko.AppConstants;
+import org.mozilla.gecko.R;
+import org.mozilla.gecko.Telemetry;
+import org.mozilla.gecko.TelemetryContract;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -26,7 +26,7 @@ import android.widget.RemoteViews;
  * and one to launch the search activity. All intents are actually sent back
  * here and then forwarded on to start the real activity. */
 public class SearchWidget extends AppWidgetProvider {
-    final private static String LOGTAG = "GoannaSearchWidget";
+    final private static String LOGTAG = "GeckoSearchWidget";
 
     final public static String ACTION_LAUNCH_BROWSER = "org.mozilla.widget.LAUNCH_BROWSER";
     final public static String ACTION_LAUNCH_SEARCH = "org.mozilla.widget.LAUNCH_SEARCH";

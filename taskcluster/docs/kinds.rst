@@ -53,7 +53,7 @@ job (usually chunked).
 source-check
 ------------
 
-Source-checks are tasks that look at the Goanna source directly to check
+Source-checks are tasks that look at the Gecko source directly to check
 correctness.  This can include linting, Python unit tests, source-code
 analysis, or measurement work -- basically anything that does not require a
 build.
@@ -87,7 +87,7 @@ are run manually via try pushes and the results uploaded to tooltool.
 spidermonkey
 ------------
 
-Spidermonkey tasks check out the full goanna source tree, then compile only the
+Spidermonkey tasks check out the full gecko source tree, then compile only the
 spidermonkey portion.  Each task runs specific tests after the build.
 
 marionette-harness
@@ -98,7 +98,7 @@ TBD (Maja)
 Tests
 -----
 
-Test tasks for Goanna products are divided into several kinds, but share a
+Test tasks for Gecko products are divided into several kinds, but share a
 common implementation.  The process goes like this, based on a set of YAML
 files named in ``kind.yml``:
 

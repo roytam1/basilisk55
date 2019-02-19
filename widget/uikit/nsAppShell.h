@@ -5,7 +5,7 @@
 
 /*
  * Runs the main native UIKit run loop, interrupting it as needed to process
- * Goanna events.
+ * Gecko events.
  */
 
 #ifndef nsAppShell_h_
@@ -41,7 +41,7 @@ public:
 protected:
   virtual ~nsAppShell();
 
-  static void ProcessGoannaEvents(void* aInfo);
+  static void ProcessGeckoEvents(void* aInfo);
   virtual void ScheduleNativeEventCallback();
   virtual bool ProcessNextNativeEvent(bool aMayWait);
 

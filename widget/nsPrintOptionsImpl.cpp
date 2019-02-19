@@ -1183,7 +1183,7 @@ nsPrintOptions::SavePrintSettingsToPrefs(nsIPrintSettings *aPS,
 {
   NS_ENSURE_ARG_POINTER(aPS);
 
-  if (GoannaProcessType_Content == XRE_GetProcessType()) {
+  if (GeckoProcessType_Content == XRE_GetProcessType()) {
     // If we're in the content process, we can't directly write to the
     // Preferences service - we have to proxy the save up to the
     // parent process.

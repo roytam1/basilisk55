@@ -27,7 +27,7 @@ from taskgraph.util.time import (
 logger = logging.getLogger(__name__)
 
 ARTIFACTS_DIR = 'artifacts'
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..'))
 
 # For each project, this gives a set of parameters specific to the project.
 # See `taskcluster/docs/parameters.rst` for information on parameters.
@@ -200,7 +200,7 @@ def write_artifact(filename, data):
 
 
 def get_action_yml(parameters):
-    templates = Templates(os.path.join(GOANNA, "taskcluster/taskgraph"))
+    templates = Templates(os.path.join(GECKO, "taskcluster/taskgraph"))
     action_parameters = parameters.copy()
 
     match = re.match(r'https://(hg.mozilla.org)/(.*?)/?$', action_parameters['head_repository'])

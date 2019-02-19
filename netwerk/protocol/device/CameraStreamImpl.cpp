@@ -18,7 +18,7 @@ static CameraStreamImpl* mCamera0 = nullptr;
 static CameraStreamImpl* mCamera1 = nullptr;
 
 class CameraStreamImpl::Callback
-    : public java::GoannaAppShell::CameraCallback::Natives<Callback>
+    : public java::GeckoAppShell::CameraCallback::Natives<Callback>
 {
 public:
     static void OnFrameData(int32_t aCamera, jni::ByteArray::Param aData)
@@ -41,7 +41,7 @@ void CameraStreamImpl::TransmitFrame(jni::ByteArray::Param aData) {
         return;
     }
 
-    JNIEnv* const env = jni::GetGoannaThreadEnv();
+    JNIEnv* const env = jni::GetGeckoThreadEnv();
     const size_t length = size_t(env->GetArrayLength(aData.Get()));
 
     if (!length) {
@@ -94,7 +94,7 @@ bool CameraStreamImpl::Init(const nsCString& contentType, const uint32_t& camera
     mHeight = height;
 
     Callback::Init();
-    jni::IntArray::LocalRef retArray = java::GoannaAppShell::InitCamera(
+    jni::IntArray::LocalRef retArray = java::GeckoAppShell::InitCamera(
             contentType, int32_t(camera), int32_t(width), int32_t(height));
     nsTArray<int32_t> ret = retArray->GetElements();
 
@@ -106,7 +106,7 @@ bool CameraStreamImpl::Init(const nsCString& contentType, const uint32_t& camera
 }
 
 void CameraStreamImpl::Close() {
-    java::GoannaAppShell::CloseCamera();
+    java::GeckoAppShell::CloseCamera();
     mCallback = nullptr;
 }
 

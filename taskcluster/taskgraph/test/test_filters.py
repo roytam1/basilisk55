@@ -26,7 +26,7 @@ from .util import (
 class TestServoFilter(unittest.TestCase):
     def setUp(self):
         self._tmpdir = tempfile.mkdtemp()
-        filter_tasks.GOANNA = self._tmpdir
+        filter_tasks.GECKO = self._tmpdir
 
     def tearDown(self):
         shutil.rmtree(self._tmpdir)

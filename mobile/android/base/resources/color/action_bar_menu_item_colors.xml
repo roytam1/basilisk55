@@ -4,19 +4,19 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
-    <item goanna:state_private="true"
+    <item gecko:state_private="true"
           android:state_enabled="false"
           android:color="@color/toolbar_icon_grey"
           />
 
-    <item goanna:state_private="true"
+    <item gecko:state_private="true"
           android:state_enabled="true"
           android:color="@color/tabs_tray_icon_grey"
           />
 
-    <item goanna:state_private="false"
+    <item gecko:state_private="false"
           android:state_enabled="false"
           android:color="@color/disabled_grey"
           />

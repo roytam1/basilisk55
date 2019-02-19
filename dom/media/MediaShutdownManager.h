@@ -22,7 +22,7 @@ class MediaDecoder;
 
 // The MediaShutdownManager manages shutting down the MediaDecoder
 // infrastructure in response to an xpcom-shutdown notification.
-// This happens when Goanna is shutting down in the middle of operation.
+// This happens when Gecko is shutting down in the middle of operation.
 // This is tricky, as there are a number of moving parts that must
 // be shutdown in a particular order. The MediaShutdownManager
 // encapsulates all these dependencies to ensure that no shutdown

@@ -21,7 +21,7 @@ const {
  */
 types.addType("array-of-numbers-as-strings", {
   write: (v) => v.join(","),
-  // In Goanna <= 37, `v` is an array; do not transform in this case.
+  // In Gecko <= 37, `v` is an array; do not transform in this case.
   read: (v) => typeof v === "string" ? v.split(",") : v
 });
 

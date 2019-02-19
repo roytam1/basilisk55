@@ -473,7 +473,7 @@ class AndroidEmulatorTest(BlobUploadMixin, TestingMixin, EmulatorMixin, VCSMixin
             'dm_trans': c['device_manager'],
             # marionette options
             'address': c.get('marionette_address'),
-            'goanna_log': os.path.join(dirs["abs_blob_upload_dir"], 'goanna.log'),
+            'gecko_log': os.path.join(dirs["abs_blob_upload_dir"], 'gecko.log'),
             'test_manifest': os.path.join(
                 dirs['abs_marionette_tests_dir'],
                 self.config.get('marionette_test_manifest', '')
@@ -510,10 +510,10 @@ class AndroidEmulatorTest(BlobUploadMixin, TestingMixin, EmulatorMixin, VCSMixin
 
            :param path specifies the directory path to the file of interest.
         """
-        if 'GOANNA_HEAD_REPOSITORY' in os.environ and 'GOANNA_HEAD_REV' in os.environ:
+        if 'GECKO_HEAD_REPOSITORY' in os.environ and 'GECKO_HEAD_REV' in os.environ:
             # probably taskcluster
-            repo = os.environ['GOANNA_HEAD_REPOSITORY']
-            revision = os.environ['GOANNA_HEAD_REV']
+            repo = os.environ['GECKO_HEAD_REPOSITORY']
+            revision = os.environ['GECKO_HEAD_REV']
         elif self.buildbot_config and 'properties' in self.buildbot_config:
             # probably buildbot
             repo = 'https://hg.mozilla.org/%s' % self.buildbot_config['properties']['repo_path']

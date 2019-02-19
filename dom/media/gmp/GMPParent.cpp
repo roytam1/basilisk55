@@ -10,9 +10,9 @@
 #include "nsThreadUtils.h"
 #include "nsIRunnable.h"
 #include "nsIWritablePropertyBag2.h"
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "mozilla/AbstractThread.h"
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 #include "mozilla/SSE.h"
 #include "mozilla/SyncRunnable.h"
 #include "mozilla/Unused.h"
@@ -28,7 +28,7 @@
 
 #include "mozilla/dom/CrashReporterParent.h"
 using mozilla::dom::CrashReporterParent;
-using mozilla::ipc::GoannaChildProcessHost;
+using mozilla::ipc::GeckoChildProcessHost;
 
 #include "mozilla/Telemetry.h"
 
@@ -66,7 +66,7 @@ GMPParent::GMPParent()
   , mChildPid(0)
   , mHoldingSelfRef(false)
 {
-  mPluginId = GoannaChildProcessHost::GetUniqueID();
+  mPluginId = GeckoChildProcessHost::GetUniqueID();
   LOGD("GMPParent ctor id=%u", mPluginId);
 }
 
@@ -99,7 +99,7 @@ GMPParent::CloneFrom(const GMPParent* aOther)
 }
 
 RefPtr<GenericPromise>
-GMPParent::Init(GoannaMediaPluginServiceParent* aService, nsIFile* aPluginDir)
+GMPParent::Init(GeckoMediaPluginServiceParent* aService, nsIFile* aPluginDir)
 {
   MOZ_ASSERT(aPluginDir);
   MOZ_ASSERT(aService);
@@ -335,7 +335,7 @@ GMPParent::ChildTerminated()
   } else {
     gmpThread->Dispatch(NewRunnableMethod<RefPtr<GMPParent>>(
                          mService,
-                         &GoannaMediaPluginServiceParent::PluginTerminated,
+                         &GeckoMediaPluginServiceParent::PluginTerminated,
                          self),
                          NS_DISPATCH_NORMAL);
   }
@@ -378,7 +378,7 @@ nsIThread*
 GMPParent::GMPThread()
 {
   if (!mGMPThread) {
-    nsCOMPtr<mozIGoannaMediaPluginService> mps = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+    nsCOMPtr<mozIGeckoMediaPluginService> mps = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
     MOZ_ASSERT(mps);
     if (!mps) {
       return nullptr;
@@ -483,7 +483,7 @@ GMPParent::AllocPCrashReporterParent(const NativeThreadId& aThread)
 {
   MOZ_ASSERT(false, "Should only be sent if crash reporting is enabled.");
   CrashReporterParent* cr = new CrashReporterParent();
-  cr->SetChildData(aThread, GoannaProcessType_GMPlugin);
+  cr->SetChildData(aThread, GeckoProcessType_GMPlugin);
   return cr;
 }
 

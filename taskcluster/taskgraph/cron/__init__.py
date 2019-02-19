@@ -32,7 +32,7 @@ JOB_TYPES = {
     'decision-task': decision.run_decision_task,
 }
 
-GOANNA = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
+GECKO = os.path.realpath(os.path.join(__file__, '..', '..', '..', '..'))
 logger = logging.getLogger(__name__)
 _session = None
 
@@ -45,7 +45,7 @@ def get_session():
 
 
 def load_jobs(params):
-    with open(os.path.join(GOANNA, '.cron.yml'), 'rb') as f:
+    with open(os.path.join(GECKO, '.cron.yml'), 'rb') as f:
         cron_yml = yaml.load(f)
     schema.validate(cron_yml)
 

@@ -13,7 +13,7 @@
 #include "AudioConduit.h"
 #include "runnable_utils.h"
 
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 #include "nsServiceManagerUtils.h"
 #include "GMPVideoDecoderProxy.h"
 #include "GMPVideoEncoderProxy.h"
@@ -152,7 +152,7 @@ WebrtcGmpVideoEncoder::InitEncode(const webrtc::VideoCodec* aCodecSettings,
                                   uint32_t aMaxPayloadSize)
 {
   if (!mMPS) {
-    mMPS = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+    mMPS = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   }
   MOZ_ASSERT(mMPS);
 
@@ -675,7 +675,7 @@ WebrtcGmpVideoDecoder::InitDecode(const webrtc::VideoCodec* aCodecSettings,
                                   int32_t aNumberOfCores)
 {
   if (!mMPS) {
-    mMPS = do_GetService("@mozilla.org/goanna-media-plugin-service;1");
+    mMPS = do_GetService("@mozilla.org/gecko-media-plugin-service;1");
   }
   MOZ_ASSERT(mMPS);
 

@@ -37,7 +37,7 @@
 #include "nsPoint.h"                    // for nsPoint
 #include "nsTArray.h"                   // for nsTArray, nsTArray_Impl, etc
 #include "TreeTraversal.h"              // for ForEachNode
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "mozilla/layers/TextureHost.h"
 #include "mozilla/layers/AsyncCompositionManager.h"
 
@@ -144,7 +144,7 @@ mozilla::ipc::IPCResult
 LayerTransactionParent::RecvUpdate(const TransactionInfo& aInfo,
                                    InfallibleTArray<EditReply>* reply)
 {
-  GoannaProfilerTracingRAII tracer("Paint", "LayerTransaction");
+  GeckoProfilerTracingRAII tracer("Paint", "LayerTransaction");
   PROFILER_LABEL("LayerTransactionParent", "RecvUpdate",
     js::ProfileEntry::Category::GRAPHICS);
 
@@ -645,7 +645,7 @@ LayerTransactionParent::RecvUpdate(const TransactionInfo& aInfo,
 #ifdef COMPOSITOR_PERFORMANCE_WARNING
   int compositeTime = (int)(mozilla::TimeStamp::Now() - updateStart).ToMilliseconds();
   if (compositeTime > 15) {
-    printf_stderr("Compositor: Layers update took %i ms (blocking goanna).\n", compositeTime);
+    printf_stderr("Compositor: Layers update took %i ms (blocking gecko).\n", compositeTime);
   }
 #endif
 

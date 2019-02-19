@@ -868,7 +868,7 @@ this.PluginCrashReporter = {
    * @param runID
    *        The runID of the plugin that crashed. A run ID is a unique
    *        identifier for a particular run of a plugin process - and is
-   *        analogous to a process ID (though it is managed by Goanna instead
+   *        analogous to a process ID (though it is managed by Gecko instead
    *        of the operating system).
    * @param keyVals
    *        An object whose key-value pairs will be merged

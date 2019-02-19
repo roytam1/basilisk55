@@ -82,7 +82,7 @@
         <item name="android:minWidth">@dimen/doorhanger_input_width</item>
     </style>
 
-    <style name="Widget.GoannaMenuListView" parent="Widget.ListView">
+    <style name="Widget.GeckoMenuListView" parent="Widget.ListView">
         <item name="android:listSelector">@drawable/menu_item_action_bar_bg</item>
         <item name="android:divider">@null</item>
         <item name="android:dividerHeight">0dp</item>
@@ -282,10 +282,10 @@
 
     <!--
         TextAppearance
-        Note: Goanna uses light theme as default, while Android uses dark.
+        Note: Gecko uses light theme as default, while Android uses dark.
         If Android convention has to be followd, the list of colors specified 
         in themes.xml would be inverse, and things would get confusing.
-        Hence, Goanna's TextAppearance is based on text over light theme and
+        Hence, Gecko's TextAppearance is based on text over light theme and
         TextAppearance.Inverse is based on text over dark theme.
     -->
     <style name="TextAppearance">
@@ -621,12 +621,12 @@
 
     <!-- Ideally, we use the same style for the action bar & action mode, but unfortunately
          some attrs that share a purpose have different names so instead we inherit. -->
-    <style name="GoannaActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="GeckoActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:colorBackground">@color/action_bar_bg_color</item>
         <item name="colorAccent">@color/fennec_ui_orange</item>
         <item name="colorControlNormal">@color/toolbar_icon_grey</item>
     </style>
-    <style name="GoannaActionBar.ActionMode">
+    <style name="GeckoActionBar.ActionMode">
         <item name="android:background">@color/action_bar_bg_color</item>
         <!-- Note: the bottom divider is drawn in code. -->
     </style>
@@ -635,7 +635,7 @@
         <item name="displayOptions">showHome|homeAsUp|showTitle</item>
     </style>
 
-    <style name="GoannaActionBar.Title">
+    <style name="GeckoActionBar.Title">
         <item name="android:gravity">center_vertical</item>
         <item name="android:minWidth">0dp</item>
         <item name="android:background">@android:color/transparent</item>
@@ -649,11 +649,11 @@
         <item name="android:contentDescription">@string/actionbar_done</item>
     </style>
 
-    <style name="GoannaActionBar.Button" parent="Widget.MenuItemActionBar">
+    <style name="GeckoActionBar.Button" parent="Widget.MenuItemActionBar">
         <item name="android:padding">8dp</item>
     </style>
 
-    <style name="GoannaActionBar.Button.MenuButton">
+    <style name="GeckoActionBar.Button.MenuButton">
         <item name="android:scaleType">center</item>
         <item name="android:src">@drawable/menu</item>
         <item name="android:tint">@color/toolbar_icon_grey</item>
@@ -661,7 +661,7 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="GoannaActionBar.Buttons">
+    <style name="GeckoActionBar.Buttons">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textColor">@color/placeholder_active_grey</item>
         <item name="android:gravity">right|end</item>

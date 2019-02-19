@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:goanna="http://schemas.android.com/apk/res-auto"
+    xmlns:gecko="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -14,12 +14,12 @@
         android:layout_height="wrap_content"
         android:padding="10dp">
 
-        <org.mozilla.goanna.widget.FaviconView
+        <org.mozilla.gecko.widget.FaviconView
             android:id="@+id/icon"
             android:layout_width="@dimen/favicon_bg"
             android:layout_height="@dimen/favicon_bg"
             android:layout_gravity="center"
-            goanna:enableRoundCorners="false"
+            gecko:enableRoundCorners="false"
             tools:background="@drawable/favicon_globe"/>
 
         <TextView

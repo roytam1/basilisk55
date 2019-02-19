@@ -56,7 +56,7 @@ public:
    * The callback method for |GonkSensorsRegistryInterface::RegisterModule|.
    *
    * @param aProtocolVersion The daemon's protocol version. Make sure it's
-   *                         compatible with Goanna's implementation.
+   *                         compatible with Gecko's implementation.
    */
   virtual void RegisterModule(uint32_t aProtocolVersion);
 

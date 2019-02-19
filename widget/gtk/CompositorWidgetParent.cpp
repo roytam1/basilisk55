@@ -13,7 +13,7 @@ CompositorWidgetParent::CompositorWidgetParent(const CompositorWidgetInitData& a
                                                const layers::CompositorOptions& aOptions)
  : X11CompositorWidget(aInitData, aOptions)
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_GPU);
 }
 
 CompositorWidgetParent::~CompositorWidgetParent()
@@ -34,7 +34,7 @@ CompositorWidgetParent::ObserveVsync(VsyncObserver* aObserver)
 RefPtr<VsyncObserver>
 CompositorWidgetParent::GetVsyncObserver() const
 {
-  MOZ_ASSERT(XRE_GetProcessType() == GoannaProcessType_GPU);
+  MOZ_ASSERT(XRE_GetProcessType() == GeckoProcessType_GPU);
   return mVsyncObserver;
 }
 

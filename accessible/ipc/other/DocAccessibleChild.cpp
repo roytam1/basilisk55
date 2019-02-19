@@ -249,7 +249,7 @@ DocAccessibleChild::RecvRelations(const uint64_t& aID,
   if (!acc)
     return IPC_OK();
 
-#define RELATIONTYPE(goanna, s, a, m, i) AddRelation(acc, RelationType::goanna, aRelations);
+#define RELATIONTYPE(gecko, s, a, m, i) AddRelation(acc, RelationType::gecko, aRelations);
 
 #include "RelationTypeMap.h"
 #undef RELATIONTYPE

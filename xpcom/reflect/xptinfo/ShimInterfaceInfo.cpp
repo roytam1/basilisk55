@@ -275,15 +275,15 @@ struct ComponentsInterfaceShimEntry {
   constexpr
   ComponentsInterfaceShimEntry(const char* aName, const nsIID& aIID,
                                const dom::NativePropertyHooks* aNativePropHooks)
-    : goannaName(aName), iid(aIID), nativePropHooks(aNativePropHooks) {}
+    : geckoName(aName), iid(aIID), nativePropHooks(aNativePropHooks) {}
 
-  const char *goannaName;
+  const char *geckoName;
   const nsIID& iid;
   const dom::NativePropertyHooks* nativePropHooks;
 };
 
-#define DEFINE_SHIM_WITH_CUSTOM_INTERFACE(goannaName, domName) \
-  { #goannaName, NS_GET_IID(goannaName), \
+#define DEFINE_SHIM_WITH_CUSTOM_INTERFACE(geckoName, domName) \
+  { #geckoName, NS_GET_IID(geckoName), \
      mozilla::dom::domName ## Binding::sNativePropertyHooks }
 #define DEFINE_SHIM(name) \
   DEFINE_SHIM_WITH_CUSTOM_INTERFACE(nsIDOM ## name, name)
@@ -466,11 +466,11 @@ ShimInterfaceInfo::MaybeConstruct(const char* aName, JSContext* cx)
 {
     RefPtr<ShimInterfaceInfo> info;
     for (uint32_t i = 0; i < ArrayLength(kComponentsInterfaceShimMap); ++i) {
-        if (!strcmp(aName, kComponentsInterfaceShimMap[i].goannaName)) {
+        if (!strcmp(aName, kComponentsInterfaceShimMap[i].geckoName)) {
             const ComponentsInterfaceShimEntry& shimEntry =
                 kComponentsInterfaceShimMap[i];
             info = new ShimInterfaceInfo(shimEntry.iid,
-                                         shimEntry.goannaName,
+                                         shimEntry.geckoName,
                                          shimEntry.nativePropHooks);
             break;
         }

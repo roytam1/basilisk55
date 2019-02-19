@@ -76,7 +76,7 @@ const LegacyPerformanceFront = Class({
 
     // Sets `this._profiler`, `this._timeline`.
     // Only initialize the timeline fronts if the respective actors
-    // are available. Older Goanna versions don't have existing implementations,
+    // are available. Older Gecko versions don't have existing implementations,
     // in which case all the methods we need can be easily mocked.
     yield this._connectActors();
     yield this._registerListeners();
@@ -277,7 +277,7 @@ const LegacyPerformanceFront = Class({
     // All actors are started asynchronously over the remote debugging protocol.
     // Get the corresponding start times from each one of them.
     // The timeline actors are target-dependent, so start those as well,
-    // even though these are mocked in older Goannas (FF < 35)
+    // even though these are mocked in older Geckos (FF < 35)
     let profilerStart = this._profiler.start(options);
     let timelineStart = this._timeline.start(options);
 

@@ -284,7 +284,7 @@ class BaseWindow(BaseLib):
          triggered with the current :class:`BaseWindow` as parameter.
          Defaults to `window.open()`.
 
-        :param force: Optional, forces the closing of the window by using the Goanna API.
+        :param force: Optional, forces the closing of the window by using the Gecko API.
          Defaults to `False`.
         """
         self.switch_to()

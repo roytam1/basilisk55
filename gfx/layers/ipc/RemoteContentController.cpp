@@ -68,7 +68,7 @@ RemoteContentController::HandleTap(TapType aTapType,
 {
   APZThreadUtils::AssertOnControllerThread();
 
-  if (XRE_GetProcessType() == GoannaProcessType_GPU) {
+  if (XRE_GetProcessType() == GeckoProcessType_GPU) {
     MOZ_ASSERT(MessageLoop::current() == mCompositorThread);
 
     // The raw pointer to APZCTreeManagerParent is ok here because we are on the
@@ -125,8 +125,8 @@ RemoteContentController::NotifyPinchGesture(PinchGestureInput::PinchGestureType 
   // delegate to that instead.
   if (XRE_IsParentProcess()) {
     MOZ_ASSERT(NS_IsMainThread());
-    RefPtr<GoannaContentController> rootController =
-        CompositorBridgeParent::GetGoannaContentControllerForRoot(aGuid.mLayersId);
+    RefPtr<GeckoContentController> rootController =
+        CompositorBridgeParent::GetGeckoContentControllerForRoot(aGuid.mLayersId);
     if (rootController) {
       rootController->NotifyPinchGesture(aType, aGuid, aSpanChange, aModifiers);
     }

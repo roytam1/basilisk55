@@ -51,7 +51,7 @@ function* getSystemInfo() {
     brandName;
   let appid = appInfo.ID;
   let apptype = APP_MAP[appid];
-  let goannaVersion = appInfo.platformVersion;
+  let geckoVersion = appInfo.platformVersion;
   let hardware = "unknown";
   let version = "unknown";
 
@@ -111,7 +111,7 @@ function* getSystemInfo() {
 
     // The application's version, for example "0.8.0+" or "3.7a1pre".
     // Typically, the version of Firefox, for example.
-    // It is different than the version of Goanna or the XULRunner platform.
+    // It is different than the version of Gecko or the XULRunner platform.
     // On B2G, this is the Gaia version.
     version,
 
@@ -121,15 +121,15 @@ function* getSystemInfo() {
     // The application's changeset.
     changeset: exports.getAppIniString("App", "SourceStamp"),
 
-    // The build ID/date of Goanna and the XULRunner platform.
+    // The build ID/date of Gecko and the XULRunner platform.
     platformbuildid: appInfo.platformBuildID,
-    goannabuildid: appInfo.platformBuildID,
+    geckobuildid: appInfo.platformBuildID,
 
-    // The version of Goanna or XULRunner platform, for example "1.8.1.19" or
+    // The version of Gecko or XULRunner platform, for example "1.8.1.19" or
     // "1.9.3pre". In "Firefox 3.7 alpha 1" the application version is "3.7a1pre"
     // while the platform version is "1.9.3pre"
-    platformversion: goannaVersion,
-    goannaversion: goannaVersion,
+    platformversion: geckoVersion,
+    geckoversion: geckoVersion,
 
     // Locale used in this build
     locale: Cc["@mozilla.org/chrome/chrome-registry;1"]

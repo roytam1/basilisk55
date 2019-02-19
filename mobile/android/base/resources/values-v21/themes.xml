@@ -8,16 +8,16 @@
     <!--
         Base application theme.
     -->
-    <style name="GoannaBase" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="GeckoBase" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/text_and_tabs_tray_grey</item>
         <item name="colorPrimaryDark">@color/text_and_tabs_tray_grey</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:alertDialogTheme">@style/GoannaAlertDialog</item>
+        <item name="android:alertDialogTheme">@style/GeckoAlertDialog</item>
     </style>
 
-    <style name="GoannaAlertDialog" parent="@android:style/Theme.Material.Light.Dialog.Alert">
+    <style name="GeckoAlertDialog" parent="@android:style/Theme.Material.Light.Dialog.Alert">
         <item name="android:colorAccent">@color/fennec_ui_orange</item>
     </style>
 
@@ -26,8 +26,8 @@
         <item name="android:titleTextStyle">@style/ActionBarTitleTextStyle</item>
     </style>
 
-    <style name="GoannaAppBase" parent="Goanna">
-        <item name="android:actionButtonStyle">@style/GoannaActionBar.Button</item>
+    <style name="GeckoAppBase" parent="Gecko">
+        <item name="android:actionButtonStyle">@style/GeckoActionBar.Button</item>
         <item name="android:listViewStyle">@style/Widget.ListView</item>
         <item name="android:spinnerDropDownItemStyle">@style/Widget.DropDownItem.Spinner</item>
         <item name="android:spinnerItemStyle">@style/Widget.TextView.SpinnerItem</item>

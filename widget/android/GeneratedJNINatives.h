@@ -61,17 +61,17 @@ public:
 template<class Impl>
 const JNINativeMethod EventDispatcher::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<EventDispatcher::DispatchToGoanna_t>(
-            mozilla::jni::NativeStub<EventDispatcher::DispatchToGoanna_t, Impl>
-            ::template Wrap<&Impl::DispatchToGoanna>),
+    mozilla::jni::MakeNativeMethod<EventDispatcher::DispatchToGecko_t>(
+            mozilla::jni::NativeStub<EventDispatcher::DispatchToGecko_t, Impl>
+            ::template Wrap<&Impl::DispatchToGecko>),
 
     mozilla::jni::MakeNativeMethod<EventDispatcher::DisposeNative_t>(
             mozilla::jni::NativeStub<EventDispatcher::DisposeNative_t, Impl>
             ::template Wrap<&Impl::DisposeNative>),
 
-    mozilla::jni::MakeNativeMethod<EventDispatcher::HasGoannaListener_t>(
-            mozilla::jni::NativeStub<EventDispatcher::HasGoannaListener_t, Impl>
-            ::template Wrap<&Impl::HasGoannaListener>)
+    mozilla::jni::MakeNativeMethod<EventDispatcher::HasGeckoListener_t>(
+            mozilla::jni::NativeStub<EventDispatcher::HasGeckoListener_t, Impl>
+            ::template Wrap<&Impl::HasGeckoListener>)
 };
 
 template<class Impl>
@@ -98,218 +98,218 @@ const JNINativeMethod EventDispatcher::NativeCallbackDelegate::Natives<Impl>::me
 };
 
 template<class Impl>
-class GoannaAppShell::Natives : public mozilla::jni::NativeImpl<GoannaAppShell, Impl>
+class GeckoAppShell::Natives : public mozilla::jni::NativeImpl<GeckoAppShell, Impl>
 {
 public:
     static const JNINativeMethod methods[9];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaAppShell::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoAppShell::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::NotifyObservers_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::NotifyObservers_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::NotifyObservers_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::NotifyObservers_t, Impl>
             ::template Wrap<&Impl::NotifyObservers>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::NotifyPushObservers_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::NotifyPushObservers_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::NotifyPushObservers_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::NotifyPushObservers_t, Impl>
             ::template Wrap<&Impl::NotifyPushObservers>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::NotifyAlertListener_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::NotifyAlertListener_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::NotifyAlertListener_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::NotifyAlertListener_t, Impl>
             ::template Wrap<&Impl::NotifyAlertListener>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::NotifyUriVisited_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::NotifyUriVisited_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::NotifyUriVisited_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::NotifyUriVisited_t, Impl>
             ::template Wrap<&Impl::NotifyUriVisited>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::OnFullScreenPluginHidden_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::OnFullScreenPluginHidden_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::OnFullScreenPluginHidden_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::OnFullScreenPluginHidden_t, Impl>
             ::template Wrap<&Impl::OnFullScreenPluginHidden>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::OnLocationChanged_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::OnLocationChanged_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::OnLocationChanged_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::OnLocationChanged_t, Impl>
             ::template Wrap<&Impl::OnLocationChanged>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::OnSensorChanged_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::OnSensorChanged_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::OnSensorChanged_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::OnSensorChanged_t, Impl>
             ::template Wrap<&Impl::OnSensorChanged>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::ReportJavaCrash_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::ReportJavaCrash_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::ReportJavaCrash_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::ReportJavaCrash_t, Impl>
             ::template Wrap<&Impl::ReportJavaCrash>),
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::SyncNotifyObservers_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::SyncNotifyObservers_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::SyncNotifyObservers_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::SyncNotifyObservers_t, Impl>
             ::template Wrap<&Impl::SyncNotifyObservers>)
 };
 
 template<class Impl>
-class GoannaAppShell::CameraCallback::Natives : public mozilla::jni::NativeImpl<CameraCallback, Impl>
+class GeckoAppShell::CameraCallback::Natives : public mozilla::jni::NativeImpl<CameraCallback, Impl>
 {
 public:
     static const JNINativeMethod methods[1];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaAppShell::CameraCallback::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoAppShell::CameraCallback::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaAppShell::CameraCallback::OnFrameData_t>(
-            mozilla::jni::NativeStub<GoannaAppShell::CameraCallback::OnFrameData_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoAppShell::CameraCallback::OnFrameData_t>(
+            mozilla::jni::NativeStub<GeckoAppShell::CameraCallback::OnFrameData_t, Impl>
             ::template Wrap<&Impl::OnFrameData>)
 };
 
 template<class Impl>
-class GoannaBatteryManager::Natives : public mozilla::jni::NativeImpl<GoannaBatteryManager, Impl>
+class GeckoBatteryManager::Natives : public mozilla::jni::NativeImpl<GeckoBatteryManager, Impl>
 {
 public:
     static const JNINativeMethod methods[1];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaBatteryManager::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoBatteryManager::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaBatteryManager::OnBatteryChange_t>(
-            mozilla::jni::NativeStub<GoannaBatteryManager::OnBatteryChange_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoBatteryManager::OnBatteryChange_t>(
+            mozilla::jni::NativeStub<GeckoBatteryManager::OnBatteryChange_t, Impl>
             ::template Wrap<&Impl::OnBatteryChange>)
 };
 
 template<class Impl>
-class GoannaEditable::Natives : public mozilla::jni::NativeImpl<GoannaEditable, Impl>
+class GeckoEditable::Natives : public mozilla::jni::NativeImpl<GeckoEditable, Impl>
 {
 public:
     static const JNINativeMethod methods[7];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaEditable::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoEditable::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::DisposeNative_t>(
-            mozilla::jni::NativeStub<GoannaEditable::DisposeNative_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::DisposeNative_t>(
+            mozilla::jni::NativeStub<GeckoEditable::DisposeNative_t, Impl>
             ::template Wrap<&Impl::DisposeNative>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnImeAddCompositionRange_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnImeAddCompositionRange_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnImeAddCompositionRange_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnImeAddCompositionRange_t, Impl>
             ::template Wrap<&Impl::OnImeAddCompositionRange>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnImeReplaceText_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnImeReplaceText_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnImeReplaceText_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnImeReplaceText_t, Impl>
             ::template Wrap<&Impl::OnImeReplaceText>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnImeRequestCursorUpdates_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnImeRequestCursorUpdates_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnImeRequestCursorUpdates_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnImeRequestCursorUpdates_t, Impl>
             ::template Wrap<&Impl::OnImeRequestCursorUpdates>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnImeSynchronize_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnImeSynchronize_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnImeSynchronize_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnImeSynchronize_t, Impl>
             ::template Wrap<&Impl::OnImeSynchronize>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnImeUpdateComposition_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnImeUpdateComposition_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnImeUpdateComposition_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnImeUpdateComposition_t, Impl>
             ::template Wrap<&Impl::OnImeUpdateComposition>),
 
-    mozilla::jni::MakeNativeMethod<GoannaEditable::OnKeyEvent_t>(
-            mozilla::jni::NativeStub<GoannaEditable::OnKeyEvent_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoEditable::OnKeyEvent_t>(
+            mozilla::jni::NativeStub<GeckoEditable::OnKeyEvent_t, Impl>
             ::template Wrap<&Impl::OnKeyEvent>)
 };
 
 template<class Impl>
-class GoannaNetworkManager::Natives : public mozilla::jni::NativeImpl<GoannaNetworkManager, Impl>
+class GeckoNetworkManager::Natives : public mozilla::jni::NativeImpl<GeckoNetworkManager, Impl>
 {
 public:
     static const JNINativeMethod methods[2];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaNetworkManager::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoNetworkManager::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaNetworkManager::OnConnectionChanged_t>(
-            mozilla::jni::NativeStub<GoannaNetworkManager::OnConnectionChanged_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoNetworkManager::OnConnectionChanged_t>(
+            mozilla::jni::NativeStub<GeckoNetworkManager::OnConnectionChanged_t, Impl>
             ::template Wrap<&Impl::OnConnectionChanged>),
 
-    mozilla::jni::MakeNativeMethod<GoannaNetworkManager::OnStatusChanged_t>(
-            mozilla::jni::NativeStub<GoannaNetworkManager::OnStatusChanged_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoNetworkManager::OnStatusChanged_t>(
+            mozilla::jni::NativeStub<GeckoNetworkManager::OnStatusChanged_t, Impl>
             ::template Wrap<&Impl::OnStatusChanged>)
 };
 
 template<class Impl>
-class GoannaScreenOrientation::Natives : public mozilla::jni::NativeImpl<GoannaScreenOrientation, Impl>
+class GeckoScreenOrientation::Natives : public mozilla::jni::NativeImpl<GeckoScreenOrientation, Impl>
 {
 public:
     static const JNINativeMethod methods[1];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaScreenOrientation::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoScreenOrientation::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaScreenOrientation::OnOrientationChange_t>(
-            mozilla::jni::NativeStub<GoannaScreenOrientation::OnOrientationChange_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoScreenOrientation::OnOrientationChange_t>(
+            mozilla::jni::NativeStub<GeckoScreenOrientation::OnOrientationChange_t, Impl>
             ::template Wrap<&Impl::OnOrientationChange>)
 };
 
 template<class Impl>
-class GoannaThread::Natives : public mozilla::jni::NativeImpl<GoannaThread, Impl>
+class GeckoThread::Natives : public mozilla::jni::NativeImpl<GeckoThread, Impl>
 {
 public:
     static const JNINativeMethod methods[6];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaThread::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoThread::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::CreateServices_t>(
-            mozilla::jni::NativeStub<GoannaThread::CreateServices_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoThread::CreateServices_t>(
+            mozilla::jni::NativeStub<GeckoThread::CreateServices_t, Impl>
             ::template Wrap<&Impl::CreateServices>),
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::OnPause_t>(
-            mozilla::jni::NativeStub<GoannaThread::OnPause_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoThread::OnPause_t>(
+            mozilla::jni::NativeStub<GeckoThread::OnPause_t, Impl>
             ::template Wrap<&Impl::OnPause>),
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::OnResume_t>(
-            mozilla::jni::NativeStub<GoannaThread::OnResume_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoThread::OnResume_t>(
+            mozilla::jni::NativeStub<GeckoThread::OnResume_t, Impl>
             ::template Wrap<&Impl::OnResume>),
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::RunUiThreadCallback_t>(
-            mozilla::jni::NativeStub<GoannaThread::RunUiThreadCallback_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoThread::RunUiThreadCallback_t>(
+            mozilla::jni::NativeStub<GeckoThread::RunUiThreadCallback_t, Impl>
             ::template Wrap<&Impl::RunUiThreadCallback>),
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::SpeculativeConnect_t>(
-            mozilla::jni::NativeStub<GoannaThread::SpeculativeConnect_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoThread::SpeculativeConnect_t>(
+            mozilla::jni::NativeStub<GeckoThread::SpeculativeConnect_t, Impl>
             ::template Wrap<&Impl::SpeculativeConnect>),
 
-    mozilla::jni::MakeNativeMethod<GoannaThread::WaitOnGoanna_t>(
-            mozilla::jni::NativeStub<GoannaThread::WaitOnGoanna_t, Impl>
-            ::template Wrap<&Impl::WaitOnGoanna>)
+    mozilla::jni::MakeNativeMethod<GeckoThread::WaitOnGecko_t>(
+            mozilla::jni::NativeStub<GeckoThread::WaitOnGecko_t, Impl>
+            ::template Wrap<&Impl::WaitOnGecko>)
 };
 
 template<class Impl>
-class GoannaView::Window::Natives : public mozilla::jni::NativeImpl<Window, Impl>
+class GeckoView::Window::Natives : public mozilla::jni::NativeImpl<Window, Impl>
 {
 public:
     static const JNINativeMethod methods[5];
 };
 
 template<class Impl>
-const JNINativeMethod GoannaView::Window::Natives<Impl>::methods[] = {
+const JNINativeMethod GeckoView::Window::Natives<Impl>::methods[] = {
 
-    mozilla::jni::MakeNativeMethod<GoannaView::Window::Close_t>(
-            mozilla::jni::NativeStub<GoannaView::Window::Close_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoView::Window::Close_t>(
+            mozilla::jni::NativeStub<GeckoView::Window::Close_t, Impl>
             ::template Wrap<&Impl::Close>),
 
-    mozilla::jni::MakeNativeMethod<GoannaView::Window::DisposeNative_t>(
-            mozilla::jni::NativeStub<GoannaView::Window::DisposeNative_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoView::Window::DisposeNative_t>(
+            mozilla::jni::NativeStub<GeckoView::Window::DisposeNative_t, Impl>
             ::template Wrap<&Impl::DisposeNative>),
 
-    mozilla::jni::MakeNativeMethod<GoannaView::Window::LoadUri_t>(
-            mozilla::jni::NativeStub<GoannaView::Window::LoadUri_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoView::Window::LoadUri_t>(
+            mozilla::jni::NativeStub<GeckoView::Window::LoadUri_t, Impl>
             ::template Wrap<&Impl::LoadUri>),
 
-    mozilla::jni::MakeNativeMethod<GoannaView::Window::Open_t>(
-            mozilla::jni::NativeStub<GoannaView::Window::Open_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoView::Window::Open_t>(
+            mozilla::jni::NativeStub<GeckoView::Window::Open_t, Impl>
             ::template Wrap<&Impl::Open>),
 
-    mozilla::jni::MakeNativeMethod<GoannaView::Window::Reattach_t>(
-            mozilla::jni::NativeStub<GoannaView::Window::Reattach_t, Impl>
+    mozilla::jni::MakeNativeMethod<GeckoView::Window::Reattach_t>(
+            mozilla::jni::NativeStub<GeckoView::Window::Reattach_t, Impl>
             ::template Wrap<&Impl::Reattach>)
 };
 

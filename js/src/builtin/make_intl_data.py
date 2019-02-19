@@ -1016,7 +1016,7 @@ def updateCurrency(topsrcdir, args):
         request = urllib2.Request(url)
         # Fake a random user agent string to circumvent the bot detection from
         # currency-iso.org...
-        request.add_header("User-agent", "Mozilla/5.0 (Mobile; rv:{0}.0) Goanna/{0}.0 Firefox/{0}.0".format(randint(1, 999)))
+        request.add_header("User-agent", "Mozilla/5.0 (Mobile; rv:{0}.0) Gecko/{0}.0 Firefox/{0}.0".format(randint(1, 999)))
         with closing(urllib2.urlopen(request)) as currencyFile:
             fname = urlparse.urlsplit(currencyFile.geturl()).path.split("/")[-1]
             with tempfile.NamedTemporaryFile(suffix=fname) as currencyTmpFile:

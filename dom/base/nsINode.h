@@ -183,7 +183,7 @@ enum {
 
   NODE_IS_ROOT_OF_CHROME_ONLY_ACCESS =    NODE_FLAG_BIT(20),
 
-  // These two bits are shared by Goanna's and Servo's restyle systems for
+  // These two bits are shared by Gecko's and Servo's restyle systems for
   // different purposes. They should not be accessed directly, and access to
   // them should be properly guarded by asserts.
   //
@@ -989,7 +989,7 @@ public:
   bool IsStyledByServo() const { return false; }
 #endif
 
-  inline void UnsetRestyleFlagsIfGoanna();
+  inline void UnsetRestyleFlagsIfGecko();
 
   /**
    * Adds a mutation observer to be notified when this node, or any of its

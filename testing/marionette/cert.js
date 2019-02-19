@@ -41,7 +41,7 @@ this.cert = {
  * implementation to be registered with the |nsIComponentRegistrar|.
  *
  * After |service| is registered and made the |cert.currentOverride|,
- * |nsICertOverrideService| is reinitialised to cause all Goanna components
+ * |nsICertOverrideService| is reinitialised to cause all Gecko components
  * to pick up the new service.
  *
  * If an override is already installed, i.e. when |cert.currentOverride|

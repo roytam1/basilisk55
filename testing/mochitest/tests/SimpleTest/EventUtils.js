@@ -920,7 +920,7 @@ const KEYBOARD_LAYOUT_THAI =
  *                              aChar value.
  * @param aCallback             If provided, this callback will be invoked
  *                              once the native keys have been processed
- *                              by Goanna. Will never be called if this
+ *                              by Gecko. Will never be called if this
  *                              function returns false.
  * @return                      True if this function succeed dispatching
  *                              native key event.  Otherwise, false.

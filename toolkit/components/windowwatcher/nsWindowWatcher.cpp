@@ -2568,7 +2568,7 @@ nsWindowWatcher::GetWindowOpenLocation(nsPIDOMWindowOuter* aParent,
     if (restrictionPref == 2) {
       // Only continue if there are no size/position features and no special
       // chrome flags - with the exception of the remoteness and private flags,
-      // which might have been automatically flipped by Goanna.
+      // which might have been automatically flipped by Gecko.
       int32_t uiChromeFlags = aChromeFlags;
       uiChromeFlags &= ~(nsIWebBrowserChrome::CHROME_REMOTE_WINDOW |
                          nsIWebBrowserChrome::CHROME_PRIVATE_WINDOW |

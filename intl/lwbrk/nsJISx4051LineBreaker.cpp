@@ -555,7 +555,7 @@ GetClass(uint32_t u)
 
 #if ENABLE_INTL_API
   static_assert(U_LB_COUNT == mozilla::ArrayLength(sUnicodeLineBreakToClass),
-                "Goanna vs ICU LineBreak class mismatch");
+                "Gecko vs ICU LineBreak class mismatch");
 #endif
 
   auto cls = mozilla::unicode::GetLineBreakClass(u);

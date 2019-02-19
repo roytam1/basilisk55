@@ -204,7 +204,7 @@ class FirefoxUITests(TestingMixin, VCSToolsScript):
             '--workspace', dirs['abs_work_dir'],
 
             # logging options
-            '--goanna-log=-',  # output from the goanna process redirected to stdout
+            '--gecko-log=-',  # output from the gecko process redirected to stdout
             '--log-raw=-',  # structured log for output parser redirected to stdout
 
             # additional reports helpful for Jenkins and inpection via Treeherder

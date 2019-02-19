@@ -36,7 +36,7 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=1214366
   // It's useful to see *all* "link-visited" events in the face of intermittent failures.
   let observe = function(subject, topic, data) {
     var uri = subject.QueryInterface(Ci.nsIURI);
-    info("Witnessed " + topic + " notification from Goanna with URI " + uri.spec);
+    info("Witnessed " + topic + " notification from Gecko with URI " + uri.spec);
   }
   Services.obs.addObserver(observe, "link-visited", false);
 
@@ -45,7 +45,7 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=1214366
     Services.obs.removeObserver(observe, "link-visited");
   });
 
-  // N.b.: the write to the Fennec DB happens before the Goanna notification
+  // N.b.: the write to the Fennec DB happens before the Gecko notification
   // is fired.  This is delicate.
   function add_history_visit(url) {
     browser.loadURI(url, null, null);

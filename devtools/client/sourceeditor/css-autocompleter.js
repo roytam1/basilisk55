@@ -18,7 +18,7 @@ const {getClientCssProperties} = require("devtools/shared/fronts/css-properties"
  *  - CSS Selectors
  *  - Some other known CSS keywords
  *
- * Goanna provides a list of both property names and their corresponding values.
+ * Gecko provides a list of both property names and their corresponding values.
  * We take out a list of matching selectors using the Inspector actor's
  * `getSuggestionsForQuery` method. Now the only thing is to parse the CSS being
  * edited by the user, figure out what token or word is being written and last
@@ -41,7 +41,7 @@ const {getClientCssProperties} = require("devtools/shared/fronts/css-properties"
  *  - If the state is "value", the corresponding property name
  *
  * In case of "value" and "property" states, we simply use the information
- * provided by Goanna to filter out the possible suggestions.
+ * provided by Gecko to filter out the possible suggestions.
  * For "selector" state, we request the Inspector actor to query the page DOM
  * and filter out the possible suggestions.
  * For "media" and "keyframes" state, the only possible suggestions for now are

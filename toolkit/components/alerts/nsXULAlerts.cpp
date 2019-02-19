@@ -67,7 +67,7 @@ NS_IMPL_ISUPPORTS(nsXULAlerts, nsIAlertsService, nsIAlertsDoNotDisturb, nsIAlert
 /* static */ already_AddRefed<nsXULAlerts>
 nsXULAlerts::GetInstance()
 {
-  // Goanna on Android does not fully support XUL windows.
+  // Gecko on Android does not fully support XUL windows.
 #ifndef MOZ_WIDGET_ANDROID
   if (!gXULAlerts) {
     gXULAlerts = new nsXULAlerts();

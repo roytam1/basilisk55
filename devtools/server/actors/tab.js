@@ -115,7 +115,7 @@ function getInnerId(window) {
  *     * url (string) The new URI being loaded.
  *     * nativeConsoleAPI (boolean) `false` if the console API of the page has
  *                                          been overridden (e.g. by Firebug),
- *                                  `true`  if the Goanna implementation is used.
+ *                                  `true`  if the Gecko implementation is used.
  *     * state (string) `start` if we just start requesting the new URL,
  *                      `stop`  if the new URL is done loading.
  *     * isFrameSwitching (boolean) Indicates the event is dispatched when

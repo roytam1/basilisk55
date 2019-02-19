@@ -72,7 +72,7 @@ def expected_driver_args(runner):
                 assert k not in actual
 
     expected = ExpectedDict(host=None, port=None, bin=None)
-    for attr in ['app', 'app_args', 'profile', 'addons', 'goanna_log']:
+    for attr in ['app', 'app_args', 'profile', 'addons', 'gecko_log']:
         expected[attr] = getattr(runner, attr)
     return expected
 

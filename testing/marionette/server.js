@@ -51,11 +51,11 @@ this.MarionetteServer = function (port, forceLocal) {
 };
 
 /**
- * Function produces a GoannaDriver.
+ * Function produces a GeckoDriver.
  *
  * Determines application nameto initialise the driver with.
  *
- * @return {GoannaDriver}
+ * @return {GeckoDriver}
  *     A driver instance.
  */
 MarionetteServer.prototype.driverFactory = function() {
@@ -71,7 +71,7 @@ MarionetteServer.prototype.driverFactory = function() {
       Services.io.offline = false;
   }
 
-  return new GoannaDriver(appName, this);
+  return new GeckoDriver(appName, this);
 };
 
 MarionetteServer.prototype.__defineSetter__("acceptConnections", function (value) {

@@ -84,7 +84,7 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "nsIDOMWheelEvent.h"
 #include "mozilla/layers/ChromeProcessController.h"
@@ -150,14 +150,14 @@ static uint32_t gNumberOfWidgetsNeedingEventThread = 0;
 
 @interface ChildView(Private)
 
-// sets up our view, attaching it to its owning goanna view
-- (id)initWithFrame:(NSRect)inFrame goannaChild:(nsChildView*)inChild;
+// sets up our view, attaching it to its owning gecko view
+- (id)initWithFrame:(NSRect)inFrame geckoChild:(nsChildView*)inChild;
 
-// set up a goanna mouse event based on a cocoa mouse event
+// set up a gecko mouse event based on a cocoa mouse event
 - (void) convertCocoaMouseWheelEvent:(NSEvent*)aMouseEvent
-                        toGoannaEvent:(WidgetWheelEvent*)outWheelEvent;
+                        toGeckoEvent:(WidgetWheelEvent*)outWheelEvent;
 - (void) convertCocoaMouseEvent:(NSEvent*)aMouseEvent
-                   toGoannaEvent:(WidgetInputEvent*)outGoannaEvent;
+                   toGeckoEvent:(WidgetInputEvent*)outGeckoEvent;
 
 - (NSMenu*)contextMenu;
 
@@ -391,8 +391,8 @@ nsChildView::~nsChildView()
   // ever being called on it.  So we also need to do a quick, safe cleanup
   // here (it's too late to just call Destroy(), which can cause crashes).
   // It's particularly important to make sure widgetDestroyed is called on our
-  // mView -- this method NULLs mView's mGoannaChild, and NULL checks on
-  // mGoannaChild are used throughout the ChildView class to tell if it's safe
+  // mView -- this method NULLs mView's mGeckoChild, and NULL checks on
+  // mGeckoChild are used throughout the ChildView class to tell if it's safe
   // to use a ChildView object.
   [mView widgetDestroyed]; // Safe if mView is nil.
   mParentWidget = nil;
@@ -467,9 +467,9 @@ nsChildView::Create(nsIWidget* aParent,
     return NS_ERROR_FAILURE;
   }
 
-  // If this view was created in a Goanna view hierarchy, the initial state
+  // If this view was created in a Gecko view hierarchy, the initial state
   // is hidden.  If the view is attached only to a native NSView but has
-  // no Goanna parent (as in embedding), the initial state is visible.
+  // no Gecko parent (as in embedding), the initial state is visible.
   if (mParentWidget)
     [mView setHidden:YES];
   else
@@ -502,7 +502,7 @@ nsChildView::CreateCocoaView(NSRect inFrame)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  return [[[ChildView alloc] initWithFrame:inFrame goannaChild:this] autorelease];
+  return [[[ChildView alloc] initWithFrame:inFrame geckoChild:this] autorelease];
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NIL;
 }
@@ -550,7 +550,7 @@ nsChildView::GetXULWindowWidget()
 {
   id windowDelegate = [[mView window] delegate];
   if (windowDelegate && [windowDelegate isKindOfClass:[WindowDelegate class]]) {
-    return [(WindowDelegate *)windowDelegate goannaWidget];
+    return [(WindowDelegate *)windowDelegate geckoWidget];
   }
   return nullptr;
 }
@@ -695,7 +695,7 @@ bool nsChildView::IsVisible() const
 // they are unnecessary and because they actually slow us down since we
 // block on the compositor inside drawRect.
 // When we actually need something invalidated, there will be an explicit call
-// to Invalidate from Goanna, so turning these automatic invalidations off
+// to Invalidate from Gecko, so turning these automatic invalidations off
 // won't hurt us in the non-OMTC case.
 // The invalidations inside these NSView methods happen via a call to the
 // private method -[NSWindow _setNeedsDisplayInRect:]. Our BaseWindow
@@ -928,7 +928,7 @@ nsChildView::BackingScaleFactorChanged()
 
   mBackingScaleFactor = newScale;
   NSRect frame = [mView frame];
-  mBounds = nsCocoaUtils::CocoaRectToGoannaRectDevPix(frame, newScale);
+  mBounds = nsCocoaUtils::CocoaRectToGeckoRectDevPix(frame, newScale);
 
   if (mWidgetListener && !mWidgetListener->GetXULWindow()) {
     nsIPresShell* presShell = mWidgetListener->GetPresShell();
@@ -1600,7 +1600,7 @@ LayoutDeviceIntPoint nsChildView::WidgetToScreenOffset()
   origin = nsCocoaUtils::ConvertPointToScreen([mView window], origin);
 
   // 3. Since we're dealing in bottom-left coords, we need to make it top-left coords
-  //    before we pass it back to Goanna.
+  //    before we pass it back to Gecko.
   FlipCocoaScreenCoordinate(origin);
 
   // convert to device pixels
@@ -1798,15 +1798,15 @@ nsChildView::ExecuteNativeKeyBindingRemapped(NativeKeyBindingsType aType,
                                              const WidgetKeyboardEvent& aEvent,
                                              DoCommandCallback aCallback,
                                              void* aCallbackData,
-                                             uint32_t aGoannaKeyCode,
+                                             uint32_t aGeckoKeyCode,
                                              uint32_t aCocoaKeyCode)
 {
   NSEvent *originalEvent = reinterpret_cast<NSEvent*>(aEvent.mNativeKeyEvent);
 
   WidgetKeyboardEvent modifiedEvent(aEvent);
-  modifiedEvent.mKeyCode = aGoannaKeyCode;
+  modifiedEvent.mKeyCode = aGeckoKeyCode;
 
-  unichar ch = nsCocoaUtils::ConvertGoannaKeyCodeToMacCharCode(aGoannaKeyCode);
+  unichar ch = nsCocoaUtils::ConvertGeckoKeyCodeToMacCharCode(aGeckoKeyCode);
   NSString *chars =
     [[[NSString alloc] initWithCharacters:&ch length:1] autorelease];
 
@@ -1841,44 +1841,44 @@ nsChildView::ExecuteNativeKeyBinding(NativeKeyBindingsType aType,
     DispatchWindowEvent(query);
 
     if (query.mSucceeded && query.mReply.mWritingMode.IsVertical()) {
-      uint32_t goannaKey = 0;
+      uint32_t geckoKey = 0;
       uint32_t cocoaKey = 0;
 
       switch (aEvent.mKeyCode) {
       case NS_VK_LEFT:
         if (query.mReply.mWritingMode.IsVerticalLR()) {
-          goannaKey = NS_VK_UP;
+          geckoKey = NS_VK_UP;
           cocoaKey = kVK_UpArrow;
         } else {
-          goannaKey = NS_VK_DOWN;
+          geckoKey = NS_VK_DOWN;
           cocoaKey = kVK_DownArrow;
         }
         break;
 
       case NS_VK_RIGHT:
         if (query.mReply.mWritingMode.IsVerticalLR()) {
-          goannaKey = NS_VK_DOWN;
+          geckoKey = NS_VK_DOWN;
           cocoaKey = kVK_DownArrow;
         } else {
-          goannaKey = NS_VK_UP;
+          geckoKey = NS_VK_UP;
           cocoaKey = kVK_UpArrow;
         }
         break;
 
       case NS_VK_UP:
-        goannaKey = NS_VK_LEFT;
+        geckoKey = NS_VK_LEFT;
         cocoaKey = kVK_LeftArrow;
         break;
 
       case NS_VK_DOWN:
-        goannaKey = NS_VK_RIGHT;
+        geckoKey = NS_VK_RIGHT;
         cocoaKey = kVK_RightArrow;
         break;
       }
 
       return ExecuteNativeKeyBindingRemapped(aType, aEvent, aCallback,
                                              aCallbackData,
-                                             goannaKey, cocoaKey);
+                                             geckoKey, cocoaKey);
     }
   }
 
@@ -2639,21 +2639,21 @@ nsChildView::SendMayStartSwipe(const mozilla::PanGestureInput& aSwipeStartEvent)
     ? (uint32_t)nsIDOMSimpleGestureEvent::DIRECTION_RIGHT
     : (uint32_t)nsIDOMSimpleGestureEvent::DIRECTION_LEFT;
 
-  // We're ready to start the animation. Tell Goanna about it, and at the same
+  // We're ready to start the animation. Tell Gecko about it, and at the same
   // time ask it if it really wants to start an animation for this event.
   // This event also reports back the directions that we can swipe in.
   LayoutDeviceIntPoint position =
     RoundedToInt(aSwipeStartEvent.mPanStartPoint * ScreenToLayoutDeviceScale(1));
-  WidgetSimpleGestureEvent goannaEvent =
+  WidgetSimpleGestureEvent geckoEvent =
     SwipeTracker::CreateSwipeGestureEvent(eSwipeGestureMayStart, this,
                                           position,
                                           aSwipeStartEvent.mTimeStamp);
-  goannaEvent.mDirection = direction;
-  goannaEvent.mDelta = 0.0;
-  goannaEvent.mAllowedDirections = 0;
-  bool shouldStartSwipe = DispatchWindowEvent(goannaEvent); // event cancelled == swipe should start
+  geckoEvent.mDirection = direction;
+  geckoEvent.mDelta = 0.0;
+  geckoEvent.mAllowedDirections = 0;
+  bool shouldStartSwipe = DispatchWindowEvent(geckoEvent); // event cancelled == swipe should start
 
-  SwipeInfo result = { shouldStartSwipe, goannaEvent.mAllowedDirections };
+  SwipeInfo result = { shouldStartSwipe, geckoEvent.mAllowedDirections };
   return result;
 }
 
@@ -3224,13 +3224,13 @@ NSEvent* gLastDragMouseDownEvent = nil;
                                     nil]];
 }
 
-// initWithFrame:goannaChild:
-- (id)initWithFrame:(NSRect)inFrame goannaChild:(nsChildView*)inChild
+// initWithFrame:geckoChild:
+- (id)initWithFrame:(NSRect)inFrame geckoChild:(nsChildView*)inChild
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
   if ((self = [super initWithFrame:inFrame])) {
-    mGoannaChild = inChild;
+    mGeckoChild = inChild;
     mPendingDisplay = NO;
     mBlockedLastMouseDown = NO;
     mExpectingWheelStop = NO;
@@ -3292,7 +3292,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 - (NSTextInputContext *)inputContext
 {
   NSTextInputContext* pluginContext = NULL;
-  if (mGoannaChild && mGoannaChild->IsPluginFocused()) {
+  if (mGeckoChild && mGeckoChild->IsPluginFocused()) {
     ComplexTextInputPanel* ctiPanel =
       ComplexTextInputPanel::GetSharedComplexTextInputPanel();
     if (ctiPanel) {
@@ -3302,7 +3302,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
   if (pluginContext) {
     return pluginContext;
   } else {
-    if (!mGoannaChild) {
+    if (!mGeckoChild) {
       // -[ChildView widgetDestroyed] has been called, but
       // -[ChildView delayedTearDown] has not yet completed.  Accessing
       // [super inputContext] now would uselessly recreate a text input context
@@ -3387,34 +3387,34 @@ NSEvent* gLastDragMouseDownEvent = nil;
 - (void)widgetDestroyed
 {
   if (mTextInputHandler) {
-    mTextInputHandler->OnDestroyWidget(mGoannaChild);
+    mTextInputHandler->OnDestroyWidget(mGeckoChild);
     mTextInputHandler = nullptr;
   }
-  mGoannaChild = nullptr;
+  mGeckoChild = nullptr;
 
   // Just in case we're destroyed abruptly and missed the draggingExited
   // or performDragOperation message.
   NS_IF_RELEASE(mDragService);
 }
 
-// mozView method, return our goanna child view widget. Note this does not AddRef.
+// mozView method, return our gecko child view widget. Note this does not AddRef.
 - (nsIWidget*) widget
 {
-  return static_cast<nsIWidget*>(mGoannaChild);
+  return static_cast<nsIWidget*>(mGeckoChild);
 }
 
 - (void)systemMetricsChanged
 {
-  if (mGoannaChild)
-    mGoannaChild->NotifyThemeChanged();
+  if (mGeckoChild)
+    mGeckoChild->NotifyThemeChanged();
 }
 
 - (void)scrollbarSystemMetricChanged
 {
   [self systemMetricsChanged];
 
-  if (mGoannaChild) {
-    nsIWidgetListener* listener = mGoannaChild->GetWidgetListener();
+  if (mGeckoChild) {
+    nsIWidgetListener* listener = mGeckoChild->GetWidgetListener();
     if (listener) {
       nsIPresShell* presShell = listener->GetPresShell();
       if (presShell) {
@@ -3504,12 +3504,12 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  return [NSString stringWithFormat:@"ChildView %p, goanna child %p, frame %@", self, mGoannaChild, NSStringFromRect([self frame])];
+  return [NSString stringWithFormat:@"ChildView %p, gecko child %p, frame %@", self, mGeckoChild, NSStringFromRect([self frame])];
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NIL;
 }
 
-// Make the origin of this view the topLeft corner (goanna origin) rather
+// Make the origin of this view the topLeft corner (gecko origin) rather
 // than the bottomLeft corner (standard cocoa origin).
 - (BOOL)isFlipped
 {
@@ -3524,14 +3524,14 @@ NSEvent* gLastDragMouseDownEvent = nil;
 // XXX Is this really used?
 - (void)sendFocusEvent:(EventMessage)eventMessage
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
 
   nsEventStatus status = nsEventStatus_eIgnore;
-  WidgetGUIEvent focusGuiEvent(true, eventMessage, mGoannaChild);
+  WidgetGUIEvent focusGuiEvent(true, eventMessage, mGeckoChild);
   focusGuiEvent.mTime = PR_IntervalNow();
   focusGuiEvent.mTimeStamp = nsCocoaUtils::GetEventTimeStamp(0);
-  mGoannaChild->DispatchEvent(&focusGuiEvent, status);
+  mGeckoChild->DispatchEvent(&focusGuiEvent, status);
 }
 
 // We accept key and mouse events, so don't keep passing them up the chain. Allow
@@ -3606,11 +3606,11 @@ NSEvent* gLastDragMouseDownEvent = nil;
 - (void)viewDidChangeBackingProperties
 {
   [super viewDidChangeBackingProperties];
-  if (mGoannaChild) {
+  if (mGeckoChild) {
     // actually, it could be the color space that's changed,
     // but we can't tell the difference here except by retrieving
     // the backing scale factor and comparing to the old value
-    mGoannaChild->BackingScaleFactorChanged();
+    mGeckoChild->BackingScaleFactorChanged();
   }
 }
 
@@ -3623,7 +3623,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
 - (void)viewWillStartLiveResize
 {
-  nsCocoaWindow* windowWidget = mGoannaChild ? mGoannaChild->GetXULWindowWidget() : nullptr;
+  nsCocoaWindow* windowWidget = mGeckoChild ? mGeckoChild->GetXULWindowWidget() : nullptr;
   if (windowWidget) {
     windowWidget->NotifyLiveResizeStarted();
   }
@@ -3631,13 +3631,13 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
 - (void)viewDidEndLiveResize
 {
-  // mGoannaChild may legitimately be null here. It should also have been null
+  // mGeckoChild may legitimately be null here. It should also have been null
   // in viewWillStartLiveResize, so there's no problem. However if we run into
   // cases where the windowWidget was non-null in viewWillStartLiveResize but
   // is null here, that might be problematic because we might get stuck with
   // a content process that has the displayport suppressed. If that scenario
   // arises (I'm not sure that it does) we will need to handle it gracefully.
-  nsCocoaWindow* windowWidget = mGoannaChild ? mGoannaChild->GetXULWindowWidget() : nullptr;
+  nsCocoaWindow* windowWidget = mGeckoChild ? mGeckoChild->GetXULWindowWidget() : nullptr;
   if (windowWidget) {
     windowWidget->NotifyLiveResizeStopped();
   }
@@ -3645,23 +3645,23 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
 - (NSColor*)vibrancyFillColorForThemeGeometryType:(nsITheme::ThemeGeometryType)aThemeGeometryType
 {
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return [NSColor whiteColor];
   }
-  return mGoannaChild->VibrancyFillColorForThemeGeometryType(aThemeGeometryType);
+  return mGeckoChild->VibrancyFillColorForThemeGeometryType(aThemeGeometryType);
 }
 
 - (NSColor*)vibrancyFontSmoothingBackgroundColorForThemeGeometryType:(nsITheme::ThemeGeometryType)aThemeGeometryType
 {
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return [NSColor clearColor];
   }
-  return mGoannaChild->VibrancyFontSmoothingBackgroundColorForThemeGeometryType(aThemeGeometryType);
+  return mGeckoChild->VibrancyFontSmoothingBackgroundColorForThemeGeometryType(aThemeGeometryType);
 }
 
 - (LayoutDeviceIntRegion)nativeDirtyRegionWithBoundingRect:(NSRect)aRect
 {
-  LayoutDeviceIntRect boundingRect = mGoannaChild->CocoaPointsToDevPixels(aRect);
+  LayoutDeviceIntRect boundingRect = mGeckoChild->CocoaPointsToDevPixels(aRect);
   const NSRect *rects;
   NSInteger count;
   [self getRectsBeingDrawn:&rects count:&count];
@@ -3672,14 +3672,14 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   LayoutDeviceIntRegion region;
   for (NSInteger i = 0; i < count; ++i) {
-    region.Or(region, mGoannaChild->CocoaPointsToDevPixels(rects[i]));
+    region.Or(region, mGeckoChild->CocoaPointsToDevPixels(rects[i]));
   }
   region.And(region, boundingRect);
   return region;
 }
 
 // The display system has told us that a portion of our view is dirty. Tell
-// goanna to paint it
+// gecko to paint it
 - (void)drawRect:(NSRect)aRect
 {
   CGContextRef cgContext = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
@@ -3694,23 +3694,23 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
 - (void)drawRect:(NSRect)aRect inContext:(CGContextRef)aContext
 {
-  if (!mGoannaChild || !mGoannaChild->IsVisible())
+  if (!mGeckoChild || !mGeckoChild->IsVisible())
     return;
 
 #ifdef DEBUG_UPDATE
-  LayoutDeviceIntRect goannaBounds = mGoannaChild->GetBounds();
+  LayoutDeviceIntRect geckoBounds = mGeckoChild->GetBounds();
 
-  fprintf (stderr, "---- Update[%p][%p] [%f %f %f %f] cgc: %p\n  goanna bounds: [%d %d %d %d]\n",
-           self, mGoannaChild,
+  fprintf (stderr, "---- Update[%p][%p] [%f %f %f %f] cgc: %p\n  gecko bounds: [%d %d %d %d]\n",
+           self, mGeckoChild,
            aRect.origin.x, aRect.origin.y, aRect.size.width, aRect.size.height, aContext,
-           goannaBounds.x, goannaBounds.y, goannaBounds.width, goannaBounds.height);
+           geckoBounds.x, geckoBounds.y, geckoBounds.width, geckoBounds.height);
 
   CGAffineTransform xform = CGContextGetCTM(aContext);
   fprintf (stderr, "  xform in: [%f %f %f %f %f %f]\n", xform.a, xform.b, xform.c, xform.d, xform.tx, xform.ty);
 #endif
 
   if ([self isUsingOpenGL]) {
-    // For Goanna-initiated repaints in OpenGL mode, drawUsingOpenGL is
+    // For Gecko-initiated repaints in OpenGL mode, drawUsingOpenGL is
     // directly called from a delayed perform callback - without going through
     // drawRect.
     // Paints that come through here are triggered by something that Cocoa
@@ -3722,7 +3722,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
     // corners and the vibrant regions of the window - the rest of the window
     // is covered by opaque content in our OpenGL surface.
     // So we need to clear the pixel buffer contents in these areas.
-    mGoannaChild->ClearVibrantAreas();
+    mGeckoChild->ClearVibrantAreas();
     [self clearCorners];
 
     // Do GL composition and return.
@@ -3735,9 +3735,9 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   // The CGContext that drawRect supplies us with comes with a transform that
   // scales one user space unit to one Cocoa point, which can consist of
-  // multiple dev pixels. But Goanna expects its supplied context to be scaled
+  // multiple dev pixels. But Gecko expects its supplied context to be scaled
   // to device pixels, so we need to reverse the scaling.
-  double scale = mGoannaChild->BackingScaleFactor();
+  double scale = mGeckoChild->BackingScaleFactor();
   CGContextSaveGState(aContext);
   CGContextScaleCTM(aContext, 1.0 / scale, 1.0 / scale);
 
@@ -3745,14 +3745,14 @@ NSEvent* gLastDragMouseDownEvent = nil;
   gfx::IntSize backingSize = gfx::IntSize::Truncate(viewSize.width * scale, viewSize.height * scale);
   LayoutDeviceIntRegion region = [self nativeDirtyRegionWithBoundingRect:aRect];
 
-  bool painted = mGoannaChild->PaintWindowInContext(aContext, region, backingSize);
+  bool painted = mGeckoChild->PaintWindowInContext(aContext, region, backingSize);
 
   // Undo the scale transform so that from now on the context is in
   // CocoaPoints again.
   CGContextRestoreGState(aContext);
 
   if (!painted && [self isOpaque]) {
-    // Goanna refused to draw, but we've claimed to be opaque, so we have to
+    // Gecko refused to draw, but we've claimed to be opaque, so we have to
     // draw something--fill with white.
     CGContextSetRGBFillColor(aContext, 1, 1, 1, 1);
     CGContextFillRect(aContext, NSRectToCGRect(aRect));
@@ -3782,15 +3782,15 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
 - (BOOL)isUsingMainThreadOpenGL
 {
-  if (!mGoannaChild || ![self window])
+  if (!mGeckoChild || ![self window])
     return NO;
 
-  return mGoannaChild->GetLayerManager(nullptr)->GetBackendType() == mozilla::layers::LayersBackend::LAYERS_OPENGL;
+  return mGeckoChild->GetLayerManager(nullptr)->GetBackendType() == mozilla::layers::LayersBackend::LAYERS_OPENGL;
 }
 
 - (BOOL)isUsingOpenGL
 {
-  if (!mGoannaChild || ![self window])
+  if (!mGeckoChild || ![self window])
     return NO;
 
   return mGLContext || mUsingOMTCompositor || [self isUsingMainThreadOpenGL];
@@ -3801,15 +3801,15 @@ NSEvent* gLastDragMouseDownEvent = nil;
   PROFILER_LABEL("ChildView", "drawUsingOpenGL",
     js::ProfileEntry::Category::GRAPHICS);
 
-  if (![self isUsingOpenGL] || !mGoannaChild->IsVisible())
+  if (![self isUsingOpenGL] || !mGeckoChild->IsVisible())
     return;
 
   mWaitingForPaint = NO;
 
-  LayoutDeviceIntRect goannaBounds = mGoannaChild->GetBounds();
-  LayoutDeviceIntRegion region(goannaBounds);
+  LayoutDeviceIntRect geckoBounds = mGeckoChild->GetBounds();
+  LayoutDeviceIntRegion region(geckoBounds);
 
-  mGoannaChild->PaintWindow(region);
+  mGeckoChild->PaintWindow(region);
 }
 
 // Called asynchronously after setNeedsDisplay in order to avoid entering the
@@ -3881,7 +3881,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 - (void)maskTopCornersInContext:(CGContextRef)aContext
 {
   CGFloat radius = [self cornerRadius];
-  int32_t devPixelCornerRadius = mGoannaChild->CocoaPointsToDevPixels(radius);
+  int32_t devPixelCornerRadius = mGeckoChild->CocoaPointsToDevPixels(radius);
 
   // First make sure that mTopLeftCornerMask is set up.
   if (!mTopLeftCornerMask ||
@@ -3947,43 +3947,43 @@ NSEvent* gLastDragMouseDownEvent = nil;
 - (void)drawTitlebarHighlight
 {
   DrawTitlebarHighlight([self bounds].size, [self cornerRadius],
-                        mGoannaChild->DevPixelsToCocoaPoints(1));
+                        mGeckoChild->DevPixelsToCocoaPoints(1));
 }
 
 - (void)viewWillDraw
 {
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
-  if (mGoannaChild) {
+  if (mGeckoChild) {
     // The OS normally *will* draw our NSWindow, no matter what we do here.
-    // But Goanna can delete our parent widget(s) (along with mGoannaChild)
+    // But Gecko can delete our parent widget(s) (along with mGeckoChild)
     // while processing a paint request, which closes our NSWindow and
     // makes the OS throw an NSInternalInconsistencyException assertion when
     // it tries to draw it.  Sometimes the OS also aborts the browser process.
     // So we need to retain our parent(s) here and not release it/them until
     // the next time through the main thread's run loop.  When we do this we
-    // also need to retain and release mGoannaChild, which holds a strong
+    // also need to retain and release mGeckoChild, which holds a strong
     // reference to us.  See bug 550392.
-    nsIWidget* parent = mGoannaChild->GetParent();
+    nsIWidget* parent = mGeckoChild->GetParent();
     if (parent) {
       nsTArray<nsCOMPtr<nsIWidget>> widgetArray;
       while (parent) {
         widgetArray.AppendElement(parent);
         parent = parent->GetParent();
       }
-      widgetArray.AppendElement(mGoannaChild);
+      widgetArray.AppendElement(mGeckoChild);
       nsCOMPtr<nsIRunnable> releaserRunnable =
         new WidgetsReleaserRunnable(Move(widgetArray));
       NS_DispatchToMainThread(releaserRunnable);
     }
 
     if ([self isUsingOpenGL]) {
-      if (ShadowLayerForwarder* slf = mGoannaChild->GetLayerManager()->AsShadowForwarder()) {
+      if (ShadowLayerForwarder* slf = mGeckoChild->GetLayerManager()->AsShadowForwarder()) {
         slf->WindowOverlayChanged();
       }
     }
 
-    mGoannaChild->WillPaintWindow();
+    mGeckoChild->WillPaintWindow();
   }
   [super viewWillDraw];
 }
@@ -4048,7 +4048,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   [[NSDistributedNotificationCenter defaultCenter]
     postNotificationName:@"com.apple.HIToolbox.beginMenuTrackingNotification"
-                  object:@"org.mozilla.goanna.PopupWindow"];
+                  object:@"org.mozilla.gecko.PopupWindow"];
   [(PopupWindow*)popupWindow setIsContextMenu:YES];
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
@@ -4138,7 +4138,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!anEvent || !mGoannaChild)
+  if (!anEvent || !mGeckoChild)
     return;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
@@ -4147,23 +4147,23 @@ NSEvent* gLastDragMouseDownEvent = nil;
   float deltaY = [anEvent deltaY];  // up=1.0, down=-1.0
 
   // Setup the "swipe" event.
-  WidgetSimpleGestureEvent goannaEvent(true, eSwipeGesture, mGoannaChild);
-  [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
+  WidgetSimpleGestureEvent geckoEvent(true, eSwipeGesture, mGeckoChild);
+  [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
 
   // Record the left/right direction.
   if (deltaX > 0.0)
-    goannaEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_LEFT;
+    geckoEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_LEFT;
   else if (deltaX < 0.0)
-    goannaEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_RIGHT;
+    geckoEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_RIGHT;
 
   // Record the up/down direction.
   if (deltaY > 0.0)
-    goannaEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_UP;
+    geckoEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_UP;
   else if (deltaY < 0.0)
-    goannaEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_DOWN;
+    geckoEvent.mDirection |= nsIDOMSimpleGestureEvent::DIRECTION_DOWN;
 
   // Send the event.
-  mGoannaChild->DispatchWindowEvent(goannaEvent);
+  mGeckoChild->DispatchWindowEvent(geckoEvent);
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
@@ -4182,7 +4182,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!anEvent || !mGoannaChild)
+  if (!anEvent || !mGeckoChild)
     return;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
@@ -4207,12 +4207,12 @@ NSEvent* gLastDragMouseDownEvent = nil;
   }
 
   // Setup the event.
-  WidgetSimpleGestureEvent goannaEvent(true, msg, mGoannaChild);
-  goannaEvent.mDelta = deltaZ;
-  [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
+  WidgetSimpleGestureEvent geckoEvent(true, msg, mGeckoChild);
+  geckoEvent.mDelta = deltaZ;
+  [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
 
   // Send the event.
-  mGoannaChild->DispatchWindowEvent(goannaEvent);
+  mGeckoChild->DispatchWindowEvent(geckoEvent);
 
   // Keep track of the cumulative magnification for the final "magnify" event.
   mCumulativeMagnification += deltaZ;
@@ -4224,19 +4224,19 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!anEvent || !mGoannaChild) {
+  if (!anEvent || !mGeckoChild) {
     return;
   }
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
   // Setup the "double tap" event.
-  WidgetSimpleGestureEvent goannaEvent(true, eTapGesture, mGoannaChild);
-  [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.mClickCount = 1;
+  WidgetSimpleGestureEvent geckoEvent(true, eTapGesture, mGeckoChild);
+  [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.mClickCount = 1;
 
   // Send the event.
-  mGoannaChild->DispatchWindowEvent(goannaEvent);
+  mGeckoChild->DispatchWindowEvent(geckoEvent);
 
   // Clear the gesture state
   mGestureState = eGestureState_None;
@@ -4248,7 +4248,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!anEvent || !mGoannaChild)
+  if (!anEvent || !mGeckoChild)
     return;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
@@ -4273,17 +4273,17 @@ NSEvent* gLastDragMouseDownEvent = nil;
   }
 
   // Setup the event.
-  WidgetSimpleGestureEvent goannaEvent(true, msg, mGoannaChild);
-  [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.mDelta = -rotation;
+  WidgetSimpleGestureEvent geckoEvent(true, msg, mGeckoChild);
+  [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.mDelta = -rotation;
   if (rotation > 0.0) {
-    goannaEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_COUNTERCLOCKWISE;
+    geckoEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_COUNTERCLOCKWISE;
   } else {
-    goannaEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_CLOCKWISE;
+    geckoEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_CLOCKWISE;
   }
 
   // Send the event.
-  mGoannaChild->DispatchWindowEvent(goannaEvent);
+  mGeckoChild->DispatchWindowEvent(geckoEvent);
 
   // Keep track of the cumulative rotation for the final "rotate" event.
   mCumulativeRotation += rotation;
@@ -4295,7 +4295,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!anEvent || !mGoannaChild) {
+  if (!anEvent || !mGeckoChild) {
     // Clear the gestures state if we cannot send an event.
     mGestureState = eGestureState_None;
     mCumulativeMagnification = 0.0;
@@ -4309,29 +4309,29 @@ NSEvent* gLastDragMouseDownEvent = nil;
   case eGestureState_MagnifyGesture:
     {
       // Setup the "magnify" event.
-      WidgetSimpleGestureEvent goannaEvent(true, eMagnifyGesture, mGoannaChild);
-      goannaEvent.mDelta = mCumulativeMagnification;
-      [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
+      WidgetSimpleGestureEvent geckoEvent(true, eMagnifyGesture, mGeckoChild);
+      geckoEvent.mDelta = mCumulativeMagnification;
+      [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
 
       // Send the event.
-      mGoannaChild->DispatchWindowEvent(goannaEvent);
+      mGeckoChild->DispatchWindowEvent(geckoEvent);
     }
     break;
 
   case eGestureState_RotateGesture:
     {
       // Setup the "rotate" event.
-      WidgetSimpleGestureEvent goannaEvent(true, eRotateGesture, mGoannaChild);
-      [self convertCocoaMouseEvent:anEvent toGoannaEvent:&goannaEvent];
-      goannaEvent.mDelta = -mCumulativeRotation;
+      WidgetSimpleGestureEvent geckoEvent(true, eRotateGesture, mGeckoChild);
+      [self convertCocoaMouseEvent:anEvent toGeckoEvent:&geckoEvent];
+      geckoEvent.mDelta = -mCumulativeRotation;
       if (mCumulativeRotation > 0.0) {
-        goannaEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_COUNTERCLOCKWISE;
+        geckoEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_COUNTERCLOCKWISE;
       } else {
-        goannaEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_CLOCKWISE;
+        geckoEvent.mDirection = nsIDOMSimpleGestureEvent::ROTATION_CLOCKWISE;
       }
 
       // Send the event.
-      mGoannaChild->DispatchWindowEvent(goannaEvent);
+      mGeckoChild->DispatchWindowEvent(geckoEvent);
     }
     break;
 
@@ -4444,8 +4444,8 @@ NSEvent* gLastDragMouseDownEvent = nil;
   [self performSelector:@selector(clickHoldCallback:) withObject:theEvent afterDelay:2.0];
 #endif
 
-  // in order to send goanna events we'll need a goanna widget
-  if (!mGoannaChild)
+  // in order to send gecko events we'll need a gecko widget
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
@@ -4453,9 +4453,9 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   NSUInteger modifierFlags = [theEvent modifierFlags];
 
-  WidgetMouseEvent goannaEvent(true, eMouseDown, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseDown, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
 
   NSInteger clickCount = [theEvent clickCount];
   if (mBlockedLastMouseDown && clickCount > 1) {
@@ -4463,14 +4463,14 @@ NSEvent* gLastDragMouseDownEvent = nil;
     // blocked.
     clickCount--;
   }
-  goannaEvent.mClickCount = clickCount;
+  geckoEvent.mClickCount = clickCount;
 
   if (modifierFlags & NSControlKeyMask)
-    goannaEvent.button = WidgetMouseEvent::eRightButton;
+    geckoEvent.button = WidgetMouseEvent::eRightButton;
   else
-    goannaEvent.button = WidgetMouseEvent::eLeftButton;
+    geckoEvent.button = WidgetMouseEvent::eLeftButton;
 
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
   mBlockedLastMouseDown = NO;
 
   // XXX maybe call markedTextSelectionChanged:client: here?
@@ -4482,7 +4482,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild || mBlockedLastMouseDown)
+  if (!mGeckoChild || mBlockedLastMouseDown)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
@@ -4490,23 +4490,23 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
-  WidgetMouseEvent goannaEvent(true, eMouseUp, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseUp, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
   if ([theEvent modifierFlags] & NSControlKeyMask)
-    goannaEvent.button = WidgetMouseEvent::eRightButton;
+    geckoEvent.button = WidgetMouseEvent::eRightButton;
   else
-    goannaEvent.button = WidgetMouseEvent::eLeftButton;
+    geckoEvent.button = WidgetMouseEvent::eLeftButton;
 
-  // This might destroy our widget (and null out mGoannaChild).
+  // This might destroy our widget (and null out mGeckoChild).
   bool defaultPrevented =
-    (mGoannaChild->DispatchInputEvent(&goannaEvent) == nsEventStatus_eConsumeNoDefault);
+    (mGeckoChild->DispatchInputEvent(&geckoEvent) == nsEventStatus_eConsumeNoDefault);
 
   // Check to see if we are double-clicking in the titlebar.
   CGFloat locationInTitlebar = [[self window] frame].size.height - [theEvent locationInWindow].y;
-  LayoutDeviceIntPoint pos = goannaEvent.mRefPoint;
+  LayoutDeviceIntPoint pos = geckoEvent.mRefPoint;
   if (!defaultPrevented && [theEvent clickCount] == 2 &&
-      !mGoannaChild->GetNonDraggableRegion().Contains(pos.x, pos.y) &&
+      !mGeckoChild->GetNonDraggableRegion().Contains(pos.x, pos.y) &&
       [[self window] isKindOfClass:[ToolbarWindow class]] &&
       (locationInTitlebar < [(ToolbarWindow*)[self window] titlebarHeight] ||
        locationInTitlebar < [(ToolbarWindow*)[self window] unifiedToolbarHeight])) {
@@ -4525,37 +4525,37 @@ NSEvent* gLastDragMouseDownEvent = nil;
                             enter:(BOOL)aEnter
                          exitFrom:(WidgetMouseEvent::ExitFrom)aExitFrom
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
 
   NSPoint windowEventLocation = nsCocoaUtils::EventLocationForWindow(aEvent, [self window]);
   NSPoint localEventLocation = [self convertPoint:windowEventLocation fromView:nil];
 
   EventMessage msg = aEnter ? eMouseEnterIntoWidget : eMouseExitFromWidget;
-  WidgetMouseEvent event(true, msg, mGoannaChild, WidgetMouseEvent::eReal);
-  event.mRefPoint = mGoannaChild->CocoaPointsToDevPixels(localEventLocation);
+  WidgetMouseEvent event(true, msg, mGeckoChild, WidgetMouseEvent::eReal);
+  event.mRefPoint = mGeckoChild->CocoaPointsToDevPixels(localEventLocation);
 
   event.mExitFrom = aExitFrom;
 
   nsEventStatus status; // ignored
-  mGoannaChild->DispatchEvent(&event, status);
+  mGeckoChild->DispatchEvent(&event, status);
 }
 
 - (void)handleMouseMoved:(NSEvent*)theEvent
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseMove, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseMove, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
 
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
@@ -4564,7 +4564,7 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
@@ -4572,11 +4572,11 @@ NSEvent* gLastDragMouseDownEvent = nil;
 
   gLastDragView = self;
 
-  WidgetMouseEvent goannaEvent(true, eMouseMove, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseMove, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
 
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 
   // Note, sending the above event might have destroyed our widget since we didn't retain.
   // Fine so long as we don't access any local variables from here on.
@@ -4594,21 +4594,21 @@ NSEvent* gLastDragMouseDownEvent = nil;
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
   [self maybeRollup:theEvent];
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  // The right mouse went down, fire off a right mouse down event to goanna
-  WidgetMouseEvent goannaEvent(true, eMouseDown, mGoannaChild,
+  // The right mouse went down, fire off a right mouse down event to gecko
+  WidgetMouseEvent geckoEvent(true, eMouseDown, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eRightButton;
-  goannaEvent.mClickCount = [theEvent clickCount];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eRightButton;
+  geckoEvent.mClickCount = [theEvent clickCount];
 
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
-  if (!mGoannaChild)
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
+  if (!mGeckoChild)
     return;
 
   // Let the superclass do the context menu stuff.
@@ -4621,40 +4621,40 @@ NSEvent* gLastDragMouseDownEvent = nil;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseUp, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseUp, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eRightButton;
-  goannaEvent.mClickCount = [theEvent clickCount];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eRightButton;
+  geckoEvent.mClickCount = [theEvent clickCount];
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
 
 - (void)rightMouseDragged:(NSEvent*)theEvent
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseMove, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseMove, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eRightButton;
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eRightButton;
 
-  // send event into Goanna by going directly to the
+  // send event into Gecko by going directly to the
   // the widget.
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 }
 
 - (void)otherMouseDown:(NSEvent *)theEvent
@@ -4667,64 +4667,64 @@ NSEvent* gLastDragMouseDownEvent = nil;
       !ChildViewMouseTracker::WindowAcceptsEvent([self window], theEvent, self))
     return;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseDown, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseDown, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eMiddleButton;
-  goannaEvent.mClickCount = [theEvent clickCount];
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eMiddleButton;
+  geckoEvent.mClickCount = [theEvent clickCount];
 
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
 }
 
 - (void)otherMouseUp:(NSEvent *)theEvent
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseUp, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseUp, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eMiddleButton;
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eMiddleButton;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 }
 
 - (void)otherMouseDragged:(NSEvent*)theEvent
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
   if (mTextInputHandler->OnHandleEvent(theEvent)) {
     return;
   }
 
-  WidgetMouseEvent goannaEvent(true, eMouseMove, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseMove, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eMiddleButton;
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eMiddleButton;
 
-  // send event into Goanna by going directly to the
+  // send event into Gecko by going directly to the
   // the widget.
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
 }
 
 - (void)sendWheelStartOrStop:(EventMessage)msg forEvent:(NSEvent *)theEvent
 {
-  WidgetWheelEvent wheelEvent(true, msg, mGoannaChild);
-  [self convertCocoaMouseWheelEvent:theEvent toGoannaEvent:&wheelEvent];
+  WidgetWheelEvent wheelEvent(true, msg, mGeckoChild);
+  [self convertCocoaMouseWheelEvent:theEvent toGeckoEvent:&wheelEvent];
   mExpectingWheelStop = (msg == eWheelOperationStart);
-  mGoannaChild->DispatchInputEvent(wheelEvent.AsInputEvent());
+  mGeckoChild->DispatchInputEvent(wheelEvent.AsInputEvent());
 }
 
 - (void)sendWheelCondition:(BOOL)condition
@@ -4835,7 +4835,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
     return;
   }
 
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return;
   }
 
@@ -4854,10 +4854,10 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
                     forEvent:theEvent];
   }
 
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return;
   }
-  RefPtr<nsChildView> goannaChildDeathGrip(mGoannaChild);
+  RefPtr<nsChildView> geckoChildDeathGrip(mGeckoChild);
 
   NSPoint locationInWindow = nsCocoaUtils::EventLocationForWindow(theEvent, [self window]);
 
@@ -4885,7 +4885,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
   if (usePreciseDeltas) {
     CGFloat pixelDeltaX = 0, pixelDeltaY = 0;
     nsCocoaUtils::GetScrollingDeltas(theEvent, &pixelDeltaX, &pixelDeltaY);
-    double scale = goannaChildDeathGrip->BackingScaleFactor();
+    double scale = geckoChildDeathGrip->BackingScaleFactor();
     preciseDelta = ScreenPoint(-pixelDeltaX * scale, -pixelDeltaY * scale);
   }
 
@@ -4912,7 +4912,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 
     bool canTriggerSwipe = [self shouldConsiderStartingSwipeFromEvent:theEvent];
     panEvent.mRequiresContentResponseIfCannotScrollHorizontallyInStartDirection = canTriggerSwipe;
-    goannaChildDeathGrip->DispatchAPZWheelInputEvent(panEvent, canTriggerSwipe);
+    geckoChildDeathGrip->DispatchAPZWheelInputEvent(panEvent, canTriggerSwipe);
   } else if (usePreciseDeltas) {
     // This is on 10.6 or old touchpads that don't have any phase information.
     ScrollWheelInput wheelEvent(eventIntervalTime, eventTimeStamp, modifiers,
@@ -4925,7 +4925,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
     wheelEvent.mLineOrPageDeltaX = lineOrPageDelta.x;
     wheelEvent.mLineOrPageDeltaY = lineOrPageDelta.y;
     wheelEvent.mIsMomentum = nsCocoaUtils::IsMomentumScrollEvent(theEvent);
-    goannaChildDeathGrip->DispatchAPZWheelInputEvent(wheelEvent, false);
+    geckoChildDeathGrip->DispatchAPZWheelInputEvent(wheelEvent, false);
   } else {
     ScrollWheelInput::ScrollMode scrollMode = ScrollWheelInput::SCROLLMODE_INSTANT;
     if (gfxPrefs::SmoothScrollEnabled() && gfxPrefs::WheelSmoothScrollEnabled()) {
@@ -4940,7 +4940,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
                                 false);
     wheelEvent.mLineOrPageDeltaX = lineOrPageDelta.x;
     wheelEvent.mLineOrPageDeltaY = lineOrPageDelta.y;
-    goannaChildDeathGrip->DispatchAPZWheelInputEvent(wheelEvent, false);
+    geckoChildDeathGrip->DispatchAPZWheelInputEvent(wheelEvent, false);
   }
 
   NS_OBJC_END_TRY_ABORT_BLOCK;
@@ -5049,31 +5049,31 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return nil;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
   [self maybeRollup:theEvent];
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return nil;
 
   // Cocoa doesn't always dispatch a mouseDown: for a control-click event,
-  // depends on what we return from menuForEvent:. Goanna always expects one
+  // depends on what we return from menuForEvent:. Gecko always expects one
   // and expects the mouse down event before the context menu event, so
   // get that event sent first if this is a left mouse click.
   if ([theEvent type] == NSLeftMouseDown) {
     [self mouseDown:theEvent];
-    if (!mGoannaChild)
+    if (!mGeckoChild)
       return nil;
   }
 
-  WidgetMouseEvent goannaEvent(true, eContextMenu, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eContextMenu, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:theEvent toGoannaEvent:&goannaEvent];
-  goannaEvent.button = WidgetMouseEvent::eRightButton;
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
-  if (!mGoannaChild)
+  [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+  geckoEvent.button = WidgetMouseEvent::eRightButton;
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
+  if (!mGeckoChild)
     return nil;
 
   [self maybeInitContextMenuTracking];
@@ -5098,9 +5098,9 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 }
 
 - (void) convertCocoaMouseWheelEvent:(NSEvent*)aMouseEvent
-                        toGoannaEvent:(WidgetWheelEvent*)outWheelEvent
+                        toGeckoEvent:(WidgetWheelEvent*)outWheelEvent
 {
-  [self convertCocoaMouseEvent:aMouseEvent toGoannaEvent:outWheelEvent];
+  [self convertCocoaMouseEvent:aMouseEvent toGeckoEvent:outWheelEvent];
 
   bool usePreciseDeltas = nsCocoaUtils::HasPreciseScrollingDeltas(aMouseEvent) &&
     Preferences::GetBool("mousewheel.enable_pixel_scrolling", true);
@@ -5112,22 +5112,22 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 }
 
 - (void) convertCocoaMouseEvent:(NSEvent*)aMouseEvent
-                   toGoannaEvent:(WidgetInputEvent*)outGoannaEvent
+                   toGeckoEvent:(WidgetInputEvent*)outGeckoEvent
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  NS_ASSERTION(outGoannaEvent, "convertCocoaMouseEvent:toGoannaEvent: requires non-null aoutGoannaEvent");
-  if (!outGoannaEvent)
+  NS_ASSERTION(outGeckoEvent, "convertCocoaMouseEvent:toGeckoEvent: requires non-null aoutGeckoEvent");
+  if (!outGeckoEvent)
     return;
 
-  nsCocoaUtils::InitInputEvent(*outGoannaEvent, aMouseEvent);
+  nsCocoaUtils::InitInputEvent(*outGeckoEvent, aMouseEvent);
 
   // convert point to view coordinate system
   NSPoint locationInWindow = nsCocoaUtils::EventLocationForWindow(aMouseEvent, [self window]);
 
-  outGoannaEvent->mRefPoint = [self convertWindowCoordinates:locationInWindow];
+  outGeckoEvent->mRefPoint = [self convertWindowCoordinates:locationInWindow];
 
-  WidgetMouseEventBase* mouseEvent = outGoannaEvent->AsMouseEventBase();
+  WidgetMouseEventBase* mouseEvent = outGeckoEvent->AsMouseEventBase();
   mouseEvent->buttons = 0;
   NSUInteger mouseButtons = [NSEvent pressedMouseButtons];
 
@@ -5242,7 +5242,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  NS_ENSURE_TRUE_VOID(mGoannaChild);
+  NS_ENSURE_TRUE_VOID(mGeckoChild);
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
@@ -5262,7 +5262,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild || !mTextInputHandler) {
+  if (!mGeckoChild || !mTextInputHandler) {
     return;
   }
 
@@ -5326,10 +5326,10 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   // Show dictionary by current point
   WidgetContentCommandEvent
-    contentCommandEvent(true, eContentCommandLookUpDictionary, mGoannaChild);
+    contentCommandEvent(true, eContentCommandLookUpDictionary, mGeckoChild);
   NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
-  contentCommandEvent.mRefPoint = mGoannaChild->CocoaPointsToDevPixels(point);
-  mGoannaChild->DispatchWindowEvent(contentCommandEvent);
+  contentCommandEvent.mRefPoint = mGeckoChild->CocoaPointsToDevPixels(point);
+  mGeckoChild->DispatchWindowEvent(contentCommandEvent);
   // The widget might have been destroyed.
 }
 
@@ -5372,7 +5372,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
   // this automatically switches to whatever space our window is in.  Safari
   // does something similar.  Our window should normally always be key --
   // otherwise why is the OS sending us a key down event?  But it's just
-  // possible we're in Goanna's hidden window, so we check first.
+  // possible we're in Gecko's hidden window, so we check first.
   NSWindow *viewWindow = [self window];
   if (viewWindow && [viewWindow isKeyWindow]) {
     [viewWindow orderWindow:NSWindowAbove relativeTo:0];
@@ -5380,13 +5380,13 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 
 #if !defined(RELEASE_OR_BETA) || defined(DEBUG)
   if (!Preferences::GetBool("intl.allow-insecure-text-input", false) &&
-      mGoannaChild && mTextInputHandler && mTextInputHandler->IsFocused()) {
-    if (mGoannaChild->GetInputContext().IsPasswordEditor() &&
+      mGeckoChild && mTextInputHandler && mTextInputHandler->IsFocused()) {
+    if (mGeckoChild->GetInputContext().IsPasswordEditor() &&
                !TextInputHandler::IsSecureEventInputEnabled()) {
       #define CRASH_MESSAGE "A password editor has focus, but not in secure input mode"
       MOZ_CRASH(CRASH_MESSAGE);
       #undef CRASH_MESSAGE
-    } else if (!mGoannaChild->GetInputContext().IsPasswordEditor() &&
+    } else if (!mGeckoChild->GetInputContext().IsPasswordEditor() &&
                TextInputHandler::IsSecureEventInputEnabled()) {
       #define CRASH_MESSAGE "A non-password editor has focus, but in secure input mode"
       MOZ_CRASH(CRASH_MESSAGE);
@@ -5397,7 +5397,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
   bool handled = false;
-  if (mGoannaChild && mTextInputHandler) {
+  if (mGeckoChild && mTextInputHandler) {
     handled = mTextInputHandler->HandleKeyDownEvent(theEvent);
   }
 
@@ -5414,7 +5414,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  NS_ENSURE_TRUE(mGoannaChild, );
+  NS_ENSURE_TRUE(mGeckoChild, );
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
@@ -5436,7 +5436,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  NS_ENSURE_TRUE(mGoannaChild, );
+  NS_ENSURE_TRUE(mGeckoChild, );
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
   mTextInputHandler->HandleFlagsChanged(theEvent);
@@ -5467,16 +5467,16 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 - (BOOL)inactiveWindowAcceptsMouseEvent:(NSEvent*)aEvent
 {
   // If we're being destroyed assume the default -- return YES.
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return YES;
 
-  WidgetMouseEvent goannaEvent(true, eMouseActivate, mGoannaChild,
+  WidgetMouseEvent geckoEvent(true, eMouseActivate, mGeckoChild,
                               WidgetMouseEvent::eReal);
-  [self convertCocoaMouseEvent:aEvent toGoannaEvent:&goannaEvent];
-  return (mGoannaChild->DispatchInputEvent(&goannaEvent) != nsEventStatus_eConsumeNoDefault);
+  [self convertCocoaMouseEvent:aEvent toGeckoEvent:&geckoEvent];
+  return (mGeckoChild->DispatchInputEvent(&geckoEvent) != nsEventStatus_eConsumeNoDefault);
 }
 
-// We must always call through to our superclass, even when mGoannaChild is
+// We must always call through to our superclass, even when mGeckoChild is
 // nil -- otherwise the keyboard focus can end up in the wrong NSView.
 - (BOOL)becomeFirstResponder
 {
@@ -5491,7 +5491,7 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
@@ -5504,14 +5504,14 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
   if (isMozWindow)
     [[self window] setSuppressMakeKeyFront:YES];
 
-  nsIWidgetListener* listener = mGoannaChild->GetWidgetListener();
+  nsIWidgetListener* listener = mGeckoChild->GetWidgetListener();
   if (listener)
     listener->WindowActivated();
 
   if (isMozWindow)
     [[self window] setSuppressMakeKeyFront:NO];
 
-  if (mGoannaChild->GetInputContext().IsPasswordEditor()) {
+  if (mGeckoChild->GetInputContext().IsPasswordEditor()) {
     TextInputHandler::EnableSecureEventInput();
   } else {
     TextInputHandler::EnsureSecureEventInputDisabled();
@@ -5522,12 +5522,12 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 
 - (void)viewsWindowDidResignKey
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
 
-  nsIWidgetListener* listener = mGoannaChild->GetWidgetListener();
+  nsIWidgetListener* listener = mGeckoChild->GetWidgetListener();
   if (listener)
     listener->WindowDeactivated();
 
@@ -5571,37 +5571,37 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
 
 - (LayoutDeviceIntPoint)convertWindowCoordinates:(NSPoint)aPoint
 {
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return LayoutDeviceIntPoint(0, 0);
   }
 
   NSPoint localPoint = [self convertPoint:aPoint fromView:nil];
-  return mGoannaChild->CocoaPointsToDevPixels(localPoint);
+  return mGeckoChild->CocoaPointsToDevPixels(localPoint);
 }
 
 - (LayoutDeviceIntPoint)convertWindowCoordinatesRoundDown:(NSPoint)aPoint
 {
-  if (!mGoannaChild) {
+  if (!mGeckoChild) {
     return LayoutDeviceIntPoint(0, 0);
   }
 
   NSPoint localPoint = [self convertPoint:aPoint fromView:nil];
-  return mGoannaChild->CocoaPointsToDevPixelsRoundDown(localPoint);
+  return mGeckoChild->CocoaPointsToDevPixelsRoundDown(localPoint);
 }
 
 - (IAPZCTreeManager*)apzctm
 {
-  return mGoannaChild ? mGoannaChild->APZCTM() : nullptr;
+  return mGeckoChild ? mGeckoChild->APZCTM() : nullptr;
 }
 
 // This is a utility function used by NSView drag event methods
-// to send events. It contains all of the logic needed for Goanna
+// to send events. It contains all of the logic needed for Gecko
 // dragging to work. Returns the appropriate cocoa drag operation code.
 - (NSDragOperation)doDragAction:(EventMessage)aMessage sender:(id)aSender
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_RETURN;
 
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return NSDragOperationNone;
 
   MOZ_LOG(sCocoaLog, LogLevel::Info, ("ChildView doDragAction: entered\n"));
@@ -5653,19 +5653,19 @@ GetIntegerDeltaForEvent(NSEvent* aEvent)
     dragSession->SetDragAction(action);
   }
 
-  // set up goanna event
-  WidgetDragEvent goannaEvent(true, aMessage, mGoannaChild);
-  nsCocoaUtils::InitInputEvent(goannaEvent, [NSApp currentEvent]);
+  // set up gecko event
+  WidgetDragEvent geckoEvent(true, aMessage, mGeckoChild);
+  nsCocoaUtils::InitInputEvent(geckoEvent, [NSApp currentEvent]);
 
-  // Use our own coordinates in the goanna event.
-  // Convert event from goanna global coords to goanna view coords.
+  // Use our own coordinates in the gecko event.
+  // Convert event from gecko global coords to gecko view coords.
   NSPoint draggingLoc = [aSender draggingLocation];
 
-  goannaEvent.mRefPoint = [self convertWindowCoordinates:draggingLoc];
+  geckoEvent.mRefPoint = [self convertWindowCoordinates:draggingLoc];
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
-  mGoannaChild->DispatchInputEvent(&goannaEvent);
-  if (!mGoannaChild)
+  mGeckoChild->DispatchInputEvent(&geckoEvent);
+  if (!mGeckoChild)
     return NSDragOperationNone;
 
   if (dragSession) {
@@ -6022,7 +6022,7 @@ provideDataForType:(NSString*)aType
 
   if ((!sendType || IsSupportedType(sendType)) &&
       (!returnType || IsSupportedType(returnType))) {
-    if (mGoannaChild) {
+    if (mGeckoChild) {
       // Assume that this object will be able to handle this request.
       result = self;
 
@@ -6037,13 +6037,13 @@ provideDataForType:(NSString*)aType
       }
 
       // Determine if we can paste (if receiving data from the service).
-      if (mGoannaChild && returnType) {
+      if (mGeckoChild && returnType) {
         WidgetContentCommandEvent command(true,
                                           eContentCommandPasteTransferable,
-                                          mGoannaChild, true);
-        // This might possibly destroy our widget (and null out mGoannaChild).
-        mGoannaChild->DispatchWindowEvent(command);
-        if (!mGoannaChild || !command.mSucceeded || !command.mIsEnabled)
+                                          mGeckoChild, true);
+        // This might possibly destroy our widget (and null out mGeckoChild).
+        mGeckoChild->DispatchWindowEvent(command);
+        if (!mGeckoChild || !command.mSucceeded || !command.mIsEnabled)
           result = nil;
       }
     }
@@ -6072,8 +6072,8 @@ provideDataForType:(NSString*)aType
       [types containsObject:NSPasteboardTypeHTML] == NO)
     return NO;
 
-  // Bail out if there is no Goanna object.
-  if (!mGoannaChild)
+  // Bail out if there is no Gecko object.
+  if (!mGeckoChild)
     return NO;
 
   // Transform the transferable to an NSDictionary.
@@ -6133,13 +6133,13 @@ provideDataForType:(NSString*)aType
   if (NS_FAILED(rv))
     return NO;
 
-  NS_ENSURE_TRUE(mGoannaChild, false);
+  NS_ENSURE_TRUE(mGeckoChild, false);
 
   WidgetContentCommandEvent command(true,
                                     eContentCommandPasteTransferable,
-                                    mGoannaChild);
+                                    mGeckoChild);
   command.mTransferable = trans;
-  mGoannaChild->DispatchWindowEvent(command);
+  mGeckoChild->DispatchWindowEvent(command);
 
   return command.mSucceeded && command.mIsEnabled;
 }
@@ -6190,14 +6190,14 @@ nsChildView::GetSelectionAsPlaintext(nsAString& aResult)
 */
 - (id<mozAccessible>)accessible
 {
-  if (!mGoannaChild)
+  if (!mGeckoChild)
     return nil;
 
   id<mozAccessible> nativeAccessible = nil;
 
   nsAutoRetainCocoaObject kungFuDeathGrip(self);
-  RefPtr<nsChildView> goannaChild(mGoannaChild);
-  RefPtr<a11y::Accessible> accessible = goannaChild->GetDocumentAccessible();
+  RefPtr<nsChildView> geckoChild(mGeckoChild);
+  RefPtr<a11y::Accessible> accessible = geckoChild->GetDocumentAccessible();
   if (!accessible)
     return nil;
 
@@ -6453,7 +6453,7 @@ ChildViewMouseTracker::WindowAcceptsEvent(NSWindow* aWindow, NSEvent* aEvent,
   if (!delegate || ![delegate isKindOfClass:[WindowDelegate class]])
     return YES;
 
-  nsIWidget *windowWidget = [(WindowDelegate *)delegate goannaWidget];
+  nsIWidget *windowWidget = [(WindowDelegate *)delegate geckoWidget];
   if (!windowWidget)
     return YES;
 
@@ -6495,7 +6495,7 @@ ChildViewMouseTracker::WindowAcceptsEvent(NSWindow* aWindow, NSEvent* aEvent,
     return YES;
 
   // If we're here then we're dealing with a left click or mouse move on an
-  // inactive window or something similar. Ask Goanna what to do.
+  // inactive window or something similar. Ask Gecko what to do.
   return [aView inactiveWindowAcceptsMouseEvent:aEvent];
 }
 

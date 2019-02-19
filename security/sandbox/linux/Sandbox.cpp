@@ -507,7 +507,7 @@ SetCurrentProcessSandbox(UniquePtr<sandbox::bpf_dsl::Policy> aPolicy)
 }
 
 void
-SandboxEarlyInit(GoannaProcessType aType)
+SandboxEarlyInit(GeckoProcessType aType)
 {
   const SandboxInfo info = SandboxInfo::Get();
   if (info.Test(SandboxInfo::kUnexpectedThreads)) {
@@ -522,11 +522,11 @@ SandboxEarlyInit(GoannaProcessType aType)
   bool canUnshareIPC = false;
 
   switch (aType) {
-  case GoannaProcessType_Default:
+  case GeckoProcessType_Default:
     MOZ_ASSERT(false, "SandboxEarlyInit in parent process");
     return;
 #ifdef MOZ_GMP_SANDBOX
-  case GoannaProcessType_GMPlugin:
+  case GeckoProcessType_GMPlugin:
     if (!info.Test(SandboxInfo::kEnabledForMedia)) {
       break;
     }

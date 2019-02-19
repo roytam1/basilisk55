@@ -29,7 +29,7 @@
 #include "mozilla/TimeStamp.h"
 
 #include "EventListenerService.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #ifdef MOZ_ENABLE_PROFILER_SPS
 #include "ProfilerMarkers.h"
 #endif

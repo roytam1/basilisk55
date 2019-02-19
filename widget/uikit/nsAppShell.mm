@@ -149,7 +149,7 @@ nsAppShell::Init()
   mAutoreleasePool = [[NSAutoreleasePool alloc] init];
 
   // Add a CFRunLoopSource to the main native run loop.  The source is
-  // responsible for interrupting the run loop when Goanna events are ready.
+  // responsible for interrupting the run loop when Gecko events are ready.
 
   mCFRunLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
   NS_ENSURE_STATE(mCFRunLoop);
@@ -159,7 +159,7 @@ nsAppShell::Init()
   bzero(&context, sizeof(context));
   // context.version = 0;
   context.info = this;
-  context.perform = ProcessGoannaEvents;
+  context.perform = ProcessGeckoEvents;
 
   mCFRunLoopSource = ::CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
   NS_ENSURE_STATE(mCFRunLoopSource);
@@ -169,14 +169,14 @@ nsAppShell::Init()
   return nsBaseAppShell::Init();
 }
 
-// ProcessGoannaEvents
+// ProcessGeckoEvents
 //
 // The "perform" target of mCFRunLoop, called when mCFRunLoopSource is
 // signalled from ScheduleNativeEventCallback.
 //
 // protected static
 void
-nsAppShell::ProcessGoannaEvents(void* aInfo)
+nsAppShell::ProcessGeckoEvents(void* aInfo)
 {
   nsAppShell* self = static_cast<nsAppShell*> (aInfo);
   self->NativeEventCallback();
@@ -212,7 +212,7 @@ nsAppShell::ScheduleNativeEventCallback()
 
   NS_ADDREF_THIS();
 
-  // This will invoke ProcessGoannaEvents on the main thread.
+  // This will invoke ProcessGeckoEvents on the main thread.
   ::CFRunLoopSourceSignal(mCFRunLoopSource);
   ::CFRunLoopWakeUp(mCFRunLoop);
 }

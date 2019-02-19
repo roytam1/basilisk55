@@ -279,7 +279,7 @@ EffectCompositor::RequestRestyle(dom::Element* aElement,
                "EffectCompositor");
       return;
     }
-    mPresContext->RestyleManager()->AsGoanna()->IncrementAnimationGeneration();
+    mPresContext->RestyleManager()->AsGecko()->IncrementAnimationGeneration();
     EffectSet* effectSet =
       EffectSet::GetEffectSet(aElement, aPseudoType);
     if (effectSet) {
@@ -391,10 +391,10 @@ EffectCompositor::GetAnimationRule(dom::Element* aElement,
     return nullptr;
   }
 
-  MOZ_ASSERT(mPresContext->RestyleManager()->IsGoanna(),
+  MOZ_ASSERT(mPresContext->RestyleManager()->IsGecko(),
              "stylo: Servo-backed style system should not be using "
              "EffectCompositor");
-  if (mPresContext->RestyleManager()->AsGoanna()->SkipAnimationRules()) {
+  if (mPresContext->RestyleManager()->AsGecko()->SkipAnimationRules()) {
     // We don't need to worry about updating mElementsToRestyle in this case
     // since this is not the animation restyle we requested when we called
     // PostRestyleForAnimation (see comment at start of this method).

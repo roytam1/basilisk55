@@ -21,7 +21,7 @@ class AndroidInputStream : public nsIInputStream
 {
 public:
     AndroidInputStream(jni::Object::Param connection) {
-        mBridgeInputStream = java::GoannaAppShell::CreateInputStream(connection);
+        mBridgeInputStream = java::GeckoAppShell::CreateInputStream(connection);
         mBridgeChannel = AndroidBridge::ChannelCreate(mBridgeInputStream);
     }
 
@@ -71,7 +71,7 @@ private:
         mConnection = aConnection;
         SetURI(aURI);
 
-        auto type = java::GoannaAppShell::ConnectionGetMimeType(mConnection);
+        auto type = java::GeckoAppShell::ConnectionGetMimeType(mConnection);
         if (type) {
             SetContentType(type->ToCString());
         }
@@ -82,7 +82,7 @@ public:
         nsCString spec;
         aURI->GetSpec(spec);
 
-        auto connection = java::GoannaAppShell::GetConnection(spec);
+        auto connection = java::GeckoAppShell::GetConnection(spec);
         return connection ? new AndroidChannel(aURI, connection) : nullptr;
     }
 

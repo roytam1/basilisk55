@@ -329,7 +329,7 @@ def check_for_java_exception(logcat, test_name=None, quiet=False):
     logcat output.
 
     Example:
-    PROCESS-CRASH | <test-name> | java-exception java.lang.NullPointerException at org.mozilla.goanna.GoannaApp$21.run(GoannaApp.java:1833) # noqa
+    PROCESS-CRASH | <test-name> | java-exception java.lang.NullPointerException at org.mozilla.gecko.GeckoApp$21.run(GeckoApp.java:1833) # noqa
 
     `logcat` should be a list of strings.
 
@@ -354,10 +354,10 @@ def check_for_java_exception(logcat, test_name=None, quiet=False):
     for i, line in enumerate(logcat):
         # Logs will be of form:
         #
-        # 01-30 20:15:41.937 E/GoannaAppShell( 1703): >>> REPORTING UNCAUGHT EXCEPTION FROM THREAD 9 ("GoannaBackgroundThread") # noqa
-        # 01-30 20:15:41.937 E/GoannaAppShell( 1703): java.lang.NullPointerException
-        # 01-30 20:15:41.937 E/GoannaAppShell( 1703): at org.mozilla.goanna.GoannaApp$21.run(GoannaApp.java:1833) # noqa
-        # 01-30 20:15:41.937 E/GoannaAppShell( 1703): at android.os.Handler.handleCallback(Handler.java:587) # noqa
+        # 01-30 20:15:41.937 E/GeckoAppShell( 1703): >>> REPORTING UNCAUGHT EXCEPTION FROM THREAD 9 ("GeckoBackgroundThread") # noqa
+        # 01-30 20:15:41.937 E/GeckoAppShell( 1703): java.lang.NullPointerException
+        # 01-30 20:15:41.937 E/GeckoAppShell( 1703): at org.mozilla.gecko.GeckoApp$21.run(GeckoApp.java:1833) # noqa
+        # 01-30 20:15:41.937 E/GeckoAppShell( 1703): at android.os.Handler.handleCallback(Handler.java:587) # noqa
         if "REPORTING UNCAUGHT EXCEPTION" in line:
             # Strip away the date, time, logcat tag and pid from the next two lines and
             # concatenate the remainder to form a concise summary of the exception.

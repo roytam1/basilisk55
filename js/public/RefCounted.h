@@ -18,7 +18,7 @@
 //  - Release() needs to call js_delete, not delete
 //  - SpiderMonkey does not have MOZILLA_INTERNAL_API defined which can lead
 //    to ODR violations that show up as spurious leak reports when ref-counted
-//    types are allocated by SpiderMonkey and released by Goanna (or vice versa).
+//    types are allocated by SpiderMonkey and released by Gecko (or vice versa).
 
 namespace js {
 

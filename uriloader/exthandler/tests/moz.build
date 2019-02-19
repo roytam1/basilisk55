@@ -15,7 +15,7 @@ BROWSER_CHROME_MANIFESTS += ['mochitest/browser.ini']
 if not CONFIG['MOZ_JSDOWNLOADS']:
     XPCSHELL_TESTS_MANIFESTS += ['unit_ipc/xpcshell.ini']
 
-GoannaSimplePrograms([
+GeckoSimplePrograms([
     'WriteArgument',
 ], linkage=None)
 

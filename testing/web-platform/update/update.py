@@ -8,11 +8,11 @@ from wptrunner.update.base import Step, StepRunner
 from wptrunner.update.update import LoadConfig, SyncFromUpstream, UpdateMetadata
 from wptrunner.update.tree import NoVCSTree
 
-from .tree import GitTree, HgTree, GoannaCommit
+from .tree import GitTree, HgTree, GeckoCommit
 from .upstream import SyncToUpstream
 
 class LoadTrees(Step):
-    """Load goanna tree and sync tree containing web-platform-tests"""
+    """Load gecko tree and sync tree containing web-platform-tests"""
 
     provides = ["local_tree", "sync_tree"]
 
@@ -23,9 +23,9 @@ class LoadTrees(Step):
             sync_tree = None
 
         if GitTree.is_type():
-            local_tree = GitTree(commit_cls=GoannaCommit)
+            local_tree = GitTree(commit_cls=GeckoCommit)
         elif HgTree.is_type():
-            local_tree = HgTree(commit_cls=GoannaCommit)
+            local_tree = HgTree(commit_cls=GeckoCommit)
         else:
             local_tree = NoVCSTree()
 
@@ -34,7 +34,7 @@ class LoadTrees(Step):
 
 
 class UpdateRunner(StepRunner):
-    """Overall runner for updating web-platform-tests in Goanna."""
+    """Overall runner for updating web-platform-tests in Gecko."""
     steps = [LoadConfig,
              LoadTrees,
              SyncToUpstream,

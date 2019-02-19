@@ -1,8 +1,8 @@
 ---
 version: 0
 metadata:
-  name: 'Taskcluster tasks for Goanna'
-  description: "The taskcluster task graph for Goanna trees"
+  name: 'Taskcluster tasks for Gecko'
+  description: "The taskcluster task graph for Gecko trees"
   owner: mozilla-taskcluster-maintenance@mozilla.com
   source: {{{source}}}
 
@@ -51,29 +51,29 @@ tasks:
       metadata:
         owner: mozilla-taskcluster-maintenance@mozilla.com
         source: {{{source}}}
-        name: "Goanna Decision Task"
+        name: "Gecko Decision Task"
         description: |
             The task that creates all of the other tasks in the task graph
 
-      workerType: "goanna-decision"
+      workerType: "gecko-decision"
       provisionerId: "aws-provisioner-v1"
 
       tags:
         createdForUser: {{owner}}
 
       routes:
-        - "index.goanna.v2.{{project}}.latest.firefox.decision"
+        - "index.gecko.v2.{{project}}.latest.firefox.decision"
         - "tc-treeherder.v2.{{project}}.{{revision}}.{{pushlog_id}}"
         - "tc-treeherder-stage.v2.{{project}}.{{revision}}.{{pushlog_id}}"
 
       payload:
         env:
-          # checkout-goanna uses these to check out the source; the inputs
+          # checkout-gecko uses these to check out the source; the inputs
           # to `mach taskgraph decision` are all on the command line.
-          GOANNA_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
-          GOANNA_HEAD_REPOSITORY: '{{{url}}}'
-          GOANNA_HEAD_REF: '{{revision}}'
-          GOANNA_HEAD_REV: '{{revision}}'
+          GECKO_BASE_REPOSITORY: 'https://hg.mozilla.org/mozilla-unified'
+          GECKO_HEAD_REPOSITORY: '{{{url}}}'
+          GECKO_HEAD_REF: '{{revision}}'
+          GECKO_HEAD_REV: '{{revision}}'
           HG_STORE_PATH: /home/worker/checkouts/hg-store
 
         cache:
@@ -93,12 +93,12 @@ tasks:
         # tar.gz archives are created or tc-vcs isn't being used.
         command:
           - /home/worker/bin/run-task
-          - '--vcs-checkout=/home/worker/checkouts/goanna'
+          - '--vcs-checkout=/home/worker/checkouts/gecko'
           - '--'
           - bash
           - -cx
           - >
-              cd /home/worker/checkouts/goanna &&
+              cd /home/worker/checkouts/gecko &&
               ln -s /home/worker/artifacts artifacts &&
               ./mach --log-no-times taskgraph decision
               --pushlog-id='{{pushlog_id}}'

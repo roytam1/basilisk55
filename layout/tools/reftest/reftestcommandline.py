@@ -337,7 +337,7 @@ class DesktopArgumentsParser(ReftestArgumentsParser):
                 self.error("cannot specify a debugger with parallel tests")
 
         if options.debugger:
-            # valgrind and some debuggers may cause Goanna to start slowly. Make sure
+            # valgrind and some debuggers may cause Gecko to start slowly. Make sure
             # marionette waits long enough to connect.
             options.marionette_port_timeout = 900
             options.marionette_socket_timeout = 540

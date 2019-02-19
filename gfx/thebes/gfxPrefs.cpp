@@ -42,7 +42,7 @@ gfxPrefs::gfxPrefs()
   // ready by the time we initialize gfxPrefs.
   MOZ_ASSERT_IF(XRE_IsContentProcess() ||
                 XRE_IsParentProcess() ||
-                XRE_GetProcessType() == GoannaProcessType_Plugin,
+                XRE_GetProcessType() == GeckoProcessType_Plugin,
                 Preferences::IsServiceAvailable());
 
   gfxPrefs::AssertMainThread();

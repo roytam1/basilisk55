@@ -54,6 +54,6 @@ add_test(function test_getCLIP_error_generic_failure_invalid_length() {
 
   let postedMessage = workerHelper.postedMessage;
 
-  equal(postedMessage.errorMsg, GOANNA_ERROR_GENERIC_FAILURE);
+  equal(postedMessage.errorMsg, GECKO_ERROR_GENERIC_FAILURE);
   run_next_test();
 });

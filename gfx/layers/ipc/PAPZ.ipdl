@@ -15,7 +15,7 @@ using struct mozilla::layers::ScrollableLayerGuid from "FrameMetrics.h";
 using mozilla::layers::FrameMetrics::ViewID from "FrameMetrics.h";
 using mozilla::layers::MaybeZoomConstraints from "FrameMetrics.h";
 using mozilla::layers::TouchBehaviorFlags from "mozilla/layers/APZUtils.h";
-using mozilla::layers::GoannaContentController::APZStateChange from "mozilla/layers/GoannaContentController.h";
+using mozilla::layers::GeckoContentController::APZStateChange from "mozilla/layers/GeckoContentController.h";
 using mozilla::dom::TabId from "mozilla/dom/ipc/IdType.h";
 using mozilla::dom::ContentParentId from "mozilla/dom/ipc/IdType.h";
 using mozilla::layers::AsyncDragMetrics from "mozilla/layers/AsyncDragMetrics.h";
@@ -26,12 +26,12 @@ namespace layers {
 
 
 /**
- * PAPZ is a protocol for remoting a GoannaContentController. PAPZ lives on the
+ * PAPZ is a protocol for remoting a GeckoContentController. PAPZ lives on the
  * PCompositorBridge protocol which either connects to the compositor thread
  * in the main process, or to the compositor thread in the gpu processs.
  *
  * PAPZParent lives in the compositor thread, while PAPZChild lives wherever the remoted
- * GoannaContentController lives (generally the main thread of the main or content process).
+ * GeckoContentController lives (generally the main thread of the main or content process).
  * RemoteContentController implements PAPZParent, while APZChild implements PAPZChild.
  *
  * PAPZ is always used for ContentProcessController and only used for ChromeProcessController

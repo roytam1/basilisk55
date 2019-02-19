@@ -26,7 +26,7 @@ namespace mozilla {
  *
  * Allocations of output buffer can be performed by this class.  Buffers can
  * simply be delete-d.  This is because packets are intended to be sent off to
- * non-goanna code using normal pointers/length pairs
+ * non-gecko code using normal pointers/length pairs
  *
  * Alternatively, consumers can pass in a buffer in which the output is copied.
  * The buffer needs to be large enough to store a packet worth of audio.

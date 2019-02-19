@@ -24,7 +24,7 @@ this.assert = {};
 /**
  * Asserts that Marionette has a session.
  *
- * @param {GoannaDriver} driver
+ * @param {GeckoDriver} driver
  *     Marionette driver instance.
  * @param {string=} msg
  *     Custom error message.

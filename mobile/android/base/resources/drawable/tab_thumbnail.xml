@@ -4,7 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <item android:state_focused="true">
 
@@ -17,7 +17,7 @@
     </item>
 
     <item android:state_focused="true"
-          goanna:state_private="true">
+          gecko:state_private="true">
 
         <shape android:shape="rectangle">
             <!-- @color/private_browsing_purple with alpha -->
@@ -28,7 +28,7 @@
     </item>
 
     <item android:state_pressed="true"
-          goanna:state_private="true">
+          gecko:state_private="true">
 
         <shape android:shape="rectangle">
             <!-- @color/private_browsing_purple with alpha -->
@@ -48,7 +48,7 @@
 
     </item>
 
-    <item goanna:state_recording="true">
+    <item gecko:state_recording="true">
 
         <shape android:shape="rectangle">
             <solid android:color="#FFFF0000"/>
@@ -60,8 +60,8 @@
     <item android:state_focused="false"
           android:state_pressed="false"
           android:state_checked="true"
-          goanna:state_recording="false"
-          goanna:state_private="true">
+          gecko:state_recording="false"
+          gecko:state_private="true">
 
         <shape android:shape="rectangle">
             <solid android:color="@color/private_browsing_purple"/>
@@ -73,7 +73,7 @@
     <item android:state_focused="false"
           android:state_pressed="false"
           android:state_checked="true"
-          goanna:state_recording="false">
+          gecko:state_recording="false">
 
         <shape android:shape="rectangle">
             <solid android:color="@color/fennec_ui_orange"/>

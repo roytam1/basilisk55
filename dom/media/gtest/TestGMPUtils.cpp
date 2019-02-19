@@ -33,7 +33,7 @@ void TestSplitAt(const char* aInput,
   }
 }
 
-TEST(GoannaMediaPlugins, TestSplitAt) {
+TEST(GeckoMediaPlugins, TestSplitAt) {
   {
     const char* input = "1,2,3,4";
     const char* delims = ",";
@@ -60,7 +60,7 @@ TEST(GoannaMediaPlugins, TestSplitAt) {
   }
 }
 
-TEST(GoannaMediaPlugins, ToHexString) {
+TEST(GeckoMediaPlugins, ToHexString) {
   struct Test {
     nsTArray<uint8_t> bytes;
     string hex;

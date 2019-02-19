@@ -84,12 +84,12 @@ add_test(function test_reading_optional_efs() {
     for (let i = 0; i < len; i++) {
       let index, bitmask, iccService;
       if (ril.appType === CARD_APPTYPE_SIM) {
-        iccService = GOANNA_ICC_SERVICES.sim[supportedEf[i]];
+        iccService = GECKO_ICC_SERVICES.sim[supportedEf[i]];
         iccService -= 1;
         index = Math.floor(iccService / 4);
         bitmask = 2 << ((iccService % 4) << 1);
       } else if (ril.appType === CARD_APPTYPE_USIM){
-        iccService = GOANNA_ICC_SERVICES.usim[supportedEf[i]];
+        iccService = GECKO_ICC_SERVICES.usim[supportedEf[i]];
         iccService -= 1;
         index = Math.floor(iccService / 8);
         bitmask = 1 << ((iccService % 8) << 0);
@@ -248,7 +248,7 @@ add_test(function test_read_mwis() {
   };
 
   function buildMwisData(isActive, msgCount) {
-    if (msgCount < 0 || msgCount === GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) {
+    if (msgCount < 0 || msgCount === GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) {
       msgCount = 0;
     } else if (msgCount > 255) {
       msgCount = 255;
@@ -268,7 +268,7 @@ add_test(function test_read_mwis() {
     equal((isActive) ? msgCount : 0, postedMessage.mwi.msgCount);
   }
 
-  do_test(true, GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN);
+  do_test(true, GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN);
   do_test(true, 1);
   do_test(true, 255);
 
@@ -310,7 +310,7 @@ add_test(function test_update_mwis() {
     function buildMwisData() {
       let result = mwis.slice(0);
       result[0] = isActive? (mwis[0] | 0x01) : (mwis[0] & 0xFE);
-      result[1] = (count === GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) ? 0 : count;
+      result[1] = (count === GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN) ? 0 : count;
 
       return result;
     }
@@ -367,7 +367,7 @@ add_test(function test_update_mwis() {
     ok((ril.iccInfoPrivate.mwis) ? isUpdated : !isUpdated);
   }
 
-  do_test(true, GOANNA_VOICEMAIL_MESSAGE_COUNT_UNKNOWN);
+  do_test(true, GECKO_VOICEMAIL_MESSAGE_COUNT_UNKNOWN);
   do_test(true, 1);
   do_test(true, 255);
 
@@ -1485,8 +1485,8 @@ add_test(function test_read_mbdn_recovered_from_cphs_mbn() {
     }
   };
 
-  iccUtilsHelper.isCphsServiceAvailable = function(goannaService) {
-    return goannaService == "MBN";
+  iccUtilsHelper.isCphsServiceAvailable = function(geckoService) {
+    return geckoService == "MBN";
   };
 
   let isRecovered = false;

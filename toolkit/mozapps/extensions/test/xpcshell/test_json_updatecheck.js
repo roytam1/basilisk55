@@ -103,8 +103,8 @@ add_task(function* test_default_values() {
   equal(update.updateInfoURL, null, "updateInfoURL");
 
   // If there's no applications property, we default to using one
-  // containing "gecko". If there is an applications property, but
-  // it doesn't contain "gecko", the update is skipped.
+  // containing "goanna". If there is an applications property, but
+  // it doesn't contain "goanna", the update is skipped.
   updates = yield checkUpdates({
     id: "updatecheck-defaults@tests.mozilla.org",
     version: "0.1",
@@ -140,7 +140,7 @@ add_task(function* test_explicit_values() {
       update_info_url: "https://example.com/update_info.html",
       multiprocess_compatible: false,
       applications: {
-        gecko: {
+        goanna: {
           strict_min_version: "42.0a2.xpcshell",
           strict_max_version: "43.xpcshell"
         }
@@ -220,13 +220,13 @@ add_task(function* test_strict_compat() {
       version: "0.1",
       updates: [
         { version: "0.2",
-          applications: { gecko: { strict_max_version: "*" } } },
+          applications: { goanna: { strict_max_version: "*" } } },
         { version: "0.3",
-          applications: { gecko: { strict_max_version: "43" } } },
+          applications: { goanna: { strict_max_version: "43" } } },
         { version: "0.4",
-          applications: { gecko: { advisory_max_version: "43" } } },
+          applications: { goanna: { advisory_max_version: "43" } } },
         { version: "0.5",
-          applications: { gecko: { advisory_max_version: "43",
+          applications: { goanna: { advisory_max_version: "43",
                                    strict_max_version: "44" } } },
       ]
     });

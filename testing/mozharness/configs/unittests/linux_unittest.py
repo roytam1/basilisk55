@@ -227,7 +227,7 @@ config = {
         "reftest-stylo": {
             "options": ["--suite=reftest",
                         "--disable-e10s",
-                        "--setpref=reftest.compareStyloToGoanna=true"],
+                        "--setpref=reftest.compareStyloToGecko=true"],
             "tests": ["tests/reftest/tests/layout/reftests/reftest-stylo.list"],
         },
     },

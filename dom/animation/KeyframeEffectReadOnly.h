@@ -487,7 +487,7 @@ private:
   // composition.
   bool HasComputedTimingChanged() const;
 
-  // Returns true unless Goanna limitations prevent performing transform
+  // Returns true unless Gecko limitations prevent performing transform
   // animations for |aFrame|. When returning true, the reason for the
   // limitation is stored in |aOutPerformanceWarning|.
   static bool CanAnimateTransformOnCompositor(

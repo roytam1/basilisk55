@@ -103,7 +103,7 @@ Dump(JSContext* cx, unsigned argc, Value* vp)
         return false;
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "Goanna", "%s", utf8str.ptr());
+    __android_log_print(ANDROID_LOG_INFO, "Gecko", "%s", utf8str.ptr());
 #endif
 #ifdef XP_WIN
     if (IsDebuggerPresent()) {
@@ -644,7 +644,7 @@ mozJSComponentLoader::PrepareObjectForLocation(JSContext* aCx,
 
     if (createdNewGlobal) {
         // AutoEntryScript required to invoke debugger hook, which is a
-        // Goanna-specific concept at present.
+        // Gecko-specific concept at present.
         dom::AutoEntryScript aes(holder->GetJSObject(),
                                  "component loader report global");
         RootedObject global(aes.cx(), holder->GetJSObject());
@@ -952,7 +952,7 @@ mozJSComponentLoader::ObjectForLocation(ComponentLoaderInfo& aInfo,
 
         // We're going to run script via JS_ExecuteScript or
         // JS_CallFunction, so we need an AutoEntryScript.
-        // This is Goanna-specific and not in any spec.
+        // This is Gecko-specific and not in any spec.
         dom::AutoEntryScript aes(CurrentGlobalOrNull(cx),
                                  "component loader load module");
         JSContext* aescx = aes.cx();

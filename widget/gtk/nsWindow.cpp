@@ -19,7 +19,7 @@
 #include "mozilla/UniquePtrExtensions.h"
 #include <algorithm>
 
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 #include "prlink.h"
 #include "nsGTKToolkit.h"
@@ -2504,7 +2504,7 @@ nsWindow::OnSizeAllocate(GtkAllocation *aAllocation)
     }
 #endif
 
-    // Goanna permits running nested event loops during processing of events,
+    // Gecko permits running nested event loops during processing of events,
     // GtkWindow callers of gtk_widget_size_allocate expect the signal
     // handlers to return sometime in the near future.
     mNeedsDispatchResized = true;
@@ -2523,14 +2523,14 @@ nsWindow::OnEnterNotifyEvent(GdkEventCrossing *aEvent)
 {
     // This skips NotifyVirtual and NotifyNonlinearVirtual enter notify events
     // when the pointer enters a child window.  If the destination window is a
-    // Goanna window then we'll catch the corresponding event on that window,
+    // Gecko window then we'll catch the corresponding event on that window,
     // but we won't notice when the pointer directly enters a foreign (plugin)
-    // child window without passing over a visible portion of a Goanna window.
+    // child window without passing over a visible portion of a Gecko window.
     if (aEvent->subwindow != nullptr)
         return;
 
     // Check before is_parent_ungrab_enter() as the button state may have
-    // changed while a non-Goanna ancestor window had a pointer grab.
+    // changed while a non-Gecko ancestor window had a pointer grab.
     DispatchMissedButtonReleases(aEvent);
 
     if (is_parent_ungrab_enter(aEvent))
@@ -2567,12 +2567,12 @@ nsWindow::OnLeaveNotifyEvent(GdkEventCrossing *aEvent)
 {
     // This ignores NotifyVirtual and NotifyNonlinearVirtual leave notify
     // events when the pointer leaves a child window.  If the destination
-    // window is a Goanna window then we'll catch the corresponding event on
+    // window is a Gecko window then we'll catch the corresponding event on
     // that window.
     //
     // XXXkt However, we will miss toplevel exits when the pointer directly
     // leaves a foreign (plugin) child window without passing over a visible
-    // portion of a Goanna window.
+    // portion of a Gecko window.
     if (aEvent->subwindow != nullptr)
         return;
 
@@ -2676,17 +2676,17 @@ nsWindow::OnMotionNotifyEvent(GdkEventMotion *aEvent)
 
 // If the automatic pointer grab on ButtonPress has deactivated before
 // ButtonRelease, and the mouse button is released while the pointer is not
-// over any a Goanna window, then the ButtonRelease event will not be received.
+// over any a Gecko window, then the ButtonRelease event will not be received.
 // (A similar situation exists when the pointer is grabbed with owner_events
 // True as the ButtonRelease may be received on a foreign [plugin] window).
 // Use this method to check for released buttons when the pointer returns to a
-// Goanna window.
+// Gecko window.
 void
 nsWindow::DispatchMissedButtonReleases(GdkEventCrossing *aGdkEvent)
 {
     guint changed = aGdkEvent->state ^ gButtonState;
     // Only consider button releases.
-    // (Ignore button presses that occurred outside Goanna.)
+    // (Ignore button presses that occurred outside Gecko.)
     guint released = changed & gButtonState;
     gButtonState = aGdkEvent->state;
 
@@ -2714,7 +2714,7 @@ nsWindow::DispatchMissedButtonReleases(GdkEventCrossing *aGdkEvent)
             LOG(("Synthesized button %u release on %p\n",
                  guint(buttonType + 1), (void *)this));
 
-            // Dispatch a synthesized button up event to tell Goanna about the
+            // Dispatch a synthesized button up event to tell Gecko about the
             // change in state.  This event is marked as synthesized so that
             // it is not dispatched as a DOM event, because we don't know the
             // position, widget, modifiers, or time/order.
@@ -6444,11 +6444,11 @@ nsWindow::ExecuteNativeKeyBindingRemapped(NativeKeyBindingsType aType,
                                           const WidgetKeyboardEvent& aEvent,
                                           DoCommandCallback aCallback,
                                           void* aCallbackData,
-                                          uint32_t aGoannaKeyCode,
+                                          uint32_t aGeckoKeyCode,
                                           uint32_t aNativeKeyCode)
 {
     WidgetKeyboardEvent modifiedEvent(aEvent);
-    modifiedEvent.mKeyCode = aGoannaKeyCode;
+    modifiedEvent.mKeyCode = aGeckoKeyCode;
     static_cast<GdkEventKey*>(modifiedEvent.mNativeKeyEvent)->keyval =
         aNativeKeyCode;
 
@@ -6471,43 +6471,43 @@ nsWindow::ExecuteNativeKeyBinding(NativeKeyBindingsType aType,
         DispatchEvent(&query, status);
 
         if (query.mSucceeded && query.mReply.mWritingMode.IsVertical()) {
-            uint32_t goannaCode = 0;
+            uint32_t geckoCode = 0;
             uint32_t gdkCode = 0;
             switch (aEvent.mKeyCode) {
             case NS_VK_LEFT:
                 if (query.mReply.mWritingMode.IsVerticalLR()) {
-                    goannaCode = NS_VK_UP;
+                    geckoCode = NS_VK_UP;
                     gdkCode = GDK_Up;
                 } else {
-                    goannaCode = NS_VK_DOWN;
+                    geckoCode = NS_VK_DOWN;
                     gdkCode = GDK_Down;
                 }
                 break;
 
             case NS_VK_RIGHT:
                 if (query.mReply.mWritingMode.IsVerticalLR()) {
-                    goannaCode = NS_VK_DOWN;
+                    geckoCode = NS_VK_DOWN;
                     gdkCode = GDK_Down;
                 } else {
-                    goannaCode = NS_VK_UP;
+                    geckoCode = NS_VK_UP;
                     gdkCode = GDK_Up;
                 }
                 break;
 
             case NS_VK_UP:
-                goannaCode = NS_VK_LEFT;
+                geckoCode = NS_VK_LEFT;
                 gdkCode = GDK_Left;
                 break;
 
             case NS_VK_DOWN:
-                goannaCode = NS_VK_RIGHT;
+                geckoCode = NS_VK_RIGHT;
                 gdkCode = GDK_Right;
                 break;
             }
 
             return ExecuteNativeKeyBindingRemapped(aType, aEvent, aCallback,
                                                    aCallbackData,
-                                                   goannaCode, gdkCode);
+                                                   geckoCode, gdkCode);
         }
     }
 

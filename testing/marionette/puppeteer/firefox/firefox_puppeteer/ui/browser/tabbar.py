@@ -102,7 +102,7 @@ class TabBar(UIBaseLib):
          be a string with one of `menu` or `shortcut`, or a callback which gets triggered
          with the :class:`Tab` as parameter. Defaults to `menu`.
 
-        :param force: Optional, forces the closing of the window by using the Goanna API.
+        :param force: Optional, forces the closing of the window by using the Gecko API.
          Defaults to `False`.
         """
         tab = tab or self.selected_tab
@@ -296,7 +296,7 @@ class Tab(UIBaseLib):
          be a string with one of `button`, `menu` or `shortcut`, or a callback which
          gets triggered with the current :class:`Tab` as parameter. Defaults to `menu`.
 
-        :param force: Optional, forces the closing of the window by using the Goanna API.
+        :param force: Optional, forces the closing of the window by using the Gecko API.
          Defaults to `False`.
         """
         handle = self.handle

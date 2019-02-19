@@ -7,7 +7,7 @@
                   android:title="@string/pref_category_accessibility"
                   android:enabled="false">
 
-    <org.mozilla.goanna.preferences.FontSizePreference
+    <org.mozilla.gecko.preferences.FontSizePreference
                     android:key="font.size.inflation.minTwips"
                     android:title="@string/pref_text_size"
                     android:positiveButtonText="@string/pref_font_size_set"

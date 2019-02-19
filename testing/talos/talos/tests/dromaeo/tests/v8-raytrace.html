@@ -927,7 +927,7 @@ Ajax.Request.prototype = Object.extend(new Ajax.Base(), {
        * Content-length header. See Mozilla Bugzilla #246651.
        */
       if (this.transport.overrideMimeType &&
-          (navigator.userAgent.match(/Goanna\/(\d{4})/) || [0,2005])[1] < 2005)
+          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005)
             headers['Connection'] = 'close';
     }
 
@@ -1424,7 +1424,7 @@ Element.Methods = {
       var value = style[name];
       if(name == 'opacity') {
         if (value == 1) {
-          value = (/Goanna/.test(navigator.userAgent) &&
+          value = (/Gecko/.test(navigator.userAgent) &&
             !/Konqueror|Safari|KHTML/.test(navigator.userAgent)) ? 0.999999 : 1.0;
           if(/MSIE/.test(navigator.userAgent) && !window.opera)
             element.style.filter = element.getStyle('filter').replace(/alpha\([^\)]*\)/gi,'');

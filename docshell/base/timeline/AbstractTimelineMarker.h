@@ -9,7 +9,7 @@
 
 #include "TimelineMarkerEnums.h" // for MarkerTracingType
 #include "nsDOMNavigationTiming.h" // for DOMHighResTimeStamp
-#include "nsXULAppAPI.h" // for GoannaProcessType
+#include "nsXULAppAPI.h" // for GeckoProcessType
 #include "mozilla/UniquePtr.h"
 
 struct JSContext;
@@ -57,14 +57,14 @@ private:
   DOMHighResTimeStamp mTime;
   MarkerTracingType mTracingType;
 
-  uint8_t mProcessType; // @see `enum GoannaProcessType`.
+  uint8_t mProcessType; // @see `enum GeckoProcessType`.
   bool mIsOffMainThread;
 
 protected:
   void SetCurrentTime();
   void SetCustomTime(const TimeStamp& aTime);
   void SetCustomTime(DOMHighResTimeStamp aTime);
-  void SetProcessType(GoannaProcessType aProcessType);
+  void SetProcessType(GeckoProcessType aProcessType);
   void SetOffMainThread(bool aIsOffMainThread);
 };
 

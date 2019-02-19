@@ -5,7 +5,7 @@ ssl-type=none
 
 # [firefox]
 # binary=/path/to/firefox
-# prefs-root=/path/to/goanna-src/testing/profiles/
+# prefs-root=/path/to/gecko-src/testing/profiles/
 
 # [servo]
 # binary=/path/to/servo-src/target/release/servo

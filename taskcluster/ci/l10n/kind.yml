@@ -50,8 +50,8 @@ job-template:
             android-api-15-l10n: android-api-15-opt
    worker-type:
       by-build-platform:
-         default: aws-provisioner-v1/goanna-{level}-b-linux
-         android: aws-provisioner-v1/goanna-{level}-b-android
+         default: aws-provisioner-v1/gecko-{level}-b-linux
+         android: aws-provisioner-v1/gecko-{level}-b-android
    treeherder:
       symbol: tc(L10n)
       tier:

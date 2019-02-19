@@ -7,17 +7,17 @@
 DEFINES['ANDROID_PACKAGE_NAME'] = CONFIG['ANDROID_PACKAGE_NAME']
 
 ANDROID_APK_NAME = 'browser-junit3-debug'
-ANDROID_APK_PACKAGE = 'org.mozilla.goanna.browser.tests'
+ANDROID_APK_PACKAGE = 'org.mozilla.gecko.browser.tests'
 
 jar = add_java_jar('browser-junit3')
 jar.sources += [
     'src/org/mozilla/tests/browser/junit3/harness/BrowserInstrumentationTestRunner.java',
     'src/org/mozilla/tests/browser/junit3/harness/BrowserTestListener.java',
     'src/org/mozilla/tests/browser/junit3/TestDistribution.java',
-    'src/org/mozilla/tests/browser/junit3/TestGoannaBackgroundThread.java',
-    'src/org/mozilla/tests/browser/junit3/TestGoannaMenu.java',
-    'src/org/mozilla/tests/browser/junit3/TestGoannaProfilesProvider.java',
-    'src/org/mozilla/tests/browser/junit3/TestGoannaSharedPrefs.java',
+    'src/org/mozilla/tests/browser/junit3/TestGeckoBackgroundThread.java',
+    'src/org/mozilla/tests/browser/junit3/TestGeckoMenu.java',
+    'src/org/mozilla/tests/browser/junit3/TestGeckoProfilesProvider.java',
+    'src/org/mozilla/tests/browser/junit3/TestGeckoSharedPrefs.java',
     'src/org/mozilla/tests/browser/junit3/TestImageDownloader.java',
     'src/org/mozilla/tests/browser/junit3/TestJarReader.java',
     'src/org/mozilla/tests/browser/junit3/TestRawResource.java',
@@ -30,12 +30,12 @@ jar.extra_jars += [
     CONFIG['ANDROID_SUPPORT_V4_AAR_LIB'],
     CONFIG['ANDROID_RECYCLERVIEW_V7_AAR_LIB'],
     TOPOBJDIR + '/mobile/android/base/constants.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-R.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-browser.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-mozglue.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-thirdparty.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-util.jar',
-    TOPOBJDIR + '/mobile/android/base/goanna-view.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-R.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-browser.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-mozglue.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-thirdparty.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-util.jar',
+    TOPOBJDIR + '/mobile/android/base/gecko-view.jar',
     TOPOBJDIR + '/mobile/android/base/services.jar',
     TOPOBJDIR + '/mobile/android/base/sync-thirdparty.jar',
 ]

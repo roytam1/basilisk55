@@ -7,7 +7,7 @@
 #include "GMPParent.h"
 #include "gmp-storage.h"
 #include "mozilla/Unused.h"
-#include "mozIGoannaMediaPluginService.h"
+#include "mozIGeckoMediaPluginService.h"
 
 namespace mozilla {
 
@@ -38,7 +38,7 @@ GMPStorageParent::Init()
   if (NS_WARN_IF(mNodeId.IsEmpty())) {
     return NS_ERROR_FAILURE;
   }
-  RefPtr<GoannaMediaPluginServiceParent> mps(GoannaMediaPluginServiceParent::GetSingleton());
+  RefPtr<GeckoMediaPluginServiceParent> mps(GeckoMediaPluginServiceParent::GetSingleton());
   if (NS_WARN_IF(!mps)) {
     return NS_ERROR_FAILURE;
   }

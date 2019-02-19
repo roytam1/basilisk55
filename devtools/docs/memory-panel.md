@@ -120,7 +120,7 @@ via a method on the [`HeapSnapshot`](dom/webidl/HeapSnapshot.webidl) webidl
 interface.
 
 For each analysis we expose to chrome JavaScript on the `HeapSnapshot` webidl
-interface, there is a small amount of glue code in Goanna. The
+interface, there is a small amount of glue code in Gecko. The
 [`mozilla::devtools::HeapSnapshot`](devtools/shared/heapsnapshot/HeapSnapshot.h)
 C++ class implements the webidl interface. The analyses methods (eg
 `ComputeDominatorTree`) take the deserialized nodes and edges from the heap

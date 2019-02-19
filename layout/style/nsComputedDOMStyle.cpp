@@ -465,8 +465,8 @@ public:
 
     // Set SkipAnimationRules flag if we are going to resolve style without
     // animation.
-    if (aPresContext->RestyleManager()->IsGoanna()) {
-      mRestyleManager = aPresContext->RestyleManager()->AsGoanna();
+    if (aPresContext->RestyleManager()->IsGecko()) {
+      mRestyleManager = aPresContext->RestyleManager()->AsGecko();
 
       mOldSkipAnimationRules = mRestyleManager->SkipAnimationRules();
       mRestyleManager->SetSkipAnimationRules(true);
@@ -520,7 +520,7 @@ public:
         rules[i].swap(rules[length - i - 1]);
       }
 
-      result = aStyleSet->AsGoanna()->ResolveStyleForRules(aParentContext,
+      result = aStyleSet->AsGecko()->ResolveStyleForRules(aParentContext,
                                                           rules);
     }
     return result.forget();
@@ -545,13 +545,13 @@ public:
       Element* pseudoElement =
         frame && aInDocWithShell ? frame->GetPseudoElement(aType) : nullptr;
       result =
-        aStyleSet->AsGoanna()->ResolvePseudoElementStyleWithoutAnimation(
+        aStyleSet->AsGecko()->ResolvePseudoElementStyleWithoutAnimation(
           aElement, aType,
           aParentContext,
           pseudoElement);
     } else {
       result =
-        aStyleSet->AsGoanna()->ResolveStyleWithoutAnimation(aElement,
+        aStyleSet->AsGecko()->ResolveStyleWithoutAnimation(aElement,
                                                            aParentContext);
     }
     return result.forget();

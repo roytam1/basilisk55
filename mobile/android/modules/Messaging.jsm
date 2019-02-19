@@ -181,7 +181,7 @@ var EventDispatcher = {
     let view = window && window.arguments && window.arguments[0] &&
         window.arguments[0].QueryInterface(Ci.nsIAndroidView);
     if (!view) {
-      throw new Error("window is not a GoannaView-connected window");
+      throw new Error("window is not a GeckoView-connected window");
     }
     return new DispatcherDelegate(view);
   },
@@ -242,7 +242,7 @@ var Messaging = {
    * @param aMessage  Message to send; must be an object with a "type" property
    */
   sendRequest: function (aMessage) {
-    Services.androidBridge.handleGoannaMessage(aMessage);
+    Services.androidBridge.handleGeckoMessage(aMessage);
   },
 
   /**
@@ -295,18 +295,18 @@ var Messaging = {
     try {
       let response = yield aListener(wrapper.data);
       if (typeof response !== "object" || response === null) {
-        throw new Error("Goanna request listener did not return an object");
+        throw new Error("Gecko request listener did not return an object");
       }
 
       Messaging.sendRequest({
-        type: "Goanna:Request" + wrapper.id,
+        type: "Gecko:Request" + wrapper.id,
         response: response
       });
     } catch (e) {
       Cu.reportError("Error in Messaging handler for " + aTopic + ": " + e);
 
       Messaging.sendRequest({
-        type: "Goanna:Request" + wrapper.id,
+        type: "Gecko:Request" + wrapper.id,
         error: {
           message: e.message || (e && e.toString()),
           stack: e.stack || Components.stack.formattedStack,

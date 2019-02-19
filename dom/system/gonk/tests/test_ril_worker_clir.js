@@ -46,7 +46,7 @@ add_test(function test_setCLIR_generic_failure() {
   context.RIL.setCLIR = function fakeSetCLIR(options) {
     context.RIL[REQUEST_SET_CLIR](0, {
       rilMessageType: "setCLIR",
-      errorMsg: GOANNA_ERROR_GENERIC_FAILURE
+      errorMsg: GECKO_ERROR_GENERIC_FAILURE
     });
   };
 
@@ -56,7 +56,7 @@ add_test(function test_setCLIR_generic_failure() {
 
   let postedMessage = workerHelper.postedMessage;
 
-  equal(postedMessage.errorMsg, GOANNA_ERROR_GENERIC_FAILURE);
+  equal(postedMessage.errorMsg, GECKO_ERROR_GENERIC_FAILURE);
 
   run_next_test();
 });
@@ -117,6 +117,6 @@ add_test(function test_getCLIR_error_generic_failure_invalid_length() {
 
   let postedMessage = workerHelper.postedMessage;
 
-  equal(postedMessage.errorMsg, GOANNA_ERROR_GENERIC_FAILURE);
+  equal(postedMessage.errorMsg, GECKO_ERROR_GENERIC_FAILURE);
   run_next_test();
 });

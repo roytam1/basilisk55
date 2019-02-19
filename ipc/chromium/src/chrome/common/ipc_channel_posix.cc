@@ -43,7 +43,7 @@
 static const size_t kMaxIOVecSize = 256;
 
 #ifdef MOZ_TASK_TRACER
-#include "GoannaTaskTracerImpl.h"
+#include "GeckoTaskTracerImpl.h"
 using namespace mozilla::tasktracer;
 #endif
 
@@ -65,7 +65,7 @@ namespace IPC {
 // transport the IPC channel file descriptor to the child process.
 // So rather than re-mapping the file descriptor to a known value,
 // the received channel file descriptor is set by calling
-// SetClientChannelFd before goanna has been initialized and started
+// SetClientChannelFd before gecko has been initialized and started
 // in the child process.
 
 //------------------------------------------------------------------------------

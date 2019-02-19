@@ -206,17 +206,17 @@ TEST_F(APZCBasicTester, PanningTransformNotifications) {
   {
     InSequence s;
     EXPECT_CALL(check, Call("Simple pan"));
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eStartTouch,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eTransformBegin,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eStartPanning,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eEndTouch,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eTransformEnd,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eStartTouch,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eTransformBegin,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eStartPanning,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eEndTouch,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eTransformEnd,_)).Times(1);
     EXPECT_CALL(check, Call("Complex pan"));
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eStartTouch,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eTransformBegin,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eStartPanning,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eEndTouch,_)).Times(1);
-    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GoannaContentController::APZStateChange::eTransformEnd,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eStartTouch,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eTransformBegin,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eStartPanning,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eEndTouch,_)).Times(1);
+    EXPECT_CALL(*mcc, NotifyAPZStateChange(_,GeckoContentController::APZStateChange::eTransformEnd,_)).Times(1);
     EXPECT_CALL(check, Call("Done"));
   }
 

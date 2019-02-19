@@ -229,13 +229,13 @@ Faulty::IsValidProcessType(void)
 
   if (targetChildren && !targetParent) {
     // Fuzz every process type but not the content process.
-    isValidProcessType = XRE_GetProcessType() != GoannaProcessType_Content;
+    isValidProcessType = XRE_GetProcessType() != GeckoProcessType_Content;
   } else if (targetChildren && targetParent) {
     // Fuzz every process type.
     isValidProcessType = true;
   } else {
     // Fuzz the content process only.
-    isValidProcessType = XRE_GetProcessType() == GoannaProcessType_Content;
+    isValidProcessType = XRE_GetProcessType() == GeckoProcessType_Content;
   }
 
   // Parent and children are different threads in the same process on

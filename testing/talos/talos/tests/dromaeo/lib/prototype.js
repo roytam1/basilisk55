@@ -14,7 +14,7 @@ var Prototype = {
       navigator.userAgent.indexOf('Opera') === -1),
     Opera:  navigator.userAgent.indexOf('Opera') > -1,
     WebKit: navigator.userAgent.indexOf('AppleWebKit/') > -1,
-    Goanna:  navigator.userAgent.indexOf('Goanna') > -1 &&
+    Gecko:  navigator.userAgent.indexOf('Gecko') > -1 &&
       navigator.userAgent.indexOf('KHTML') === -1,
     MobileSafari: !!navigator.userAgent.match(/Apple.*Mobile.*Safari/)
   },
@@ -1265,7 +1265,7 @@ Ajax.Request = Class.create(Ajax.Base, {
        * Content-length header. See Mozilla Bugzilla #246651.
        */
       if (this.transport.overrideMimeType &&
-          (navigator.userAgent.match(/Goanna\/(\d{4})/) || [0,2005])[1] < 2005)
+          (navigator.userAgent.match(/Gecko\/(\d{4})/) || [0,2005])[1] < 2005)
             headers['Connection'] = 'close';
     }
 
@@ -2393,7 +2393,7 @@ else if (Prototype.Browser.IE) {
   })(Element._attributeTranslations.read.values);
 }
 
-else if (Prototype.Browser.Goanna && /rv:1\.8\.0/.test(navigator.userAgent)) {
+else if (Prototype.Browser.Gecko && /rv:1\.8\.0/.test(navigator.userAgent)) {
   Element.Methods.setOpacity = function(element, value) {
     element = $(element);
     element.style.opacity = (value == 1) ? 0.999999 :

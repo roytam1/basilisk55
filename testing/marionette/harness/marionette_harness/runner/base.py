@@ -265,25 +265,25 @@ class BaseMarionetteArguments(ArgumentParser):
                                'When a directory is specified, '
                                'all test files in the directory will be run.')
         self.add_argument('--binary',
-                          help='path to goanna executable to launch before running the test')
+                          help='path to gecko executable to launch before running the test')
         self.add_argument('--address',
-                          help='host:port of running Goanna instance to connect to')
+                          help='host:port of running Gecko instance to connect to')
         self.add_argument('--emulator',
                           action='store_true',
                           help='If no --address is given, then the harness will launch an '
                                'emulator. (See Remote options group.) '
                                'If --address is given, then the harness assumes you are '
-                               'running an emulator already, and will launch goanna app '
+                               'running an emulator already, and will launch gecko app '
                                'on that emulator.')
         self.add_argument('--app',
-                          help='application to use. see marionette_driver.goannainstance')
+                          help='application to use. see marionette_driver.geckoinstance')
         self.add_argument('--app-arg',
                           dest='app_args',
                           action='append',
                           default=[],
                           help='specify a command line argument to be passed onto the application')
         self.add_argument('--profile',
-                          help='profile to use when launching the goanna process. If not passed, '
+                          help='profile to use when launching the gecko process. If not passed, '
                                'then a profile will be constructed and used',
                           type=dir_path)
         self.add_argument('--pref',
@@ -332,12 +332,12 @@ class BaseMarionetteArguments(ArgumentParser):
                           help='url to a webserver or path to a document root from which content '
                                'resources are served (default: {}).'.format(os.path.join(
                                    os.path.dirname(here), 'www')))
-        self.add_argument('--goanna-log',
+        self.add_argument('--gecko-log',
                           help="Define the path to store log file. If the path is"
                                " a directory, the real log file will be created"
-                               " given the format goanna-(timestamp).log. If it is"
+                               " given the format gecko-(timestamp).log. If it is"
                                " a file, if will be used directly. '-' may be passed"
-                               " to write to stdout. Default: './goanna.log'")
+                               " to write to stdout. Default: './gecko.log'")
         self.add_argument('--logger-name',
                           default='Marionette-based Tests',
                           help='Define the name to associate with the logger used')
@@ -502,7 +502,7 @@ class BaseMarionetteTestRunner(object):
                  symbols_path=None,
                  shuffle=False, shuffle_seed=random.randint(0, sys.maxint), this_chunk=1,
                  total_chunks=1,
-                 server_root=None, goanna_log=None, result_callbacks=None,
+                 server_root=None, gecko_log=None, result_callbacks=None,
                  prefs=None, test_tags=None,
                  socket_timeout=BaseMarionetteArguments.socket_timeout_default,
                  startup_timeout=None, addons=None, workspace=None,
@@ -543,7 +543,7 @@ class BaseMarionetteTestRunner(object):
         self.test_tags = test_tags
         self.startup_timeout = startup_timeout
         self.workspace = workspace
-        # If no workspace is set, default location for goanna.log is .
+        # If no workspace is set, default location for gecko.log is .
         # and default location for profile is TMP
         self.workspace_path = workspace or os.getcwd()
         self.verbose = verbose
@@ -588,10 +588,10 @@ class BaseMarionetteTestRunner(object):
         self.logger.info('Using workspace for temporary data: '
                          '"{}"'.format(self.workspace_path))
 
-        if not goanna_log:
-            self.goanna_log = os.path.join(self.workspace_path or '', 'goanna.log')
+        if not gecko_log:
+            self.gecko_log = os.path.join(self.workspace_path or '', 'gecko.log')
         else:
-            self.goanna_log = goanna_log
+            self.gecko_log = gecko_log
 
         self.results = []
 
@@ -728,8 +728,8 @@ class BaseMarionetteTestRunner(object):
                 'app_args': self.app_args,
                 'profile': self.profile,
                 'addons': self.addons,
-                'goanna_log': self.goanna_log,
-                # ensure Marionette class takes care of starting goanna instance
+                'gecko_log': self.gecko_log,
+                # ensure Marionette class takes care of starting gecko instance
                 'bin': True,
             })
 

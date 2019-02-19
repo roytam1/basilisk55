@@ -17,7 +17,7 @@
 
 #include "mozilla/Attributes.h"
 #include "mozilla/layers/AsyncCompositionManager.h" // for ViewTransform
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 #include "mozilla/layers/CompositorBridgeParent.h"
 #include "mozilla/layers/APZCTreeManager.h"
 #include "mozilla/layers/LayerMetricsWrapper.h"
@@ -40,7 +40,7 @@ using ::testing::AtLeast;
 using ::testing::AtMost;
 using ::testing::MockFunction;
 using ::testing::InSequence;
-typedef mozilla::layers::GoannaContentController::TapType TapType;
+typedef mozilla::layers::GeckoContentController::TapType TapType;
 
 template<class T>
 class ScopedGfxPref {
@@ -72,7 +72,7 @@ static TimeStamp GetStartupTime() {
   return sStartupTime;
 }
 
-class MockContentController : public GoannaContentController {
+class MockContentController : public GeckoContentController {
 public:
   MOCK_METHOD1(RequestContentRepaint, void(const FrameMetrics&));
   MOCK_METHOD2(RequestFlingSnap, void(const FrameMetrics::ViewID& aScrollId, const mozilla::CSSPoint& aDestination));
@@ -181,7 +181,7 @@ public:
 
 protected:
   AsyncPanZoomController* NewAPZCInstance(uint64_t aLayersId,
-                                          GoannaContentController* aController) override;
+                                          GeckoContentController* aController) override;
 
   TimeStamp GetFrameTime() override {
     return mcc->Time();
@@ -581,7 +581,7 @@ APZCTesterBase::DoubleTapAndCheckStatus(const RefPtr<InputReceiver>& aTarget,
 
 AsyncPanZoomController*
 TestAPZCTreeManager::NewAPZCInstance(uint64_t aLayersId,
-                                     GoannaContentController* aController)
+                                     GeckoContentController* aController)
 {
   MockContentControllerDelayed* mcc = static_cast<MockContentControllerDelayed*>(aController);
   return new TestAsyncPanZoomController(aLayersId, mcc, this,

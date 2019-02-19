@@ -187,7 +187,7 @@
 @RESPATH@/components/composer.xpt
 @RESPATH@/components/content_events.xpt
 @RESPATH@/components/content_html.xpt
-@RESPATH@/components/content_goannamediaplugins.xpt
+@RESPATH@/components/content_geckomediaplugins.xpt
 #ifdef MOZ_WEBRTC
 @RESPATH@/components/content_webrtc.xpt
 #endif

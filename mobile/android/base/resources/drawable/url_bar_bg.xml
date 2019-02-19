@@ -4,10 +4,10 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:goanna="http://schemas.android.com/apk/res-auto">
+          xmlns:gecko="http://schemas.android.com/apk/res-auto">
 
     <!-- private browsing mode -->
-    <item goanna:state_private="true" android:drawable="@color/tabs_tray_grey_pressed"/>
+    <item gecko:state_private="true" android:drawable="@color/tabs_tray_grey_pressed"/>
 
     <!-- normal mode -->
     <item android:drawable="@color/toolbar_grey"/>

@@ -115,7 +115,7 @@ const int32_t MAX_CACHE_SIZE = 350 * 1024;      // 350 MB
 const int32_t OLD_MAX_CACHE_SIZE = 1024 * 1024; //   1 GB
 #endif
 // Default cache size was 50 MB for many years until FF 4:
-const int32_t PRE_GOANNA_2_0_DEFAULT_CACHE_SIZE = 50 * 1024;
+const int32_t PRE_GECKO_2_0_DEFAULT_CACHE_SIZE = 50 * 1024;
 
 class nsCacheProfilePrefObserver : public nsIObserver
 {
@@ -662,7 +662,7 @@ nsCacheProfilePrefObserver::PermittedToSmartSize(nsIPrefBranch* branch, bool
             // If user explicitly set cache size to be smaller than old default
             // of 50 MB, then keep user's value. Otherwise use smart sizing.
             rv = branch->GetIntPref(DISK_CACHE_CAPACITY_PREF, &oldCapacity);
-            if (oldCapacity < PRE_GOANNA_2_0_DEFAULT_CACHE_SIZE) {
+            if (oldCapacity < PRE_GECKO_2_0_DEFAULT_CACHE_SIZE) {
                 mSmartSizeEnabled = false;
                 branch->SetBoolPref(DISK_CACHE_SMART_SIZE_ENABLED_PREF,
                                     mSmartSizeEnabled);

@@ -35,7 +35,7 @@ import java.lang.Math;
 // This class also adds support for output volume control of the
 // STREAM_VOICE_CALL-type stream.
 
-import org.mozilla.goanna.annotation.WebRTCJNITarget;
+import org.mozilla.gecko.annotation.WebRTCJNITarget;
 
 @WebRTCJNITarget
 public class WebRtcAudioManager {

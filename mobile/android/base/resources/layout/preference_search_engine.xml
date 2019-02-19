@@ -12,7 +12,7 @@
               android:paddingStart="?android:attr/listPreferredItemPaddingStart"
               android:paddingRight="?android:attr/scrollbarSize">
 
-    <org.mozilla.goanna.widget.FaviconView
+    <org.mozilla.gecko.widget.FaviconView
         android:id="@+id/search_engine_icon"
         android:layout_width="@dimen/favicon_bg"
         android:layout_height="@dimen/favicon_bg"

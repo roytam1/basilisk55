@@ -22,7 +22,7 @@
             "type": "object",
             "optional": true,
             "properties": {
-              "gecko": {
+              "goanna": {
                 "$ref": "FirefoxSpecificProperties",
                 "optional": true
               }
@@ -33,7 +33,7 @@
             "type": "object",
             "optional": true,
             "properties": {
-              "gecko": {
+              "goanna": {
                 "$ref": "FirefoxSpecificProperties",
                 "optional": true
               }

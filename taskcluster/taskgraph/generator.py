@@ -15,7 +15,7 @@ from .util.python_path import find_object
 from .util.verify import (
     verify_docs,
     verify_task_graph_symbol,
-    verify_goanna_v2_routes,
+    verify_gecko_v2_routes,
 )
 
 logger = logging.getLogger(__name__)
@@ -197,7 +197,7 @@ class TaskGraphGenerator(object):
         full_task_graph = TaskGraph(all_tasks,
                                     Graph(full_task_set.graph.nodes, edges))
         full_task_graph.for_each_task(verify_task_graph_symbol, scratch_pad={})
-        full_task_graph.for_each_task(verify_goanna_v2_routes, scratch_pad={})
+        full_task_graph.for_each_task(verify_gecko_v2_routes, scratch_pad={})
         logger.info("Full task graph contains %d tasks and %d dependencies" % (
             len(full_task_set.graph.nodes), len(edges)))
         yield 'full_task_graph', full_task_graph

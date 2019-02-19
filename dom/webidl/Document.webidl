@@ -88,7 +88,7 @@ interface Document : Node {
   // void append((Node or DOMString)... nodes);
 
   // These are not in the spec, but leave them for now for backwards compat.
-  // So sort of like Goanna extensions
+  // So sort of like Gecko extensions
   [NewObject, Throws]
   CDATASection createCDATASection(DOMString data);
   [NewObject, Throws]
@@ -150,7 +150,7 @@ partial interface Document {
   // special event handler IDL attributes that only apply to Document objects
   [LenientThis] attribute EventHandler onreadystatechange;
 
-  // Goanna extensions?
+  // Gecko extensions?
                 attribute EventHandler onwheel;
                 attribute EventHandler onbeforescriptexecute;
                 attribute EventHandler onafterscriptexecute;

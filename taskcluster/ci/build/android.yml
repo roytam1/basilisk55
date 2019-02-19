@@ -6,7 +6,7 @@ android-api-15/debug:
     treeherder:
         platform: android-4-0-armv7-api15/debug
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -30,7 +30,7 @@ android-x86/opt:
     treeherder:
         platform: android-4-2-x86/opt
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -57,7 +57,7 @@ android-x86-nightly/opt:
     treeherder:
         platform: android-4-2-x86/opt
         symbol: tc(N)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -82,7 +82,7 @@ android-api-15/opt:
     treeherder:
         platform: android-4-0-armv7-api15/opt
         symbol: tc(B)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -109,7 +109,7 @@ android-api-15-nightly/opt:
     treeherder:
         platform: android-4-0-armv7-api15/opt
         symbol: tc(N)
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -135,7 +135,7 @@ android-api-15-gradle/opt:
         platform: android-4-0-armv7-api15/opt
         symbol: tc(Bg)
         tier: 2
-    worker-type: aws-provisioner-v1/goanna-{level}-b-android
+    worker-type: aws-provisioner-v1/gecko-{level}-b-android
     worker:
         implementation: docker-worker
         max-run-time: 7200
@@ -144,10 +144,10 @@ android-api-15-gradle/opt:
             GRADLE_USER_HOME: /home/worker/workspace/build/src/dotgradle
         artifacts:
           - name: public/android/maven
-            path: /home/worker/workspace/build/src/obj-firefox/gradle/build/mobile/android/goannaview/maven/
+            path: /home/worker/workspace/build/src/obj-firefox/gradle/build/mobile/android/geckoview/maven/
             type: directory
-          - name: public/android/goannaview_example.apk
-            path: /home/worker/workspace/build/src/obj-firefox/gradle/build/mobile/android/goannaview_example/outputs/apk/goannaview_example-withGoannaBinaries.apk
+          - name: public/android/geckoview_example.apk
+            path: /home/worker/workspace/build/src/obj-firefox/gradle/build/mobile/android/geckoview_example/outputs/apk/geckoview_example-withGeckoBinaries.apk
             type: file
           - name: public/build
             path: /home/worker/artifacts/

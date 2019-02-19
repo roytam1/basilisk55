@@ -155,7 +155,7 @@ public class CellScanner {
         }
     }
 
-    // Note: this reimplements org.mozilla.goanna.util.WeakReferenceHandler because it's not available here.
+    // Note: this reimplements org.mozilla.gecko.util.WeakReferenceHandler because it's not available here.
     private static class BroadcastScannedHandler extends Handler {
         private WeakReference<CellScanner> mTarget;
 

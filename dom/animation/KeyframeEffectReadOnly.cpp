@@ -310,7 +310,7 @@ KeyframeEffectReadOnly::UpdateProperties(nsStyleContext* aStyleContext)
   }
 
   // FIXME (bug 1303235): Do this for Servo too
-  if (aStyleContext->PresContext()->StyleSet()->IsGoanna()) {
+  if (aStyleContext->PresContext()->StyleSet()->IsGecko()) {
     CalculateCumulativeChangeHint(aStyleContext);
   }
 
@@ -363,7 +363,7 @@ KeyframeEffectReadOnly::ResolveBaseStyle(nsCSSPropertyID aProperty,
   }
 
   RefPtr<nsStyleContext> styleContextWithoutAnimation =
-    aStyleContext->PresContext()->StyleSet()->AsGoanna()->
+    aStyleContext->PresContext()->StyleSet()->AsGecko()->
       ResolveStyleByRemovingAnimation(mTarget->mElement,
                                       aStyleContext,
                                       eRestyle_AllHintsWithAnimations);
@@ -1488,10 +1488,10 @@ CreateStyleContextForAnimationValue(nsCSSPropertyID aProperty,
   nsCOMArray<nsIStyleRule> rules;
   rules.AppendObject(styleRule);
 
-  MOZ_ASSERT(aBaseStyleContext->PresContext()->StyleSet()->IsGoanna(),
+  MOZ_ASSERT(aBaseStyleContext->PresContext()->StyleSet()->IsGecko(),
              "ServoStyleSet should not use StyleAnimationValue for animations");
   nsStyleSet* styleSet =
-    aBaseStyleContext->PresContext()->StyleSet()->AsGoanna();
+    aBaseStyleContext->PresContext()->StyleSet()->AsGecko();
 
   RefPtr<nsStyleContext> styleContext =
     styleSet->ResolveStyleByAddingRules(aBaseStyleContext, rules);

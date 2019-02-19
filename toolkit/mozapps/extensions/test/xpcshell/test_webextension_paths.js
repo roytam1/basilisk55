@@ -24,7 +24,7 @@ add_task(function* test_bad_unpacked_path() {
     version: "1.0",
 
     browser_specific_settings: {
-      gecko: {
+      goanna: {
         id: MANIFEST_ID
       }
     }

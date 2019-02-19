@@ -46,7 +46,7 @@
 #include "nsSVGEffects.h"
 #include "nsSVGElement.h"
 #include "nsSVGClipPathFrame.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "nsViewManager.h"
 #include "ImageLayers.h"
 #include "ImageContainer.h"
@@ -1481,7 +1481,7 @@ nsDisplayListBuilder::GetWindowDraggingRegion() const
 
 const uint32_t gWillChangeAreaMultiplier = 3;
 static uint32_t GetLayerizationCost(const nsSize& aSize) {
-  // There's significant overhead for each layer created from Goanna
+  // There's significant overhead for each layer created from Gecko
   // (IPC+Shared Objects) and from the backend (like an OpenGL texture).
   // Therefore we set a minimum cost threshold of a 64x64 area.
   int minBudgetCost = 64 * 64;

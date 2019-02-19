@@ -32,7 +32,7 @@ add_test(function test_error_message_read_icc_contact () {
   // Error 3, suppose we update the supported PBR fields in USIM_PBR_FIELDS,
   // but forget to add implemenetations for it.
   USIM_PBR_FIELDS.push("pbc");
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN},
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN},
           CONTACT_ERR_FIELD_NOT_SUPPORTED);
 
   run_next_test();
@@ -60,18 +60,18 @@ add_test(function test_error_message_update_icc_contact() {
   do_test({}, CONTACT_ERR_REQUEST_NOT_SUPPORTED);
 
   // Error 2, specifying a correct contactType, but without providing 'contact'.
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN},
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN},
           CONTACT_ERR_REQUEST_NOT_SUPPORTED);
 
   // Error 3, specifying a non-supported contactType.
   ril.appType = CARD_APPTYPE_USIM;
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_SDN, contact: {}},
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_SDN, contact: {}},
           CONTACT_ERR_CONTACT_TYPE_NOT_SUPPORTED);
 
   // Error 4, without supplying pin2.
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_FDN,
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_FDN,
            contact: {contactId: ICCID + "1"}},
-          GOANNA_ERROR_SIM_PIN2);
+          GECKO_ERROR_SIM_PIN2);
 
   // Error 5, No free record found in EF_ADN.
   let record = context.ICCRecordHelper;
@@ -86,23 +86,23 @@ add_test(function test_error_message_update_icc_contact() {
     options.callback(options);
   };
 
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN, contact: {}},
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN, contact: {}},
           CONTACT_ERR_NO_FREE_RECORD_FOUND);
 
   // Error 6, ICC IO Error.
   io.loadLinearFixedEF = function(options) {
     ril[REQUEST_SIM_IO](0, {
-      errorMsg: GOANNA_ERROR_GENERIC_FAILURE
+      errorMsg: GECKO_ERROR_GENERIC_FAILURE
     });
   };
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN,
            contact: {contactId: ICCID + "1"}},
-          GOANNA_ERROR_GENERIC_FAILURE);
+          GECKO_ERROR_GENERIC_FAILURE);
 
   // Error 7, suppose we update the supported PBR fields in USIM_PBR_FIELDS,
   // but forget to add implemenetations for it.
   USIM_PBR_FIELDS.push("pbc");
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN,
            contact: {contactId: ICCID + "1"}},
           CONTACT_ERR_FIELD_NOT_SUPPORTED);
 
@@ -111,7 +111,7 @@ add_test(function test_error_message_update_icc_contact() {
     onsuccess([]);
   };
 
-  do_test({contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+  do_test({contactType: GECKO_CARDCONTACT_TYPE_ADN,
            contact: {contactId: ICCID + "1"}},
           CONTACT_ERR_CANNOT_ACCESS_PHONEBOOK);
 
@@ -133,7 +133,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read SIM adn contact",
       rawData: {
         simType: CARD_APPTYPE_SIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
       },
       expectedContact: [{
@@ -147,7 +147,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read SIM fdn contact",
       rawData: {
         simType: CARD_APPTYPE_SIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_FDN,
+        contactType: GECKO_CARDCONTACT_TYPE_FDN,
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
       },
       expectedContact: [{
@@ -161,7 +161,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read USIM adn contact",
       rawData: {
         simType: CARD_APPTYPE_USIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         pbrs: [{adn:{fileId: 0x6f3a}, email: {}, anr0: {}}],
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
         email: "hello@mail.com",
@@ -181,7 +181,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read USIM adn contacts",
       rawData: {
         simType: CARD_APPTYPE_USIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         pbrs: [{adn:{fileId: 0x6f3a}, email: {}, anr0: {}},
                {adn:{fileId: 0x6f3b}, email: {}, anr0: {}}],
         adnLike: [{recordId: 1, alphaId: "name1", number: "111111"},
@@ -226,7 +226,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read USIM fdn contact",
       rawData: {
         simType: CARD_APPTYPE_USIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_FDN,
+        contactType: GECKO_CARDCONTACT_TYPE_FDN,
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
       },
       expectedContact: [{
@@ -240,7 +240,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read RUIM adn contact",
       rawData: {
         simType: CARD_APPTYPE_RUIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
       },
       expectedContact: [{
@@ -254,7 +254,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read RUIM fdn contact",
       rawData: {
         simType: CARD_APPTYPE_RUIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_FDN,
+        contactType: GECKO_CARDCONTACT_TYPE_FDN,
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
       },
       expectedContact: [{
@@ -268,7 +268,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read RUIM adn contact with enhanced phone book",
       rawData: {
         simType: CARD_APPTYPE_RUIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         pbrs: [{adn:{fileId: 0x6f3a}, email: {}, anr0: {}}],
         adnLike: [{recordId: 1, alphaId: "name", number: "111111"}],
         email: "hello@mail.com",
@@ -289,7 +289,7 @@ add_test(function test_read_icc_contacts() {
       comment: "Test read RUIM adn contacts with enhanced phone book",
       rawData: {
         simType: CARD_APPTYPE_RUIM,
-        contactType: GOANNA_CARDCONTACT_TYPE_ADN,
+        contactType: GECKO_CARDCONTACT_TYPE_ADN,
         pbrs: [{adn:{fileId: 0x6f3a}, email: {}, anr0: {}},
                {adn:{fileId: 0x6f3b}, email: {}, anr0: {}}],
         adnLike: [{recordId: 1, alphaId: "name1", number: "111111"},
@@ -443,9 +443,9 @@ add_test(function test_update_icc_contact() {
     };
 
     recordHelper.updateADNLike = function(fileId, extRecordNumber, contact, pin2, onsuccess, onerror) {
-      if (aContactType === GOANNA_CARDCONTACT_TYPE_FDN) {
+      if (aContactType === GECKO_CARDCONTACT_TYPE_FDN) {
         equal(fileId, ICC_EF_FDN);
-      } else if (aContactType === GOANNA_CARDCONTACT_TYPE_ADN) {
+      } else if (aContactType === GECKO_CARDCONTACT_TYPE_ADN) {
         equal(fileId, ICC_EF_ADN);
       }
 
@@ -610,41 +610,41 @@ add_test(function test_update_icc_contact() {
     let contact = contacts[i];
     // SIM
     do_print("Test update SIM adn contacts");
-    do_test(CARD_APPTYPE_SIM, GOANNA_CARDCONTACT_TYPE_ADN, contact);
+    do_test(CARD_APPTYPE_SIM, GECKO_CARDCONTACT_TYPE_ADN, contact);
 
     do_print("Test update SIM fdn contacts");
-    do_test(CARD_APPTYPE_SIM, GOANNA_CARDCONTACT_TYPE_FDN, contact, "1234");
+    do_test(CARD_APPTYPE_SIM, GECKO_CARDCONTACT_TYPE_FDN, contact, "1234");
 
     // USIM
     do_print("Test update USIM adn contacts");
-    do_test(CARD_APPTYPE_USIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_USIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE1_TAG);
-    do_test(CARD_APPTYPE_USIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_USIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE2_TAG, true);
-    do_test(CARD_APPTYPE_USIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_USIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE2_TAG, false);
 
     do_print("Test update USIM fdn contacts");
-    do_test(CARD_APPTYPE_USIM, GOANNA_CARDCONTACT_TYPE_FDN, contact, "1234");
+    do_test(CARD_APPTYPE_USIM, GECKO_CARDCONTACT_TYPE_FDN, contact, "1234");
 
     // RUIM
     do_print("Test update RUIM adn contacts");
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_ADN, contact);
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_ADN, contact);
 
     do_print("Test update RUIM fdn contacts");
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_FDN, contact, "1234");
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_FDN, contact, "1234");
 
     // RUIM with enhanced phone book
     do_print("Test update RUIM adn contacts with enhanced phone book");
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE1_TAG, null,true);
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE2_TAG, true, true);
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null,
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null,
             ICC_USIM_TYPE2_TAG, false, true);
 
     do_print("Test update RUIM fdn contacts with enhanced phone book");
-    do_test(CARD_APPTYPE_RUIM, GOANNA_CARDCONTACT_TYPE_FDN, contact, "1234",
+    do_test(CARD_APPTYPE_RUIM, GECKO_CARDCONTACT_TYPE_FDN, contact, "1234",
             null, true);
   }
 
@@ -689,7 +689,7 @@ add_test(function test_update_icc_contact_full_email_and_anr_field() {
     };
 
     recordHelper.updateADNLike = function(fileId, extRecordNumber, contact, pin2, onsuccess, onerror) {
-      if (aContactType === GOANNA_CARDCONTACT_TYPE_ADN) {
+      if (aContactType === GECKO_CARDCONTACT_TYPE_ADN) {
         equal(fileId, ICC_EF_ADN);
       }
       equal(pin2, aPin2);
@@ -751,7 +751,7 @@ add_test(function test_update_icc_contact_full_email_and_anr_field() {
 
   // USIM
   do_print("Test update USIM adn contacts");
-  do_test(CARD_APPTYPE_USIM, GOANNA_CARDCONTACT_TYPE_ADN, contact, null);
+  do_test(CARD_APPTYPE_USIM, GECKO_CARDCONTACT_TYPE_ADN, contact, null);
 
   run_next_test();
 });
@@ -832,7 +832,7 @@ add_test(function test_update_icc_contact_with_remove_type1_attr() {
     };
 
     contactHelper.updateICCContact(CARD_APPTYPE_USIM,
-                                   GOANNA_CARDCONTACT_TYPE_ADN,
+                                   GECKO_CARDCONTACT_TYPE_ADN,
                                    contact, null, successCb, errorCb);
   }
 
@@ -876,7 +876,7 @@ add_test(function test_find_free_icc_contact_sim() {
 
   for (let i = 0; i < MAX_RECORDS; i++) {
     contactHelper.findFreeICCContact(CARD_APPTYPE_SIM,
-                                     GOANNA_CARDCONTACT_TYPE_ADN,
+                                     GECKO_CARDCONTACT_TYPE_ADN,
                                      successCb, errorCb);
   }
   // The 1st element, records[0], is null.
@@ -890,7 +890,7 @@ add_test(function test_find_free_icc_contact_sim() {
   errorCb = function(errorMsg) {
     ok(errorMsg === "No free record found.");
   };
-  contactHelper.findFreeICCContact(CARD_APPTYPE_SIM, GOANNA_CARDCONTACT_TYPE_ADN,
+  contactHelper.findFreeICCContact(CARD_APPTYPE_SIM, GECKO_CARDCONTACT_TYPE_ADN,
                                    successCb, errorCb);
 
   run_next_test();
@@ -937,7 +937,7 @@ add_test(function test_find_free_icc_contact_usim() {
   };
 
   contactHelper.findFreeICCContact(CARD_APPTYPE_USIM,
-                                   GOANNA_CARDCONTACT_TYPE_ADN,
+                                   GECKO_CARDCONTACT_TYPE_ADN,
                                    successCb, errorCb);
 
   // Now the EF_ADN in the 1st phonebook set is full, so the next free contact
@@ -947,7 +947,7 @@ add_test(function test_find_free_icc_contact_usim() {
     equal(recordId, 1);
   }
   contactHelper.findFreeICCContact(CARD_APPTYPE_USIM,
-                                   GOANNA_CARDCONTACT_TYPE_ADN,
+                                   GECKO_CARDCONTACT_TYPE_ADN,
                                    successCb, errorCb);
 
   run_next_test();

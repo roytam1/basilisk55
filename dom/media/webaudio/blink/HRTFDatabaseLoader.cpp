@@ -28,7 +28,7 @@
 
 #include "HRTFDatabaseLoader.h"
 #include "HRTFDatabase.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 
 using namespace mozilla;
 

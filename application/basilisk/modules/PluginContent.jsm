@@ -989,7 +989,7 @@ PluginContent.prototype = {
 
   /**
    * The PluginCrashed event handler. Note that the PluginCrashed event is
-   * fired for both NPAPI and Goanna Media plugins. In the latter case, the
+   * fired for both NPAPI and Gecko Media plugins. In the latter case, the
    * target of the event is the document that the GMP is being used in.
    */
   onPluginCrashed(target, aEvent) {

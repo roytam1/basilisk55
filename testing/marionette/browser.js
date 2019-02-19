@@ -71,7 +71,7 @@ browser.getTabBrowser = function (win) {
  *
  * @param {nsIDOMWindow} win
  *     The window whose browser needs to be accessed.
- * @param {GoannaDriver} driver
+ * @param {GeckoDriver} driver
  *     Reference to the driver the browser is attached to.
  */
 browser.Context = class {
@@ -79,7 +79,7 @@ browser.Context = class {
   /**
    * @param {<xul:browser>} win
    *     Frame that is expected to contain the view of the web document.
-   * @param {GoannaDriver} driver
+   * @param {GeckoDriver} driver
    *     Reference to driver instance.
    */
   constructor(win, driver) {

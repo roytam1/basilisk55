@@ -111,9 +111,9 @@ UnpackWarnIfImpl(const char* aFile, unsigned long aLine,
 // Conversion
 //
 // PDUs can only store primitive data types, such as integers or
-// byte arrays. Goanna often uses more complex data types, such as
+// byte arrays. Gecko often uses more complex data types, such as
 // enumators or stuctures. Conversion functions convert between
-// primitive data and internal Goanna's data types during a PDU's
+// primitive data and internal Gecko's data types during a PDU's
 // packing and unpacking.
 //
 

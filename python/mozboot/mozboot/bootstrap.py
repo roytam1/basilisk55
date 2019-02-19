@@ -42,14 +42,14 @@ you want "Firefox for Desktop Artifact Mode".
 Similarly, if you want to work on the look-and-feel of Firefox for Android,
 you want "Firefox for Android Artifact Mode".
 
-To work on the Goanna technology platform, you would need to opt to full,
-non-artifact mode. Goanna is Mozilla's web rendering engine, similar to Edge,
-Blink, and WebKit. Goanna is implemented in C++ and JavaScript. If you
+To work on the Gecko technology platform, you would need to opt to full,
+non-artifact mode. Gecko is Mozilla's web rendering engine, similar to Edge,
+Blink, and WebKit. Gecko is implemented in C++ and JavaScript. If you
 want to work on web rendering, you want "Firefox for Desktop", or
 "Firefox for Android".
 
 If you don't know what you want, start with just Artifact Mode of the desired
-platform. Your builds will be much shorter than if you build Goanna as well.
+platform. Your builds will be much shorter than if you build Gecko as well.
 But don't worry! You can always switch configurations later.
 
 You can learn more about Artifact mode builds at
@@ -103,11 +103,11 @@ Source code can be obtained by running
 Or, if you prefer Git, you should install git-cinnabar, and follow the
 instruction here to clone from the Mercurial repository:
 
-    https://github.com/glandium/git-cinnabar/wiki/Mozilla:-A-git-workflow-for-Goanna-development
+    https://github.com/glandium/git-cinnabar/wiki/Mozilla:-A-git-workflow-for-Gecko-development
 
 Or, if you really prefer vanilla flavor Git:
 
-    git clone https://git.mozilla.org/integration/goanna-dev.git
+    git clone https://git.mozilla.org/integration/gecko-dev.git
 '''
 
 CONFIGURE_MERCURIAL = '''
@@ -390,7 +390,7 @@ def clone_firefox(hg, dest):
         print('error pulling; try running `hg pull https://hg.mozilla.org/mozilla-unified` manually')
         return False
 
-    print('updating to "central" - the development head of Goanna and Firefox')
+    print('updating to "central" - the development head of Gecko and Firefox')
     res = subprocess.call([hg, 'update', '-r', 'central'], cwd=dest)
     if res:
         print('error updating; you will need to `hg update` manually')

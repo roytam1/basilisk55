@@ -4,18 +4,18 @@
 package org.mozilla.android.sync.test;
 
 import android.content.Context;
-import org.mozilla.goanna.background.common.log.Logger;
-import org.mozilla.goanna.background.testhelpers.WBORepository;
-import org.mozilla.goanna.sync.repositories.FetchFailedException;
-import org.mozilla.goanna.sync.repositories.InactiveSessionException;
-import org.mozilla.goanna.sync.repositories.InvalidSessionTransitionException;
-import org.mozilla.goanna.sync.repositories.NoStoreDelegateException;
-import org.mozilla.goanna.sync.repositories.StoreFailedException;
-import org.mozilla.goanna.sync.repositories.delegates.RepositorySessionBeginDelegate;
-import org.mozilla.goanna.sync.repositories.delegates.RepositorySessionCreationDelegate;
-import org.mozilla.goanna.sync.repositories.delegates.RepositorySessionFetchRecordsDelegate;
-import org.mozilla.goanna.sync.repositories.delegates.RepositorySessionFinishDelegate;
-import org.mozilla.goanna.sync.repositories.domain.Record;
+import org.mozilla.gecko.background.common.log.Logger;
+import org.mozilla.gecko.background.testhelpers.WBORepository;
+import org.mozilla.gecko.sync.repositories.FetchFailedException;
+import org.mozilla.gecko.sync.repositories.InactiveSessionException;
+import org.mozilla.gecko.sync.repositories.InvalidSessionTransitionException;
+import org.mozilla.gecko.sync.repositories.NoStoreDelegateException;
+import org.mozilla.gecko.sync.repositories.StoreFailedException;
+import org.mozilla.gecko.sync.repositories.delegates.RepositorySessionBeginDelegate;
+import org.mozilla.gecko.sync.repositories.delegates.RepositorySessionCreationDelegate;
+import org.mozilla.gecko.sync.repositories.delegates.RepositorySessionFetchRecordsDelegate;
+import org.mozilla.gecko.sync.repositories.delegates.RepositorySessionFinishDelegate;
+import org.mozilla.gecko.sync.repositories.domain.Record;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;

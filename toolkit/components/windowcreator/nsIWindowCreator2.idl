@@ -26,7 +26,7 @@ interface mozIDOMWindowProxy;
 
 interface nsIWindowCreator2 : nsIWindowCreator {
 
-  /** Create a new window. Goanna will/may call this method, if made
+  /** Create a new window. Gecko will/may call this method, if made
       available to it, to create new windows.
       @param parent Parent window, if any. Null if not. The newly created
                     window should be made a child/dependent window of

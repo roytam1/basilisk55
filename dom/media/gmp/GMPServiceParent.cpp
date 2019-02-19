@@ -14,7 +14,7 @@
 #include "GMPVideoDecoderParent.h"
 #include "nsAutoPtr.h"
 #include "nsIObserverService.h"
-#include "GoannaChildProcessHost.h"
+#include "GeckoChildProcessHost.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/SyncRunnable.h"
@@ -61,32 +61,32 @@ namespace gmp {
 
 static const uint32_t NodeIdSaltLength = 32;
 
-already_AddRefed<GoannaMediaPluginServiceParent>
-GoannaMediaPluginServiceParent::GetSingleton()
+already_AddRefed<GeckoMediaPluginServiceParent>
+GeckoMediaPluginServiceParent::GetSingleton()
 {
   MOZ_ASSERT(XRE_IsParentProcess());
-  RefPtr<GoannaMediaPluginService> service(
-    GoannaMediaPluginServiceParent::GetGoannaMediaPluginService());
+  RefPtr<GeckoMediaPluginService> service(
+    GeckoMediaPluginServiceParent::GetGeckoMediaPluginService());
 #ifdef DEBUG
   if (service) {
-    nsCOMPtr<mozIGoannaMediaPluginChromeService> chromeService;
+    nsCOMPtr<mozIGeckoMediaPluginChromeService> chromeService;
     CallQueryInterface(service.get(), getter_AddRefs(chromeService));
     MOZ_ASSERT(chromeService);
   }
 #endif
-  return service.forget().downcast<GoannaMediaPluginServiceParent>();
+  return service.forget().downcast<GeckoMediaPluginServiceParent>();
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(GoannaMediaPluginServiceParent,
-                            GoannaMediaPluginService,
-                            mozIGoannaMediaPluginChromeService,
+NS_IMPL_ISUPPORTS_INHERITED(GeckoMediaPluginServiceParent,
+                            GeckoMediaPluginService,
+                            mozIGeckoMediaPluginChromeService,
                             nsIAsyncShutdownBlocker)
 
-GoannaMediaPluginServiceParent::GoannaMediaPluginServiceParent()
+GeckoMediaPluginServiceParent::GeckoMediaPluginServiceParent()
   : mShuttingDown(false)
   , mScannedPluginOnDisk(false)
   , mWaitingForPluginsSyncShutdown(false)
-  , mInitPromiseMonitor("GoannaMediaPluginServiceParent::mInitPromiseMonitor")
+  , mInitPromiseMonitor("GeckoMediaPluginServiceParent::mInitPromiseMonitor")
   , mLoadPluginsFromDiskComplete(false)
   , mServiceUserCount(0)
 {
@@ -94,13 +94,13 @@ GoannaMediaPluginServiceParent::GoannaMediaPluginServiceParent()
   mInitPromise.SetMonitor(&mInitPromiseMonitor);
 }
 
-GoannaMediaPluginServiceParent::~GoannaMediaPluginServiceParent()
+GeckoMediaPluginServiceParent::~GeckoMediaPluginServiceParent()
 {
   MOZ_ASSERT(mPlugins.IsEmpty());
 }
 
 nsresult
-GoannaMediaPluginServiceParent::Init()
+GeckoMediaPluginServiceParent::Init()
 {
   MOZ_ASSERT(NS_IsMainThread());
 
@@ -137,7 +137,7 @@ GoannaMediaPluginServiceParent::Init()
   if (version != expected) {
     Preferences::SetInt("media.gmp.storage.version.observed", expected);
     return GMPDispatch(NewRunnableMethod(
-      this, &GoannaMediaPluginServiceParent::ClearStorage));
+      this, &GeckoMediaPluginServiceParent::ClearStorage));
   }
   return NS_OK;
 }
@@ -191,7 +191,7 @@ GMPPlatformString(nsAString& aOutPlatform)
 }
 
 nsresult
-GoannaMediaPluginServiceParent::InitStorage()
+GeckoMediaPluginServiceParent::InitStorage()
 {
   MOZ_ASSERT(NS_IsMainThread());
 
@@ -244,11 +244,11 @@ GoannaMediaPluginServiceParent::InitStorage()
     return rv;
   }
 
-  return GoannaMediaPluginService::Init();
+  return GeckoMediaPluginService::Init();
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
+GeckoMediaPluginServiceParent::Observe(nsISupports* aSubject,
                                        const char* aTopic,
                                        const char16_t* aSomeData)
 {
@@ -269,7 +269,7 @@ GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
         }
         if (gmpThread) {
           gmpThread->Dispatch(WrapRunnable(this,
-                                           &GoannaMediaPluginServiceParent::CrashPlugins),
+                                           &GeckoMediaPluginServiceParent::CrashPlugins),
                               NS_DISPATCH_NORMAL);
         }
       }
@@ -290,7 +290,7 @@ GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
             , __CLASS__, __FUNCTION__));
       gmpThread->Dispatch(
         NewRunnableMethod(this,
-                          &GoannaMediaPluginServiceParent::UnloadPlugins),
+                          &GeckoMediaPluginServiceParent::UnloadPlugins),
         NS_DISPATCH_NORMAL);
 
       // Wait for UnloadPlugins() to do sync shutdown...
@@ -318,7 +318,7 @@ GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
     // Clear everything!
     if (!aSomeData || nsDependentString(aSomeData).IsEmpty()) {
       return GMPDispatch(NewRunnableMethod(
-          this, &GoannaMediaPluginServiceParent::ClearStorage));
+          this, &GeckoMediaPluginServiceParent::ClearStorage));
     }
 
     // Clear nodeIds/records modified after |t|.
@@ -328,7 +328,7 @@ GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
       return rv;
     }
     return GMPDispatch(NewRunnableMethod<PRTime>(
-        this, &GoannaMediaPluginServiceParent::ClearRecentHistoryOnGMPThread,
+        this, &GeckoMediaPluginServiceParent::ClearRecentHistoryOnGMPThread,
         t));
   }
 
@@ -336,7 +336,7 @@ GoannaMediaPluginServiceParent::Observe(nsISupports* aSubject,
 }
 
 RefPtr<GenericPromise>
-GoannaMediaPluginServiceParent::EnsureInitialized() {
+GeckoMediaPluginServiceParent::EnsureInitialized() {
   MonitorAutoLock lock(mInitPromiseMonitor);
   if (mLoadPluginsFromDiskComplete) {
     return GenericPromise::CreateAndResolve(true, __func__);
@@ -347,7 +347,7 @@ GoannaMediaPluginServiceParent::EnsureInitialized() {
 }
 
 RefPtr<GetGMPContentParentPromise>
-GoannaMediaPluginServiceParent::GetContentParent(GMPCrashHelper* aHelper,
+GeckoMediaPluginServiceParent::GetContentParent(GMPCrashHelper* aHelper,
                                                const nsACString& aNodeId,
                                                const nsCString& aAPI,
                                                const nsTArray<nsCString>& aTags)
@@ -359,7 +359,7 @@ GoannaMediaPluginServiceParent::GetContentParent(GMPCrashHelper* aHelper,
 
   typedef MozPromiseHolder<GetGMPContentParentPromise> PromiseHolder;
   PromiseHolder* rawHolder = new PromiseHolder();
-  RefPtr<GoannaMediaPluginServiceParent> self(this);
+  RefPtr<GeckoMediaPluginServiceParent> self(this);
   RefPtr<GetGMPContentParentPromise> promise = rawHolder->Ensure(__func__);
   nsCString nodeId(aNodeId);
   nsTArray<nsCString> tags(aTags);
@@ -371,7 +371,7 @@ GoannaMediaPluginServiceParent::GetContentParent(GMPCrashHelper* aHelper,
       RefPtr<GMPParent> gmp = self->SelectPluginForAPI(nodeId, api, tags);
       LOGD(("%s: %p returning %p for api %s", __FUNCTION__, (void *)self, (void *)gmp, api.get()));
       if (!gmp) {
-        NS_WARNING("GoannaMediaPluginServiceParent::GetContentParentFrom failed");
+        NS_WARNING("GeckoMediaPluginServiceParent::GetContentParentFrom failed");
         holder->Reject(NS_ERROR_FAILURE, __func__);
         return;
       }
@@ -388,7 +388,7 @@ GoannaMediaPluginServiceParent::GetContentParent(GMPCrashHelper* aHelper,
 }
 
 void
-GoannaMediaPluginServiceParent::InitializePlugins(
+GeckoMediaPluginServiceParent::InitializePlugins(
   AbstractThread* aAbstractGMPThread)
 {
   MOZ_ASSERT(aAbstractGMPThread);
@@ -397,10 +397,10 @@ GoannaMediaPluginServiceParent::InitializePlugins(
     return;
   }
 
-  RefPtr<GoannaMediaPluginServiceParent> self(this);
+  RefPtr<GeckoMediaPluginServiceParent> self(this);
   RefPtr<GenericPromise> p = mInitPromise.Ensure(__func__);
   InvokeAsync(aAbstractGMPThread, this, __func__,
-              &GoannaMediaPluginServiceParent::LoadFromEnvironment)
+              &GeckoMediaPluginServiceParent::LoadFromEnvironment)
     ->Then(aAbstractGMPThread, __func__,
       [self]() -> void {
         MonitorAutoLock lock(self->mInitPromiseMonitor);
@@ -415,21 +415,21 @@ GoannaMediaPluginServiceParent::InitializePlugins(
 }
 
 void
-GoannaMediaPluginServiceParent::NotifySyncShutdownComplete()
+GeckoMediaPluginServiceParent::NotifySyncShutdownComplete()
 {
   MOZ_ASSERT(NS_IsMainThread());
   mWaitingForPluginsSyncShutdown = false;
 }
 
 bool
-GoannaMediaPluginServiceParent::IsShuttingDown()
+GeckoMediaPluginServiceParent::IsShuttingDown()
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   return mShuttingDownOnGMPThread;
 }
 
 void
-GoannaMediaPluginServiceParent::UnloadPlugins()
+GeckoMediaPluginServiceParent::UnloadPlugins()
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   MOZ_ASSERT(!mShuttingDownOnGMPThread);
@@ -458,12 +458,12 @@ GoannaMediaPluginServiceParent::UnloadPlugins()
   }
 
   nsCOMPtr<nsIRunnable> task(NewRunnableMethod(
-    this, &GoannaMediaPluginServiceParent::NotifySyncShutdownComplete));
+    this, &GeckoMediaPluginServiceParent::NotifySyncShutdownComplete));
   NS_DispatchToMainThread(task);
 }
 
 void
-GoannaMediaPluginServiceParent::CrashPlugins()
+GeckoMediaPluginServiceParent::CrashPlugins()
 {
   LOGD(("%s::%s", __CLASS__, __FUNCTION__));
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
@@ -475,7 +475,7 @@ GoannaMediaPluginServiceParent::CrashPlugins()
 }
 
 RefPtr<GenericPromise::AllPromiseType>
-GoannaMediaPluginServiceParent::LoadFromEnvironment()
+GeckoMediaPluginServiceParent::LoadFromEnvironment()
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   RefPtr<AbstractThread> thread(GetAbstractGMPThread());
@@ -534,7 +534,7 @@ private:
 };
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::PathRunnable::Run()
+GeckoMediaPluginServiceParent::PathRunnable::Run()
 {
   mService->RemoveOnGMPThread(mPath,
                               mOperation == REMOVE_AND_DELETE_FROM_DISK,
@@ -545,11 +545,11 @@ GoannaMediaPluginServiceParent::PathRunnable::Run()
 }
 
 void
-GoannaMediaPluginServiceParent::UpdateContentProcessGMPCapabilities()
+GeckoMediaPluginServiceParent::UpdateContentProcessGMPCapabilities()
 {
   if (!NS_IsMainThread()) {
     nsCOMPtr<nsIRunnable> task =
-      NewRunnableMethod(this, &GoannaMediaPluginServiceParent::UpdateContentProcessGMPCapabilities);
+      NewRunnableMethod(this, &GeckoMediaPluginServiceParent::UpdateContentProcessGMPCapabilities);
     NS_DispatchToMainThread(task);
     return;
   }
@@ -599,7 +599,7 @@ GoannaMediaPluginServiceParent::UpdateContentProcessGMPCapabilities()
 }
 
 RefPtr<GenericPromise>
-GoannaMediaPluginServiceParent::AsyncAddPluginDirectory(const nsAString& aDirectory)
+GeckoMediaPluginServiceParent::AsyncAddPluginDirectory(const nsAString& aDirectory)
 {
   RefPtr<AbstractThread> thread(GetAbstractGMPThread());
   if (!thread) {
@@ -607,27 +607,27 @@ GoannaMediaPluginServiceParent::AsyncAddPluginDirectory(const nsAString& aDirect
   }
 
   nsString dir(aDirectory);
-  RefPtr<GoannaMediaPluginServiceParent> self = this;
+  RefPtr<GeckoMediaPluginServiceParent> self = this;
   return InvokeAsync<nsString&&>(
            thread, this, __func__,
-           &GoannaMediaPluginServiceParent::AddOnGMPThread, dir)
+           &GeckoMediaPluginServiceParent::AddOnGMPThread, dir)
     ->Then(
       AbstractThread::MainThread(), // Non DocGroup-version for the task in parent.
       __func__,
       [dir, self]() -> void {
-        LOGD(("GoannaMediaPluginServiceParent::AsyncAddPluginDirectory %s succeeded",
+        LOGD(("GeckoMediaPluginServiceParent::AsyncAddPluginDirectory %s succeeded",
               NS_ConvertUTF16toUTF8(dir).get()));
         MOZ_ASSERT(NS_IsMainThread());
         self->UpdateContentProcessGMPCapabilities();
       },
       [dir]() -> void {
-        LOGD(("GoannaMediaPluginServiceParent::AsyncAddPluginDirectory %s failed",
+        LOGD(("GeckoMediaPluginServiceParent::AsyncAddPluginDirectory %s failed",
               NS_ConvertUTF16toUTF8(dir).get()));
       });
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::AddPluginDirectory(const nsAString& aDirectory)
+GeckoMediaPluginServiceParent::AddPluginDirectory(const nsAString& aDirectory)
 {
   MOZ_ASSERT(NS_IsMainThread());
   RefPtr<GenericPromise> p = AsyncAddPluginDirectory(aDirectory);
@@ -636,7 +636,7 @@ GoannaMediaPluginServiceParent::AddPluginDirectory(const nsAString& aDirectory)
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::RemovePluginDirectory(const nsAString& aDirectory)
+GeckoMediaPluginServiceParent::RemovePluginDirectory(const nsAString& aDirectory)
 {
   MOZ_ASSERT(NS_IsMainThread());
   return GMPDispatch(new PathRunnable(this, aDirectory,
@@ -644,7 +644,7 @@ GoannaMediaPluginServiceParent::RemovePluginDirectory(const nsAString& aDirector
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::RemoveAndDeletePluginDirectory(
+GeckoMediaPluginServiceParent::RemoveAndDeletePluginDirectory(
   const nsAString& aDirectory, const bool aDefer)
 {
   MOZ_ASSERT(NS_IsMainThread());
@@ -655,7 +655,7 @@ GoannaMediaPluginServiceParent::RemoveAndDeletePluginDirectory(
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::HasPluginForAPI(const nsACString& aAPI,
+GeckoMediaPluginServiceParent::HasPluginForAPI(const nsACString& aAPI,
                                                nsTArray<nsCString>* aTags,
                                                bool* aHasPlugin)
 {
@@ -680,7 +680,7 @@ GoannaMediaPluginServiceParent::HasPluginForAPI(const nsACString& aAPI,
 }
 
 nsresult
-GoannaMediaPluginServiceParent::EnsurePluginsOnDiskScanned()
+GeckoMediaPluginServiceParent::EnsurePluginsOnDiskScanned()
 {
   const char* env = nullptr;
   if (!mScannedPluginOnDisk && (env = PR_GetEnv("MOZ_GMP_PATH")) && *env) {
@@ -699,7 +699,7 @@ GoannaMediaPluginServiceParent::EnsurePluginsOnDiskScanned()
 }
 
 already_AddRefed<GMPParent>
-GoannaMediaPluginServiceParent::FindPluginForAPIFrom(size_t aSearchStartIndex,
+GeckoMediaPluginServiceParent::FindPluginForAPIFrom(size_t aSearchStartIndex,
                                                     const nsCString& aAPI,
                                                     const nsTArray<nsCString>& aTags,
                                                     size_t* aOutPluginIndex)
@@ -719,7 +719,7 @@ GoannaMediaPluginServiceParent::FindPluginForAPIFrom(size_t aSearchStartIndex,
 }
 
 already_AddRefed<GMPParent>
-GoannaMediaPluginServiceParent::SelectPluginForAPI(const nsACString& aNodeId,
+GeckoMediaPluginServiceParent::SelectPluginForAPI(const nsACString& aNodeId,
                                                   const nsCString& aAPI,
                                                   const nsTArray<nsCString>& aTags)
 {
@@ -789,7 +789,7 @@ CreateGMPParent()
 }
 
 already_AddRefed<GMPParent>
-GoannaMediaPluginServiceParent::ClonePlugin(const GMPParent* aOriginal)
+GeckoMediaPluginServiceParent::ClonePlugin(const GMPParent* aOriginal)
 {
   MOZ_ASSERT(aOriginal);
 
@@ -805,7 +805,7 @@ GoannaMediaPluginServiceParent::ClonePlugin(const GMPParent* aOriginal)
 }
 
 RefPtr<GenericPromise>
-GoannaMediaPluginServiceParent::AddOnGMPThread(nsString aDirectory)
+GeckoMediaPluginServiceParent::AddOnGMPThread(nsString aDirectory)
 {
 #ifdef XP_WIN
   // On Windows our various test harnesses often pass paths with UNIX dir
@@ -837,7 +837,7 @@ GoannaMediaPluginServiceParent::AddOnGMPThread(nsString aDirectory)
     return GenericPromise::CreateAndReject(NS_ERROR_FAILURE, __func__);
   }
 
-  RefPtr<GoannaMediaPluginServiceParent> self(this);
+  RefPtr<GeckoMediaPluginServiceParent> self(this);
   return gmp->Init(this, directory)->Then(thread, __func__,
     [gmp, self, dir]() -> void {
       LOGD(("%s::%s: %s Succeeded", __CLASS__, __FUNCTION__, dir.get()));
@@ -852,7 +852,7 @@ GoannaMediaPluginServiceParent::AddOnGMPThread(nsString aDirectory)
 }
 
 void
-GoannaMediaPluginServiceParent::RemoveOnGMPThread(const nsAString& aDirectory,
+GeckoMediaPluginServiceParent::RemoveOnGMPThread(const nsAString& aDirectory,
                                                  const bool aDeleteFromDisk,
                                                  const bool aCanDefer)
 {
@@ -929,7 +929,7 @@ static void Dummy(RefPtr<GMPParent>& aOnDeathsDoor)
 }
 
 void
-GoannaMediaPluginServiceParent::PluginTerminated(const RefPtr<GMPParent>& aPlugin)
+GeckoMediaPluginServiceParent::PluginTerminated(const RefPtr<GMPParent>& aPlugin)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
 
@@ -947,7 +947,7 @@ GoannaMediaPluginServiceParent::PluginTerminated(const RefPtr<GMPParent>& aPlugi
 }
 
 void
-GoannaMediaPluginServiceParent::ReAddOnGMPThread(const RefPtr<GMPParent>& aOld)
+GeckoMediaPluginServiceParent::ReAddOnGMPThread(const RefPtr<GMPParent>& aOld)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   LOGD(("%s::%s: %p", __CLASS__, __FUNCTION__, (void*) aOld));
@@ -975,7 +975,7 @@ GoannaMediaPluginServiceParent::ReAddOnGMPThread(const RefPtr<GMPParent>& aOld)
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::GetStorageDir(nsIFile** aOutFile)
+GeckoMediaPluginServiceParent::GetStorageDir(nsIFile** aOutFile)
 {
   if (NS_WARN_IF(!mStorageBaseDir)) {
     return NS_ERROR_FAILURE;
@@ -1063,7 +1063,7 @@ ReadSalt(nsIFile* aPath, nsACString& aOutData)
 }
 
 already_AddRefed<GMPStorage>
-GoannaMediaPluginServiceParent::GetMemoryStorageFor(const nsACString& aNodeId)
+GeckoMediaPluginServiceParent::GetMemoryStorageFor(const nsACString& aNodeId)
 {
   RefPtr<GMPStorage> s;
   if (!mTempGMPStorage.Get(aNodeId, getter_AddRefs(s))) {
@@ -1074,7 +1074,7 @@ GoannaMediaPluginServiceParent::GetMemoryStorageFor(const nsACString& aNodeId)
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::IsPersistentStorageAllowed(const nsACString& aNodeId,
+GeckoMediaPluginServiceParent::IsPersistentStorageAllowed(const nsACString& aNodeId,
                                                           bool* aOutAllowed)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
@@ -1088,7 +1088,7 @@ GoannaMediaPluginServiceParent::IsPersistentStorageAllowed(const nsACString& aNo
 }
 
 nsresult
-GoannaMediaPluginServiceParent::GetNodeId(const nsAString& aOrigin,
+GeckoMediaPluginServiceParent::GetNodeId(const nsAString& aOrigin,
                                          const nsAString& aTopLevelOrigin,
                                          const nsAString& aGMPName,
                                          nsACString& aOutId)
@@ -1249,7 +1249,7 @@ GoannaMediaPluginServiceParent::GetNodeId(const nsAString& aOrigin,
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::GetNodeId(const nsAString& aOrigin,
+GeckoMediaPluginServiceParent::GetNodeId(const nsAString& aOrigin,
                                          const nsAString& aTopLevelOrigin,
                                          const nsAString& aGMPName,
                                          UniquePtr<GetNodeIdCallback>&& aCallback)
@@ -1370,7 +1370,7 @@ private:
 };
 
 void
-GoannaMediaPluginServiceParent::ClearNodeIdAndPlugin(DirectoryFilter& aFilter)
+GeckoMediaPluginServiceParent::ClearNodeIdAndPlugin(DirectoryFilter& aFilter)
 {
   // $profileDir/gmp/$platform/
   nsCOMPtr<nsIFile> path;
@@ -1388,7 +1388,7 @@ GoannaMediaPluginServiceParent::ClearNodeIdAndPlugin(DirectoryFilter& aFilter)
 }
 
 void
-GoannaMediaPluginServiceParent::ClearNodeIdAndPlugin(nsIFile* aPluginStorageDir,
+GeckoMediaPluginServiceParent::ClearNodeIdAndPlugin(nsIFile* aPluginStorageDir,
                                                     DirectoryFilter& aFilter)
 {
   // $profileDir/gmp/$platform/$gmpName/id/
@@ -1447,7 +1447,7 @@ GoannaMediaPluginServiceParent::ClearNodeIdAndPlugin(nsIFile* aPluginStorageDir,
 }
 
 void
-GoannaMediaPluginServiceParent::ForgetThisSiteOnGMPThread(const nsACString& aSite,
+GeckoMediaPluginServiceParent::ForgetThisSiteOnGMPThread(const nsACString& aSite,
                                                          const mozilla::OriginAttributesPattern& aPattern)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
@@ -1471,7 +1471,7 @@ GoannaMediaPluginServiceParent::ForgetThisSiteOnGMPThread(const nsACString& aSit
 }
 
 void
-GoannaMediaPluginServiceParent::ClearRecentHistoryOnGMPThread(PRTime aSince)
+GeckoMediaPluginServiceParent::ClearRecentHistoryOnGMPThread(PRTime aSince)
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   LOGD(("%s::%s: since=%lld", __CLASS__, __FUNCTION__, (int64_t)aSince));
@@ -1535,7 +1535,7 @@ GoannaMediaPluginServiceParent::ClearRecentHistoryOnGMPThread(PRTime aSince)
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::ForgetThisSite(const nsAString& aSite,
+GeckoMediaPluginServiceParent::ForgetThisSite(const nsAString& aSite,
                                               const nsAString& aPattern)
 {
   MOZ_ASSERT(NS_IsMainThread());
@@ -1550,13 +1550,13 @@ GoannaMediaPluginServiceParent::ForgetThisSite(const nsAString& aSite,
 }
 
 nsresult
-GoannaMediaPluginServiceParent::ForgetThisSiteNative(const nsAString& aSite,
+GeckoMediaPluginServiceParent::ForgetThisSiteNative(const nsAString& aSite,
                                                     const mozilla::OriginAttributesPattern& aPattern)
 {
   MOZ_ASSERT(NS_IsMainThread());
 
   return GMPDispatch(NewRunnableMethod<nsCString, mozilla::OriginAttributesPattern>(
-      this, &GoannaMediaPluginServiceParent::ForgetThisSiteOnGMPThread,
+      this, &GeckoMediaPluginServiceParent::ForgetThisSiteOnGMPThread,
       NS_ConvertUTF16toUTF8(aSite), aPattern));
 }
 
@@ -1579,38 +1579,38 @@ GetShutdownBarrier()
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::GetName(nsAString& aName)
+GeckoMediaPluginServiceParent::GetName(nsAString& aName)
 {
-  aName = NS_LITERAL_STRING("GoannaMediaPluginServiceParent: shutdown");
+  aName = NS_LITERAL_STRING("GeckoMediaPluginServiceParent: shutdown");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::GetState(nsIPropertyBag**)
+GeckoMediaPluginServiceParent::GetState(nsIPropertyBag**)
 {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-GoannaMediaPluginServiceParent::BlockShutdown(nsIAsyncShutdownClient*)
+GeckoMediaPluginServiceParent::BlockShutdown(nsIAsyncShutdownClient*)
 {
   return NS_OK;
 }
 
 void
-GoannaMediaPluginServiceParent::ServiceUserCreated()
+GeckoMediaPluginServiceParent::ServiceUserCreated()
 {
   MOZ_ASSERT(mServiceUserCount >= 0);
   if (++mServiceUserCount == 1) {
     nsresult rv = GetShutdownBarrier()->AddBlocker(
       this, NS_LITERAL_STRING(__FILE__), __LINE__,
-      NS_LITERAL_STRING("GoannaMediaPluginServiceParent shutdown"));
+      NS_LITERAL_STRING("GeckoMediaPluginServiceParent shutdown"));
     MOZ_RELEASE_ASSERT(NS_SUCCEEDED(rv));
   }
 }
 
 void
-GoannaMediaPluginServiceParent::ServiceUserDestroyed()
+GeckoMediaPluginServiceParent::ServiceUserDestroyed()
 {
   MOZ_ASSERT(mServiceUserCount > 0);
   if (--mServiceUserCount == 0) {
@@ -1620,7 +1620,7 @@ GoannaMediaPluginServiceParent::ServiceUserDestroyed()
 }
 
 void
-GoannaMediaPluginServiceParent::ClearStorage()
+GeckoMediaPluginServiceParent::ClearStorage()
 {
   MOZ_ASSERT(NS_GetCurrentThread() == mGMPThread);
   LOGD(("%s::%s", __CLASS__, __FUNCTION__));
@@ -1645,7 +1645,7 @@ GoannaMediaPluginServiceParent::ClearStorage()
 }
 
 already_AddRefed<GMPParent>
-GoannaMediaPluginServiceParent::GetById(uint32_t aPluginId)
+GeckoMediaPluginServiceParent::GetById(uint32_t aPluginId)
 {
   MutexAutoLock lock(mMutex);
   for (const RefPtr<GMPParent>& gmp : mPlugins) {
@@ -1660,7 +1660,7 @@ GMPServiceParent::~GMPServiceParent()
 {
   NS_DispatchToMainThread(
     NewRunnableMethod(mService.get(),
-                      &GoannaMediaPluginServiceParent::ServiceUserDestroyed));
+                      &GeckoMediaPluginServiceParent::ServiceUserDestroyed));
 }
 
 mozilla::ipc::IPCResult
@@ -1800,8 +1800,8 @@ private:
 PGMPServiceParent*
 GMPServiceParent::Create(Transport* aTransport, ProcessId aOtherPid)
 {
-  RefPtr<GoannaMediaPluginServiceParent> gmp =
-    GoannaMediaPluginServiceParent::GetSingleton();
+  RefPtr<GeckoMediaPluginServiceParent> gmp =
+    GeckoMediaPluginServiceParent::GetSingleton();
 
   if (gmp->mShuttingDown) {
     // Shutdown is initiated. There is no point creating a new actor.

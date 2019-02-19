@@ -11,7 +11,7 @@
 #include "ContentChild.h"
 
 #include "CrashReporterChild.h"
-#include "GoannaProfiler.h"
+#include "GeckoProfiler.h"
 #include "TabChild.h"
 #include "HandlerServiceChild.h"
 
@@ -46,7 +46,7 @@
 #include "mozilla/ipc/BackgroundChild.h"
 #include "mozilla/ipc/FileDescriptorSetChild.h"
 #include "mozilla/ipc/FileDescriptorUtils.h"
-#include "mozilla/ipc/GoannaChildProcessHost.h"
+#include "mozilla/ipc/GeckoChildProcessHost.h"
 #include "mozilla/ipc/ProcessChild.h"
 #include "mozilla/ipc/PSendStreamChild.h"
 #include "mozilla/ipc/TestShellChild.h"
@@ -1242,7 +1242,7 @@ ContentChild::AllocPGMPServiceChild(mozilla::ipc::Transport* aTransport,
 mozilla::ipc::IPCResult
 ContentChild::RecvGMPsChanged(nsTArray<GMPCapabilityData>&& capabilities)
 {
-  GoannaMediaPluginServiceChild::UpdateGMPCapabilities(Move(capabilities));
+  GeckoMediaPluginServiceChild::UpdateGMPCapabilities(Move(capabilities));
   return IPC_OK();
 }
 

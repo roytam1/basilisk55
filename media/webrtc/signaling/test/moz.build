@@ -6,7 +6,7 @@
 
 # TODO: bug 1172551 - get these tests working on iOS
 if CONFIG['OS_TARGET'] != 'WINNT' and CONFIG['MOZ_WIDGET_TOOLKIT'] != 'gonk' and CONFIG['MOZ_WIDGET_TOOLKIT'] != 'uikit':
-    GoannaCppUnitTests([
+    GeckoCppUnitTests([
     ])
 
 include('/ipc/chromium/chromium-config.mozbuild')

@@ -136,28 +136,28 @@ void AccumulateTimeDelta(ID id, TimeStamp start, TimeStamp end = TimeStamp::Now(
  *
  * @param aAccumulations - accumulation actions to perform
  */
-void AccumulateChild(GoannaProcessType aProcessType, const nsTArray<Accumulation>& aAccumulations);
+void AccumulateChild(GeckoProcessType aProcessType, const nsTArray<Accumulation>& aAccumulations);
 
 /**
  * Accumulate child process data into keyed histograms for the given process type.
  *
  * @param aAccumulations - accumulation actions to perform
  */
-void AccumulateChildKeyed(GoannaProcessType aProcessType, const nsTArray<KeyedAccumulation>& aAccumulations);
+void AccumulateChildKeyed(GeckoProcessType aProcessType, const nsTArray<KeyedAccumulation>& aAccumulations);
 
 /**
  * Update scalars for the given process type with the data coming from child process.
  *
  * @param aScalarActions - actions to update the scalar data
  */
-void UpdateChildScalars(GoannaProcessType aProcessType, const nsTArray<ScalarAction>& aScalarActions);
+void UpdateChildScalars(GeckoProcessType aProcessType, const nsTArray<ScalarAction>& aScalarActions);
 
 /**
  * Update keyed  scalars for the given process type with the data coming from child process.
  *
  * @param aScalarActions - actions to update the keyed scalar data
  */
-void UpdateChildKeyedScalars(GoannaProcessType aProcessType, const nsTArray<KeyedScalarAction>& aScalarActions);
+void UpdateChildKeyedScalars(GeckoProcessType aProcessType, const nsTArray<KeyedScalarAction>& aScalarActions);
 
 /**
  * Enable/disable recording for this histogram at runtime.

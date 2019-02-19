@@ -93,7 +93,7 @@ function run_test() {
   // nsEP origins should be in lexical order.
   do_check_eq(ep.origin, `[Expanded Principal [${exampleOrg.origin}, ${exampleCom.origin}, ${nullPrin.origin}]]`);
 
-  // Make sure createCodebasePrincipal does what the rest of goanna does.
+  // Make sure createCodebasePrincipal does what the rest of gecko does.
   do_check_true(exampleOrg.equals(Cu.getObjectPrincipal(new Cu.Sandbox('http://example.org'))));
 
   //

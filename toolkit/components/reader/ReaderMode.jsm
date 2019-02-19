@@ -203,7 +203,7 @@ this.ReaderMode = {
 
     let utils = this.getUtilsForWin(doc.defaultView);
     // We pass in a helper function to determine if a node is visible, because
-    // it uses goanna APIs that the engine-agnostic readability code can't rely
+    // it uses gecko APIs that the engine-agnostic readability code can't rely
     // upon.
     return new Readability(uri, doc).isProbablyReaderable(this.isNodeVisible.bind(this, utils));
   },

@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This is just a sanity test that Goanna is giving SpiderMonkey a MallocSizeOf
+// This is just a sanity test that Gecko is giving SpiderMonkey a MallocSizeOf
 // function for new JSRuntimes. There is more extensive testing around the
 // expected byte sizes within SpiderMonkey's jit-tests, we just want to make
-// sure that Goanna is providing SpiderMonkey with the callback it needs.
+// sure that Gecko is providing SpiderMonkey with the callback it needs.
 
 var Cu = Components.utils;
 const { byteSize } = Cu.getJSTestingFunctions();

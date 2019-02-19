@@ -11,7 +11,7 @@
 #include "DocAccessible-inl.h"
 #include "mozilla/a11y/DocAccessibleParent.h"
 #include "EnumVariant.h"
-#include "GoannaCustom.h"
+#include "GeckoCustom.h"
 #include "nsAccUtils.h"
 #include "nsCoreUtils.h"
 #include "nsIAccessibleEvent.h"
@@ -157,8 +157,8 @@ AccessibleWrap::QueryInterface(REFIID iid, void** ppv)
       return hr;
   }
 
-  if (!*ppv && iid == IID_IGoannaCustom) {
-    RefPtr<GoannaCustom> gkCrap = new GoannaCustom(this);
+  if (!*ppv && iid == IID_IGeckoCustom) {
+    RefPtr<GeckoCustom> gkCrap = new GeckoCustom(this);
     gkCrap.forget(ppv);
     return S_OK;
   }
@@ -433,23 +433,23 @@ AccessibleWrap::get_accRole(
     return accessible->get_accRole(kVarChildIdSelf, pvarRole);
   }
 
-  a11y::role goannaRole;
+  a11y::role geckoRole;
 #ifdef DEBUG
   NS_ASSERTION(nsAccUtils::IsTextInterfaceSupportCorrect(this),
                "Does not support Text when it should");
 #endif
 
-  goannaRole = Role();
+  geckoRole = Role();
 
   uint32_t msaaRole = 0;
 
-#define ROLE(_goannaRole, stringRole, atkRole, macRole, \
+#define ROLE(_geckoRole, stringRole, atkRole, macRole, \
              _msaaRole, ia2Role, nameRule) \
-  case roles::_goannaRole: \
+  case roles::_geckoRole: \
     msaaRole = _msaaRole; \
     break;
 
-  switch (goannaRole) {
+  switch (geckoRole) {
 #include "RoleMap.h"
     default:
       MOZ_CRASH("Unknown role.");
@@ -460,7 +460,7 @@ AccessibleWrap::get_accRole(
   // Special case, if there is a ROLE_ROW inside of a ROLE_TREE_TABLE, then call the MSAA role
   // a ROLE_OUTLINEITEM for consistency and compatibility.
   // We need this because ARIA has a role of "row" for both grid and treegrid
-  if (goannaRole == roles::ROW) {
+  if (geckoRole == roles::ROW) {
     Accessible* xpParent = Parent();
     if (xpParent && xpParent->Role() == roles::TREE_TABLE)
       msaaRole = ROLE_SYSTEM_OUTLINEITEM;
@@ -533,7 +533,7 @@ AccessibleWrap::get_accState(
 
   // MSAA only has 31 states and the lowest 31 bits of our state bit mask
   // are the same states as MSAA.
-  // Note: we map the following Goanna states to different MSAA states:
+  // Note: we map the following Gecko states to different MSAA states:
   //   REQUIRED -> ALERT_LOW
   //   ALERT -> ALERT_MEDIUM
   //   INVALID -> ALERT_HIGH
@@ -915,9 +915,9 @@ AccessibleWrap::accNavigate(
   Accessible* navAccessible = nullptr;
   Maybe<RelationType> xpRelation;
 
-#define RELATIONTYPE(goannaType, stringType, atkType, msaaType, ia2Type) \
+#define RELATIONTYPE(geckoType, stringType, atkType, msaaType, ia2Type) \
   case msaaType: \
-    xpRelation.emplace(RelationType::goannaType); \
+    xpRelation.emplace(RelationType::geckoType); \
     break;
 
   switch(navDir) {
@@ -1407,7 +1407,7 @@ AccessibleWrap::GetIAccessibleFor(const VARIANT& aVarChild, bool* aIsDefunct)
              sIDGen.IsIDForThisContentProcess(varChild.lVal));
 
   if (varChild.lVal > 0) {
-    // Goanna child indices are 0-based in contrast to indices used in MSAA.
+    // Gecko child indices are 0-based in contrast to indices used in MSAA.
     MOZ_ASSERT(!IsProxy());
     Accessible* xpAcc = GetChildAt(varChild.lVal - 1);
     if (!xpAcc) {
@@ -1533,7 +1533,7 @@ AccessibleWrap::UpdateSystemCaretFor(Accessible* aAccessible)
   }
 
   // Create invisible bitmap for caret, otherwise its appearance interferes
-  // with Goanna caret
+  // with Gecko caret
   HBITMAP caretBitMap = CreateBitmap(1, caretRect.height, 1, 1, nullptr);
   if (::CreateCaret(caretWnd, caretBitMap, 1, caretRect.height)) {  // Also destroys the last caret
     ::ShowCaret(caretWnd);

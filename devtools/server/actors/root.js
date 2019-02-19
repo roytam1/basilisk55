@@ -158,10 +158,10 @@ RootActor.prototype = {
     // Whether the page style actor implements the getUsedFontFaces method
     // that returns the font faces used on a node
     getUsedFontFaces: true,
-    // Trait added in Goanna 38, indicating that all features necessary for
+    // Trait added in Gecko 38, indicating that all features necessary for
     // grabbing allocations from the MemoryActor are available for the performance tool
     memoryActorAllocations: true,
-    // Added in Goanna 40, indicating that the backend isn't stupid about
+    // Added in Gecko 40, indicating that the backend isn't stupid about
     // sending resumption packets on tab navigation.
     noNeedToFakeResumptionOnNavigation: true,
     // Added in Firefox 40. Indicates that the backend supports registering custom

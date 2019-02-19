@@ -30,7 +30,7 @@
 #include "mozilla/layers/CompositorController.h"
 #include "mozilla/layers/CompositorOptions.h"
 #include "mozilla/layers/CompositorVsyncSchedulerOwner.h"
-#include "mozilla/layers/GoannaContentController.h"
+#include "mozilla/layers/GeckoContentController.h"
 #include "mozilla/layers/ISurfaceAllocator.h" // for ShmemAllocator
 #include "mozilla/layers/LayersMessages.h"  // for TargetConfig
 #include "mozilla/layers/MetricsSharingController.h"
@@ -77,7 +77,7 @@ struct ScopedLayerTreeRegistration
   ScopedLayerTreeRegistration(APZCTreeManager* aApzctm,
                               uint64_t aLayersId,
                               Layer* aRoot,
-                              GoannaContentController* aController);
+                              GeckoContentController* aController);
   ~ScopedLayerTreeRegistration();
 
 private:
@@ -330,7 +330,7 @@ public:
    * Must run on content main thread.
    */
   static void SetControllerForLayerTree(uint64_t aLayersId,
-                                        GoannaContentController* aController);
+                                        GeckoContentController* aController);
 
   /**
    * A new child process has been configured to push transactions
@@ -343,7 +343,7 @@ public:
     LayerTreeState();
     ~LayerTreeState();
     RefPtr<Layer> mRoot;
-    RefPtr<GoannaContentController> mController;
+    RefPtr<GeckoContentController> mController;
     APZCTreeManagerParent* mApzcTreeManagerParent;
     RefPtr<CompositorBridgeParent> mParent;
     HostLayerManager* mLayerManager;
@@ -379,16 +379,16 @@ public:
    * if one is found, will always be connected to the parent process rather
    * than a content process. Note that unless the compositor process is
    * separated this is expected to return null, because if the compositor is
-   * living in the goanna parent process then there is no APZCTreeManagerParent
+   * living in the gecko parent process then there is no APZCTreeManagerParent
    * for the parent process.
    */
   static APZCTreeManagerParent* GetApzcTreeManagerParentForRoot(
         uint64_t aContentLayersId);
   /**
    * Same as the GetApzcTreeManagerParentForRoot function, but returns
-   * the GoannaContentController for the parent process.
+   * the GeckoContentController for the parent process.
    */
-  static GoannaContentController* GetGoannaContentControllerForRoot(
+  static GeckoContentController* GetGeckoContentControllerForRoot(
         uint64_t aContentLayersId);
 
 #if defined(XP_WIN) || defined(MOZ_WIDGET_GTK)

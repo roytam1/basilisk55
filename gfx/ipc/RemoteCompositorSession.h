@@ -24,8 +24,8 @@ public:
   ~RemoteCompositorSession() override;
 
   CompositorBridgeParent* GetInProcessBridge() const override;
-  void SetContentController(GoannaContentController* aController) override;
-  GoannaContentController* GetContentController();
+  void SetContentController(GeckoContentController* aController) override;
+  GeckoContentController* GetContentController();
   nsIWidget* GetWidget();
   RefPtr<IAPZCTreeManager> GetAPZCTreeManager() const override;
   bool Reset(const nsTArray<LayersBackend>& aBackendHints,
@@ -39,7 +39,7 @@ public:
 private:
   nsBaseWidget* mWidget;
   RefPtr<APZCTreeManagerChild> mAPZ;
-  RefPtr<GoannaContentController> mContentController;
+  RefPtr<GeckoContentController> mContentController;
 };
 
 } // namespace layers

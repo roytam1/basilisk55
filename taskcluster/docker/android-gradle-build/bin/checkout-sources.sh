@@ -4,7 +4,7 @@ set -x -e
 
 # Inputs, with defaults
 
-# mozharness builds use three repositories: goanna (source), mozharness (build
+# mozharness builds use three repositories: gecko (source), mozharness (build
 # scripts) and tools (miscellaneous) for each, specify *_REPOSITORY.  If the
 # revision is not in the standard repo for the codebase, specify *_BASE_REPO as
 # the canonical repo to clone and *_HEAD_REPO as the repo containing the
@@ -12,11 +12,11 @@ set -x -e
 # clones, specify the branch name to fetch as *_HEAD_REF and the desired sha1
 # as *_HEAD_REV.
 
-: GOANNA_REPOSITORY              ${GOANNA_REPOSITORY:=https://hg.mozilla.org/mozilla-central}
-: GOANNA_BASE_REPOSITORY         ${GOANNA_BASE_REPOSITORY:=${GOANNA_REPOSITORY}}
-: GOANNA_HEAD_REPOSITORY         ${GOANNA_HEAD_REPOSITORY:=${GOANNA_REPOSITORY}}
-: GOANNA_HEAD_REV                ${GOANNA_HEAD_REV:=default}
-: GOANNA_HEAD_REF                ${GOANNA_HEAD_REF:=${GOANNA_HEAD_REV}}
+: GECKO_REPOSITORY              ${GECKO_REPOSITORY:=https://hg.mozilla.org/mozilla-central}
+: GECKO_BASE_REPOSITORY         ${GECKO_BASE_REPOSITORY:=${GECKO_REPOSITORY}}
+: GECKO_HEAD_REPOSITORY         ${GECKO_HEAD_REPOSITORY:=${GECKO_REPOSITORY}}
+: GECKO_HEAD_REV                ${GECKO_HEAD_REV:=default}
+: GECKO_HEAD_REF                ${GECKO_HEAD_REF:=${GECKO_HEAD_REV}}
 
 : TOOLS_REPOSITORY              ${TOOLS_REPOSITORY:=https://hg.mozilla.org/build/tools}
 : TOOLS_BASE_REPOSITORY         ${TOOLS_BASE_REPOSITORY:=${TOOLS_REPOSITORY}}
@@ -51,5 +51,5 @@ for extra_repo in $EXTRA_CHECKOUT_REPOSITORIES; do
     tc-vcs checkout ${!DEST_DIR} ${!BASE_REPO} ${!HEAD_REPO} ${!HEAD_REV} ${!HEAD_REF}
 done
 
-export GOANNA_DIR=$WORKSPACE/build/src
-tc-vcs checkout $GOANNA_DIR $GOANNA_BASE_REPOSITORY $GOANNA_HEAD_REPOSITORY $GOANNA_HEAD_REV $GOANNA_HEAD_REF
+export GECKO_DIR=$WORKSPACE/build/src
+tc-vcs checkout $GECKO_DIR $GECKO_BASE_REPOSITORY $GECKO_HEAD_REPOSITORY $GECKO_HEAD_REV $GECKO_HEAD_REF

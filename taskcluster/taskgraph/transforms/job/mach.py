@@ -24,7 +24,7 @@ def docker_worker_mach(config, job, taskdesc):
     run = job['run']
 
     # defer to the run_task implementation
-    run['command'] = 'cd /home/worker/checkouts/goanna && ./mach ' + run['mach']
+    run['command'] = 'cd /home/worker/checkouts/gecko && ./mach ' + run['mach']
     run['checkout'] = True
     del run['mach']
     docker_worker_run_task(config, job, taskdesc)

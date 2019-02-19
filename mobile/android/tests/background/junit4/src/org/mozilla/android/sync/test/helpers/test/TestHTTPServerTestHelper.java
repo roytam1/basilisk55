@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mozilla.android.sync.test.helpers.HTTPServerTestHelper;
 import org.mozilla.android.sync.test.helpers.HTTPServerTestHelper.HTTPServerAlreadyRunningError;
 import org.mozilla.android.sync.test.helpers.MockServer;
-import org.mozilla.goanna.background.testhelpers.TestRunner;
+import org.mozilla.gecko.background.testhelpers.TestRunner;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

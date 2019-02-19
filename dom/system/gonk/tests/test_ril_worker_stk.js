@@ -625,7 +625,7 @@ add_test(function test_write_disconnecting_cause() {
   let pduHelper = context.GsmPDUHelper;
   let tlvHelper = context.ComprehensionTlvHelper;
 
-  tlvHelper.writeCauseTlv(RIL_CALL_FAILCAUSE_TO_GOANNA_CALL_ERROR[CALL_FAIL_BUSY]);
+  tlvHelper.writeCauseTlv(RIL_CALL_FAILCAUSE_TO_GECKO_CALL_ERROR[CALL_FAIL_BUSY]);
   let tag = pduHelper.readHexOctet();
   equal(tag, COMPREHENSIONTLV_TAG_CAUSE | COMPREHENSIONTLV_FLAG_CR);
   let len = pduHelper.readHexOctet();

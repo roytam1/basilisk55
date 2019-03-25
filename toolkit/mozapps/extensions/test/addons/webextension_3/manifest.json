@@ -5,7 +5,7 @@
   "manifest_version": 2,
   "default_locale": "en",
   "applications": {
-    "goanna": {
+    "gecko": {
       "id": "webextension3@tests.mozilla.org"
     }
   }

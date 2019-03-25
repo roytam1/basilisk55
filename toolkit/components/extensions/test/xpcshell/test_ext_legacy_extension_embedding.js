@@ -41,7 +41,7 @@ add_task(function* test_embedded_webextension_utils() {
   // loaded from a 'webextension/' directory).
   let fakeHybridAddonFile = Extension.generateZipFile({
     "webextension/manifest.json": {
-      applications: {goanna: {id}},
+      applications: {gecko: {id}},
       name: "embedded webextension name",
       manifest_version: 2,
       version: "1.0",

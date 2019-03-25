@@ -10,7 +10,7 @@ const id = "uninstall_self_test@tests.mozilla.com";
 
 const manifest = {
   applications: {
-    goanna: {
+    gecko: {
       id,
     },
   },

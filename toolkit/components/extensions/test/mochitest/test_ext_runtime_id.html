@@ -28,7 +28,7 @@ add_task(function* test_runtime_id() {
 
   let extension = ExtensionTestUtils.loadExtension({
     manifest: {
-      applications: {goanna: {id}},
+      applications: {gecko: {id}},
       "content_scripts": [{
         "matches": ["http://mochi.test/*/file_sample.html"],
         "run_at": "document_start",

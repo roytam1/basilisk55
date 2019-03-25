@@ -17,7 +17,7 @@ function installAddon(details) {
   if (!details.manifest) {
     details.manifest = {};
   }
-  details.manifest.applications = {goanna: {id}};
+  details.manifest.applications = {gecko: {id}};
   let xpi = Extension.generateXPI(details);
 
   return AddonManager.installTemporaryAddon(xpi).then(addon => {

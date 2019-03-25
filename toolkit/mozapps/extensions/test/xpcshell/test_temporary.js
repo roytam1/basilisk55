@@ -256,7 +256,7 @@ add_task(function*() {
         version: "4.0",
         name: "Test WebExtension 1 (temporary)",
         applications: {
-          goanna: {
+          gecko: {
             id: ID
           }
         }
@@ -286,7 +286,7 @@ add_task(function*() {
         version: "5.0",
         name: "Test WebExtension 1 (temporary)",
         applications: {
-          goanna: {
+          gecko: {
             id: ID
           }
         }

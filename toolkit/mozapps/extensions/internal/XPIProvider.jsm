@@ -938,8 +938,8 @@ var loadManifestFromWebManifest = Task.async(function*(aUri) {
   if (extension.errors.length)
     throw new Error("Extension is invalid");
 
-  let bss = (manifest.browser_specific_settings && manifest.browser_specific_settings.goanna)
-      || (manifest.applications && manifest.applications.goanna) || {};
+  let bss = (manifest.browser_specific_settings && manifest.browser_specific_settings.gecko)
+      || (manifest.applications && manifest.applications.gecko) || {};
   if (manifest.browser_specific_settings && manifest.applications) {
     logger.warn("Ignoring applications property in manifest");
   }

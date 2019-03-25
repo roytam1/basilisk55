@@ -148,7 +148,7 @@ add_task(function* reloadButtonRefreshesMetadata() {
     "name": "Temporary web extension",
     "version": "1.0",
     "applications": {
-      "goanna": {
+      "gecko": {
         "id": ADDON_ID
       }
     }

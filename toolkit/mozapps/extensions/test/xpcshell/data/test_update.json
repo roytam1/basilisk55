@@ -5,7 +5,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "1",
               "strict_min_version": "1"
             }
@@ -14,7 +14,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "2",
               "strict_min_version": "2"
             }
@@ -25,7 +25,7 @@
           "update_link": "http://localhost:%PORT%/addons/test_update.xpi",
           "update_info_url": "http://example.com/updateInfo.xhtml",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "1",
               "strict_min_version": "1"
             }
@@ -39,7 +39,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0",
               "advisory_max_version": "1"
             }
@@ -53,7 +53,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0",
               "advisory_max_version": "1"
             }
@@ -67,7 +67,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "3",
               "advisory_max_version": "3"
             }
@@ -81,7 +81,7 @@
         {
           "version": "5.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0",
               "advisory_max_version": "0"
             }
@@ -95,7 +95,7 @@
         {
           "version": "1.0",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0",
               "advisory_max_version": "1"
             }
@@ -110,7 +110,7 @@
           "version": "2.0",
           "update_link": "http://localhost:%PORT%/addons/test_update8.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "1",
               "advisory_max_version": "1"
             }
@@ -125,7 +125,7 @@
           "version": "2.0",
           "update_link": "http://localhost:%PORT%/addons/test_update9_2.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "1",
               "advisory_max_version": "1"
             }
@@ -136,7 +136,7 @@
           "version": "3.0",
           "update_link": "http://localhost:%PORT%/addons/test_update9_3.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0.9",
               "advisory_max_version": "0.9"
             }
@@ -147,7 +147,7 @@
           "version": "4.0",
           "update_link": "http://localhost:%PORT%/addons/test_update9_4.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0.9",
               "advisory_max_version": "0.9"
             }
@@ -158,7 +158,7 @@
           "version": "4.0",
           "update_link": "http://localhost:%PORT%/addons/test_update9_5.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "5",
               "advisory_max_version": "6"
             }
@@ -173,7 +173,7 @@
           "version": "1.0",
           "update_link": "http://localhost:%PORT%/addons/test_update10.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0.1",
               "advisory_max_version": "0.4"
             }
@@ -188,7 +188,7 @@
           "version": "2.0",
           "update_link": "http://localhost:%PORT%/addons/test_update11.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "0.1",
               "strict_max_version": "0.2"
             }
@@ -203,7 +203,7 @@
           "version": "2.0",
           "update_link": "http://localhost:%PORT%/addons/test_update12.xpi",
           "applications": {
-            "goanna": {
+            "gecko": {
               "strict_min_version": "1",
               "advisory_max_version": "1"
             }

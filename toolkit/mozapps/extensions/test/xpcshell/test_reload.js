@@ -135,7 +135,7 @@ add_task(function* test_reload_to_invalid_version_fails() {
     manifest_version: 2,
     version: "1.0",
     applications: {
-      goanna: {
+      gecko: {
         id: addonId,
       }
     },
@@ -154,8 +154,8 @@ add_task(function* test_reload_to_invalid_version_fails() {
   addonDir.remove(true);
 
   // update the manifest to make the add-on version incompatible, so the reload will reject
-  manifest.applications.goanna.strict_min_version = "1";
-  manifest.applications.goanna.strict_max_version = "1";
+  manifest.applications.gecko.strict_min_version = "1";
+  manifest.applications.gecko.strict_max_version = "1";
   manifest.version = "2.0";
 
   addonDir = yield promiseWriteWebManifestForExtension(manifest, tempdir, "invalid_version", false);

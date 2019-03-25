@@ -9,7 +9,7 @@ add_task(function* test_json_parser() {
     files: {
       "manifest.json": String.raw`{
         // This is a manifest.
-        "applications": {"goanna": {"id": "${ID}"}},
+        "applications": {"gecko": {"id": "${ID}"}},
         "name": "This \" is // not a comment",
         "version": "0.1\\" // , "description": "This is not a description"
       }`,
@@ -17,7 +17,7 @@ add_task(function* test_json_parser() {
   });
 
   let expectedManifest = {
-    "applications": {"goanna": {"id": ID}},
+    "applications": {"gecko": {"id": ID}},
     "name": "This \" is // not a comment",
     "version": "0.1\\",
   };

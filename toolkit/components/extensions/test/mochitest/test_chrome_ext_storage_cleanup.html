@@ -108,7 +108,7 @@ add_task(function* test_uninstall() {
   let extension = ExtensionTestUtils.loadExtension({
     background: writeData,
     manifest: {
-      applications: {goanna: {id: ID}},
+      applications: {gecko: {id: ID}},
       permissions: ["storage"],
     },
     useAddonManager: "temporary",
@@ -127,7 +127,7 @@ add_task(function* test_uninstall() {
   extension = ExtensionTestUtils.loadExtension({
     background: readData,
     manifest: {
-      applications: {goanna: {id: ID}},
+      applications: {gecko: {id: ID}},
       permissions: ["storage"],
     },
     useAddonManager: "temporary",
@@ -145,7 +145,7 @@ add_task(function* test_uninstall() {
   extension = ExtensionTestUtils.loadExtension({
     background: readData,
     manifest: {
-      applications: {goanna: {id: ID}},
+      applications: {gecko: {id: ID}},
       permissions: ["storage"],
     },
     useAddonManager: "temporary",

@@ -52,7 +52,7 @@ add_task(function* delay_updates_ignore() {
     manifest: {
       "version": "1.0",
       "applications": {
-        "goanna": {
+        "gecko": {
           "id": IGNORE_ID,
           "update_url": `http://localhost:${gPort}/data/test_delay_updates_ignore.json`,
         },
@@ -132,7 +132,7 @@ add_task(function* delay_updates_complete() {
     manifest: {
       "version": "1.0",
       "applications": {
-        "goanna": {
+        "gecko": {
           "id": COMPLETE_ID,
           "update_url": `http://localhost:${gPort}/data/test_delay_updates_complete.json`,
         },
@@ -196,7 +196,7 @@ add_task(function* delay_updates_defer() {
     manifest: {
       "version": "1.0",
       "applications": {
-        "goanna": {
+        "gecko": {
           "id": DEFER_ID,
           "update_url": `http://localhost:${gPort}/data/test_delay_updates_defer.json`,
         },
@@ -293,7 +293,7 @@ add_task(function* runtime_reload() {
     manifest: {
       "version": "1.0",
       "applications": {
-        "goanna": {
+        "gecko": {
           "id": NOUPDATE_ID,
           "update_url": `http://localhost:${gPort}/data/test_no_update.json`,
         },

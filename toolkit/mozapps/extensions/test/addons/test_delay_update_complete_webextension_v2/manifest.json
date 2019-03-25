@@ -3,7 +3,7 @@
   "name": "Delay Upgrade",
   "version": "2.0",
   "applications": {
-    "goanna": {
+    "gecko": {
       "id": "test_delay_update_complete_webext@tests.mozilla.org"
     }
   }

@@ -3,7 +3,7 @@
   "version": "1.0",
   "manifest_version": 2,
   "applications": {
-    "goanna": {
+    "gecko": {
       "id": "webextension1@tests.mozilla.org"
     }
   },

@@ -108,7 +108,7 @@ add_task(function* test_round_trip_perf() {
       });
     },
     manifest: {
-      applications: {goanna: {id: ID}},
+      applications: {gecko: {id: ID}},
       permissions: ["nativeMessaging"],
     },
   });

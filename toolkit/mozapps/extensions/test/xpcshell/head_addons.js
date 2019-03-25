@@ -747,7 +747,7 @@ function writeInstallRDFForExtension(aData, aDir, aId, aExtraFile) {
  *          An optional string to override the default installation aId
  * @return  A file pointing to where the extension was installed
  */
-function promiseWriteWebManifestForExtension(aData, aDir, aId = aData.applications.goanna.id) {
+function promiseWriteWebManifestForExtension(aData, aDir, aId = aData.applications.gecko.id) {
   let files = {
     "manifest.json": JSON.stringify(aData),
   }

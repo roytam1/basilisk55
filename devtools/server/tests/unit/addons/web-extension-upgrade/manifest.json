@@ -3,7 +3,7 @@
   "name": "Test Addons Actor Upgrade",
   "version": "1.0",
   "applications": {
-    "goanna": {
+    "gecko": {
       "id": "test-addons-actor@mozilla.org"
     }
   }

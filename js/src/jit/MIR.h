@@ -9890,10 +9890,6 @@ class MArraySlice
         return unboxedType_;
     }
 
-    AliasSet getAliasSet() const override {
-        return AliasSet::Store(AliasSet::BoxedOrUnboxedElements(unboxedType()) |
-                               AliasSet::ObjectFields);
-    }
     bool possiblyCalls() const override {
         return true;
     }

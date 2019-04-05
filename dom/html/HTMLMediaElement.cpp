@@ -6177,6 +6177,16 @@ void HTMLMediaElement::SuspendOrResumeElement(bool aPauseElement, bool aSuspendE
       if (mMediaKeys) {
         nsAutoString keySystem;
         mMediaKeys->GetKeySystem(keySystem);
+        // If we're using Primetime we need to shutdown the key system and
+        // decoder to preserve secure stop like behavior, other CDMs don't
+        // implement this so we don't need to worry with them on a suspend.
+        if (IsPrimetimeKeySystem(keySystem)) {
+          mMediaKeys->Shutdown();
+          mMediaKeys = nullptr;
+          if (mDecoder) {
+            ShutdownDecoder();
+          }
+        }
       }
 #endif
       if (mDecoder) {

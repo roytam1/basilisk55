@@ -87,6 +87,9 @@ bool
 IsClearkeyKeySystem(const nsAString& aKeySystem);
 
 bool
+IsPrimetimeKeySystem(const nsAString& aKeySystem);
+
+bool
 IsWidevineKeySystem(const nsAString& aKeySystem);
 
 // Note: Primetime is now unsupported, but we leave it in the enum so

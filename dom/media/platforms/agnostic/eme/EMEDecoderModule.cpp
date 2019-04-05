@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EMEDecoderModule.h"
+#include "EMEAudioDecoder.h"
 #include "EMEVideoDecoder.h"
 #include "MediaDataDecoderProxy.h"
 #include "mozIGeckoMediaPluginService.h"
@@ -290,8 +291,15 @@ EMEDecoderModule::CreateAudioDecoder(const CreateDecoderParams& aParams)
 {
   MOZ_ASSERT(aParams.mConfig.mCrypto.mValid);
 
-  // We don't support using the GMP to decode audio.
-  MOZ_ASSERT(!SupportsMimeType(aParams.mConfig.mMimeType, nullptr));
+  // We support using the GMP to decode audio.
+   if (SupportsMimeType(aParams.mConfig.mMimeType, nullptr)) {
+    // GMP decodes. Assume that means it can decrypt too.
+    RefPtr<MediaDataDecoderProxy> wrapper =
+      CreateDecoderWrapper(aParams.mCallback, mProxy, aParams.mTaskQueue);
+    auto gmpParams = GMPAudioDecoderParams(aParams).WithCallback(wrapper);
+    wrapper->SetProxyTarget(new EMEAudioDecoder(mProxy, gmpParams));
+    return wrapper.forget();
+  }
   MOZ_ASSERT(mPDM);
 
   RefPtr<MediaDataDecoder> decoder(mPDM->CreateDecoder(aParams));

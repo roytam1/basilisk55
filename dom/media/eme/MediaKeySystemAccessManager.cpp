@@ -94,7 +94,9 @@ MediaKeySystemAccessManager::Request(DetailedPromise* aPromise,
   DecoderDoctorDiagnostics diagnostics;
 
   // Ensure keysystem is supported.
-  if (!IsWidevineKeySystem(aKeySystem) && !IsClearkeyKeySystem(aKeySystem)) {
+  if (!IsWidevineKeySystem(aKeySystem) &&
+      !IsClearkeyKeySystem(aKeySystem) &&
+      !IsPrimetimeKeySystem(aKeySystem)) {    
     // Not to inform user, because nothing to do if the keySystem is not
     // supported.
     aPromise->MaybeReject(NS_ERROR_DOM_NOT_SUPPORTED_ERR,
@@ -130,7 +132,7 @@ MediaKeySystemAccessManager::Request(DetailedPromise* aPromise,
   LogToBrowserConsole(NS_ConvertUTF8toUTF16(msg));
 
   if (status == MediaKeySystemStatus::Cdm_not_installed &&
-      IsWidevineKeySystem(aKeySystem)) {
+      (IsPrimetimeKeySystem(aKeySystem) || IsWidevineKeySystem(aKeySystem))) {
     // These are cases which could be resolved by downloading a new(er) CDM.
     // When we send the status to chrome, chrome's GMPProvider will attempt to
     // download or update the CDM. In AwaitInstall() we add listeners to wait

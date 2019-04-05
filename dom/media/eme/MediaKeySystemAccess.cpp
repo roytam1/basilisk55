@@ -28,6 +28,8 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsXULAppAPI.h"
+#include "gmp-audio-decode.h"
+#include "gmp-video-decode.h"
 #include "DecoderDoctorDiagnostics.h"
 #include "WebMDecoder.h"
 #include "mozilla/StaticPtr.h"
@@ -132,6 +134,22 @@ MediaKeySystemAccess::GetKeySystemStatus(const nsAString& aKeySystem,
     return EnsureCDMInstalled(aKeySystem, aOutMessage);
   }
 
+  if (Preferences::GetBool("media.gmp-eme-adobe.visible", false)) {
+    if (IsPrimetimeKeySystem(aKeySystem)) {
+      if (!Preferences::GetBool("media.gmp-eme-adobe.enabled", false)) {
+        aOutMessage = NS_LITERAL_CSTRING("Adobe EME disabled");
+        return MediaKeySystemStatus::Cdm_disabled;
+      }
+#ifdef XP_WIN
+      // Win Vista and later only.
+      if (!IsVistaOrLater()) {
+        aOutMessage = NS_LITERAL_CSTRING("Minimum Windows version (Vista) not met for Adobe EME");
+        return MediaKeySystemStatus::Cdm_not_supported;
+      }
+#endif
+      return EnsureCDMInstalled(aKeySystem, aOutMessage);
+    }
+  }
   if (IsWidevineKeySystem(aKeySystem)) {
     if (Preferences::GetBool("media.gmp-widevinecdm.visible", false)) {
 #ifdef XP_WIN
@@ -377,7 +395,19 @@ GetSupportedKeySystems()
       keySystemConfigs.AppendElement(Move(widevine));
     }
   }
-
+  {
+    if (HavePluginForKeySystem(kEMEKeySystemPrimetime)) {
+      KeySystemConfig primetime;
+      primetime.mKeySystem = NS_ConvertUTF8toUTF16(kEMEKeySystemPrimetime);
+      primetime.mInitDataTypes.AppendElement(NS_LITERAL_STRING("cenc"));
+      primetime.mPersistentState = KeySystemFeatureSupport::Required;
+      primetime.mDistinctiveIdentifier = KeySystemFeatureSupport::Required;
+      primetime.mSessionTypes.AppendElement(MediaKeySessionType::Temporary);
+      primetime.mMP4.SetCanDecryptAndDecode(EME_CODEC_AAC);
+      primetime.mMP4.SetCanDecryptAndDecode(EME_CODEC_H264);
+      keySystemConfigs.AppendElement(Move(primetime));
+    }
+  }
   return keySystemConfigs;
 }
 

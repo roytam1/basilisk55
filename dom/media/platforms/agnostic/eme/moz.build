@@ -11,7 +11,12 @@ EXPORTS += [
     'SamplesWaitingForKey.h',
 ]
 
+EXPORTS += [
+    'EMEAudioDecoder.h',
+]
+
 UNIFIED_SOURCES += [
+    'EMEAudioDecoder.cpp',
     'EMEDecoderModule.cpp',
     'EMEVideoDecoder.cpp',
     'SamplesWaitingForKey.cpp',

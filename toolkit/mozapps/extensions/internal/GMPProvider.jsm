@@ -20,7 +20,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 Cu.import("resource://gre/modules/Log.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/GMPUtils.jsm");
-/* globals GMP_PLUGIN_IDS, GMPPrefs, GMPUtils, OPEN_H264_ID, WIDEVINE_ID */
+/* globals EME_ADOBE_ID, GMP_PLUGIN_IDS, GMPPrefs, GMPUtils, OPEN_H264_ID, WIDEVINE_ID */
 Cu.import("resource://gre/modules/AppConstants.jsm");
 Cu.import("resource://gre/modules/UpdateUtils.jsm");
 
@@ -57,10 +57,24 @@ const GMP_PLUGINS = [
     optionsURL:      "chrome://mozapps/content/extensions/gmpPrefs.xul",
   },
   {
+    id:              EME_ADOBE_ID,
+    name:            "eme-adobe_name",
+    description:     "eme-adobe_description",
+    // The following learnMoreURL is another hack to be able to support a SUMO page for this
+    // feature.
+    get learnMoreURL() {
+      return Services.urlFormatter.formatURLPref("app.support.baseURL") + "drm-content";
+    },
+    licenseURL:      "http://help.adobe.com/en_US/primetime/drm/HTML5_CDM_EULA/index.html",
+    homepageURL:     "http://help.adobe.com/en_US/primetime/drm/HTML5_CDM",
+    optionsURL:      "chrome://mozapps/content/extensions/gmpPrefs.xul",
+    isEME:           true,
+  },
+  {
     id:              WIDEVINE_ID,
     name:            "widevine_description",
     // Describe the purpose of both CDMs in the same way.
-    description:     "cdm_description",
+    description:     "eme-adobe_description",
     licenseURL:      "https://www.google.com/policies/privacy/",
     homepageURL:     "https://www.widevine.com/",
     optionsURL:      "chrome://mozapps/content/extensions/gmpPrefs.xul",
@@ -486,7 +500,8 @@ GMPWrapper.prototype = {
     }
 
     return fileExists(this.gmpPath, libName) &&
-           fileExists(this.gmpPath, infoName);
+           fileExists(this.gmpPath, infoName) &&
+           (this._plugin.id != EME_ADOBE_ID || fileExists(this.gmpPath, id + ".voucher"));
   },
 
   validate() {

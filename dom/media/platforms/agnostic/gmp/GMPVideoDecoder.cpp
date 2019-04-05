@@ -171,6 +171,11 @@ GMPVideoDecoder::InitTags(nsTArray<nsCString>& aTags)
 {
   if (MP4Decoder::IsH264(mConfig.mMimeType)) {
     aTags.AppendElement(NS_LITERAL_CSTRING("h264"));
+    const Maybe<nsCString> gmp(
+      GMPDecoderModule::PreferredGMP(NS_LITERAL_CSTRING("video/avc")));
+    if (gmp.isSome()) {
+      aTags.AppendElement(gmp.value());
+    }
   } else if (VPXDecoder::IsVP8(mConfig.mMimeType)) {
     aTags.AppendElement(NS_LITERAL_CSTRING("vp8"));
   } else if (VPXDecoder::IsVP9(mConfig.mMimeType)) {

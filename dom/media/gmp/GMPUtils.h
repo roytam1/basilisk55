@@ -28,6 +28,9 @@ struct DestroyPolicy
 template<typename T>
 using GMPUniquePtr = mozilla::UniquePtr<T, DestroyPolicy<T>>;
 
+bool GetEMEVoucherPath(nsIFile** aPath);
+
+bool EMEVoucherFileExists();
 void
 SplitAt(const char* aDelims,
         const nsACString& aInput,
@@ -68,6 +71,11 @@ public:
 private:
   nsClassHashtable<nsCStringHashKey, nsCString> mValues;
 };
+
+bool
+ReadIntoArray(nsIFile* aFile,
+              nsTArray<uint8_t>& aOutDst,
+              size_t aMaxLength);
 
 bool
 ReadIntoString(nsIFile* aFile,

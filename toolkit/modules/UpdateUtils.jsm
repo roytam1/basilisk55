@@ -70,7 +70,14 @@ this.UpdateUtils = {
    */
   formatUpdateURL(url) {
     url = url.replace(/%PRODUCT%/g, Services.appinfo.name);
-    url = url.replace(/%VERSION%/g, Services.appinfo.version);
+    if (AppConstants.isPlatformAndVersionAtMost("win", "5.1"))
+    {
+      url = url.replace(/%VERSION%/g, "51.0");
+    }
+    else
+    {
+      url = url.replace(/%VERSION%/g, Services.appinfo.version);
+    }
     url = url.replace(/%BUILD_ID%/g, Services.appinfo.appBuildID);
     url = url.replace(/%BUILD_TARGET%/g, Services.appinfo.OS + "_" + this.ABI);
     url = url.replace(/%OS_VERSION%/g, this.OSVersion);

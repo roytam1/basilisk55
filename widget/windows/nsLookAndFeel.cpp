@@ -191,7 +191,7 @@ nsLookAndFeel::NativeGetColor(ColorID aID, nscolor &aColor)
       }
       // Fall through
     case eColorID__moz_menuhovertext:
-      if (!IsVistaOrLater() || !IsAppThemed()) {
+      if (IsVistaOrLater() && IsAppThemed()) {
         res = ::GetColorFromTheme(eUXMenu,
                                   MENU_POPUPITEM, MPI_HOT, TMT_TEXTCOLOR, aColor);
         if (NS_SUCCEEDED(res))

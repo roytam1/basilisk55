@@ -117,7 +117,8 @@ protected:
   void DrawThemedProgressMeter(nsIFrame* aFrame, int aWidgetType,
                                HANDLE aTheme, HDC aHdc,
                                int aPart, int aState,
-                               RECT* aWidgetRect, RECT* aClipRect);
+                               RECT* aWidgetRect, RECT* aClipRect,
+                               gfxFloat aAppUnits);
 
 private:
   TimeStamp mProgressDeterminateTimeStamp;

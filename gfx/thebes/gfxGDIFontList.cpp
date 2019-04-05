@@ -734,6 +734,12 @@ gfxGDIFontList::LookupLocalFont(const nsAString& aFontName,
 
     fe->mIsLocalUserFont = true;
 
+    // Uniscribe doesn't place CFF fonts loaded privately
+    // via AddFontMemResourceEx on XP/Vista
+    if (isCFF && !IsWin7OrLater()) {
+        fe->mForceGDI = true;
+    }
+
     // make the new font entry match the userfont entry style characteristics
     fe->mWeight = (aWeight == 0 ? 400 : aWeight);
     fe->mStyle = aStyle;

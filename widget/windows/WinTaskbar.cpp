@@ -339,6 +339,9 @@ WinTaskbar::GetDefaultGroupId(nsAString & aDefaultGroupId) {
 // (static) Called from AppShell
 bool
 WinTaskbar::RegisterAppUserModelID() {
+  if (!IsWin7OrLater())
+    return false;
+
   SetCurrentProcessExplicitAppUserModelIDPtr funcAppUserModelID = nullptr;
   bool retVal = false;
 
@@ -369,7 +372,7 @@ NS_IMETHODIMP
 WinTaskbar::GetAvailable(bool *aAvailable) {
   // ITaskbarList4::HrInit() may fail with shell extensions like blackbox
   // installed. Initialize early to return available=false in those cases.
-  *aAvailable = Initialize();
+  *aAvailable = IsWin7OrLater() && Initialize();
 
   return NS_OK;
 }

@@ -14314,8 +14314,6 @@ bool PropertyWriteNeedsTypeBarrier(TempAllocator& alloc, CompilerConstraintList*
                                    PropertyName* name, MDefinition** pvalue,
                                    bool canModify, MIRType implicitType = MIRType::None);
 AbortReasonOr<bool>
-ArrayPrototypeHasIndexedProperty(IonBuilder* builder, JSScript* script);
-AbortReasonOr<bool>
 TypeCanHaveExtraIndexedProperties(IonBuilder* builder, TemporaryTypeSet* types);
 
 

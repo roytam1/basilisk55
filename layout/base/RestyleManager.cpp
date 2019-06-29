@@ -1123,10 +1123,10 @@ GetPrevContinuationWithPossiblySameStyle(nsIFrame* aFrame)
     // We're the first continuation, so we can just get the frame
     // property directly
     prevContinuation =
-      aFrame->Properties().Get(nsIFrame::IBSplitPrevSibling());
+      aFrame->GetProperty(nsIFrame::IBSplitPrevSibling());
     if (prevContinuation) {
       prevContinuation =
-        prevContinuation->Properties().Get(nsIFrame::IBSplitPrevSibling());
+        prevContinuation->GetProperty(nsIFrame::IBSplitPrevSibling());
     }
   }
 
@@ -1314,8 +1314,7 @@ RestyleManager::ReparentStyleContext(nsIFrame* aFrame)
       // oldContext)" check will prevent us from redoing work.
       if ((aFrame->GetStateBits() & NS_FRAME_PART_OF_IBSPLIT) &&
           !aFrame->GetPrevContinuation()) {
-        nsIFrame* sib =
-          aFrame->Properties().Get(nsIFrame::IBSplitSibling());
+        nsIFrame* sib = aFrame->GetProperty(nsIFrame::IBSplitSibling());
         if (sib) {
           ReparentStyleContext(sib);
         }
@@ -3350,7 +3349,6 @@ ElementRestyler::ComputeStyleChangeFor(nsIFrame*          aFrame,
   // line), we might restyle more than that.
 
   nsPresContext* presContext = aFrame->PresContext();
-  FramePropertyTable* propTable = presContext->PropertyTable();
 
   TreeMatchContext treeMatchContext(true,
                                     nsRuleWalker::eRelevantLinkUnvisited,
@@ -3364,7 +3362,7 @@ ElementRestyler::ComputeStyleChangeFor(nsIFrame*          aFrame,
   nsTArray<nsIContent*> visibleKidsOfHiddenElement;
   nsIFrame* nextIBSibling;
   for (nsIFrame* ibSibling = aFrame; ibSibling; ibSibling = nextIBSibling) {
-    nextIBSibling = RestyleManager::GetNextBlockInInlineSibling(propTable, ibSibling);
+    nextIBSibling = RestyleManager::GetNextBlockInInlineSibling(ibSibling);
 
     if (nextIBSibling) {
       // Don't allow some ib-split siblings to be processed with

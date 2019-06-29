@@ -166,10 +166,10 @@ FrameLayerBuilder::DisplayItemData::AddFrame(nsIFrame* aFrame)
   mFrameList.AppendElement(aFrame);
 
   nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(FrameLayerBuilder::LayerManagerDataProperty());
+    aFrame->GetProperty(FrameLayerBuilder::LayerManagerDataProperty());
   if (!array) {
     array = new nsTArray<DisplayItemData*>();
-    aFrame->Properties().Set(FrameLayerBuilder::LayerManagerDataProperty(), array);
+    aFrame->SetProperty(FrameLayerBuilder::LayerManagerDataProperty(), array);
   }
   array->AppendElement(this);
 }
@@ -182,7 +182,7 @@ FrameLayerBuilder::DisplayItemData::RemoveFrame(nsIFrame* aFrame)
   MOZ_RELEASE_ASSERT(result, "Can't remove a frame that wasn't added!");
 
   nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(FrameLayerBuilder::LayerManagerDataProperty());
+    aFrame->GetProperty(FrameLayerBuilder::LayerManagerDataProperty());
   MOZ_RELEASE_ASSERT(array, "Must be already stored on the frame!");
   array->RemoveElement(this);
 }
@@ -269,7 +269,7 @@ FrameLayerBuilder::DisplayItemData::~DisplayItemData()
       continue;
     }
     nsTArray<DisplayItemData*> *array =
-      reinterpret_cast<nsTArray<DisplayItemData*>*>(frame->Properties().Get(LayerManagerDataProperty()));
+      reinterpret_cast<nsTArray<DisplayItemData*>*>(frame->GetProperty(LayerManagerDataProperty()));
     array->RemoveElement(this);
   }
 
@@ -391,8 +391,7 @@ public:
 /* static */ void
 FrameLayerBuilder::DestroyDisplayItemDataFor(nsIFrame* aFrame)
 {
-  FrameProperties props = aFrame->Properties();
-  props.Delete(LayerManagerDataProperty());
+  aFrame->DeleteProperty(LayerManagerDataProperty());
 }
 
 struct AssignedDisplayItem
@@ -1779,7 +1778,7 @@ FrameLayerBuilder::DisplayItemData*
 FrameLayerBuilder::GetDisplayItemData(nsIFrame* aFrame, uint32_t aKey)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
   if (array) {
     for (uint32_t i = 0; i < array->Length(); i++) {
       DisplayItemData* item = AssertDisplayItemData(array->ElementAt(i));
@@ -2008,7 +2007,7 @@ FrameLayerBuilder::GetDisplayItemDataForManager(nsDisplayItem* aItem,
                                                 LayerManager* aManager)
 {
   const nsTArray<DisplayItemData*>* array =
-    aItem->Frame()->Properties().Get(LayerManagerDataProperty());
+    aItem->Frame()->GetProperty(LayerManagerDataProperty());
   if (array) {
     for (uint32_t i = 0; i < array->Length(); i++) {
       DisplayItemData* item = AssertDisplayItemData(array->ElementAt(i));
@@ -2025,7 +2024,7 @@ bool
 FrameLayerBuilder::HasRetainedDataFor(nsIFrame* aFrame, uint32_t aDisplayItemKey)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
   if (array) {
     for (uint32_t i = 0; i < array->Length(); i++) {
       if (AssertDisplayItemData(array->ElementAt(i))->mDisplayItemKey == aDisplayItemKey) {
@@ -2040,7 +2039,7 @@ void
 FrameLayerBuilder::IterateRetainedDataFor(nsIFrame* aFrame, DisplayItemDataCallback aCallback)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
   if (!array) {
     return;
   }
@@ -2107,7 +2106,7 @@ FrameLayerBuilder::ClearCachedGeometry(nsDisplayItem* aItem)
 FrameLayerBuilder::GetDebugOldLayerFor(nsIFrame* aFrame, uint32_t aDisplayItemKey)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
 
   if (!array) {
     return nullptr;
@@ -2127,7 +2126,7 @@ FrameLayerBuilder::GetDebugOldLayerFor(nsIFrame* aFrame, uint32_t aDisplayItemKe
 FrameLayerBuilder::GetDebugSingleOldPaintedLayerForFrame(nsIFrame* aFrame)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
 
   if (!array) {
     return nullptr;
@@ -5654,7 +5653,7 @@ FrameLayerBuilder::InvalidateAllLayers(LayerManager* aManager)
 FrameLayerBuilder::InvalidateAllLayersForFrame(nsIFrame *aFrame)
 {
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
   if (array) {
     for (uint32_t i = 0; i < array->Length(); i++) {
       AssertDisplayItemData(array->ElementAt(i))->mParent->mInvalidateAllLayers = true;
@@ -5671,7 +5670,7 @@ FrameLayerBuilder::GetDedicatedLayer(nsIFrame* aFrame, uint32_t aDisplayItemKey)
   // in the secondary manager
 
   const nsTArray<DisplayItemData*>* array =
-    aFrame->Properties().Get(LayerManagerDataProperty());
+    aFrame->GetProperty(LayerManagerDataProperty());
   if (array) {
     for (uint32_t i = 0; i < array->Length(); i++) {
       DisplayItemData *element = AssertDisplayItemData(array->ElementAt(i));
@@ -5727,7 +5726,7 @@ FrameLayerBuilder::GetPaintedLayerScaleForFrame(nsIFrame* aFrame)
     }
 
     const nsTArray<DisplayItemData*>* array =
-      f->Properties().Get(LayerManagerDataProperty());
+      f->GetProperty(LayerManagerDataProperty());
     if (!array) {
       continue;
     }
@@ -6163,9 +6162,8 @@ FrameLayerBuilder::GetMostRecentGeometry(nsDisplayItem* aItem)
   typedef nsTArray<DisplayItemData*> DataArray;
 
   // Retrieve the array of DisplayItemData associated with our frame.
-  FrameProperties properties = aItem->Frame()->Properties();
   const DataArray* dataArray =
-    properties.Get(LayerManagerDataProperty());
+    aItem->Frame()->GetProperty(LayerManagerDataProperty());
   if (!dataArray) {
     return nullptr;
   }

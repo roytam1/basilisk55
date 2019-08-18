@@ -814,6 +814,7 @@ TrackBuffersManager::CreateDemuxerforMIMEType()
   ShutdownDemuxers();
 
   if (mType.Type() == MEDIAMIMETYPE("video/webm") ||
+      mType.Type() == MEDIAMIMETYPE("video/x-matroska") ||
       mType.Type() == MEDIAMIMETYPE("audio/webm")) {
     mInputDemuxer = new WebMDemuxer(mCurrentInputBuffer, true /* IsMediaSource*/ );
     return;

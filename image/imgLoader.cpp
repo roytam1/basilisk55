@@ -1697,6 +1697,7 @@ imgLoader::ValidateRequestWithNewChannel(imgRequest* request,
 
     rv = newChannel->AsyncOpen2(listener);
     if (NS_WARN_IF(NS_FAILED(rv))) {
+      req->CancelAndForgetObserver(rv);
       return false;
     }
 

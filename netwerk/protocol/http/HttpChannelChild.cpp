@@ -543,13 +543,14 @@ HttpChannelChild::DoOnStartRequest(nsIRequest* aRequest, nsISupports* aContext)
 {
   LOG(("HttpChannelChild::DoOnStartRequest [this=%p]\n", this));
 
-  // In theory mListener should not be null, but in practice sometimes it is.
-  MOZ_ASSERT(mListener);
-  if (!mListener) {
-    Cancel(NS_ERROR_FAILURE);
-    return;
+  nsresult rv;
+  if (MOZ_LIKELY(mListener)) {
+    nsCOMPtr<nsIStreamListener> listener(mListener);
+    rv = listener->OnStartRequest(aRequest, aContext);
+  } else {
+    rv = NS_ERROR_UNEXPECTED;
   }
-  nsresult rv = mListener->OnStartRequest(aRequest, aContext);
+
   if (NS_FAILED(rv)) {
     Cancel(rv);
     return;
@@ -804,9 +805,12 @@ HttpChannelChild::DoOnDataAvailable(nsIRequest* aRequest, nsISupports* aContext,
   if (mCanceled)
     return;
 
-  nsresult rv = mListener->OnDataAvailable(aRequest, aContext, aStream, offset, count);
-  if (NS_FAILED(rv)) {
-    Cancel(rv);
+  if (MOZ_LIKELY(mListener)) {
+    nsCOMPtr<nsIStreamListener> listener(mListener);
+    nsresult rv = listener->OnDataAvailable(aRequest, aContext, aStream, offset, count);
+    if (NS_FAILED(rv)) {
+      Cancel(rv);
+    }
   }
 }
 
@@ -985,11 +989,11 @@ HttpChannelChild::DoOnStopRequest(nsIRequest* aRequest, nsresult aChannelStatus,
   MOZ_ASSERT(!mOnStopRequestCalled,
              "We should not call OnStopRequest twice");
 
-  // In theory mListener should not be null, but in practice sometimes it is.
-  MOZ_ASSERT(mListener);
-  if (mListener) {
-    mListener->OnStopRequest(aRequest, aContext, mStatus);
+  if (MOZ_LIKELY(mListener)) {
+    nsCOMPtr<nsIStreamListener> listener(mListener);
+    listener->OnStopRequest(aRequest, aContext, mStatus);
   }
+
   mOnStopRequestCalled = true;
 
   mListener = nullptr;

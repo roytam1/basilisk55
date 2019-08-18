@@ -956,8 +956,9 @@ nsHtml5TreeOpExecutor::PreloadImage(const nsAString& aURL,
                                     const nsAString& aImageReferrerPolicy)
 {
   nsCOMPtr<nsIURI> baseURI = BaseURIForPreload();
+  bool isImgSet = false;
   nsCOMPtr<nsIURI> uri = mDocument->ResolvePreloadImage(baseURI, aURL, aSrcset,
-                                                        aSizes);
+                                                        aSizes, &isImgSet);
   if (uri && ShouldPreloadURI(uri)) {
     // use document wide referrer policy
     mozilla::net::ReferrerPolicy referrerPolicy = mSpeculationReferrerPolicy;
@@ -971,7 +972,7 @@ nsHtml5TreeOpExecutor::PreloadImage(const nsAString& aURL,
       }
     }
 
-    mDocument->MaybePreLoadImage(uri, aCrossOrigin, referrerPolicy);
+    mDocument->MaybePreLoadImage(uri, aCrossOrigin, referrerPolicy, isImgSet);
   }
 }
 

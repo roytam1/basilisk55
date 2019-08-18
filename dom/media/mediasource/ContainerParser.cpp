@@ -701,6 +701,10 @@ ContainerParser::CreateForMIMEType(const MediaContainerType& aType)
     return new WebMContainerParser(aType);
   }
 
+  if (aType.Type() == MEDIAMIMETYPE("video/x-matroska")) {
+    return new WebMContainerParser(aType);
+  }
+
 #ifdef MOZ_FMP4
   if (aType.Type() == MEDIAMIMETYPE("video/mp4")
       || aType.Type() == MEDIAMIMETYPE("audio/mp4")) {

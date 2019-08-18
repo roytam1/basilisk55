@@ -2361,7 +2361,7 @@ nsHttpHandler::SpeculativeConnectInternal(nsIURI *aURI,
         originAttributes.StripAttributes(OriginAttributes::STRIP_ADDON_ID);
     }
 
-    auto *ci =
+    RefPtr<nsHttpConnectionInfo> ci =
         new nsHttpConnectionInfo(host, port, EmptyCString(), username, nullptr,
                                  originAttributes, usingSSL);
     ci->SetAnonymous(anonymous);

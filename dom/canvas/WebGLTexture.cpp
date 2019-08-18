@@ -1222,6 +1222,12 @@ WebGLTexture::TexParameter(TexTarget texTarget, GLenum pname, const FloatOrInt& 
         mContext->gl->fTexParameterf(texTarget.get(), pname, clamped.f);
 }
 
+void WebGLTexture::Truncate(const char* funcName) {
+  for (auto& cur : mImageInfoArr) {
+    SetImageInfo(funcName, &cur, ImageInfo());
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_0(WebGLTexture)

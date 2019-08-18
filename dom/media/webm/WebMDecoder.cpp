@@ -60,6 +60,15 @@ WebMDecoder::IsSupportedType(const MediaContainerType& aContainerType)
       continue;
     }
 #endif
+
+    if (IsH264CodecString(codec)) {
+      continue;
+    }
+
+    if (IsAACCodecString(codec)) {
+      continue;
+    }
+
     // Some unsupported codec.
     return false;
   }

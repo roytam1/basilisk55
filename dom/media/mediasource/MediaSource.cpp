@@ -113,7 +113,8 @@ MediaSource::IsTypeSupported(const nsAString& aType, DecoderDoctorDiagnostics* a
     }
     return NS_OK;
   }
-  if (mimeType == MEDIAMIMETYPE("video/webm")) {
+  if (mimeType == MEDIAMIMETYPE("video/webm") ||
+      mimeType == MEDIAMIMETYPE("video/x-matroska")) {
     if (!(Preferences::GetBool("media.mediasource.webm.enabled", false) ||
           IsWebMForced(aDiagnostics))) {
       return NS_ERROR_DOM_NOT_SUPPORTED_ERR;

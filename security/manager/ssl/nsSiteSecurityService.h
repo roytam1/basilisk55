@@ -130,7 +130,7 @@ protected:
   virtual ~SiteHSTSState() {}
 };
 
-struct nsSTSPreload;
+class nsSTSPreload;
 
 class nsSiteSecurityService : public nsISiteSecurityService
                             , public nsIObserver

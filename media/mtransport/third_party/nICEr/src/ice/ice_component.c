@@ -1333,9 +1333,6 @@ int nr_ice_component_refresh_consent(nr_stun_client_ctx *ctx, NR_async_cb finish
 
     _status=0;
   abort:
-    if (_status && !pair_inserted) {
-      nr_ice_candidate_pair_destroy(&pair);
-    }
     return(_status);
   }
 
@@ -1676,6 +1673,9 @@ int nr_ice_component_insert_pair(nr_ice_component *pcomp, nr_ice_cand_pair *pair
 
     _status=0;
   abort:
+    if (_status && !pair_inserted) {
+      nr_ice_candidate_pair_destroy(&pair);
+    }
     return(_status);
   }
 

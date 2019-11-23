@@ -17,6 +17,7 @@
 #include "mozilla/dom/Animation.h"
 #include "mozilla/dom/Attr.h"
 #include "mozilla/dom/Grid.h"
+#include "nsDocShell.h"
 #include "nsDOMAttributeMap.h"
 #include "nsIAtom.h"
 #include "nsIContentInlines.h"
@@ -28,7 +29,6 @@
 #include "nsIContentIterator.h"
 #include "nsFocusManager.h"
 #include "nsFrameManager.h"
-#include "nsILinkHandler.h"
 #include "nsIScriptGlobalObject.h"
 #include "nsIURL.h"
 #include "nsContainerFrame.h"
@@ -2191,12 +2191,15 @@ Element::GetPrimaryFrame(FlushType aType)
 nsresult
 Element::LeaveLink(nsPresContext* aPresContext)
 {
-  nsILinkHandler *handler = aPresContext->GetLinkHandler();
-  if (!handler) {
+  if (!aPresContext || !aPresContext->Document()->LinkHandlingEnabled()) {
     return NS_OK;
   }
 
-  return handler->OnLeaveLink();
+  nsIDocShell* shell = aPresContext->Document()->GetDocShell();
+  if (!shell) {
+    return NS_OK;
+  }
+  return nsDocShell::Cast(shell)->OnLeaveLink();
 }
 
 nsresult
@@ -2971,7 +2974,6 @@ Element::CheckHandleEventForLinksPrecondition(EventChainVisitor& aVisitor,
        (aVisitor.mEvent->mMessage != eMouseClick) &&
        (aVisitor.mEvent->mMessage != eKeyPress) &&
        (aVisitor.mEvent->mMessage != eLegacyDOMActivate)) ||
-      !aVisitor.mPresContext ||
       aVisitor.mEvent->mFlags.mMultipleActionsPrevented) {
     return false;
   }
@@ -3016,7 +3018,7 @@ Element::GetEventTargetParentForLinks(EventChainPreVisitor& aVisitor)
     if (!focusEvent || !focusEvent->mIsRefocus) {
       nsAutoString target;
       GetLinkTarget(target);
-      nsContentUtils::TriggerLink(this, aVisitor.mPresContext, absURI, target,
+      nsContentUtils::TriggerLink(this, absURI, target,
                                   false, true, true);
       // Make sure any ancestor links don't also TriggerLink
       aVisitor.mEvent->mFlags.mMultipleActionsPrevented = true;
@@ -3069,19 +3071,18 @@ Element::PostHandleEventForLinks(EventChainPostVisitor& aVisitor)
   case eMouseDown:
     {
       if (aVisitor.mEvent->AsMouseEvent()->button ==
-            WidgetMouseEvent::eLeftButton) {
-        // don't make the link grab the focus if there is no link handler
-        nsILinkHandler *handler = aVisitor.mPresContext->GetLinkHandler();
-        nsIDocument *document = GetComposedDoc();
-        if (handler && document) {
-          nsIFocusManager* fm = nsFocusManager::GetFocusManager();
-          if (fm) {
-            aVisitor.mEvent->mFlags.mMultipleActionsPrevented = true;
+            WidgetMouseEvent::eLeftButton &&
+                OwnerDoc()->LinkHandlingEnabled()) {
+        aVisitor.mEvent->mFlags.mMultipleActionsPrevented = true;
+        if (IsInComposedDoc()) {
+          if (nsIFocusManager* fm = nsFocusManager::GetFocusManager()) {
             nsCOMPtr<nsIDOMElement> elem = do_QueryInterface(this);
             fm->SetFocus(elem, nsIFocusManager::FLAG_BYMOUSE |
                                nsIFocusManager::FLAG_NOSCROLL);
           }
+        }
 
+        if (aVisitor.mPresContext) {
           EventStateManager::SetActiveManager(
             aVisitor.mPresContext->EventStateManager(), this);
         }
@@ -3097,20 +3098,16 @@ Element::PostHandleEventForLinks(EventChainPostVisitor& aVisitor)
         break;
       }
 
-      // The default action is simply to dispatch DOMActivate
-      nsCOMPtr<nsIPresShell> shell = aVisitor.mPresContext->GetPresShell();
-      if (shell) {
-        // single-click
-        nsEventStatus status = nsEventStatus_eIgnore;
-        // DOMActive event should be trusted since the activation is actually
-        // occurred even if the cause is an untrusted click event.
-        InternalUIEvent actEvent(true, eLegacyDOMActivate, mouseEvent);
-        actEvent.mDetail = 1;
+      nsEventStatus status = nsEventStatus_eIgnore;
+      // DOMActive event should be trusted since the activation is actually
+      // occurred even if the cause is an untrusted click event.
+      InternalUIEvent actEvent(true, eLegacyDOMActivate, mouseEvent);
+      actEvent.mDetail = 1;
 
-        rv = shell->HandleDOMEventWithTarget(this, &actEvent, &status);
-        if (NS_SUCCEEDED(rv)) {
-          aVisitor.mEventStatus = nsEventStatus_eConsumeNoDefault;
-        }
+      rv = EventDispatcher::Dispatch(this, aVisitor.mPresContext, &actEvent,
+                                       nullptr, &status);
+      if (NS_SUCCEEDED(rv)) {
+        aVisitor.mEventStatus = nsEventStatus_eConsumeNoDefault;
       }
     }
     break;
@@ -3122,7 +3119,7 @@ Element::PostHandleEventForLinks(EventChainPostVisitor& aVisitor)
         GetLinkTarget(target);
         const InternalUIEvent* activeEvent = aVisitor.mEvent->AsUIEvent();
         MOZ_ASSERT(activeEvent);
-        nsContentUtils::TriggerLink(this, aVisitor.mPresContext, absURI, target,
+        nsContentUtils::TriggerLink(this, absURI, target,
                                     true, true, activeEvent->IsTrustable());
         aVisitor.mEventStatus = nsEventStatus_eConsumeNoDefault;
       }

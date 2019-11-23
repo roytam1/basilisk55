@@ -1572,7 +1572,8 @@ public:
   virtual void SetContainer(nsDocShell* aContainer);
 
   /**
-   * Get the container (docshell) for this document.
+   * Get the container (docshell) for this document. Virtual so that
+   * the shell service can call it.
    */
   virtual nsISupports* GetContainer() const;
 
@@ -2896,6 +2897,9 @@ public:
 
   bool InlineScriptAllowedByCSP();
 
+  void SetLinkHandlingEnabled(bool aValue) { mLinksEnabled = aValue; }
+  bool LinkHandlingEnabled() { return mLinksEnabled; }
+
   void ReportHasScrollLinkedEffect();
   bool HasScrollLinkedEffect() const
   {
@@ -3251,6 +3255,10 @@ protected:
   // This should generally be updated only via
   // UpdateFrameRequestCallbackSchedulingState.
   bool mFrameRequestCallbacksScheduled : 1;
+
+  // False if we've disabled link handling for elements inside this document,
+  // true otherwise.
+  bool mLinksEnabled : 1;
 
   // Compatibility mode
   nsCompatibility mCompatMode;

@@ -54,7 +54,6 @@ class nsITheme;
 class nsIContent;
 class nsIFrame;
 class nsFrameManager;
-class nsILinkHandler;
 class nsIAtom;
 class nsIRunnable;
 class gfxUserFontEntry;
@@ -458,13 +457,8 @@ public:
 
   nsIDocShell* GetDocShell() const;
 
-  // XXX this are going to be replaced with set/get container
-  void SetLinkHandler(nsILinkHandler* aHandler) { mLinkHandler = aHandler; }
-  nsILinkHandler* GetLinkHandler() { return mLinkHandler; }
-
   /**
-   * Detach this pres context - i.e. cancel relevant timers,
-   * SetLinkHandler(null), SetContainer(null) etc.
+   * Detach this pres context - i.e. cancel relevant timers, etc.
    * Only to be used by the DocumentViewer.
    */
   virtual void Detach();
@@ -1267,10 +1261,6 @@ protected:
   RefPtr<mozilla::CounterStyleManager> mCounterStyleManager;
   nsIAtom* MOZ_UNSAFE_REF("always a static atom") mMedium; // initialized by subclass ctors
   nsCOMPtr<nsIAtom> mMediaEmulated;
-
-  // This pointer is nulled out through SetLinkHandler() in the destructors of
-  // the classes which set it. (using SetLinkHandler() again).
-  nsILinkHandler* MOZ_NON_OWNING_REF mLinkHandler;
 
   // Formerly mLangGroup; moving from charset-oriented langGroup to
   // maintaining actual language settings everywhere (see bug 524107).

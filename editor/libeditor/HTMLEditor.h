@@ -41,7 +41,6 @@ class nsDocumentFragment;
 class nsIDOMKeyEvent;
 class nsITransferable;
 class nsIClipboard;
-class nsILinkHandler;
 class nsTableWrapperFrame;
 class nsIDOMRange;
 class nsRange;
@@ -1073,7 +1072,8 @@ protected:
   void AddMouseClickListener(Element* aElement);
   void RemoveMouseClickListener(Element* aElement);
 
-  nsCOMPtr<nsILinkHandler> mLinkHandler;
+  bool mDisabledLinkHandling = false;
+  bool mOldLinkHandlingEnabled = false;
 
 public:
   friend class HTMLEditorEventListener;

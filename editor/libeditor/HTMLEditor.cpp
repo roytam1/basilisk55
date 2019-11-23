@@ -26,6 +26,7 @@
 #include "nsIDOMNodeList.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMAttr.h"
+#include "nsIDocument.h"
 #include "nsIDocumentInlines.h"
 #include "nsIDOMEventTarget.h"
 #include "nsIDOMKeyEvent.h"
@@ -164,11 +165,11 @@ HTMLEditor::~HTMLEditor()
   // free any default style propItems
   RemoveAllDefaultProperties();
 
-  if (mLinkHandler && mDocWeak) {
+  if (mDisabledLinkHandling && mDocWeak) {
     nsCOMPtr<nsIPresShell> ps = GetPresShell();
 
-    if (ps && ps->GetPresContext()) {
-      ps->GetPresContext()->SetLinkHandler(mLinkHandler);
+    if (ps && ps->GetDocument()) {
+      ps->GetDocument()->SetLinkHandlingEnabled(mOldLinkHandlingEnabled);
     }
   }
 
@@ -291,11 +292,12 @@ HTMLEditor::Init(nsIDOMDocument* aDoc,
     // disable links
     nsCOMPtr<nsIPresShell> presShell = GetPresShell();
     NS_ENSURE_TRUE(presShell, NS_ERROR_FAILURE);
-    nsPresContext *context = presShell->GetPresContext();
-    NS_ENSURE_TRUE(context, NS_ERROR_NULL_POINTER);
+    nsIDocument *doc = presShell->GetDocument();
+    NS_ENSURE_TRUE(doc, NS_ERROR_NULL_POINTER);
     if (!IsPlaintextEditor() && !IsInteractionAllowed()) {
-      mLinkHandler = context->GetLinkHandler();
-      context->SetLinkHandler(nullptr);
+      mDisabledLinkHandling = true;
+      mOldLinkHandlingEnabled = doc->LinkHandlingEnabled();
+      doc->SetLinkHandlingEnabled(false);
     }
 
     // init the type-in state

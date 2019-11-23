@@ -1307,6 +1307,7 @@ nsIDocument::nsIDocument()
     mDidFireDOMContentLoaded(true),
     mHasScrollLinkedEffect(false),
     mFrameRequestCallbacksScheduled(false),
+    mLinksEnabled(true),
     mCompatMode(eCompatibility_FullStandards),
     mVisibilityState(dom::VisibilityState::Hidden),
     mBidiOptions(IBMBIDI_DEFAULT_BIDI_OPTIONS),

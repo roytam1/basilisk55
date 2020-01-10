@@ -86,8 +86,6 @@ GetObject(const MDefinition* ins)
       case MDefinition::Op_SetInitializedLength:
       case MDefinition::Op_ArrayLength:
       case MDefinition::Op_SetArrayLength:
-      case MDefinition::Op_StoreElementHole:
-      case MDefinition::Op_FallibleStoreElement:
       case MDefinition::Op_TypedObjectDescr:
       case MDefinition::Op_Slots:
       case MDefinition::Op_Elements:
@@ -102,7 +100,6 @@ GetObject(const MDefinition* ins)
       case MDefinition::Op_SetDisjointTypedElements:
       case MDefinition::Op_ArrayPopShift:
       case MDefinition::Op_ArrayPush:
-      case MDefinition::Op_ArraySlice:
       case MDefinition::Op_LoadTypedArrayElementHole:
       case MDefinition::Op_StoreTypedArrayElementHole:
       case MDefinition::Op_LoadFixedSlot:
@@ -126,6 +123,7 @@ GetObject(const MDefinition* ins)
         object = ins->getOperand(0);
         break;
       case MDefinition::Op_GetPropertyCache:
+      case MDefinition::Op_CallGetProperty:
       case MDefinition::Op_LoadTypedArrayElementStatic:
       case MDefinition::Op_StoreTypedArrayElementStatic:
       case MDefinition::Op_GetDOMProperty:
@@ -148,6 +146,9 @@ GetObject(const MDefinition* ins)
       case MDefinition::Op_WasmLoadGlobalVar:
       case MDefinition::Op_WasmStoreGlobalVar:
       case MDefinition::Op_ArrayJoin:
+      case MDefinition::Op_ArraySlice:    
+      case MDefinition::Op_StoreElementHole:
+      case MDefinition::Op_FallibleStoreElement:
         return nullptr;
       default:
 #ifdef DEBUG

@@ -722,8 +722,6 @@ public abstract class TreeBuilder<T> implements TokenHandler,
                             contextName);
                 }
             }
-            contextName = null;
-            contextNode = null;
         } else {
             mode = INITIAL;
             // If we are viewing XML source, put a foreign element permanently
@@ -1629,8 +1627,6 @@ public abstract class TreeBuilder<T> implements TokenHandler,
      * @see nu.validator.htmlparser.common.TokenHandler#endTokenization()
      */
     public final void endTokenization() throws SAXException {
-        formPointer = null;
-        headPointer = null;
         deepTreeSurrogateParent = null;
         templateModeStack = null;
         if (stack != null) {

@@ -58,7 +58,8 @@ nsBaseDragService::nsBaseDragService()
     mDragAction(DRAGDROP_ACTION_NONE),
     mDragActionFromChildProcess(DRAGDROP_ACTION_UNINITIALIZED), mTargetSize(0,0),
     mContentPolicyType(nsIContentPolicy::TYPE_OTHER),
-    mSuppressLevel(0), mInputSource(nsIDOMMouseEvent::MOZ_SOURCE_MOUSE)
+    mSuppressLevel(0), mInputSource(nsIDOMMouseEvent::MOZ_SOURCE_MOUSE),
+    mEndingSession(false)
 {
 }
 
@@ -382,9 +383,11 @@ nsBaseDragService::TakeChildProcessDragAction()
 NS_IMETHODIMP
 nsBaseDragService::EndDragSession(bool aDoneDrag)
 {
-  if (!mDoingDrag) {
+  if (!mDoingDrag || mEndingSession) {
     return NS_ERROR_FAILURE;
   }
+
+  mEndingSession = true;
 
   if (aDoneDrag && !mSuppressLevel) {
     FireDragEventAtSource(eDragEnd);
@@ -412,6 +415,7 @@ nsBaseDragService::EndDragSession(bool aDoneDrag)
   }
 
   mDoingDrag = false;
+  mEndingSession = false;
   mCanDrop = false;
 
   // release the source we've been holding on to.

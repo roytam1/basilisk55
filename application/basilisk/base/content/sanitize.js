@@ -17,8 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "Task",
                                   "resource://gre/modules/Task.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "DownloadsCommon",
                                   "resource:///modules/DownloadsCommon.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "TelemetryStopwatch",
-                                  "resource://gre/modules/TelemetryStopwatch.jsm");
+/*XPCOMUtils.defineLazyModuleGetter(this, "TelemetryStopwatch",
+                                  "resource://gre/modules/TelemetryStopwatch.jsm");*/
 XPCOMUtils.defineLazyModuleGetter(this, "console",
                                   "resource://gre/modules/Console.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Preferences",
@@ -152,7 +152,7 @@ Sanitizer.prototype = {
     // Callers should check returned errors and give user feedback
     // about items that could not be sanitized
     let refObj = {};
-    TelemetryStopwatch.start("FX_SANITIZE_TOTAL", refObj);
+    //TelemetryStopwatch.start("FX_SANITIZE_TOTAL", refObj);
 
     let annotateError = (name, ex) => {
       progress[name] = "failed";
@@ -184,7 +184,7 @@ Sanitizer.prototype = {
     }
 
     // Sanitization is complete.
-    TelemetryStopwatch.finish("FX_SANITIZE_TOTAL", refObj);
+    //TelemetryStopwatch.finish("FX_SANITIZE_TOTAL", refObj);
     // Reset the inProgress preference since we were not killed during
     // sanitization.
     Preferences.reset(Sanitizer.PREF_SANITIZE_IN_PROGRESS);
@@ -207,7 +207,7 @@ Sanitizer.prototype = {
       clear: Task.async(function* (range) {
         let seenException;
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_CACHE", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_CACHE", refObj);
 
         try {
           // Cache doesn't consult timespan, nor does it have the
@@ -228,7 +228,7 @@ Sanitizer.prototype = {
           seenException = ex;
         }
 
-        TelemetryStopwatch.finish("FX_SANITIZE_CACHE", refObj);
+        //TelemetryStopwatch.finish("FX_SANITIZE_CACHE", refObj);
         if (seenException) {
           throw seenException;
         }
@@ -242,7 +242,7 @@ Sanitizer.prototype = {
         let refObj = {};
 
         // Clear cookies.
-        TelemetryStopwatch.start("FX_SANITIZE_COOKIES_2", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_COOKIES_2", refObj);
         try {
           let cookieMgr = Components.classes["@mozilla.org/cookiemanager;1"]
                                     .getService(Ci.nsICookieManager);
@@ -270,7 +270,7 @@ Sanitizer.prototype = {
         } catch (ex) {
           seenException = ex;
         } finally {
-          TelemetryStopwatch.finish("FX_SANITIZE_COOKIES_2", refObj);
+          //TelemetryStopwatch.finish("FX_SANITIZE_COOKIES_2", refObj);
         }
 
         // Clear deviceIds. Done asynchronously (returns before complete).
@@ -346,7 +346,7 @@ Sanitizer.prototype = {
       clear: Task.async(function* (range) {
         let seenException;
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_HISTORY", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_HISTORY", refObj);
         try {
           if (range) {
             yield PlacesUtils.history.removeVisitsByFilter({
@@ -360,7 +360,7 @@ Sanitizer.prototype = {
         } catch (ex) {
           seenException = ex;
         } finally {
-          TelemetryStopwatch.finish("FX_SANITIZE_HISTORY", refObj);
+          //TelemetryStopwatch.finish("FX_SANITIZE_HISTORY", refObj);
         }
 
         try {
@@ -388,7 +388,7 @@ Sanitizer.prototype = {
       clear: Task.async(function* (range) {
         let seenException;
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_FORMDATA", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_FORMDATA", refObj);
         try {
           // Clear undo history of all search bars.
           let windows = Services.wm.getEnumerator("navigator:browser");
@@ -442,7 +442,7 @@ Sanitizer.prototype = {
           seenException = ex;
         }
 
-        TelemetryStopwatch.finish("FX_SANITIZE_FORMDATA", refObj);
+        //TelemetryStopwatch.finish("FX_SANITIZE_FORMDATA", refObj);
         if (seenException) {
           throw seenException;
         }
@@ -452,7 +452,7 @@ Sanitizer.prototype = {
     downloads: {
       clear: Task.async(function* (range) {
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_DOWNLOADS", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_DOWNLOADS", refObj);
         try {
           let filterByTime = null;
           if (range) {
@@ -467,7 +467,7 @@ Sanitizer.prototype = {
           let list = yield Downloads.getList(Downloads.ALL);
           list.removeFinished(filterByTime);
         } finally {
-          TelemetryStopwatch.finish("FX_SANITIZE_DOWNLOADS", refObj);
+          //TelemetryStopwatch.finish("FX_SANITIZE_DOWNLOADS", refObj);
         }
       })
     },
@@ -475,7 +475,7 @@ Sanitizer.prototype = {
     sessions: {
       clear: Task.async(function* (range) {
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_SESSIONS", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_SESSIONS", refObj);
 
         try {
           // clear all auth tokens
@@ -486,7 +486,7 @@ Sanitizer.prototype = {
           // clear FTP and plain HTTP auth sessions
           Services.obs.notifyObservers(null, "net:clear-active-logins", null);
         } finally {
-          TelemetryStopwatch.finish("FX_SANITIZE_SESSIONS", refObj);
+          //TelemetryStopwatch.finish("FX_SANITIZE_SESSIONS", refObj);
         }
       })
     },
@@ -495,7 +495,7 @@ Sanitizer.prototype = {
       clear: Task.async(function* (range) {
         let seenException;
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_SITESETTINGS", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_SITESETTINGS", refObj);
 
         let startDateMS = range ? range[0] / 1000 : null;
 
@@ -553,7 +553,7 @@ Sanitizer.prototype = {
           seenException = ex;
         }
 
-        TelemetryStopwatch.finish("FX_SANITIZE_SITESETTINGS", refObj);
+        //TelemetryStopwatch.finish("FX_SANITIZE_SITESETTINGS", refObj);
         if (seenException) {
           throw seenException;
         }
@@ -611,7 +611,7 @@ Sanitizer.prototype = {
         // If/once we get here, we should actually be able to close all windows.
 
         let refObj = {};
-        TelemetryStopwatch.start("FX_SANITIZE_OPENWINDOWS", refObj);
+        //TelemetryStopwatch.start("FX_SANITIZE_OPENWINDOWS", refObj);
 
         // First create a new window. We do this first so that on non-mac, we don't
         // accidentally close the app by closing all the windows.
@@ -657,7 +657,7 @@ Sanitizer.prototype = {
             newWindowOpened = true;
             // If we're the last thing to happen, invoke callback.
             if (numWindowsClosing == 0) {
-              TelemetryStopwatch.finish("FX_SANITIZE_OPENWINDOWS", refObj);
+              //TelemetryStopwatch.finish("FX_SANITIZE_OPENWINDOWS", refObj);
               resolve();
             }
           }
@@ -669,7 +669,7 @@ Sanitizer.prototype = {
               Services.obs.removeObserver(onWindowClosed, "xul-window-destroyed");
               // If we're the last thing to happen, invoke callback.
               if (newWindowOpened) {
-                TelemetryStopwatch.finish("FX_SANITIZE_OPENWINDOWS", refObj);
+                //TelemetryStopwatch.finish("FX_SANITIZE_OPENWINDOWS", refObj);
                 resolve();
               }
             }
@@ -788,7 +788,7 @@ Sanitizer.clearPluginData = Task.async(function* (range) {
         if (/\bFlash\b/.test(tag.name)) {
           probe = tag.loaded ? "FX_SANITIZE_LOADED_FLASH"
                              : "FX_SANITIZE_UNLOADED_FLASH";
-          TelemetryStopwatch.start(probe, refObj);
+          //TelemetryStopwatch.start(probe, refObj);
         }
         try {
           let rv = yield new Promise(resolve =>
@@ -801,12 +801,12 @@ Sanitizer.clearPluginData = Task.async(function* (range) {
             );
           }
           if (probe) {
-            TelemetryStopwatch.finish(probe, refObj);
+            //TelemetryStopwatch.finish(probe, refObj);
           }
         } catch (ex) {
           // Ignore errors from plug-ins
           if (probe) {
-            TelemetryStopwatch.cancel(probe, refObj);
+            //TelemetryStopwatch.cancel(probe, refObj);
           }
         }
       }

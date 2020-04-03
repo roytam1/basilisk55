@@ -56,6 +56,10 @@ static const ssl3BulkCipherDef ssl_bulk_cipher_defs[] = {
      SEC_OID_AES_256_GCM, "AES-256-GCM", MR_128},
     {cipher_chacha20,     ssl_calg_chacha20, 32,32, type_aead,  12, 0,16, 0,
      SEC_OID_CHACHA20_POLY1305, "ChaCha20-Poly1305", MR_MAX},
+    {cipher_camellia_128_gcm,  ssl_calg_camellia_gcm,  16,16, type_aead,   4, 0,16, 8,
+     SEC_OID_CAMELLIA_128_GCM, "Camellia-128-GCM", MR_128},
+    {cipher_camellia_256_gcm,  ssl_calg_camellia_gcm,  32,32, type_aead,   4, 0,16, 8,
+     SEC_OID_CAMELLIA_256_GCM, "Camellia-256-GCM", MR_128},
     {cipher_missing,      ssl_calg_null,      0, 0, type_stream, 0, 0, 0, 0,
      SEC_OID_UNKNOWN,     "missing", 0U},
 };

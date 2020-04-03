@@ -223,6 +223,7 @@ PK11_GetKeyType(CK_MECHANISM_TYPE type, unsigned long len)
         case CKM_CAMELLIA_MAC_GENERAL:
         case CKM_CAMELLIA_CBC_PAD:
         case CKM_CAMELLIA_KEY_GEN:
+        case CKM_CAMELLIA_GCM:
             return CKK_CAMELLIA;
         case CKM_NSS_CHACHA20_POLY1305:
         case CKM_NSS_CHACHA20_KEY_GEN:
@@ -443,6 +444,7 @@ PK11_GetKeyGenWithSize(CK_MECHANISM_TYPE type, int size)
         case CKM_CAMELLIA_MAC_GENERAL:
         case CKM_CAMELLIA_CBC_PAD:
         case CKM_CAMELLIA_KEY_GEN:
+        case CKM_CAMELLIA_GCM:
             return CKM_CAMELLIA_KEY_GEN;
         case CKM_NSS_CHACHA20_POLY1305:
         case CKM_NSS_CHACHA20_CTR:
@@ -796,6 +798,7 @@ PK11_GetIVLength(CK_MECHANISM_TYPE type)
         case CKM_CAST5_CBC_PAD:
             return 8;
         case CKM_AES_GCM:
+        case CKM_CAMELLIA_GCM:
         case CKM_NSS_CHACHA20_POLY1305:
             return 12;
         case CKM_SEED_CBC:

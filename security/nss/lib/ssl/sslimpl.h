@@ -236,7 +236,7 @@ typedef struct {
 #endif
 } ssl3CipherSuiteCfg;
 
-#define ssl_V3_SUITES_IMPLEMENTED 75
+#define ssl_V3_SUITES_IMPLEMENTED 83
 
 #define MAX_DTLS_SRTP_CIPHER_SUITES 4
 

@@ -43,6 +43,8 @@ typedef enum {
     cipher_aes_128_gcm,
     cipher_aes_256_gcm,
     cipher_chacha20,
+    cipher_camellia_128_gcm,
+    cipher_camellia_256_gcm,
     cipher_missing /* reserved for no such supported cipher */
     /* This enum must match ssl3_cipherName[] in ssl3con.c.  */
 } SSL3BulkCipher;

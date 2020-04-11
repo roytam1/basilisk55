@@ -21,6 +21,7 @@ js/src/dtoa.c
 js/src/jit/arm64/vixl/
 media/gmp-clearkey/0.1/openaes/
 media/kiss_fft/
+media/libaom/src/
 media/libav/
 media/libcubeb/
 media/libjpeg/
@@ -57,7 +58,6 @@ netwerk/srtp/src/
 nsprpub/
 other-licenses/
 security/sandbox/chromium/
-third_party/aom/
 testing/gtest/gmock/
 testing/gtest/gtest/
 toolkit/components/protobuf/

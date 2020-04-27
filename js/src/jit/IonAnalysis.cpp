@@ -2223,64 +2223,6 @@ IsRegExpHoistable(MIRGenerator* mir, MDefinition* regexp, MDefinitionVector& wor
     return true;
 }
 
-bool
-jit::MakeMRegExpHoistable(MIRGenerator* mir, MIRGraph& graph)
-{
-    // If we are compiling try blocks, regular expressions may be observable
-    // from catch blocks (which Ion does not compile). For now just disable the
-    // pass in this case.
-    if (graph.hasTryBlock())
-        return true;
-
-    MDefinitionVector worklist(graph.alloc());
-
-    for (ReversePostorderIterator block(graph.rpoBegin()); block != graph.rpoEnd(); block++) {
-        if (mir->shouldCancel("MakeMRegExpHoistable outer loop"))
-            return false;
-
-        for (MDefinitionIterator iter(*block); iter; iter++) {
-            if (!*iter)
-                MOZ_CRASH("confirm bug 1263794.");
-
-            if (mir->shouldCancel("MakeMRegExpHoistable inner loop"))
-                return false;
-
-            if (!iter->isRegExp())
-                continue;
-
-            MRegExp* regexp = iter->toRegExp();
-
-            bool hoistable = false;
-            if (!IsRegExpHoistable(mir, regexp, worklist, &hoistable))
-                return false;
-
-            if (!hoistable)
-                continue;
-
-            // Make MRegExp hoistable
-            regexp->setMovable();
-            regexp->setDoNotClone();
-
-            // That would be incorrect for global/sticky, because lastIndex
-            // could be wrong.  Therefore setting the lastIndex to 0. That is
-            // faster than a not movable regexp.
-            RegExpObject* source = regexp->source();
-            if (source->sticky() || source->global()) {
-                if (!graph.alloc().ensureBallast())
-                    return false;
-                MConstant* zero = MConstant::New(graph.alloc(), Int32Value(0));
-                regexp->block()->insertAfter(regexp, zero);
-
-                MStoreFixedSlot* lastIndex =
-                    MStoreFixedSlot::New(graph.alloc(), regexp, RegExpObject::lastIndexSlot(), zero);
-                regexp->block()->insertAfter(zero, lastIndex);
-            }
-        }
-    }
-
-    return true;
-}
-
 void
 jit::RenumberBlocks(MIRGraph& graph)
 {

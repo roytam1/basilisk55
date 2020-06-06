@@ -187,7 +187,7 @@ nsresult CSP_AppendCSPFromHeader(nsIContentSecurityPolicy* aCsp,
 
 class nsCSPHostSrc;
 
-nsCSPHostSrc* CSP_CreateHostSrcFromSelfURI(nsIURI* aSelfURI);
+nsCSPHostSrc* CSP_CreateHostSrcFromURI(nsIURI* aSelfURI, bool aIsSelf = false);
 bool CSP_IsValidDirective(const nsAString& aDir);
 bool CSP_IsDirective(const nsAString& aValue, CSPDirective aDir);
 bool CSP_IsKeyword(const nsAString& aValue, enum CSPKeyword aKey);
@@ -214,7 +214,13 @@ class nsCSPBaseSrc {
 
     virtual void invalidate() const
       { mInvalidated = true; }
- 
+
+/* TenFourFox issue 602 */
+    bool getCameFromSelf() const;
+    void setCameFromSelf(bool isSelf);
+ private:
+    bool mCameFromSelf;
+
   protected:
     // invalidate srcs if 'script-dynamic' is present or also invalidate
     // unsafe-inline' if nonce- or hash-source specified
@@ -252,6 +258,9 @@ class nsCSPHostSrc : public nsCSPBaseSrc {
                  bool aReportOnly, bool aUpgradeInsecure, bool aParserCreated) const;
     bool visit(nsCSPSrcVisitor* aVisitor) const;
     void toString(nsAString& outStr) const;
+
+/* TenFourFox issue 602 */
+    bool allows(enum CSPKeyword aKeyword, const nsAString& aHashOrNonce) const;
 
     void setScheme(const nsAString& aScheme);
     void setPort(const nsAString& aPort);

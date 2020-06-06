@@ -266,27 +266,31 @@ CSP_ContentTypeToDirective(nsContentPolicyType aType)
 }
 
 nsCSPHostSrc*
-CSP_CreateHostSrcFromSelfURI(nsIURI* aSelfURI)
+CSP_CreateHostSrcFromURI(nsIURI* aURI, bool aIsSelf)
 {
   // Create the host first
   nsCString host;
-  aSelfURI->GetAsciiHost(host);
+  aURI->GetAsciiHost(host);
   nsCSPHostSrc *hostsrc = new nsCSPHostSrc(NS_ConvertUTF8toUTF16(host));
   hostsrc->setGeneratedFromSelfKeyword();
 
   // Add the scheme.
   nsCString scheme;
-  aSelfURI->GetScheme(scheme);
+  aURI->GetScheme(scheme);
   hostsrc->setScheme(NS_ConvertUTF8toUTF16(scheme));
 
   int32_t port;
-  aSelfURI->GetPort(&port);
+  aURI->GetPort(&port);
   // Only add port if it's not default port.
   if (port > 0) {
     nsAutoString portStr;
     portStr.AppendInt(port);
     hostsrc->setPort(portStr);
   }
+
+  // Mark if this came from 'self' originally (TenFourFox issue 602).
+  hostsrc->setCameFromSelf(aIsSelf);
+
   return hostsrc;
 }
 
@@ -395,6 +399,14 @@ permitsScheme(const nsAString& aEnforcementScheme,
     return true;
   }
 
+  // TenFourFox issue 602: allow loading wss if the enforcement scheme is TLS,
+  // or if we are promised an upgrade of ws.
+  if (aEnforcementScheme.EqualsASCII("https") &&
+      (scheme.EqualsASCII("wss") ||
+       (aUpgradeInsecure && !aReportOnly && scheme.EqualsASCII("ws")))) {
+    return true;
+  }
+
   // Allow the load when enforcing upgrade-insecure-requests with the
   // promise the request gets upgraded from http to https and ws to wss.
   // See nsHttpChannel::Connect() and also WebSocket.cpp. Please note,
@@ -441,12 +453,25 @@ CSP_AppendCSPFromHeader(nsIContentSecurityPolicy* aCsp,
 /* ===== nsCSPSrc ============================ */
 
 nsCSPBaseSrc::nsCSPBaseSrc()
-  : mInvalidated(false)
+  : mInvalidated(false),
+    mCameFromSelf(false) // TenFourFox issue 602
 {
 }
 
 nsCSPBaseSrc::~nsCSPBaseSrc()
 {
+}
+
+/* TenFourFox issue 602 */
+bool
+nsCSPBaseSrc::getCameFromSelf() const
+{
+   return mCameFromSelf;
+}
+void
+nsCSPBaseSrc::setCameFromSelf(bool aIsSelf)
+{
+   mCameFromSelf = aIsSelf;
 }
 
 // ::permits is only called for external load requests, therefore:
@@ -463,8 +488,7 @@ nsCSPBaseSrc::permits(nsIURI* aUri, const nsAString& aNonce, bool aWasRedirected
   return false;
 }
 
-// ::allows is only called for inlined loads, therefore:
-// nsCSPSchemeSrc, nsCSPHostSrc fall back
+// ::allows is only called for inlined loads, therefore externals fall back
 // to this base class implementation which will never allow the load.
 bool
 nsCSPBaseSrc::allows(enum CSPKeyword aKeyword, const nsAString& aHashOrNonce,
@@ -732,6 +756,13 @@ nsCSPHostSrc::permits(nsIURI* aUri, const nsAString& aNonce, bool aWasRedirected
 
   // At the end: scheme, host, port and path match -> allow the load.
   return true;
+}
+
+// TenFourFox issue 602. Called for inlined loads only.
+bool
+nsCSPHostSrc::allows(enum CSPKeyword aKeyword, const nsAString& aHashOrNonce) const
+{
+  return getCameFromSelf();
 }
 
 bool

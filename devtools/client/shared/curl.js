@@ -79,7 +79,10 @@ const Curl = {
     if (utils.isUrlEncodedRequest(data) ||
           ["PUT", "POST"].includes(data.method)) {
       postDataText = data.postDataText;
-      postData.push("--data");
+      // Irony: curl that comes with Tiger doesn't support this option.
+      // But if you are l33t enough to use this, you should know that.
+      // -- Cameron
+      postData.push("--data-raw");
       postData.push(escapeString(utils.writePostDataTextParams(postDataText)));
       ignoredHeaders.add("Content-Length");
     } else if (multipartRequest) {

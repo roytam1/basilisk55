@@ -1841,10 +1841,13 @@ XMLHttpRequestWorker::SendInternal(SendRunnable* aRunnable,
   // that this autoSyncLoop->Run() can never fail, since the StopSyncLoop call
   // for it will come from ProxyCompleteRunnable and that always passes true for
   // the second arg.
-  if (!autoSyncLoop->Run() && !aRv.Failed()) {
+  bool succeeded = autoSyncLoop->Run();
+  mStateData.mFlagSend = false;
+
+  if (!succeeded && !aRv.Failed()) {
+    // Somehow we didn't throw. Throw now.
     aRv.Throw(NS_ERROR_FAILURE);
   }
-  mStateData.mFlagSend = false;
 }
 
 bool
@@ -2035,7 +2038,7 @@ XMLHttpRequestWorker::Send(JSContext* aCx, ErrorResult& aRv)
     return;
   }
 
-  if (!mProxy) {
+  if (!mProxy || mStateData.mFlagSend) {
     aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
     return;
   }

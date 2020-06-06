@@ -538,7 +538,8 @@ nsCSPParser::keywordSource()
   // Special case handling for 'self' which is not stored internally as a keyword,
   // but rather creates a nsCSPHostSrc using the selfURI
   if (CSP_IsKeyword(mCurToken, CSP_SELF)) {
-    return CSP_CreateHostSrcFromSelfURI(mSelfURI);
+    // TenFourFox issue 602
+    return CSP_CreateHostSrcFromURI(mSelfURI, /* aIsSelf */ true);
   }
 
   if (CSP_IsKeyword(mCurToken, CSP_STRICT_DYNAMIC)) {

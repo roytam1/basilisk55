@@ -1328,16 +1328,6 @@ static const CipherPref sCipherPrefs[] = {
  { "security.ssl3.ecdhe_rsa_aes_256_gcm_sha384",
    TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, true },
 
- { "security.ssl3.ecdhe_ecdsa_camellia_256_gcm_sha384",
-   TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384, true },
- { "security.ssl3.ecdhe_rsa_camellia_256_gcm_sha384",
-   TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384, true },
-
- { "security.ssl3.ecdhe_ecdsa_camellia_128_gcm_sha256",
-   TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256, true },
- { "security.ssl3.ecdhe_rsa_camellia_128_gcm_sha256",
-   TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256, true },
-
  { "security.ssl3.ecdhe_ecdsa_camellia_256_sha384",
    TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384, true },
  { "security.ssl3.ecdhe_rsa_camellia_256_sha384",
@@ -1357,11 +1347,6 @@ static const CipherPref sCipherPrefs[] = {
    TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, true },
  { "security.ssl3.ecdhe_ecdsa_aes_256_sha",
    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, true },
-
- { "security.ssl3.dhe_rsa_camellia_256_gcm_sha384", 
-   TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384, true},
- { "security.ssl3.dhe_rsa_camellia_128_gcm_sha256", 
-   TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256, true },
 
  { "security.ssl3.dhe_rsa_camellia_256_sha", 
    TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA, true},
@@ -1385,10 +1370,6 @@ static const CipherPref sCipherPrefs[] = {
    TLS_RSA_WITH_AES_256_GCM_SHA384, true }, 
  { "security.ssl3.rsa_aes_256_sha256",
    TLS_RSA_WITH_AES_256_CBC_SHA256, true }, 
- { "security.ssl3.rsa_camellia_256_gcm_sha384", 
-   TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384, true},
- { "security.ssl3.rsa_camellia_128_gcm_sha256", 
-   TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256, true },
  { "security.ssl3.rsa_camellia_128_sha",
    TLS_RSA_WITH_CAMELLIA_128_CBC_SHA, true },
  { "security.ssl3.rsa_camellia_256_sha",

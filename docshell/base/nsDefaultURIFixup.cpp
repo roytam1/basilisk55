@@ -176,7 +176,7 @@ nsDefaultURIFixup::GetFixupURIInfo(const nsACString& aStringURI,
   nsAutoCString uriString(aStringURI);
 
   // Eliminate embedded newlines, which single-line text fields now allow:
-  uriString.StripChars("\r\n");
+  uriString.StripCRLF();
   // Cleanup the empty spaces and tabs that might be on each end:
   uriString.Trim(" \t");
 

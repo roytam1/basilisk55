@@ -1379,8 +1379,11 @@ nsStandardURL::SetSpec(const nsACString &input)
 {
     ENSURE_MUTABLE();
 
+#if DEBUG
+    // Don't pay the flat tax in optimized builds.
     const nsPromiseFlatCString &flat = PromiseFlatCString(input);
     LOG(("nsStandardURL::SetSpec [spec=%s]\n", flat.get()));
+#endif
 
     if (input.Length() > (uint32_t) net_GetURLMaxLength()) {
         return NS_ERROR_MALFORMED_URI;
@@ -1388,9 +1391,14 @@ nsStandardURL::SetSpec(const nsACString &input)
 
     // filter out unexpected chars "\r\n\t" if necessary
     nsAutoCString filteredURI;
-    net_FilterURIString(flat, filteredURI);
+    net_FilterURIString(input, filteredURI);
 
     if (filteredURI.Length() == 0) {
+        return NS_ERROR_MALFORMED_URI;
+    }
+
+    // NUL characters aren't allowed in the filtered URI.
+    if (filteredURI.Contains('\0')) {
         return NS_ERROR_MALFORMED_URI;
     }
 
@@ -2241,11 +2249,9 @@ nsresult nsStandardURL::CopyMembers(nsStandardURL * source,
 NS_IMETHODIMP
 nsStandardURL::Resolve(const nsACString &in, nsACString &out)
 {
-    const nsPromiseFlatCString &flat = PromiseFlatCString(in);
     // filter out unexpected chars "\r\n\t" if necessary
     nsAutoCString buf;
-    net_FilterURIString(flat, buf);
-
+    net_FilterURIString(in, buf);
     const char *relpath = buf.get();
     int32_t relpathLen = buf.Length();
 

@@ -2415,13 +2415,12 @@ Http2Session::ReadSegmentsAgain(nsAHttpSegmentReader *reader,
             this, stream, stream->StreamID()));
       FlushOutputQueue();
       SetWriteCallbacks();
+      if (!mCannotDo0RTTStreams.Contains(stream)) {
+        mCannotDo0RTTStreams.AppendElement(stream);
+      }
       // We can still send our preamble
       *countRead = mOutputQueueUsed - mOutputQueueSent;
       return *countRead ? NS_OK : NS_BASE_STREAM_WOULD_BLOCK;
-    }
-
-    if (!m0RTTStreams.Contains(stream->StreamID())) {
-      m0RTTStreams.AppendElement(stream->StreamID());
     }
 
     // Need to adjust this to only take as much as we can fit in with the
@@ -2444,6 +2443,12 @@ Http2Session::ReadSegmentsAgain(nsAHttpSegmentReader *reader,
     // hole of stream->ReadSegments, and we want to make sure we return the
     // proper value to our caller.
     *countRead += earlyDataUsed;
+  }
+
+  if (mAttemptingEarlyData && !m0RTTStreams.Contains(stream)) {
+    LOG3(("Http2Session::ReadSegmentsAgain adding stream %d to m0RTTStreams\n",
+          stream->StreamID()));
+    m0RTTStreams.AppendElement(stream);
   }
 
   // Not every permutation of stream->ReadSegents produces data (and therefore
@@ -2872,7 +2877,9 @@ Http2Session::WriteSegmentsAgain(nsAHttpSegmentWriter *writer,
             "stream->writeSegments returning code %x\n",
             this, streamID, mNeedsCleanup, rv));
       MOZ_ASSERT(!mNeedsCleanup || mNeedsCleanup->StreamID() == streamID);
-      CleanupStream(streamID, NS_OK, CANCEL_ERROR);
+      CleanupStream(streamID,
+                    (rv == NS_BINDING_RETARGETED) ? NS_BINDING_RETARGETED : NS_OK,
+                    CANCEL_ERROR);
       mNeedsCleanup = nullptr;
       *again = false;
       ResumeRecv();
@@ -3015,9 +3022,8 @@ Http2Session::Finish0RTT(bool aRestart, bool aAlpnChanged)
     // the transaction rewind and read it all over again. We only need to rewind
     // the transaction if we're switching to a new protocol, because our buffer
     // won't get used in that case.
-    Http2Stream *stream = mStreamIDHash.Get(m0RTTStreams[i]);
-    if (stream) {
-      stream->Finish0RTT(aAlpnChanged, aAlpnChanged);
+    if (m0RTTStreams[i]) {
+      m0RTTStreams[i]->Finish0RTT(aRestart, aAlpnChanged);
     }
   }
 
@@ -3039,15 +3045,27 @@ Http2Session::Finish0RTT(bool aRestart, bool aAlpnChanged)
       // This is the easy case - early data failed, but we're speaking h2, so
       // we just need to rewind to the beginning of the preamble and try again.
       mOutputQueueSent = 0;
+
+      for (size_t i = 0; i < mCannotDo0RTTStreams.Length(); ++i) {
+        if (mCannotDo0RTTStreams[i] && VerifyStream(mCannotDo0RTTStreams[i])) {
+          TransactionHasDataToWrite(mCannotDo0RTTStreams[i]);
+        }
+      }
     }
   } else {
     // 0RTT succeeded
+    for (size_t i = 0; i < mCannotDo0RTTStreams.Length(); ++i) {
+      if (mCannotDo0RTTStreams[i] && VerifyStream(mCannotDo0RTTStreams[i])) {
+        TransactionHasDataToWrite(mCannotDo0RTTStreams[i]);
+      }
+    }
     // Make sure we look for any incoming data in repsonse to our early data.
     ResumeRecv();
   }
 
   mAttemptingEarlyData = false;
   m0RTTStreams.Clear();
+  mCannotDo0RTTStreams.Clear();
   RealignOutputQueue();
 
   return NS_OK;

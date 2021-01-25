@@ -254,27 +254,22 @@ nsSimpleURI::SetSpec(const nsACString &aSpec)
 {
     NS_ENSURE_STATE(mMutable);
 
-    // filter out unexpected chars "\r\n\t" if necessary
-    nsAutoCString filteredSpec;
-    net_FilterURIString(aSpec, filteredSpec);
+    nsresult rv = net_ExtractURLScheme(aSpec, mScheme);
+    if (NS_FAILED(rv)) {
+        return rv;
+    }
+    ToLowerCase(mScheme);
 
-    // nsSimpleURI currently restricts the charset to US-ASCII
     nsAutoCString spec;
-    nsresult rv = NS_EscapeURL(filteredSpec, esc_OnlyNonASCII, spec, fallible);
+    rv = net_FilterAndEscapeURI(aSpec, esc_OnlyNonASCII, spec);
     if (NS_FAILED(rv)) {
       return rv;
     }
 
     int32_t colonPos = spec.FindChar(':');
-    if (colonPos < 0 || !net_IsValidScheme(spec.get(), colonPos))
-        return NS_ERROR_MALFORMED_URI;
-
-    mScheme.Truncate();
-    DebugOnly<int32_t> n = spec.Left(mScheme, colonPos);
-    NS_ASSERTION(n == colonPos, "Left failed");
-    ToLowerCase(mScheme);
-
+    MOZ_ASSERT(colonPos != kNotFound, "A colon should be in this string");
     // This sets mPath, mQuery and mRef.
+    // If changed, see bug 1369317, especially part 2 -- Cameron
     return SetPath(Substring(spec, colonPos + 1));
 }
 
@@ -658,12 +653,12 @@ nsSimpleURI::Resolve(const nsACString &relativePath, nsACString &result)
 }
 
 NS_IMETHODIMP
-nsSimpleURI::GetAsciiSpec(nsACString &result)
+nsSimpleURI::GetAsciiSpec(nsACString &aResult)
 {
-    nsAutoCString buf;
-    nsresult rv = GetSpec(buf);
+    nsresult rv = GetSpec(aResult);
     if (NS_FAILED(rv)) return rv;
-    return NS_EscapeURL(buf, esc_OnlyNonASCII|esc_AlwaysCopy, result, fallible);
+    MOZ_ASSERT(IsASCII(aResult), "The spec should be ASCII");
+    return NS_OK;
 }
 
 NS_IMETHODIMP

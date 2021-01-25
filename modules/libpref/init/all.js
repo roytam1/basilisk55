@@ -1586,7 +1586,7 @@ pref("network.http.spdy.enabled.http2", true);
 pref("network.http.spdy.enabled.deps", true);
 pref("network.http.spdy.enforce-tls-profile", false);
 pref("network.http.spdy.chunk-size", 16000);
-pref("network.http.spdy.timeout", 180);
+pref("network.http.spdy.timeout", 170);
 pref("network.http.spdy.coalesce-hostnames", true);
 pref("network.http.spdy.persistent-settings", false);
 pref("network.http.spdy.ping-threshold", 58);
@@ -3568,7 +3568,7 @@ pref("intl.imm.vertical_writing.always_assume_not_supported", false);
 // We cannot retrieve active IME name with IMM32 API if a TIP of TSF is active.
 // This pref can specify active IME name when Japanese TIP is active.
 // For example:
-//   Google Japanese Input: "Google ?�本語入??IMM32 ?�ジ?�ー??
+//   Google Japanese Input: "Google 日本語入力 IMM32 モジュール"
 //   ATOK 2011: "ATOK 2011" (similarly, e.g., ATOK 2013 is "ATOK 2013")
 pref("intl.imm.japanese.assume_active_tip_name_as", "");
 

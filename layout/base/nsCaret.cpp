@@ -395,7 +395,7 @@ nsCaret::GetFrameAndOffset(Selection* aSelection,
     return nullptr;
   }
 
-  if (!focusNode || !focusNode->IsContent()) {
+  if (!focusNode || !focusNode->IsContent() || !aSelection) {
     return nullptr;
   }
 

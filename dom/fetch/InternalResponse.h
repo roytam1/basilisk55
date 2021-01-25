@@ -10,7 +10,9 @@
 #include "nsIInputStream.h"
 #include "nsISupportsImpl.h"
 
+#include "mozilla/dom/InternalHeaders.h"
 #include "mozilla/dom/ResponseBinding.h"
+#include "mozilla/dom/RequestBinding.h"
 #include "mozilla/dom/ChannelInfo.h"
 #include "mozilla/UniquePtr.h"
 
@@ -32,7 +34,8 @@ class InternalResponse final
 public:
   NS_INLINE_DECL_THREADSAFE_REFCOUNTING(InternalResponse)
 
-  InternalResponse(uint16_t aStatus, const nsACString& aStatusText);
+  InternalResponse(uint16_t aStatus, const nsACString& aStatusText,
+                   RequestCredentials aCredentialsMode = RequestCredentials::Omit);
 
   static already_AddRefed<InternalResponse>
   FromIPC(const IPCInternalResponse& aIPCResponse);
@@ -299,6 +302,7 @@ public:
 private:
   ChannelInfo mChannelInfo;
   UniquePtr<mozilla::ipc::PrincipalInfo> mPrincipalInfo;
+  RequestCredentials mCredentialsMode;
 
   // For filtered responses.
   // Cache, and SW interception should always serialize/access the underlying

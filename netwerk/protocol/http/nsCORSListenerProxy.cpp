@@ -1331,7 +1331,11 @@ nsCORSPreflightListener::CheckPreflightRequestApproved(nsIRequest* aRequest)
                         NS_ConvertUTF8toUTF16(method).get());
       return NS_ERROR_DOM_BAD_URI;
     }
-    foundMethod |= mPreflightMethod.Equals(method);
+    if (method.EqualsLiteral("*") && !mWithCredentials) {
+      foundMethod = true;
+    } else {
+      foundMethod |= mPreflightMethod.Equals(method);
+    }
   }
   if (!foundMethod) {
     LogBlockedRequest(aRequest, "CORSMethodNotFound", nullptr);
@@ -1344,6 +1348,7 @@ nsCORSPreflightListener::CheckPreflightRequestApproved(nsIRequest* aRequest)
                           headerVal);
   nsTArray<nsCString> headers;
   nsCCharSeparatedTokenizer headerTokens(headerVal, ',');
+  bool allowAllHeaders = false;
   while(headerTokens.hasMoreTokens()) {
     const nsDependentCSubstring& header = headerTokens.nextToken();
     if (header.IsEmpty()) {
@@ -1354,14 +1359,21 @@ nsCORSPreflightListener::CheckPreflightRequestApproved(nsIRequest* aRequest)
                         NS_ConvertUTF8toUTF16(header).get());
       return NS_ERROR_DOM_BAD_URI;
     }
-    headers.AppendElement(header);
+    if (header.EqualsLiteral("*") && !mWithCredentials) {
+      allowAllHeaders = true;
+    } else {
+      headers.AppendElement(header);
+    }
   }
-  for (uint32_t i = 0; i < mPreflightHeaders.Length(); ++i) {
-    if (!headers.Contains(mPreflightHeaders[i],
-                          nsCaseInsensitiveCStringArrayComparator())) {
-      LogBlockedRequest(aRequest, "CORSMissingAllowHeaderFromPreflight",
-                        NS_ConvertUTF8toUTF16(mPreflightHeaders[i]).get());
-      return NS_ERROR_DOM_BAD_URI;
+  if (!allowAllHeaders) {
+    const auto& comparator = nsCaseInsensitiveCStringArrayComparator();
+    for (uint32_t i = 0; i < mPreflightHeaders.Length(); ++i) {
+      if (!headers.Contains(mPreflightHeaders[i], comparator)) {
+        LogBlockedRequest(
+            aRequest, "CORSMissingAllowHeaderFromPreflight",
+            NS_ConvertUTF8toUTF16(mPreflightHeaders[i]).get());
+        return NS_ERROR_DOM_BAD_URI;
+      }
     }
   }
 

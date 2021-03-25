@@ -65,6 +65,7 @@
 #include "mozilla/Telemetry.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/PublicSSL.h"
+#include "nsNetUtil.h"  // NS_CheckPortSafety
 #include "nsXULAppAPI.h"
 #include "nsContentUtils.h"
 #include "nsDOMJSUtils.h"
@@ -498,6 +499,13 @@ PeerConnectionConfiguration::Init(const RTCConfiguration& aSrc)
   return NS_OK;
 }
 
+// list of known acceptable ports for webrtc
+int16_t gGoodWebrtcPortList[] = {
+    3478,  // stun or turn
+    5349,  // stuns or turns
+    0,     // Sentinel value: This MUST be zero
+};
+
 nsresult
 PeerConnectionConfiguration::AddIceServer(const RTCIceServer &aServer)
 {
@@ -578,6 +586,21 @@ PeerConnectionConfiguration::AddIceServer(const RTCIceServer &aServer)
 
     if (transport.IsEmpty()) {
       transport = kNrIceTransportUdp;
+    }
+
+    // First check the known good ports for webrtc
+    bool goodPort = false;
+    for (int i = 0; !goodPort && gGoodWebrtcPortList[i]; i++) {
+      if (port == gGoodWebrtcPortList[i]) {
+        goodPort = true;
+      }
+    }
+
+    // if not in the list of known good ports for webrtc, check
+    // the generic block list using NS_CheckPortSafety.
+    if (!goodPort) {
+      rv = NS_CheckPortSafety(port, nullptr);
+      NS_ENSURE_SUCCESS(rv, rv);
     }
 
     if (isTurn || isTurns) {

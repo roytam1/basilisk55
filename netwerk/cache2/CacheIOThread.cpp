@@ -10,6 +10,7 @@
 #include "nsPrintfCString.h"
 #include "nsThreadUtils.h"
 #include "mozilla/IOInterposer.h"
+#include "mozilla/unused.h"
 #include "GeckoProfiler.h"
 
 #ifdef XP_WIN
@@ -269,12 +270,21 @@ nsresult CacheIOThread::Init()
     mBlockingIOWatcher = MakeUnique<detail::BlockingIOWatcher>();
   }
 
+  // Increase the reference count while spawning a new thread.
+  // If PR_CreateThread succeeds, we will forget this reference and the thread
+  // will be responsible to release it when it completes.
+  RefPtr<CacheIOThread> self = this;
   mThread = PR_CreateThread(PR_USER_THREAD, ThreadFunc, this,
                             PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD,
                             PR_JOINABLE_THREAD, 128 * 1024);
   if (!mThread) {
     return NS_ERROR_FAILURE;
   }
+
+  // IMPORTANT: The thread now owns this reference, so it's important that we
+  // leak it here, otherwise we'll end up with a bad refcount.
+  // See the dont_AddRef in ThreadFunc().
+  Unused << self.forget().take();
 
   return NS_OK;
 }
@@ -442,7 +452,9 @@ void CacheIOThread::ThreadFunc(void* aClosure)
   // so causes leaks, see bug 1323100.
   PR_SetCurrentThreadName("Cache2 I/O");
   mozilla::IOInterposer::RegisterCurrentThread();
-  CacheIOThread* thread = static_cast<CacheIOThread*>(aClosure);
+  // We hold on to this reference for the duration of the thread.
+  RefPtr<CacheIOThread> thread =
+      dont_AddRef(static_cast<CacheIOThread*>(aClosure));
   thread->ThreadFunc();
   mozilla::IOInterposer::UnregisterCurrentThread();
 }

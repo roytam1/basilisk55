@@ -213,7 +213,6 @@ windowsZones:table(nofallback){
             KM{"Indian/Comoro"}
             MG{"Indian/Antananarivo"}
             SO{"Africa/Mogadishu"}
-            SS{"Africa/Juba"}
             TZ{"Africa/Dar_es_Salaam"}
             UG{"Africa/Kampala"}
             YT{"Indian/Mayotte"}
@@ -616,6 +615,10 @@ windowsZones:table(nofallback){
             ZM{"Africa/Lusaka"}
             ZW{"Africa/Harare"}
             ZZ{"Etc/GMT-2"}
+        }
+        "South Sudan Standard Time"{
+            001{"Africa/Juba"}
+            SS{"Africa/Juba"}
         }
         "Sri Lanka Standard Time"{
             001{"Asia/Colombo"}

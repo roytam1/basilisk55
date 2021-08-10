@@ -475,7 +475,7 @@ private:
   ReferencePtr mScaledFont;
   PatternStorage mPattern;
   DrawOptions mOptions;
-  Glyph *mGlyphs;
+  Glyph *mGlyphs = nullptr;
   uint32_t mNumGlyphs;
 };
 
@@ -858,7 +858,7 @@ private:
   friend class RecordedEvent;
 
   ReferencePtr mRefPtr;
-  uint8_t *mData;
+  uint8_t *mData = nullptr;
   int32_t mStride;
   IntSize mSize;
   SurfaceFormat mFormat;
@@ -958,7 +958,7 @@ private:
   friend class RecordedEvent;
 
   ReferencePtr mRefPtr;
-  GradientStop *mStops;
+  GradientStop *mStops = nullptr;
   uint32_t mNumStops;
   ExtendMode mExtendMode;
   bool mDataOwned;
@@ -1026,7 +1026,7 @@ public:
   }
 
   explicit RecordedFontData(ScaledFont *aScaledFont)
-    : RecordedEvent(FONTDATA), mData(nullptr), mVariations(nullptr)
+    : RecordedEvent(FONTDATA), mVariations(nullptr)
   {
     mGetFontFileDataSucceeded = aScaledFont->GetFontFileData(&FontDataProc, this);
   }
@@ -1050,7 +1050,7 @@ public:
 private:
   friend class RecordedEvent;
 
-  uint8_t* mData;
+  uint8_t* mData = nullptr;
   ScaledFont::VariationSetting* mVariations;
   RecordedFontDetails mFontDetails;
 

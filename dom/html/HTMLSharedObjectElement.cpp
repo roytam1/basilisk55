@@ -181,7 +181,13 @@ HTMLSharedObjectElement::SetAttr(int32_t aNameSpaceID, nsIAtom *aName,
   if (aNotify && IsInComposedDoc() && mIsDoneAddingChildren &&
       aNameSpaceID == kNameSpaceID_None && aName == URIAttrName()
       && !BlockEmbedContentLoading()) {
-    return LoadObject(aNotify, true);
+        nsContentUtils::AddScriptRunner(NS_NewRunnableFunction(
+            [self = RefPtr<HTMLSharedObjectElement>(this), aNotify]() {
+              if (self->IsInComposedDoc()) {
+                self->LoadObject(aNotify, true);
+              }
+            }));
+        return NS_OK;
   }
 
   return NS_OK;

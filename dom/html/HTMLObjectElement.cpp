@@ -311,7 +311,13 @@ HTMLObjectElement::SetAttr(int32_t aNameSpaceID, nsIAtom *aName,
   // attributes before inserting the node into the document.
   if (aNotify && IsInComposedDoc() && mIsDoneAddingChildren &&
       aNameSpaceID == kNameSpaceID_None && aName == nsGkAtoms::data) {
-    return LoadObject(aNotify, true);
+      nsContentUtils::AddScriptRunner(NS_NewRunnableFunction(
+          [self = RefPtr<HTMLObjectElement>(this), aNotify]() {
+            if (self->IsInComposedDoc()) {
+              self->LoadObject(aNotify, true);
+            }
+          }));
+      return NS_OK;
   }
 
   return NS_OK;

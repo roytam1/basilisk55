@@ -2204,7 +2204,7 @@ NS_IMETHODIMP
 nsSocketTransport::OpenInputStream(uint32_t flags,
                                    uint32_t segsize,
                                    uint32_t segcount,
-                                   nsIInputStream **result)
+                                   nsIInputStream **aResult)
 {
     SOCKET_LOG(("nsSocketTransport::OpenInputStream [this=%p flags=%x]\n",
         this, flags));
@@ -2213,6 +2213,7 @@ nsSocketTransport::OpenInputStream(uint32_t flags,
 
     nsresult rv;
     nsCOMPtr<nsIAsyncInputStream> pipeIn;
+    nsCOMPtr<nsIInputStream> result;
 
     if (!(flags & OPEN_UNBUFFERED) || (flags & OPEN_BLOCKING)) {
         // XXX if the caller wants blocking, then the caller also gets buffered!
@@ -2232,10 +2233,10 @@ nsSocketTransport::OpenInputStream(uint32_t flags,
                           NS_ASYNCCOPY_VIA_WRITESEGMENTS, segsize);
         if (NS_FAILED(rv)) return rv;
 
-        *result = pipeIn;
+        result = pipeIn;
     }
     else
-        *result = &mInput;
+        result = &mInput;
 
     // flag input stream as open
     mInputClosed = false;
@@ -2243,7 +2244,7 @@ nsSocketTransport::OpenInputStream(uint32_t flags,
     rv = PostEvent(MSG_ENSURE_CONNECT);
     if (NS_FAILED(rv)) return rv;
 
-    NS_ADDREF(*result);
+    result.forget(aResult);
     return NS_OK;
 }
 
@@ -2251,7 +2252,7 @@ NS_IMETHODIMP
 nsSocketTransport::OpenOutputStream(uint32_t flags,
                                     uint32_t segsize,
                                     uint32_t segcount,
-                                    nsIOutputStream **result)
+                                    nsIOutputStream **aResult)
 {
     SOCKET_LOG(("nsSocketTransport::OpenOutputStream [this=%p flags=%x]\n",
         this, flags));
@@ -2260,6 +2261,7 @@ nsSocketTransport::OpenOutputStream(uint32_t flags,
 
     nsresult rv;
     nsCOMPtr<nsIAsyncOutputStream> pipeOut;
+    nsCOMPtr<nsIOutputStream> result;
     if (!(flags & OPEN_UNBUFFERED) || (flags & OPEN_BLOCKING)) {
         // XXX if the caller wants blocking, then the caller also gets buffered!
         //bool openBuffered = !(flags & OPEN_UNBUFFERED);
@@ -2278,10 +2280,10 @@ nsSocketTransport::OpenOutputStream(uint32_t flags,
                           NS_ASYNCCOPY_VIA_READSEGMENTS, segsize);
         if (NS_FAILED(rv)) return rv;
 
-        *result = pipeOut;
+        result = pipeOut;
     }
     else
-        *result = &mOutput;
+        result = &mOutput;
 
     // flag output stream as open
     mOutputClosed = false;
@@ -2289,7 +2291,7 @@ nsSocketTransport::OpenOutputStream(uint32_t flags,
     rv = PostEvent(MSG_ENSURE_CONNECT);
     if (NS_FAILED(rv)) return rv;
 
-    NS_ADDREF(*result);
+    result.forget(aResult);
     return NS_OK;
 }
 

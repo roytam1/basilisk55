@@ -1608,7 +1608,7 @@ pref("network.http.spdy.default-hpack-buffer", 65536); // 64k
 // alt-svc allows separation of transport routing from
 // the origin host without using a proxy.
 pref("network.http.altsvc.enabled", true);
-pref("network.http.altsvc.oe", true);
+pref("network.http.altsvc.oe", false); // bug 1730935
 
 pref("network.http.diagnostics", false);
 

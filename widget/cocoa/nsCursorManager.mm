@@ -243,8 +243,14 @@ static const nsCursor sCustomCursor = eCursorCount;
 {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
   // As the user moves the mouse, this gets called repeatedly with the same aCursorImage
-  if (sCursorImgContainer == aCursorImage && sCursorScaleFactor == scaleFactor && mCurrentMacCursor) {
-    [self setMacCursor:mCurrentMacCursor];
+  //if (sCursorImgContainer == aCursorImage && sCursorScaleFactor == scaleFactor && mCurrentMacCursor) {
+  if (sCursorImgContainer == aCursorImage && mCurrentMacCursor) {
+    // [self setMacCursor:mCurrentMacCursor]; // bug 1736049
+
+    // Native dragging can unset our cursor apparently (see bug 1739352).
+    if (MOZ_UNLIKELY(![mCurrentMacCursor isSet])) {
+      [mCurrentMacCursor set];
+    }
     return NS_OK;
   }
 
@@ -252,7 +258,7 @@ static const nsCursor sCustomCursor = eCursorCount;
   aCursorImage->GetWidth(&width);
   aCursorImage->GetHeight(&height);
   // prevent DoS attacks
-  if (width > 128 || height > 128) {
+  if (MOZ_UNLIKELY(width > 128 || height > 128)) {
     return NS_OK;
   }
 

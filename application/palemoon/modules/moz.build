@@ -30,6 +30,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
 
 EXTRA_PP_JS_MODULES += [
     'AboutHomeUtils.jsm',
+    'AttributionCode.jsm',
     'RecentWindow.jsm',
 ]
 
@@ -39,3 +40,5 @@ if CONFIG['MC_OFFICIAL']:
 
 if CONFIG['MOZILLA_OFFICIAL']:
     DEFINES['MOZILLA_OFFICIAL'] = 1
+
+DEFINES['MOZ_APP_NAME'] = CONFIG['MOZ_APP_NAME']

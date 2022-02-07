@@ -1199,3 +1199,10 @@ pref("status4evar.status.toolbar.maxLength", 0);
 
 pref("status4evar.status.popup.invertMirror", false);
 pref("status4evar.status.popup.mouseMirror", true);
+
+pref("browser.tabs.animationLogging.enabled", false);
+pref("browser.menu.dragging.debug", false);
+pref("browser.places.smartBookmarksVersion", 0);
+pref(""browser.places.smartBookmarks.max", 10);
+pref("browser.newtabpage.enabled", false);
+pref("browser.menu.dragging.stayOpen", false);

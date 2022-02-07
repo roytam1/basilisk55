@@ -16,6 +16,13 @@ XPCOMUtils.defineLazyModuleGetter(this, "Task",
 XPCOMUtils.defineLazyModuleGetter(this, "CharsetMenu",
                                   "resource:///modules/CharsetMenu.jsm");
 
+XPCOMUtils.defineLazyGetter(this, "InlineSpellCheckerUI", function() {
+  let tmp = {};
+  Cu.import("resource://gre/modules/InlineSpellChecker.jsm", tmp);
+  return new tmp.InlineSpellChecker();
+});
+
+
 const nsIWebNavigation = Ci.nsIWebNavigation;
 const gToolbarInfoSeparators = ["|", "-"];
 
@@ -537,7 +544,7 @@ var gPopupBlockerObserver = {
     var pm = Services.perms;
     var shouldBlock = aEvent.target.getAttribute("block") == "true";
     var perm = shouldBlock ? pm.DENY_ACTION : pm.ALLOW_ACTION;
-    pm.add(gBrowser.currentURI, "popup", perm);
+    pm.addFromPrincipal(gBrowser.contentPrincipal, "popup", perm);
 
     gBrowser.getNotificationBox().removeCurrentNotification();
   },
@@ -3861,14 +3868,14 @@ var XULBrowserWindow = {
       }
 
       // Disable find commands in documents that ask for them to be disabled.
-      if (!gMultiProcessBrowser && aLocationURI &&
+      if (!gMultiProcessBrowser && window.content && aLocationURI &&
           (aLocationURI.schemeIs("about") || aLocationURI.schemeIs("chrome"))) {
         // Don't need to re-enable/disable find commands for same-document location changes
         // (e.g. the replaceStates in about:addons)
         if (!(aFlags & Ci.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT)) {
-          if (content.document.readyState == "interactive" || content.document.readyState == "complete") {
+          if (content.document.readyState == "interactive" || content.document.readyState == "complete")
             disableFindCommands(shouldDisableFind(content.document));
-          } else {
+          else {
             content.document.addEventListener("readystatechange", onContentRSChange);
           }
         }

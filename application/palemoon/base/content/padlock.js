@@ -68,7 +68,7 @@ var padlock_PadLock =
         //  RC4 + MD5            "broken"
         //  RC4 + SHA1           "low"
         //  3DES                 "low"
-        var aCipher = secState.cipherSuite;
+        var aCipher = secState.cipherName;
         if (aCipher.indexOf("_EXPORT") > -1) {
           level = "broken";
         } else if (aCipher.indexOf("_RC2_") > -1) {

@@ -1,0 +1,48 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DIRS += [
+    'about',
+    'abouthome',
+    'certerror',
+    'dirprovider',
+    'downloads',
+    'feeds',
+    'fuel',
+    'migration',
+    'newtab',
+    'pageinfo',
+    'places',
+    'permissions',
+    'preferences',
+    'privatebrowsing',
+    'search',
+    'sessionstore',
+    'shell',
+    'statusbar',
+]
+
+if CONFIG['MOZ_SERVICES_SYNC']:
+    DIRS += ['sync']
+
+DIRS += ['build']
+
+XPIDL_SOURCES += [
+    'nsIBrowserGlue.idl',
+    'nsIBrowserHandler.idl',
+]
+
+XPIDL_MODULE = 'browsercompsbase'
+
+EXTRA_PP_COMPONENTS += [
+    'BrowserComponents.manifest',
+    'nsAboutRedirector.js',
+    'nsBrowserContentHandler.js',
+    'nsBrowserGlue.js',
+]
+
+EXTRA_JS_MODULES += [
+   'distribution.js',
+]

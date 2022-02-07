@@ -1,0 +1,349 @@
+%if 0
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+%endif
+
+html {
+  font: message-box;
+  font-size: 100%;
+  background-color: #eee;
+  color: #000;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  width: 100%;
+  height: 100%;
+}
+
+input,
+button {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+a {
+  color: -moz-nativehyperlinktext;
+  text-decoration: none;
+}
+
+.spacer {
+  -moz-box-flex: 1;
+}
+
+#topSection {
+  text-align: center;
+}
+
+#brandLogo {
+  height: 192px;
+  width: 192px;
+  margin: 22px auto 31px;
+  background-image: url("chrome://branding/content/about-logo.png");
+  background-size: 192px auto;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* SEARCH */
+#searchContainer {
+  display: -moz-box;
+  position: relative;
+  -moz-box-pack: center;
+  margin: 10px 0 15px;
+}
+
+#searchForm {
+  width: 470px;
+  display: -moz-box;
+  position: relative;
+  height: 36px; /* 32 px logo + 2*1px pad + 2*1px border */
+  -moz-box-flex: 1;
+  max-width: 600px;
+}
+
+#searchEngineLogo {
+  border: 1px transparent;
+  padding: 4px;
+  margin: 0;
+  width: 28px;
+  height: 28px;
+  position: absolute;
+}
+
+#searchText {
+  -moz-box-flex: 1;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-inline-start: 38px; /* room for logo */
+  padding-inline-end: 8px;
+  background: rgba(255, 255, 255, 0.9) padding-box;
+  border: 1px solid;
+  border-color: rgba(37, 46, 65, 0.15) rgba(37, 46, 65, 0.17) rgba(37, 46, 65, 0.2);
+  box-shadow: 0 1px 0 rgba(37, 46, 65, 0.02) inset,
+              0 0 2px rgba(37, 46, 65, 0.1) inset,
+              0 1px 0 rgba(255, 255, 255, 0.2);
+  border-radius: 2.5px 0 0 2.5px;
+}
+
+#searchText:-moz-dir(rtl) {
+  border-radius: 0 2.5px 2.5px 0;
+}
+
+#searchText:focus,
+#searchText[autofocus] {
+  border-color: rgba(92, 133, 214, 0.6) rgba(78, 114, 188, 0.6) rgba(41, 82, 163, 0.6);
+}
+
+#searchText::placeholder {
+  font-style: italic;
+  opacity: 0.3;
+}  
+
+#searchSubmit {
+  margin-inline-start: -1px;
+  background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1)) padding-box;
+  padding: 0 9px;
+  border: 1px solid;
+  border-color: rgba(37, 46, 65, 0.2) rgba(37, 46, 65, 0.2) rgba(37, 46, 65, 0.2);
+  border-inline-start: 1px solid transparent;
+  border-radius: 0 2.5px 2.5px 0;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.5) inset,
+              0 1px 0 rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+#searchSubmit:-moz-dir(rtl) {
+  border-radius: 2.5px 0 0 2.5px;
+}
+
+#searchText:focus + #searchSubmit,
+#searchText + #searchSubmit:hover,
+#searchText[autofocus] + #searchSubmit {
+  border-color: #8da1c8 #768bb5 #6579a2;
+  color: white;
+}
+
+#searchText:focus + #searchSubmit,
+#searchText[autofocus] + #searchSubmit {
+  background-image: linear-gradient(#85a8e0, #3d75cf);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+              0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+              0 1px 0 rgba(23, 46, 67, 0.03);
+}
+
+#searchText + #searchSubmit:hover {
+  background-image: linear-gradient(#85a8e0, #3d75cf);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+              0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+              0 1px 0 rgba(23, 42, 79, 0.03),
+              0 0 4px rgba(0, 34, 102, 0.2);}
+
+#searchText + #searchSubmit:hover:active {
+  box-shadow: 0 1px 1px rgba(3, 11, 27, 0.1) inset,
+              0 0 1px rgba(3, 11, 27, 0.2) inset;
+  transition-duration: 0ms;
+}
+
+/* LAUNCHER */
+#launcher {
+  display: -moz-box;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) inset,
+              0 -1px 0 rgba(255, 255, 255, 0.25);
+}
+
+#launcher:not([session]),
+body[narrow] #launcher[session] {
+  display: block; /* display separator and restore button on separate lines */
+  text-align: center;
+  white-space: nowrap; /* prevent navigational buttons from wrapping */
+}
+
+.launchButton {
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  margin: 16px 1px;
+  padding: 14px 6px;
+  min-width: 88px;
+  max-width: 176px;
+  max-height: 85px;
+  vertical-align: top;
+  white-space: normal;
+  background: transparent padding-box;
+  border: 1px solid transparent;
+  border-radius: 2.5px;
+  color: #525c66;
+  font-size: 75%;
+  cursor: pointer;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+body[narrow] #launcher[session] > .launchButton {
+  margin: 4px 1px;
+}
+
+.launchButton:hover {
+  background-color: hsla(211,79%,6%,.03);
+  border-color: hsla(210,54%,20%,.15) hsla(210,54%,20%,.17) hsla(210,54%,20%,.2);
+}
+
+.launchButton:hover:active {
+  background-image: linear-gradient(hsla(211,79%,6%,.02), hsla(211,79%,6%,.05));
+  border-color: hsla(210,54%,20%,.2) hsla(210,54%,20%,.23) hsla(210,54%,20%,.25);
+  box-shadow: 0 1px 1px hsla(211,79%,6%,.05) inset,
+              0 0 1px hsla(211,79%,6%,.1) inset;
+  transition-duration: 0ms;
+}
+
+.launchButton[hidden],
+#launcher:not([session]) > #restorePreviousSessionSeparator,
+#launcher:not([session]) > #restorePreviousSession {
+  display: none;
+}
+
+#restorePreviousSessionSeparator {
+  width: 3px;
+  height: 116px;
+  margin: 0 10px;
+  background-image: linear-gradient(hsla(0,0%,100%,0), hsla(0,0%,100%,.35), hsla(0,0%,100%,0)),
+                    linear-gradient(hsla(211,79%,6%,0), hsla(211,79%,6%,.2), hsla(211,79%,6%,0)),
+                    linear-gradient(hsla(0,0%,100%,0), hsla(0,0%,100%,.35), hsla(0,0%,100%,0));
+  background-position: left top, center, right bottom;
+  background-size: 1px auto;
+  background-repeat: no-repeat;
+}
+
+body[narrow] #restorePreviousSessionSeparator {
+  margin: 0 auto;
+  width: 512px;
+  height: 3px;
+  background-image: linear-gradient(to right, hsla(0,0%,100%,0), hsla(0,0%,100%,.35), hsla(0,0%,100%,0)),
+                    linear-gradient(to right, hsla(211,79%,6%,0), hsla(211,79%,6%,.2), hsla(211,79%,6%,0)),
+                    linear-gradient(to right, hsla(0,0%,100%,0), hsla(0,0%,100%,.35), hsla(0,0%,100%,0));
+  background-size: auto 1px;
+}
+
+#restorePreviousSession {
+  max-width: none;
+  font-size: 90%;
+}
+
+body[narrow] #restorePreviousSession {
+  font-size: 80%;
+}
+
+.launchButton::before {
+  display: block;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 6px;
+  line-height: 0; /* remove extra vertical space due to non-zero font-size */
+}
+
+#downloads::before {
+  content: url("chrome://browser/content/abouthome/downloads.png");
+}
+
+#bookmarks::before {
+  content: url("chrome://browser/content/abouthome/bookmarks.png");
+}
+
+#history::before {
+  content: url("chrome://browser/content/abouthome/history.png");
+}
+
+#addons::before {
+  content: url("chrome://browser/content/abouthome/addons.png");
+}
+
+%ifdef MOZ_SERVICES_SYNC
+#sync::before {
+  content: url("chrome://browser/content/abouthome/sync.png");
+}
+%endif
+
+#settings::before {
+  content: url("chrome://browser/content/abouthome/settings.png");
+}
+
+#restorePreviousSession::before {
+  content: url("chrome://browser/content/abouthome/restore-large.png");
+  height: 48px;
+  width: 48px;
+  display: inline-block; /* display on same line as text label */
+  vertical-align: middle;
+  margin-bottom: 0;
+  margin-inline-end: 8px;
+}
+
+#restorePreviousSession:-moz-dir(rtl)::before {
+  transform: scaleX(-1);
+}
+
+body[narrow] #restorePreviousSession::before {
+  content: url("chrome://browser/content/abouthome/restore.png");
+  height: 32px;
+  width: 32px;
+}
+
+/* [HiDPI]
+ * At resolutions above 1dppx, prefer downscaling the 2x Retina graphics
+ * rather than upscaling the original-size ones (bug 818940).
+ */
+@media not all and (max-resolution: 1dppx) {
+  #brandLogo {
+    background-image: url("chrome://branding/content/about-logo@2x.png");
+  }
+
+  .launchButton::before {
+    transform: scale(.5);
+    transform-origin: 0 0;
+  }
+
+  #downloads::before {
+    content: url("chrome://browser/content/abouthome/downloads@2x.png");
+  }
+
+  #bookmarks::before {
+    content: url("chrome://browser/content/abouthome/bookmarks@2x.png");
+  }
+
+  #history::before {
+    content: url("chrome://browser/content/abouthome/history@2x.png");
+  }
+
+  #addons::before {
+    content: url("chrome://browser/content/abouthome/addons@2x.png");
+  }
+
+%ifdef MOZ_SERVICES_SYNC
+  #sync::before {
+    content: url("chrome://browser/content/abouthome/sync@2x.png");
+  }
+%endif
+
+  #settings::before {
+    content: url("chrome://browser/content/abouthome/settings@2x.png");
+  }
+
+  #restorePreviousSession::before {
+    content: url("chrome://browser/content/abouthome/restore-large@2x.png");
+  }
+
+  body[narrow] #restorePreviousSession::before {
+    content: url("chrome://browser/content/abouthome/restore@2x.png");
+  }
+}
+

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!DOCTYPE overlay [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://browser/locale/baseMenuOverlay.dtd">
+%baseMenuOverlayDTD;
+]>
+<overlay id="baseMenuOverlay"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/javascript" src="chrome://browser/content/utilityOverlay.js"/>
+
+#ifdef XP_WIN
+    <menu id="helpMenu"
+          label="&helpMenuWin.label;"
+          accesskey="&helpMenuWin.accesskey;">
+#else
+    <menu id="helpMenu"
+          label="&helpMenu.label;"
+          accesskey="&helpMenu.accesskey;">
+#endif
+      <menupopup id="menu_HelpPopup" onpopupshowing="buildHelpMenu();">
+        <menuitem id="menu_openHelp"
+                  oncommand="openHelpLink('pale-moon-help')"
+                  onclick="checkForMiddleClick(this, event);"
+                  label="&productHelp.label;"
+                  accesskey="&productHelp.accesskey;"
+                  />
+        <menuitem id="troubleShooting"
+                  accesskey="&helpTroubleshootingInfo.accesskey;"
+                  label="&helpTroubleshootingInfo.label;"
+                  oncommand="openTroubleshootingPage()"
+                  onclick="checkForMiddleClick(this, event);"/>
+        <menuitem id="helpSafeMode"
+                  accesskey="&helpSafeMode.accesskey;"
+                  label="&helpSafeMode.label;"
+                  oncommand="restart(true);"/>
+        <menuseparator/>
+        <menuitem id="releaseNotes"
+                  accesskey="&helpReleaseNotes.accesskey;"
+                  label="&helpReleaseNotes.label;"
+                  oncommand="openReleaseNotes();"
+                  onclick="checkForMiddleClick(this, event);"/>
+        <menuitem id="feedbackPage"
+                  accesskey="&helpFeedbackPage.accesskey;"
+                  label="&helpFeedbackPage.label;"
+                  oncommand="openFeedbackPage()"
+                  onclick="checkForMiddleClick(this, event);"/>
+        <menuseparator id="updatesSeparator"/>
+        <menuitem id="checkForUpdates" class="menuitem-iconic"
+#ifdef MOZ_UPDATER
+                  label="&updateCmd.label;"
+                  oncommand="checkForUpdates();"/>
+#else
+                  hidden="true"/>
+#endif
+        <menuseparator id="aboutSeparator"/>
+        <menuitem id="aboutName"
+                  accesskey="&aboutProduct.accesskey;"
+                  label="&aboutProduct.label;"
+                  oncommand="openAboutDialog();"/>
+      </menupopup>
+    </menu>
+
+    <keyset id="baseMenuKeyset">
+    </keyset>
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="bundle_browser" src="chrome://browser/locale/browser.properties"/>
+        <stringbundle id="bundle_browser_region" src="chrome://browser-region/locale/region.properties"/>
+    </stringbundleset>
+</overlay>

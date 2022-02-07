@@ -1,0 +1,74 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#aboutPMDialogContainer {
+  width: 700px;
+  height: 410px;
+}
+
+#aboutVersionBox {
+  font-family: Arial, helvetica;
+  height: 38 px;
+}
+
+#aboutVersion {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 4px;
+}
+
+#distribution,
+#distributionId {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  display: none;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#aboutTextBox {
+  font-family: Arial, helvetica;
+  font-size: 14px;
+  margin: 5px 20px;
+  padding: 4px 10px 0px;
+  border-radius: 3px;
+  color: black;
+  background-color: rgba(240, 240, 240, .6);
+}
+
+#aboutLinkBox {
+  font-family: Arial, helvetica;
+}
+
+.text-credits {
+  margin: 5px 0px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-link,
+.text-link:focus {
+  margin: 0px;
+  padding: 0px;
+}
+
+.bottom-link,
+.bottom-link:focus {
+  text-align: center;
+  text-decoration: none !important;
+  padding: 4px;
+  border-radius: 3px;
+  color: #244C8A;
+  background-color: rgba(240, 240, 240, .7);
+  margin: 0 40px;
+  transition: background-color 0.5s ease-out;
+}
+
+.bottom-link:hover {
+  background-color: rgba(240, 240, 255, .95);
+}

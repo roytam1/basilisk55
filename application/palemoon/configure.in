@@ -1,0 +1,50 @@
+dnl -*- Mode: Autoconf; tab-width: 2; indent-tabs-mode: nil; -*-
+dnl vi: set tabstop=2 shiftwidth=2 expandtab:
+dnl This Source Code Form is subject to the terms of the Mozilla Public
+dnl License, v. 2.0. If a copy of the MPL was not distributed with this
+dnl file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+dnl Things we need to carry from confvars.sh
+AC_DEFINE(MOZ_PHOENIX)
+AC_SUBST(MOZ_PHOENIX)
+
+AC_DEFINE(MC_PALEMOON)
+AC_SUBST(MC_PALEMOON)
+
+dnl Optional parts of the build.
+
+dnl ========================================================
+dnl = Enable Phoenix Extension Support
+dnl ========================================================
+MOZ_ARG_ENABLE_BOOL(phoenix-extensions,
+[  --enable-phoenix-extensions           Enable Phoenix Extension Support],
+    MOZ_PHOENIX_EXTENSIONS=1,
+    MOZ_PHOENIX_EXTENSIONS=)
+
+if test -n "$MOZ_PHOENIX_EXTENSIONS"; then
+    AC_DEFINE(MOZ_PHOENIX_EXTENSIONS)
+fi
+
+AC_SUBST(MOZ_PHOENIX_EXTENSIONS)
+
+dnl ========================================================
+dnl = Disable Sync
+dnl ========================================================
+MOZ_ARG_DISABLE_BOOL(sync,
+[  --disable-sync           Disable Sync],
+    MOZ_SERVICES_SYNC=,
+    MOZ_SERVICES_SYNC=1)
+
+dnl ========================================================
+dnl = Disable Lightweight Themes
+dnl ========================================================
+MOZ_ARG_DISABLE_BOOL(personas,
+[  --disable-personas           Disable lightweight theme support],
+    MOZ_PERSONAS=,
+    MOZ_PERSONAS=1)
+
+if test -n "$MOZ_PERSONAS"; then
+    AC_DEFINE(MOZ_PERSONAS)
+fi
+
+AC_SUBST(MOZ_PERSONAS)

@@ -72,8 +72,8 @@
         Components.classes["@mozilla.org/browser/favicon-service;1"]
                   .getService(Components.interfaces.nsIFaviconService);
       </field>
-      <field name="_placesAutocomplete" readonly="true">
-         Components.classes["@mozilla.org/autocomplete/search;1?name=history"]
+      <field name="_unifiedComplete" readonly="true">
+         Components.classes["@mozilla.org/autocomplete/search;1?name=unifiedcomplete"]
                    .getService(Components.interfaces.mozIPlacesAutoComplete);
       </field>
       <field name="mTabBox" readonly="true">
@@ -739,10 +739,11 @@
                     this.mBrowser.mIconURL = null;
                 }
 
-                let autocomplete = this.mTabBrowser._placesAutocomplete;
+                let unifiedComplete = this.mTabBrowser._unifiedComplete;
+                let userContextId = this.mBrowser.getAttribute("usercontextid") || 0;
                 if (this.mBrowser.registeredOpenURI) {
-                  autocomplete.unregisterOpenPage(this.mBrowser.registeredOpenURI,
-                                                  this.mBrowser.getAttribute("usercontextid") || 0);
+                  unifiedComplete.unregisterOpenPage(this.mBrowser.registeredOpenURI,
+                                                     userContextId);
                   delete this.mBrowser.registeredOpenURI;
                 }
                 // Tabs in private windows aren't registered as "Open" so
@@ -750,8 +751,7 @@
                 if (!isBlankPageURL(aLocation.spec) &&
                     (!PrivateBrowsingUtils.isWindowPrivate(window) ||
                     PrivateBrowsingUtils.permanentPrivateBrowsing)) {
-                  autocomplete.registerOpenPage(aLocation,
-                                                this.mBrowser.getAttribute("usercontextid") || 0);
+                  unifiedComplete.registerOpenPage(aLocation, userContextId);
                   this.mBrowser.registeredOpenURI = aLocation;
                 }
               }
@@ -2069,8 +2069,8 @@
             this.mTabListeners[aTab._tPos].destroy();
 
             if (browser.registeredOpenURI && !aTabWillBeMoved) {
-              this._placesAutocomplete.unregisterOpenPage(browser.registeredOpenURI,
-                                                          browser.getAttribute("usercontextid") || 0);
+              this._unifiedComplete.unregisterOpenPage(browser.registeredOpenURI,
+                                                       browser.getAttribute("usercontextid") || 0);
               delete browser.registeredOpenURI;
             }
 
@@ -2436,17 +2436,15 @@
         <parameter name="aOtherBrowser"/>
         <body>
           <![CDATA[
-            // If the current URI is registered as open remove it from the list.
-            if (aOurBrowser.registeredOpenURI) {
-              this._placesAutocomplete.unregisterOpenPage(aOurBrowser.registeredOpenURI,
-                                                          aOurBrowser.getAttribute("usercontextid") || 0);
-              delete aOurBrowser.registeredOpenURI;
-            }
-
-            // If the other/new URI is registered as open then copy it over.
+            // Swap the registeredOpenURI properties of the two browsers
+            let tmp = aOurBrowser.registeredOpenURI;
+            delete aOurBrowser.registeredOpenURI;
             if (aOtherBrowser.registeredOpenURI) {
               aOurBrowser.registeredOpenURI = aOtherBrowser.registeredOpenURI;
               delete aOtherBrowser.registeredOpenURI;
+            }
+            if (tmp) {
+              aOtherBrowser.registeredOpenURI = tmp;
             }
           ]]>
         </body>
@@ -3332,8 +3330,8 @@
           for (var i = 0; i < this.mTabListeners.length; ++i) {
             let browser = this.getBrowserAtIndex(i);
             if (browser.registeredOpenURI) {
-              this._placesAutocomplete.unregisterOpenPage(browser.registeredOpenURI,
-                                                          browser.getAttribute("usercontextid") || 0);
+              this._unifiedComplete.unregisterOpenPage(browser.registeredOpenURI,
+                                                       browser.getAttribute("usercontextid") || 0);
               delete browser.registeredOpenURI;
             }
             browser.webProgress.removeProgressListener(this.mTabFilters[i]);

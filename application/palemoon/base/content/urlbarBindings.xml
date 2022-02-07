@@ -940,41 +940,6 @@
   </binding>
 
   <binding id="addon-progress-notification" extends="chrome://global/content/bindings/notification.xml#popup-notification">
-    <content align="start">
-      <xul:image class="popup-notification-icon"
-                 xbl:inherits="popupid,src=icon"/>
-      <xul:vbox flex="1">
-        <xul:description class="popup-notification-description addon-progress-description"
-                         xbl:inherits="xbl:text=label"/>
-        <xul:spacer flex="1"/>
-        <xul:hbox align="center">
-          <xul:progressmeter anonid="progressmeter" flex="1" mode="undetermined" class="popup-progress-meter"/>
-          <xul:button anonid="cancel" class="popup-progress-cancel" oncommand="document.getBindingParent(this).cancel()"/>
-        </xul:hbox>
-        <xul:label anonid="progresstext" class="popup-progress-label"/>
-        <xul:hbox class="popup-notification-button-container"
-                  pack="end" align="center">
-          <xul:button anonid="button"
-                      class="popup-notification-menubutton"
-                      type="menu-button"
-                      xbl:inherits="oncommand=buttoncommand,label=buttonlabel,accesskey=buttonaccesskey">
-            <xul:menupopup anonid="menupopup"
-                           xbl:inherits="oncommand=menucommand">
-              <children/>
-              <xul:menuitem class="menuitem-iconic popup-notification-closeitem close-icon"
-                            label="&closeNotificationItem.label;"
-                            xbl:inherits="oncommand=closeitemcommand"/>
-            </xul:menupopup>
-          </xul:button>
-        </xul:hbox>
-      </xul:vbox>
-      <xul:vbox pack="start">
-        <xul:toolbarbutton anonid="closebutton"
-                           class="messageCloseButton close-icon popup-notification-closebutton tabbable"
-                           xbl:inherits="oncommand=closebuttoncommand"
-                           tooltiptext="&closeNotification.tooltip;"/>
-      </xul:vbox>
-    </content>
     <implementation>
       <constructor><![CDATA[
         this.cancelbtn.setAttribute("tooltiptext", gNavigatorBundle.getString("addonDownloadCancelTooltip"));

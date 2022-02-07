@@ -553,7 +553,7 @@ var gPopupBlockerObserver = {
     //          nsGlobalWindow::CheckOpenAllow() was changed to also
     //          check if the top window's location is whitelisted.
     let browser = gBrowser.selectedBrowser;
-    var uri = browser.currentURI;
+    var uri = browser.contentPrincipal.URI || browser.currentURI;
     var blockedPopupAllowSite = document.getElementById("blockedPopupAllowSite");
     try {
       blockedPopupAllowSite.removeAttribute("hidden");
@@ -3729,11 +3729,12 @@ var XULBrowserWindow = {
         this.setDefaultStatus(msg);
 
         // Disable menu entries for images, enable otherwise
-        if (!gMultiProcessBrowser && content.document && BrowserUtils.mimeTypeIsTextBased(content.document.contentType)) {
-          this.isImage.removeAttribute('disabled');
+        if (gBrowser.selectedBrowser.documentContentType && BrowserUtils.mimeTypeIsTextBased(gBrowser.selectedBrowser.documentContentType)) {
+          this.isImage.removeAttribute("disabled");
         } else {
-          this.isImage.setAttribute('disabled', 'true');
+          this.isImage.setAttribute("disabled", "true");
         }
+
       }
 
       this.isBusy = false;
@@ -3778,11 +3779,10 @@ var XULBrowserWindow = {
     }
 
     // Disable menu entries for images, enable otherwise
-    if (!gMultiProcessBrowser && content.document && BrowserUtils.mimeTypeIsTextBased(content.document.contentType)) {
-      this.isImage.removeAttribute('disabled');
-    } else {
-      this.isImage.setAttribute('disabled', 'true');
-    }
+    if (gBrowser.selectedBrowser.documentContentType && BrowserUtils.mimeTypeIsTextBased(gBrowser.selectedBrowser.documentContentType))
+      this.isImage.removeAttribute("disabled");
+    else
+      this.isImage.setAttribute("disabled", "true");
 
     this.hideOverLinkImmediately = true;
     this.setOverLink("", null);

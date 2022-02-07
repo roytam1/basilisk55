@@ -7,6 +7,7 @@ DIRS += [
     'about',
     'abouthome',
     'certerror',
+    'customizableui',
     'dirprovider',
     'downloads',
     'feeds',

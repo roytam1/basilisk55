@@ -6,6 +6,7 @@
 EXTRA_JS_MODULES += [
     'AutoCompletePopup.jsm',
     'BrowserNewTabPreloader.jsm',
+    'BrowserUITelemetry.jsm',
     'CharsetMenu.jsm',
     'FormSubmitObserver.jsm',
     'FormValidationHandler.jsm',

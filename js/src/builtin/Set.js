@@ -16,7 +16,12 @@ function SetConstructorInit(iterable) {
 
     // Steps 6.c-8.
     for (var nextValue of allowContentIter(iterable))
-        callContentFunction(adder, set, nextValue);
+        try {
+            callContentFunction(adder, set, nextValue);
+        } catch (e) {
+            IteratorCloseThrow(iter);
+            throw e;
+        }
 }
 
 /* ES6 20121122 draft 15.16.4.6. */

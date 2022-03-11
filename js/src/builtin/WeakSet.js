@@ -16,7 +16,12 @@ function WeakSetConstructorInit(iterable) {
 
     // Steps 6.c-8.
     for (var nextValue of allowContentIter(iterable))
-        callContentFunction(adder, set, nextValue);
+        try {
+            callContentFunction(adder, set, nextValue);
+        } catch (e) {
+            IteratorCloseThrow(iter);
+            throw e;
+        }
 }
 
 // 23.4.3.1

@@ -1130,14 +1130,11 @@ js::FIX_FPU()
 #endif
 }
 
-bool
+void
 js::InitRuntimeNumberState(JSRuntime* rt)
 {
     FIX_FPU();
 
-    // XXX If EXPOSE_INTL_API becomes true all the time at some point,
-    //     js::InitRuntimeNumberState is no longer fallible, and we should
-    //     change its return type.
 #if !EXPOSE_INTL_API
     /* Copy locale-specific separators into the runtime strings. */
     const char* thousandsSeparator;
@@ -1185,7 +1182,6 @@ js::InitRuntimeNumberState(JSRuntime* rt)
     js_memcpy(storage, grouping, groupingSize);
     rt->numGrouping = grouping;
 #endif /* !EXPOSE_INTL_API */
-    return true;
 }
 
 #if !EXPOSE_INTL_API

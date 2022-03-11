@@ -34,8 +34,7 @@ namespace js {
 
 class StringBuffer;
 
-extern MOZ_MUST_USE bool
-InitRuntimeNumberState(JSRuntime* rt);
+void InitRuntimeNumberState(JSRuntime* rt);
 
 #if !EXPOSE_INTL_API
 extern void

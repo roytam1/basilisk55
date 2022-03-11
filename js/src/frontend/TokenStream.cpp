@@ -1821,6 +1821,8 @@ TokenStream::getTokenInternal(TokenKind* ttp, Modifier modifier)
                     reflags = RegExpFlag(reflags | StickyFlag);
                 else if (c == 'u' && !(reflags & UnicodeFlag))
                     reflags = RegExpFlag(reflags | UnicodeFlag);
+                else if (c == 's' && !(reflags & DotAllFlag))
+                    reflags = RegExpFlag(reflags | DotAllFlag);
                 else
                     break;
                 getChar();

@@ -87,6 +87,7 @@
     macro(deleteProperty, deleteProperty, "deleteProperty") \
     macro(displayURL, displayURL, "displayURL") \
     macro(done, done, "done") \
+    macro(dotall, dotall, "dotall") \
     macro(dotGenerator, dotGenerator, ".generator") \
     macro(dotThis, dotThis, ".this") \
     macro(each, each, "each") \

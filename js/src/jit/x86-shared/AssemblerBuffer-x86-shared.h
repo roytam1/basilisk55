@@ -88,7 +88,8 @@ namespace jit {
 
         void ensureSpace(size_t space)
         {
-            if (MOZ_UNLIKELY(!m_buffer.reserve(m_buffer.length() + space)))
+                if (MOZ_UNLIKELY(m_buffer.length() > (SIZE_MAX - space) ||
+                                 !m_buffer.reserve(m_buffer.length() + space)))
                 oomDetected();
         }
 

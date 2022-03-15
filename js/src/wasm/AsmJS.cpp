@@ -845,7 +845,7 @@ class NumLit
   private:
     Which which_;
     union {
-        Value scalar_;
+        JS::UninitializedValue scalar_;
         SimdConstant simd_;
     } u;
 
@@ -868,7 +868,7 @@ class NumLit
 
     int32_t toInt32() const {
         MOZ_ASSERT(which_ == Fixnum || which_ == NegativeInt || which_ == BigUnsigned);
-        return u.scalar_.toInt32();
+        return u.scalar_.asValueRef().toInt32();
     }
 
     uint32_t toUint32() const {
@@ -877,17 +877,17 @@ class NumLit
 
     double toDouble() const {
         MOZ_ASSERT(which_ == Double);
-        return u.scalar_.toDouble();
+        return u.scalar_.asValueRef().toDouble();
     }
 
     float toFloat() const {
         MOZ_ASSERT(which_ == Float);
-        return float(u.scalar_.toDouble());
+        return float(u.scalar_.asValueRef().toDouble());
     }
 
     Value scalarValue() const {
         MOZ_ASSERT(which_ != OutOfRangeInt);
-        return u.scalar_;
+        return u.scalar_.asValueRef();
     }
 
     bool isSimd() const

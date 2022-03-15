@@ -276,7 +276,7 @@ Scope::XDRSizedBindingNames(XDRState<mode>* xdr, Handle<ConcreteScope*> scope,
     }
 
     for (uint32_t i = 0; i < length; i++) {
-        if (!XDRBindingName(xdr, &data->names[i])) {
+        if (!XDRBindingName(xdr, &data->trailingNames[i])) {
             if (mode == XDR_DECODE) {
                 DeleteScopeData(data.get());
                 data.set(nullptr);
@@ -1309,7 +1309,7 @@ BindingIter::init(LexicalScope::Data& data, uint32_t firstFrameSlot, uint8_t fla
         init(0, 0, 0, 0, 0, 0,
              CanHaveEnvironmentSlots | flags,
              firstFrameSlot, JSSLOT_FREE(&LexicalEnvironmentObject::class_),
-             data.names, data.length);
+             data.trailingNames.start(), data.length);
     } else {
         //            imports - [0, 0)
         // positional formals - [0, 0)
@@ -1321,7 +1321,7 @@ BindingIter::init(LexicalScope::Data& data, uint32_t firstFrameSlot, uint8_t fla
         init(0, 0, 0, 0, 0, data.constStart,
              CanHaveFrameSlots | CanHaveEnvironmentSlots | flags,
              firstFrameSlot, JSSLOT_FREE(&LexicalEnvironmentObject::class_),
-             data.names, data.length);
+             data.trailingNames.start(), data.length);
     }
 }
 
@@ -1342,7 +1342,7 @@ BindingIter::init(FunctionScope::Data& data, uint8_t flags)
     init(0, data.nonPositionalFormalStart, data.varStart, data.varStart, data.length, data.length,
          flags,
          0, JSSLOT_FREE(&CallObject::class_),
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 void
@@ -1358,7 +1358,7 @@ BindingIter::init(VarScope::Data& data, uint32_t firstFrameSlot)
     init(0, 0, 0, 0, data.length, data.length,
          CanHaveFrameSlots | CanHaveEnvironmentSlots,
          firstFrameSlot, JSSLOT_FREE(&VarEnvironmentObject::class_),
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 void
@@ -1374,7 +1374,7 @@ BindingIter::init(GlobalScope::Data& data)
     init(0, 0, 0, data.varStart, data.letStart, data.constStart,
          CannotHaveSlots,
          UINT32_MAX, UINT32_MAX,
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 void
@@ -1402,7 +1402,7 @@ BindingIter::init(EvalScope::Data& data, bool strict)
     //             consts - [data.length, data.length)
     init(0, 0, 0, data.varStart, data.length, data.length,
          flags, firstFrameSlot, firstEnvironmentSlot,
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 void
@@ -1418,7 +1418,7 @@ BindingIter::init(ModuleScope::Data& data)
     init(data.varStart, data.varStart, data.varStart, data.varStart, data.letStart, data.constStart,
          CanHaveFrameSlots | CanHaveEnvironmentSlots,
          0, JSSLOT_FREE(&ModuleEnvironmentObject::class_),
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 void
@@ -1434,7 +1434,7 @@ BindingIter::init(WasmFunctionScope::Data& data)
     init(0, 0, 0, 0, 0, 0,
          CanHaveFrameSlots | CanHaveEnvironmentSlots,
          UINT32_MAX, UINT32_MAX,
-         data.names, data.length);
+         data.trailingNames.start(), data.length);
 }
 
 PositionalFormalParameterIter::PositionalFormalParameterIter(JSScript* script)

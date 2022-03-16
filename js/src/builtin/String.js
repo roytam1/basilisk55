@@ -850,18 +850,16 @@ function String_static_trim(string) {
     return callFunction(std_String_trim, string);
 }
 
-function String_static_trimLeft(string) {
-    WarnDeprecatedStringMethod(STRING_GENERICS_TRIM_LEFT, 'trimLeft');
+function String_static_trimStart(string) {
     if (arguments.length < 1)
-        ThrowTypeError(JSMSG_MISSING_FUN_ARG, 0, 'String.trimLeft');
-    return callFunction(std_String_trimLeft, string);
+        ThrowTypeError(JSMSG_MISSING_FUN_ARG, 0, 'String.trimStart');
+    return callFunction(std_String_trimStart, string);
 }
 
-function String_static_trimRight(string) {
-    WarnDeprecatedStringMethod(STRING_GENERICS_TRIM_RIGHT, 'trimRight');
+function String_static_trimEnd(string) {
     if (arguments.length < 1)
-        ThrowTypeError(JSMSG_MISSING_FUN_ARG, 0, 'String.trimRight');
-    return callFunction(std_String_trimRight, string);
+        ThrowTypeError(JSMSG_MISSING_FUN_ARG, 0, 'String.trimEnd');
+    return callFunction(std_String_trimEnd, string);
 }
 
 function String_static_toLocaleLowerCase(string) {

@@ -1296,7 +1296,7 @@ Parser<ParseHandler>::noteDeclaredName(HandlePropertyName name, DeclarationKind 
         // Functions in block have complex allowances in sloppy mode for being
         // labelled that other lexical declarations do not have. Those checks
         // are more complex than calling checkLexicalDeclarationDirectlyWithin-
-        // Block and are done in checkFunctionDefinition.
+        // Block and are done inline in callers.
 
         ParseContext::Scope* scope = pc->innermostScope();
         if (AddDeclaredNamePtr p = scope->lookupDeclaredNameForAdd(name)) {
@@ -2323,7 +2323,6 @@ Parser<FullParseHandler>::standaloneFunction(HandleFunction fun,
     if (!tokenStream.getToken(&tt))
         return null();
     if (asyncKind == AsyncFunction) {
-        MOZ_ASSERT(tt == TOK_ASYNC);
         if (!tokenStream.getToken(&tt))
             return null();
     }

@@ -1278,7 +1278,7 @@ IDBObjectStore::AppendIndexUpdateInfo(
 
   if (!aMultiEntry) {
     Key key;
-    rv = aKeyPath.ExtractKey(aCx, aVal, key);
+    rv = aKeyPath.ExtractKey(aCx, aVal, key, /* aCallGetters */ false);
 
     // If an index's keyPath doesn't match an object, we ignore that object.
     if (rv == NS_ERROR_DOM_INDEXEDDB_DATA_ERR || key.IsUnset()) {
@@ -1347,7 +1347,7 @@ IDBObjectStore::AppendIndexUpdateInfo(
       }
 
       Key value;
-      if (NS_FAILED(value.SetFromJSVal(aCx, arrayItem)) ||
+      if (NS_FAILED(value.SetFromJSVal(aCx, arrayItem, /* aCallGetters */ false)) ||
           value.IsUnset()) {
         // Not a value we can do anything with, ignore it.
         continue;
@@ -1368,7 +1368,7 @@ IDBObjectStore::AppendIndexUpdateInfo(
   }
   else {
     Key value;
-    if (NS_FAILED(value.SetFromJSVal(aCx, val)) ||
+    if (NS_FAILED(value.SetFromJSVal(aCx, val, /* aCallGetters */ false)) ||
         value.IsUnset()) {
       // Not a value we can do anything with, ignore it.
       return NS_OK;
@@ -1541,7 +1541,7 @@ IDBObjectStore::GetAddInfo(JSContext* aCx,
 
   if (!HasValidKeyPath()) {
     // Out-of-line keys must be passed in.
-    rv = aKey.SetFromJSVal(aCx, aKeyVal);
+    rv = aKey.SetFromJSVal(aCx, aKeyVal, /* aCallGetters */ true);
     if (NS_FAILED(rv)) {
       return rv;
     }
@@ -1550,7 +1550,7 @@ IDBObjectStore::GetAddInfo(JSContext* aCx,
       return NS_ERROR_DOM_DATA_CLONE_ERR;
     }
 
-    rv = GetKeyPath().ExtractKey(aCx, aValueWrapper.Value(), aKey);
+    rv = GetKeyPath().ExtractKey(aCx, aValueWrapper.Value(), aKey, /* aCallGetters */ false);
     if (NS_FAILED(rv)) {
       return rv;
     }
@@ -1605,7 +1605,8 @@ IDBObjectStore::GetAddInfo(JSContext* aCx,
                                          aValueWrapper.Value(),
                                          aKey,
                                          &GetAddInfoCallback,
-                                         &data);
+                                         &data,
+                                         /* aCallGetters */ false);
   } else {
     GetAddInfoClosure data(aCloneWriteInfo, aValueWrapper.Value());
 

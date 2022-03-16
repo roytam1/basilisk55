@@ -432,7 +432,7 @@ IDBCursor::Continue(JSContext* aCx,
   }
 
   Key key;
-  aRv = key.SetFromJSVal(aCx, aKey);
+  aRv = key.SetFromJSVal(aCx, aKey, /* aCallGetters */ true);
   if (aRv.Failed()) {
     return;
   }
@@ -542,7 +542,7 @@ IDBCursor::ContinuePrimaryKey(JSContext* aCx,
   }
 
   Key key;
-  aRv = key.SetFromJSVal(aCx, aKey);
+  aRv = key.SetFromJSVal(aCx, aKey, /* aCallGetters */ true);
   if (aRv.Failed()) {
     return;
   }
@@ -568,7 +568,7 @@ IDBCursor::ContinuePrimaryKey(JSContext* aCx,
   }
 
   Key primaryKey;
-  aRv = primaryKey.SetFromJSVal(aCx, aPrimaryKey);
+  aRv = primaryKey.SetFromJSVal(aCx, aPrimaryKey, /* aCallGetters */ true);
   if (aRv.Failed()) {
     return;
   }
@@ -735,7 +735,7 @@ IDBCursor::Update(JSContext* aCx, JS::Handle<JS::Value> aValue,
     const KeyPath& keyPath = objectStore->GetKeyPath();
     Key key;
 
-    aRv = keyPath.ExtractKey(aCx, valueWrapper.Value(), key);
+    aRv = keyPath.ExtractKey(aCx, valueWrapper.Value(), key, /* aCallGetters */ false);
     if (aRv.Failed()) {
       return nullptr;
     }

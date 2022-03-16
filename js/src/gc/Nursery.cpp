@@ -207,6 +207,7 @@ js::Nursery::disable()
         return;
     updateNumChunks(0);
     currentEnd_ = 0;
+    position_ = 0;
     runtime()->gc.storeBuffer.disable();
 }
 

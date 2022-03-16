@@ -614,7 +614,7 @@ JSRuntime::requestInterrupt(InterruptMode mode)
         // Atomics.wait().
         fx.lock();
         if (fx.isWaiting())
-            fx.wake(FutexRuntime::WakeForJSInterrupt);
+            fx.notify(FutexRuntime::NotifyForJSInterrupt);
         fx.unlock();
         InterruptRunningJitCode(this);
     }

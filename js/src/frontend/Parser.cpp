@@ -63,23 +63,26 @@ using BindingIter = ParseContext::Scope::BindingIter;
 using UsedNamePtr = UsedNameTracker::UsedNameMap::Ptr;
 
 // Read a token. Report an error and return null() if that token doesn't match
-// to the given func's condition.
-#define MUST_MATCH_TOKEN_FUNC_MOD(func, modifier, errorNumber)                              \
+// to the condition.  Do not use MUST_MATCH_TOKEN_INTERNAL directly.
+#define MUST_MATCH_TOKEN_INTERNAL(cond, modifier, errorNumber)                              \
     JS_BEGIN_MACRO                                                                          \
         TokenKind token;                                                                    \
         if (!tokenStream.getToken(&token, modifier))                                        \
             return null();                                                                  \
-        if (!(func)(token)) {                                                               \
+        if (!(cond)) {                                                                      \
             error(errorNumber);                                                             \
             return null();                                                                  \
         }                                                                                   \
     JS_END_MACRO
 
 #define MUST_MATCH_TOKEN_MOD(tt, modifier, errorNumber) \
-    MUST_MATCH_TOKEN_FUNC_MOD([](TokenKind tok) { return tok == tt; }, modifier, errorNumber)
+    MUST_MATCH_TOKEN_INTERNAL(token == tt, modifier, errorNumber)
 
 #define MUST_MATCH_TOKEN(tt, errorNumber) \
     MUST_MATCH_TOKEN_MOD(tt, TokenStream::None, errorNumber)
+
+#define MUST_MATCH_TOKEN_FUNC_MOD(func, modifier, errorNumber) \
+    MUST_MATCH_TOKEN_INTERNAL((func)(token), modifier, errorNumber)
 
 #define MUST_MATCH_TOKEN_FUNC(func, errorNumber) \
     MUST_MATCH_TOKEN_FUNC_MOD(func, TokenStream::None, errorNumber)
@@ -975,44 +978,6 @@ ParserBase::isValidStrictBinding(PropertyName* name)
 }
 
 /*
- * Check that it is permitted to introduce a binding for |name|. Use |pos| for
- * reporting error locations.
- */
-template <typename ParseHandler>
-bool
-Parser<ParseHandler>::checkStrictBinding(PropertyName* name, TokenPos pos)
-{
-    if (!pc->sc()->needStrictChecks())
-        return true;
-
-    if (name == context->names().arguments)
-        return strictModeErrorAt(pos.begin, JSMSG_BAD_BINDING, "arguments");
-
-    if (name == context->names().eval)
-        return strictModeErrorAt(pos.begin, JSMSG_BAD_BINDING, "eval");
-
-    if (name == context->names().let) {
-        errorAt(pos.begin, JSMSG_RESERVED_ID, "let");
-        return false;
-    }
-
-    if (name == context->names().static_) {
-        errorAt(pos.begin, JSMSG_RESERVED_ID, "static");
-        return false;
-    }
-
-    if (name == context->names().yield) {
-        errorAt(pos.begin, JSMSG_RESERVED_ID, "yield");
-        return false;
-    }
-
-    if (IsStrictReservedWord(name))
-        return strictModeErrorAt(pos.begin, JSMSG_RESERVED_ID, ReservedWordToCharZ(name));
-
-    return true;
-}
-
-/*
  * Returns true if all parameter names are valid strict mode binding names and
  * no duplicate parameter names are present.
  */
@@ -1092,9 +1057,6 @@ Parser<ParseHandler>::notePositionalFormalParameter(Node fn, HandlePropertyName 
 
     Node paramNode = newName(name);
     if (!paramNode)
-        return false;
-
-    if (!checkStrictBinding(name, pos()))
         return false;
 
     handler.addFunctionFormalParameter(fn, paramNode);
@@ -1356,9 +1318,6 @@ Parser<ParseHandler>::noteDeclaredName(HandlePropertyName name, DeclarationKind 
     // optimization, avoid doing any work here.
     if (pc->useAsmOrInsideUseAsm())
         return true;
-
-    if (!checkStrictBinding(name, pos))
-        return false;
 
     switch (kind) {
       case DeclarationKind::Var:
@@ -3611,8 +3570,26 @@ Parser<ParseHandler>::functionFormalParametersAndBody(InHandling inHandling,
 
     if ((kind != Method && !IsConstructorKind(kind)) && fun->explicitName()) {
         RootedPropertyName propertyName(context, fun->explicitName()->asPropertyName());
-        if (!checkStrictBinding(propertyName, handler.getPosition(pn)))
-            return false;
+        // `await` cannot be checked at this point because of different context.
+        // It should already be checked before this point.
+        if (propertyName != context->names().await) {
+            YieldHandling nameYieldHandling;
+            if (kind == Expression) {
+                // Named lambda has binding inside it.
+                nameYieldHandling = bodyYieldHandling;
+            } else {
+                // Otherwise YieldHandling cannot be checked at this point
+                // because of different context.
+                // It should already be checked before this point.
+                nameYieldHandling = YieldIsName;
+            }
+
+            if (!checkBindingIdentifier(propertyName, handler.getPosition(pn).begin,
+                                        nameYieldHandling))
+            {
+                return false;
+            }
+        }
     }
 
     if (bodyType == StatementListBody) {
@@ -4181,6 +4158,9 @@ Parser<FullParseHandler>::checkDestructuringName(ParseNode* expr, Maybe<Declarat
         }
 
         RootedPropertyName name(context, expr->name());
+        // `yield` is already checked, so pass YieldIsName to skip that check.
+        if (!checkBindingIdentifier(name, expr->pn_pos.begin, YieldIsName))
+            return false;
         return noteDeclaredName(name, *maybeDecl, expr->pn_pos);
     }
 
@@ -8125,7 +8105,7 @@ Parser<ParseHandler>::comprehensionFor(GeneratorKind comprehensionKind)
     // FIXME: Destructuring binding (bug 980828).
 
     MUST_MATCH_TOKEN_FUNC(TokenKindIsPossibleIdentifier, JSMSG_NO_VARIABLE_NAME);
-    RootedPropertyName name(context, tokenStream.currentName());
+    RootedPropertyName name(context, bindingIdentifier(YieldIsKeyword));
     if (name == context->names().let) {
         error(JSMSG_LET_COMP_BINDING);
         return null();
@@ -8641,58 +8621,91 @@ Parser<ParseHandler>::newName(PropertyName* name, TokenPos pos)
 }
 
 template <typename ParseHandler>
-PropertyName*
-Parser<ParseHandler>::checkLabelOrIdentifierReference(PropertyName* ident,
+bool
+Parser<ParseHandler>::checkLabelOrIdentifierReference(HandlePropertyName ident,
                                                       uint32_t offset,
                                                       YieldHandling yieldHandling)
 {
     if (ident == context->names().yield) {
         if (yieldHandling == YieldIsKeyword ||
-            pc->sc()->strict() ||
             versionNumber() >= JSVERSION_1_7)
         {
             errorAt(offset, JSMSG_RESERVED_ID, "yield");
-            return nullptr;
+            return false;
         }
-        return ident;
+        if (pc->sc()->needStrictChecks()) {
+            if (!strictModeErrorAt(offset, JSMSG_RESERVED_ID, "yield"))
+                return false;
+        }
+
+        return true;
     }
 
     if (ident == context->names().await) {
         if (awaitIsKeyword()) {
             errorAt(offset, JSMSG_RESERVED_ID, "await");
-            return nullptr;
+            return false;
         }
-        return ident;
+        return true;
     }
 
     if (IsKeyword(ident) || IsReservedWordLiteral(ident)) {
         errorAt(offset, JSMSG_INVALID_ID, ReservedWordToCharZ(ident));
-        return nullptr;
+        return false;
     }
 
     if (IsFutureReservedWord(ident)) {
         errorAt(offset, JSMSG_RESERVED_ID, ReservedWordToCharZ(ident));
-        return nullptr;
+        return false;
     }
 
-    if (pc->sc()->strict()) {
+    if (pc->sc()->needStrictChecks()) {
         if (IsStrictReservedWord(ident)) {
-            errorAt(offset, JSMSG_RESERVED_ID, ReservedWordToCharZ(ident));
-            return nullptr;
+            if (!strictModeErrorAt(offset, JSMSG_RESERVED_ID, ReservedWordToCharZ(ident)))
+                return false;
+            return true;
         }
 
         if (ident == context->names().let) {
-            errorAt(offset, JSMSG_RESERVED_ID, "let");
-            return nullptr;
+            if (!strictModeErrorAt(offset, JSMSG_RESERVED_ID, "let"))
+                return false;
+            return true;
         }
 
         if (ident == context->names().static_) {
-            errorAt(offset, JSMSG_RESERVED_ID, "static");
-            return nullptr;
+            if (!strictModeErrorAt(offset, JSMSG_RESERVED_ID, "static"))
+                return false;
+            return true;
         }
     }
 
-    return ident;
+    return true;
+}
+
+template <typename ParseHandler>
+bool
+Parser<ParseHandler>::checkBindingIdentifier(HandlePropertyName ident,
+                                             uint32_t offset,
+                                             YieldHandling yieldHandling)
+{
+    if (!checkLabelOrIdentifierReference(ident, offset, yieldHandling))
+        return false;
+
+    if (pc->sc()->needStrictChecks()) {
+        if (ident == context->names().arguments) {
+            if (!strictModeErrorAt(offset, JSMSG_BAD_STRICT_ASSIGN, "arguments"))
+                return false;
+            return true;
+        }
+
+        if (ident == context->names().eval) {
+            if (!strictModeErrorAt(offset, JSMSG_BAD_STRICT_ASSIGN, "eval"))
+                return false;
+            return true;
+        }
+    }
+
+    return true;
 }
 
 template <typename ParseHandler>
@@ -8706,29 +8719,19 @@ Parser<ParseHandler>::labelOrIdentifierReference(YieldHandling yieldHandling)
     //
     // Use PropertyName* instead of TokenKind to reflect the normalization.
 
-    return checkLabelOrIdentifierReference(tokenStream.currentName(), pos().begin, yieldHandling);
+    RootedPropertyName ident(context, tokenStream.currentName());
+    if (!checkLabelOrIdentifierReference(ident, pos().begin, yieldHandling))
+        return nullptr;
+    return ident;
 }
 
 template <typename ParseHandler>
 PropertyName*
 Parser<ParseHandler>::bindingIdentifier(YieldHandling yieldHandling)
 {
-    PropertyName* ident = labelOrIdentifierReference(yieldHandling);
-    if (!ident)
+    RootedPropertyName ident(context, tokenStream.currentName());
+    if (!checkBindingIdentifier(ident, pos().begin, yieldHandling))
         return nullptr;
-
-    if (pc->sc()->strict()) {
-        if (ident == context->names().arguments) {
-            error(JSMSG_BAD_STRICT_ASSIGN, "arguments");
-            return nullptr;
-        }
-
-        if (ident == context->names().eval) {
-            error(JSMSG_BAD_STRICT_ASSIGN, "eval");
-            return nullptr;
-        }
-    }
-
     return ident;
 }
 

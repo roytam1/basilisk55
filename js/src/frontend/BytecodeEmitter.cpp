@@ -3545,9 +3545,10 @@ BytecodeEmitter::needsImplicitThis()
 bool
 BytecodeEmitter::maybeSetDisplayURL()
 {
-    if (tokenStream()->hasDisplayURL()) {
-        if (!parser->ss->setDisplayURL(cx, tokenStream()->displayURL()))
+    if (tokenStream().hasDisplayURL()) {
+        if (!parser->ss->setDisplayURL(cx, tokenStream().displayURL())) {
             return false;
+        }
     }
     return true;
 }
@@ -3555,10 +3556,11 @@ BytecodeEmitter::maybeSetDisplayURL()
 bool
 BytecodeEmitter::maybeSetSourceMap()
 {
-    if (tokenStream()->hasSourceMapURL()) {
+    if (tokenStream().hasSourceMapURL()) {
         MOZ_ASSERT(!parser->ss->hasSourceMapURL());
-        if (!parser->ss->setSourceMapURL(cx, tokenStream()->sourceMapURL()))
+        if (!parser->ss->setSourceMapURL(cx, tokenStream().sourceMapURL())) {
             return false;
+        }
     }
 
     /*
@@ -3597,21 +3599,21 @@ BytecodeEmitter::tellDebuggerAboutCompiledScript(ExclusiveContext* cx)
     }
 }
 
-inline TokenStream*
+inline TokenStream&
 BytecodeEmitter::tokenStream()
 {
-    return &parser->tokenStream;
+    return parser->tokenStream;
 }
 
 bool
 BytecodeEmitter::reportError(ParseNode* pn, unsigned errorNumber, ...)
 {
-    TokenPos pos = pn ? pn->pn_pos : tokenStream()->currentToken().pos;
+    TokenPos pos = pn ? pn->pn_pos : tokenStream().currentToken().pos;
 
     va_list args;
     va_start(args, errorNumber);
-    bool result = tokenStream()->reportCompileErrorNumberVA(nullptr, pos.begin, JSREPORT_ERROR,
-                                                            errorNumber, args);
+    bool result = tokenStream().reportCompileErrorNumberVA(nullptr, pos.begin, JSREPORT_ERROR,
+                                                           errorNumber, args);
     va_end(args);
     return result;
 }
@@ -3619,12 +3621,12 @@ BytecodeEmitter::reportError(ParseNode* pn, unsigned errorNumber, ...)
 bool
 BytecodeEmitter::reportExtraWarning(ParseNode* pn, unsigned errorNumber, ...)
 {
-    TokenPos pos = pn ? pn->pn_pos : tokenStream()->currentToken().pos;
+    TokenPos pos = pn ? pn->pn_pos : tokenStream().currentToken().pos;
 
     va_list args;
     va_start(args, errorNumber);
-    bool result = tokenStream()->reportExtraWarningErrorNumberVA(nullptr, pos.begin,
-                                                                 errorNumber, args);
+    bool result = tokenStream().reportExtraWarningErrorNumberVA(nullptr, pos.begin,
+                                                                errorNumber, args);
     va_end(args);
     return result;
 }
@@ -3632,12 +3634,12 @@ BytecodeEmitter::reportExtraWarning(ParseNode* pn, unsigned errorNumber, ...)
 bool
 BytecodeEmitter::reportStrictModeError(ParseNode* pn, unsigned errorNumber, ...)
 {
-    TokenPos pos = pn ? pn->pn_pos : tokenStream()->currentToken().pos;
+    TokenPos pos = pn ? pn->pn_pos : tokenStream().currentToken().pos;
 
     va_list args;
     va_start(args, errorNumber);
-    bool result = tokenStream()->reportStrictModeErrorNumberVA(nullptr, pos.begin, sc->strict(),
-                                                               errorNumber, args);
+    bool result = tokenStream().reportStrictModeErrorNumberVA(nullptr, pos.begin, sc->strict(),
+                                                              errorNumber, args);
     va_end(args);
     return result;
 }

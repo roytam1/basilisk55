@@ -3948,6 +3948,7 @@ ParseRegExp(JSContext* cx, unsigned argc, Value* vp)
                                 flags & MultilineFlag, match_only,
                                 flags & UnicodeFlag, flags & IgnoreCaseFlag,
                                 flags & GlobalFlag, flags & StickyFlag,
+                                flags & DotAllFlag,
                                 &data))
     {
         return false;

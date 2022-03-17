@@ -768,7 +768,7 @@ AssertModuleScopesMatch(ModuleObject* module)
 }
 
 void
-ModuleObject::fixEnvironmentsAfterCompartmentMerge(JSContext* cx)
+ModuleObject::fixEnvironmentsAfterCompartmentMerge()
 {
     AssertModuleScopesMatch(this);
     initialEnvironment().fixEnclosingEnvironmentAfterCompartmentMerge(script()->global());

@@ -7371,10 +7371,8 @@ IonBuilder::jsop_getimport(PropertyName* name)
 
     if (!emitted) {
         // This can happen if we don't have type information.
-        TypeSet::ObjectKey* staticKey = TypeSet::ObjectKey::get(targetEnv);
         TemporaryTypeSet* types = bytecodeTypes(pc);
-        BarrierKind barrier = PropertyReadNeedsTypeBarrier(analysisContext, constraints(), staticKey,
-                                                           name, types, /* updateObserved = */ true);
+        BarrierKind barrier = BarrierKind::TypeSet;
 
         MOZ_TRY(loadStaticSlot(targetEnv, barrier, types, shape->slot()));
     }

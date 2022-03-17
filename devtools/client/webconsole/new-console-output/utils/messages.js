@@ -170,6 +170,7 @@ function transformPacket(packet) {
         stacktrace: pageError.stacktrace ? pageError.stacktrace : null,
         frame,
         exceptionDocURL: pageError.exceptionDocURL,
+        notes: pageError.notes,
         timeStamp: pageError.timeStamp
       });
     }
@@ -193,6 +194,7 @@ function transformPacket(packet) {
         exceptionDocURL,
         frame,
         result: parameters,
+        notes,
         timestamp: timeStamp,
       } = packet;
 
@@ -205,6 +207,7 @@ function transformPacket(packet) {
         parameters,
         exceptionDocURL,
         frame,
+        notes,
         timeStamp,
       });
     }

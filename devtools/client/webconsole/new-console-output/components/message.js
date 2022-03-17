@@ -56,6 +56,10 @@ const Message = createClass({
       openLink: PropTypes.func.isRequired,
       sourceMapService: PropTypes.any,
     }),
+    notes: PropTypes.arrayOf(PropTypes.shape({
+      messageBody: PropTypes.string.isRequired,
+      frame: PropTypes.any,
+    })),
   },
 
   getDefaultProps: function () {
@@ -111,6 +115,7 @@ const Message = createClass({
       serviceContainer,
       dispatch,
       exceptionDocURL,
+      notes,
       timeStamp = Date.now(),
     } = this.props;
 
@@ -152,6 +157,29 @@ const Message = createClass({
           }
         },
       });
+    }
+
+    let notesNodes;
+    if (notes) {
+      notesNodes = notes.map(note => dom.span(
+        { className: "message-flex-body error-note" },
+        dom.span({ className: "message-body devtools-monospace" },
+          "note: " + note.messageBody
+        ),
+        dom.span({ className: "message-location devtools-monospace" },
+          note.frame ? FrameView({
+            frame: note.frame,
+            onClick: serviceContainer
+              ? serviceContainer.onViewSourceInDebugger
+              : undefined,
+            showEmptyPathAsHost: true,
+            sourceMapService: serviceContainer
+              ? serviceContainer.sourceMapService
+              : undefined
+          }) : null
+        )));
+    } else {
+      notesNodes = [];
     }
 
     const repeat = this.props.repeat ? MessageRepeat({repeat: this.props.repeat}) : null;
@@ -208,7 +236,8 @@ const Message = createClass({
           repeat,
           location
         ),
-        attachment
+        attachment,
+        ...notesNodes
       )
     );
   }

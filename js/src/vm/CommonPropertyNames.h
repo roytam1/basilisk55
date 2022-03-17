@@ -226,6 +226,7 @@
     macro(noFilename, noFilename, "noFilename") \
     macro(nonincrementalReason, nonincrementalReason, "nonincrementalReason") \
     macro(noStack, noStack, "noStack") \
+    macro(notes, notes, "notes") \
     macro(NumberFormat, NumberFormat, "NumberFormat") \
     macro(NumberFormatFormatToParts, NumberFormatFormatToParts, "Intl_NumberFormat_formatToParts") \
     macro(numeric, numeric, "numeric") \

@@ -34,6 +34,7 @@ function EvaluationResult(props) {
     id: messageId,
     exceptionDocURL,
     frame,
+    notes,
     timeStamp,
     parameters,
   } = message;
@@ -59,6 +60,7 @@ function EvaluationResult(props) {
     serviceContainer,
     exceptionDocURL,
     frame,
+    notes,
     timeStamp,
     parameters,
   };

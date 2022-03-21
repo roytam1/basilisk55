@@ -340,17 +340,6 @@ class ParseContext : public Nestable<ParseContext>
     // pointer may be nullptr.
     Directives* newDirectives;
 
-    // Set when parsing a declaration-like destructuring pattern.  This flag
-    // causes PrimaryExpr to create PN_NAME parse nodes for variable references
-    // which are not hooked into any definition's use chain, added to any tree
-    // context's AtomList, etc. etc.  checkDestructuring will do that work
-    // later.
-    //
-    // The comments atop checkDestructuring explain the distinction between
-    // assignment-like and declaration-like destructuring patterns, and why
-    // they need to be treated differently.
-    mozilla::Maybe<DeclarationKind> inDestructuringDecl;
-
     // Set when parsing a function and it has 'return <expr>;'
     bool funHasReturnExpr;
 
@@ -888,6 +877,12 @@ class ParserBase : public StrictModeGetter
      */
     MOZ_MUST_USE bool extraWarning(unsigned errorNumber, ...);
 
+    /*
+     * If extra warnings are enabled, report the given warning at the given
+     * offset.
+     */
+    MOZ_MUST_USE bool extraWarningAt(uint32_t offset, unsigned errorNumber, ...);
+
     bool isValidStrictBinding(PropertyName* name);
 
     void addTelemetry(JSCompartment::DeprecatedLanguageExtension e);
@@ -954,7 +949,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     class MOZ_STACK_CLASS PossibleError
     {
       private:
-        enum class ErrorKind { Expression, Destructuring };
+        enum class ErrorKind { Expression, Destructuring, DestructuringWarning };
 
         enum class ErrorState { None, Pending };
 
@@ -969,11 +964,12 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
         Parser<ParseHandler>& parser_;
         Error exprError_;
         Error destructuringError_;
+        Error destructuringWarning_;
 
         // Returns the error report.
         Error& error(ErrorKind kind);
 
-        // Return true if an error is pending without reporting
+        // Return true if an error is pending without reporting.
         bool hasError(ErrorKind kind);
 
         // Resolve any pending error.
@@ -985,7 +981,11 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
 
         // If there is a pending error, report it and return false, otherwise
         // return true.
-        bool checkForError(ErrorKind kind);
+        MOZ_MUST_USE bool checkForError(ErrorKind kind);
+
+        // If there is a pending warning, report it and return either false or
+        // true depending on the werror option, otherwise return true.
+        MOZ_MUST_USE bool checkForWarning(ErrorKind kind);
 
         // Transfer an existing error to another instance.
         void transferErrorTo(ErrorKind kind, PossibleError* other);
@@ -993,23 +993,33 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
       public:
         explicit PossibleError(Parser<ParseHandler>& parser);
 
+        // Return true if a pending destructuring error is present.
+        bool hasPendingDestructuringError();
+
         // Set a pending destructuring error. Only a single error may be set
         // per instance, i.e. subsequent calls to this method are ignored and
         // won't overwrite the existing pending error.
         void setPendingDestructuringErrorAt(const TokenPos& pos, unsigned errorNumber);
+
+        // Set a pending destructuring warning. Only a single warning may be
+        // set per instance, i.e. subsequent calls to this method are ignored
+        // and won't overwrite the existing pending warning.
+        void setPendingDestructuringWarningAt(const TokenPos& pos, unsigned errorNumber);
 
         // Set a pending expression error. Only a single error may be set per
         // instance, i.e. subsequent calls to this method are ignored and won't
         // overwrite the existing pending error.
         void setPendingExpressionErrorAt(const TokenPos& pos, unsigned errorNumber);
 
-        // If there is a pending destructuring error, report it and return
-        // false, otherwise return true. Clears any pending expression error.
-        bool checkForDestructuringError();
+        // If there is a pending destructuring error or warning, report it and
+        // return false, otherwise return true. Clears any pending expression
+        // error.
+        MOZ_MUST_USE bool checkForDestructuringErrorOrWarning();
 
         // If there is a pending expression error, report it and return false,
-        // otherwise return true. Clears any pending destructuring error.
-        bool checkForExpressionError();
+        // otherwise return true. Clears any pending destructuring error or
+        // warning.
+        MOZ_MUST_USE bool checkForExpressionError();
 
         // Pass pending errors between possible error instances. This is useful
         // for extending the lifetime of a pending error beyond the scope of
@@ -1489,25 +1499,27 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     mozilla::Maybe<LexicalScope::Data*> newLexicalScopeData(ParseContext::Scope& scope);
     Node finishLexicalScope(ParseContext::Scope& scope, Node body);
 
-    Node propertyName(YieldHandling yieldHandling, Node propList,
+    Node propertyName(YieldHandling yieldHandling,
+                      const mozilla::Maybe<DeclarationKind>& maybeDecl, Node propList,
                       PropertyType* propType, MutableHandleAtom propAtom);
-    Node computedPropertyName(YieldHandling yieldHandling, Node literal);
+    Node computedPropertyName(YieldHandling yieldHandling,
+                              const mozilla::Maybe<DeclarationKind>& maybeDecl, Node literal);
     Node arrayInitializer(YieldHandling yieldHandling, PossibleError* possibleError);
     Node newRegExp();
 
     Node objectLiteral(YieldHandling yieldHandling, PossibleError* possibleError);
 
-    // Top-level entrypoint into destructuring pattern checking/name-analyzing.
-    bool checkDestructuringPattern(Node pattern, const mozilla::Maybe<DeclarationKind>& maybeDecl,
-                                   PossibleError* possibleError = nullptr);
+    Node bindingInitializer(Node lhs, DeclarationKind kind, YieldHandling yieldHandling);
+    Node bindingIdentifier(DeclarationKind kind, YieldHandling yieldHandling);
+    Node bindingIdentifierOrPattern(DeclarationKind kind, YieldHandling yieldHandling,
+                                    TokenKind tt);
+    Node objectBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
+    Node arrayBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
 
-    // Recursive methods for checking/name-analyzing subcomponents of a
-    // destructuring pattern.  The array/object methods *must* be passed arrays
-    // or objects.  The name method may be passed anything but will report an
-    // error if not passed a name.
-    bool checkDestructuringArray(Node arrayPattern, const mozilla::Maybe<DeclarationKind>& maybeDecl);
-    bool checkDestructuringObject(Node objectPattern, const mozilla::Maybe<DeclarationKind>& maybeDecl);
-    bool checkDestructuringName(Node expr, mozilla::Maybe<DeclarationKind> maybeDecl);
+    void checkDestructuringAssignmentTarget(Node expr, TokenPos exprPos,
+                                            PossibleError* possibleError);
+    void checkDestructuringAssignmentElement(Node expr, TokenPos exprPos,
+                                             PossibleError* possibleError);
 
     Node newNumber(const Token& tok) {
         return handler.newNumber(tok.number(), tok.decimalPoint(), tok.pos);

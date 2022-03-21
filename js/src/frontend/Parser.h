@@ -85,6 +85,31 @@ class ParseContext : public Nestable<ParseContext>
         }
     };
 
+    class ClassStatement : public Statement
+    {
+        FunctionBox* constructorBox_;
+
+      public:
+        explicit ClassStatement(ParseContext* pc)
+          : Statement(pc, StatementKind::Class),
+            constructorBox_(nullptr)
+        { }
+
+        void clearConstructorBoxForAbortedSyntaxParse(FunctionBox* funbox) {
+            MOZ_ASSERT(constructorBox_ == funbox);
+            constructorBox_ = nullptr;
+        }
+
+        void setConstructorBox(FunctionBox* funbox) {
+            MOZ_ASSERT(!constructorBox_);
+            constructorBox_ = funbox;
+        }
+
+        FunctionBox* constructorBox() const {
+            return constructorBox_;
+        }
+    };
+
     // The intra-function scope stack.
     //
     // Tracks declared and used names within a scope.
@@ -432,6 +457,11 @@ class ParseContext : public Nestable<ParseContext>
         return Statement::findNearest<T>(innermostStatement_, predicate);
     }
 
+    template <typename T>
+    T* findInnermostStatement() {
+        return Statement::findNearest<T>(innermostStatement_);
+    }
+
     AtomVector& positionalFormalParameterNames() {
         return *positionalFormalParameterNames_;
     }
@@ -530,6 +560,13 @@ inline bool
 ParseContext::Statement::is<ParseContext::LabelStatement>() const
 {
     return kind_ == StatementKind::Label;
+}
+
+template <>
+inline bool
+ParseContext::Statement::is<ParseContext::ClassStatement>() const
+{
+    return kind_ == StatementKind::Class;
 }
 
 template <typename T>
@@ -1046,7 +1083,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
      * cx->tempLifoAlloc.
      */
     ObjectBox* newObjectBox(JSObject* obj);
-    FunctionBox* newFunctionBox(Node fn, JSFunction* fun, uint32_t preludeStart,
+    FunctionBox* newFunctionBox(Node fn, JSFunction* fun, uint32_t toStringStart,
                                 Directives directives,
                                 GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
                                 bool tryAnnexB);
@@ -1117,7 +1154,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
 
     // Parse an inner function given an enclosing ParseContext and a
     // FunctionBox for the inner function.
-    bool innerFunction(Node pn, ParseContext* outerpc, FunctionBox* funbox, uint32_t preludeStart,
+    bool innerFunction(Node pn, ParseContext* outerpc, FunctionBox* funbox, uint32_t toStringStart,
                        InHandling inHandling, YieldHandling yieldHandling,
                        FunctionSyntaxKind kind,
                        Directives inheritedDirectives, Directives* newDirectives);
@@ -1151,10 +1188,10 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
      * Some parsers have two versions:  an always-inlined version (with an 'i'
      * suffix) and a never-inlined version (with an 'n' suffix).
      */
-    Node functionStmt(uint32_t preludeStart,
+    Node functionStmt(uint32_t toStringStart,
                       YieldHandling yieldHandling, DefaultHandling defaultHandling,
                       FunctionAsyncKind asyncKind = SyncFunction);
-    Node functionExpr(uint32_t preludeStart, InvokedPrediction invoked = PredictUninvoked,
+    Node functionExpr(uint32_t toStringStart, InvokedPrediction invoked = PredictUninvoked,
                       FunctionAsyncKind asyncKind = SyncFunction);
 
     Node statementList(YieldHandling yieldHandling);
@@ -1303,7 +1340,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     bool tryNewTarget(Node& newTarget);
     bool checkAndMarkSuperScope();
 
-    Node methodDefinition(uint32_t preludeStart, PropertyType propType, HandleAtom funName);
+    Node methodDefinition(uint32_t toStringStart, PropertyType propType, HandleAtom funName);
 
     /*
      * Additional JS parsers.
@@ -1311,7 +1348,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     bool functionArguments(YieldHandling yieldHandling, FunctionSyntaxKind kind,
                            Node funcpn);
 
-    Node functionDefinition(uint32_t preludeStart, Node func, InHandling inHandling, YieldHandling yieldHandling,
+    Node functionDefinition(uint32_t toStringStart, Node func, InHandling inHandling, YieldHandling yieldHandling,
                             HandleAtom name, FunctionSyntaxKind kind,
                             GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
                             bool tryAnnexB = false);
@@ -1402,13 +1439,13 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node newDotGeneratorName();
     bool declareDotGeneratorName();
 
-    bool skipLazyInnerFunction(Node pn, uint32_t preludeStart, FunctionSyntaxKind kind, bool tryAnnexB);
-    bool innerFunction(Node pn, ParseContext* outerpc, HandleFunction fun, uint32_t preludeStart,
+    bool skipLazyInnerFunction(Node pn, uint32_t toStringStart, FunctionSyntaxKind kind, bool tryAnnexB);
+    bool innerFunction(Node pn, ParseContext* outerpc, HandleFunction fun, uint32_t toStringStart,
                        InHandling inHandling, YieldHandling yieldHandling,
                        FunctionSyntaxKind kind,
                        GeneratorKind generatorKind, FunctionAsyncKind asyncKind, bool tryAnnexB,
                        Directives inheritedDirectives, Directives* newDirectives);
-    bool trySyntaxParseInnerFunction(Node pn, HandleFunction fun, uint32_t preludeStart, InHandling inHandling,
+    bool trySyntaxParseInnerFunction(Node pn, HandleFunction fun, uint32_t toStringStart, InHandling inHandling,
                                      YieldHandling yieldHandling, FunctionSyntaxKind kind,
                                      GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
                                      bool tryAnnexB,

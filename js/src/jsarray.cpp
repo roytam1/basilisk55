@@ -1769,7 +1769,7 @@ MergeSortByKey(K keys, size_t len, K scratch, C comparator, MutableHandle<GCVect
      * necessary each inner iteration moves some number of unsorted elements
      * (including |i|) directly to sorted position.  Thus on completion |*vec|
      * is sorted, and out-of-position elements have moved once.  Complexity is
-     * Θ(len) + O(len) == O(2*len), with each element visited at most twice.
+     * ?(len) + O(len) == O(2*len), with each element visited at most twice.
      */
     for (size_t i = 0; i < len; i++) {
         size_t j = keys[i].elementIndex;
@@ -2404,13 +2404,6 @@ CanOptimizeForDenseStorage(HandleObject arr, uint32_t startingIndex, uint32_t co
            startingIndex + count <= GetAnyBoxedOrUnboxedInitializedLength(arr);
 }
 
-/* ES 2016 draft Mar 25, 2016 22.1.3.26. */
-bool
-js::array_splice(JSContext* cx, unsigned argc, Value* vp)
-{
-    return array_splice_impl(cx, argc, vp, true);
-}
-
 static inline bool
 ArraySpliceCopy(JSContext* cx, HandleObject arr, HandleObject obj,
                 uint32_t actualStart, uint32_t actualDeleteCount)
@@ -2440,8 +2433,8 @@ ArraySpliceCopy(JSContext* cx, HandleObject arr, HandleObject obj,
     return SetLengthProperty(cx, arr, actualDeleteCount);
 }
 
-bool
-js::array_splice_impl(JSContext* cx, unsigned argc, Value* vp, bool returnValueIsUsed)
+static bool
+array_splice_impl(JSContext* cx, unsigned argc, Value* vp, bool returnValueIsUsed)
 {
     AutoSPSEntry pseudoFrame(cx->runtime(), "Array.prototype.splice");
     CallArgs args = CallArgsFromVp(argc, vp);
@@ -2688,6 +2681,19 @@ js::array_splice_impl(JSContext* cx, unsigned argc, Value* vp, bool returnValueI
         args.rval().setObject(*arr);
 
     return true;
+}
+
+/* ES 2016 draft Mar 25, 2016 22.1.3.26. */
+bool
+js::array_splice(JSContext* cx, unsigned argc, Value* vp)
+{
+    return array_splice_impl(cx, argc, vp, true);
+}
+
+static bool
+array_splice_noRetVal(JSContext* cx, unsigned argc, Value* vp)
+{
+    return array_splice_impl(cx, argc, vp, false);
 }
 
 struct SortComparatorIndexes
@@ -3106,6 +3112,15 @@ array_of(JSContext* cx, unsigned argc, Value* vp)
     return true;
 }
 
+const JSJitInfo js::array_splice_info = {
+  { (JSJitGetterOp)array_splice_noRetVal },
+  { 0 }, /* unused */
+  { 0 }, /* unused */
+  JSJitInfo::IgnoresReturnValueNative,
+  JSJitInfo::AliasEverything,
+  JSVAL_TYPE_UNDEFINED,
+};
+
 static const JSFunctionSpec array_methods[] = {
 #if JS_HAS_TOSOURCE
     JS_FN(js_toSource_str,      array_toSource,     0,0),
@@ -3121,7 +3136,7 @@ static const JSFunctionSpec array_methods[] = {
     JS_INLINABLE_FN("pop",      array_pop,          0,0, ArrayPop),
     JS_INLINABLE_FN("shift",    array_shift,        0,0, ArrayShift),
     JS_FN("unshift",            array_unshift,      1,0),
-    JS_INLINABLE_FN("splice",   array_splice,       2,0, ArraySplice),
+    JS_FNINFO("splice",         array_splice,       &array_splice_info, 2,0),
 
     /* Pythonic sequence methods. */
     JS_SELF_HOSTED_FN("concat",      "ArrayConcat",      1,0),

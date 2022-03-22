@@ -8902,6 +8902,10 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
         return false;
     if (!emitAtomOp(cx->names().value, JSOP_GETPROP))     // ITER OLDRESULT FTYPE FVALUE VALUE
         return false;
+    if (isAsyncGenerator) {
+        if (!emitAwait())                                 // ITER OLDRESULT FTYPE FVALUE VALUE
+            return false;
+    }
     if (!emitPrepareIteratorResult())                     // ITER OLDRESULT FTYPE FVALUE VALUE RESULT
         return false;
     if (!emit1(JSOP_SWAP))                                // ITER OLDRESULT FTYPE FVALUE RESULT VALUE
@@ -8993,6 +8997,11 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
         return false;
     if (!emitAtomOp(cx->names().value, JSOP_GETPROP))            // VALUE
         return false;
+
+    if (isAsyncGenerator) {
+        if (!emitAwait())                                        // VALUE
+            return false;
+    }
 
     MOZ_ASSERT(this->stackDepth == startDepth - 1);
 

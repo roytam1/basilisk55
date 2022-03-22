@@ -389,7 +389,10 @@ class BytecodeEmitter::EmitterScope : public Nestable<BytecodeEmitter::EmitterSc
         nextFrameSlot_ = bi.nextFrameSlot();
         if (nextFrameSlot_ > bce->maxFixedSlots)
             bce->maxFixedSlots = nextFrameSlot_;
-        MOZ_ASSERT_IF(bce->sc->isFunctionBox() && bce->sc->asFunctionBox()->isGenerator(),
+        MOZ_ASSERT_IF(bce->sc->isFunctionBox() &&
+                      (bce->sc->asFunctionBox()->isStarGenerator() ||
+                       bce->sc->asFunctionBox()->isLegacyGenerator() ||
+                       bce->sc->asFunctionBox()->isAsync()),
                       bce->maxFixedSlots == 0);
     }
 
@@ -4789,7 +4792,9 @@ BytecodeEmitter::isRunOnceLambda()
 
     FunctionBox* funbox = sc->asFunctionBox();
     return !funbox->argumentsHasLocalBinding() &&
-           !funbox->isGenerator() &&
+           !funbox->isStarGenerator() &&
+           !funbox->isLegacyGenerator() &&
+           !funbox->isAsync() &&
            !funbox->function()->explicitName();
 }
 
@@ -8484,11 +8489,11 @@ BytecodeEmitter::emitReturn(ParseNode* pn)
      */
     ptrdiff_t top = offset();
 
-    bool isGenerator = sc->isFunctionBox() && sc->asFunctionBox()->isGenerator();
+    bool needsFinalYield = sc->isFunctionBox() && sc->asFunctionBox()->needsFinalYield();
     bool isDerivedClassConstructor =
         sc->isFunctionBox() && sc->asFunctionBox()->isDerivedClassConstructor();
 
-    if (!emit1((isGenerator || isDerivedClassConstructor) ? JSOP_SETRVAL : JSOP_RETURN))
+    if (!emit1((needsFinalYield || isDerivedClassConstructor) ? JSOP_SETRVAL : JSOP_RETURN))
         return false;
 
     // Make sure that we emit this before popping the blocks in prepareForNonLocalJump,
@@ -8503,7 +8508,7 @@ BytecodeEmitter::emitReturn(ParseNode* pn)
     if (!nle.prepareForNonLocalJumpToOutermost())
         return false;
 
-    if (isGenerator) {
+    if (needsFinalYield) {
         // We know that .generator is on the function scope, as we just exited
         // all nested scopes.
         NameLocation loc =
@@ -10319,7 +10324,7 @@ BytecodeEmitter::emitFunctionBody(ParseNode* funBody)
     if (!emitTree(funBody))
         return false;
 
-    if (funbox->isGenerator()) {
+    if (funbox->needsFinalYield()) {
         // If we fall off the end of a generator, do a final yield.
         if (funbox->isStarGenerator() && !emitPrepareIteratorResult())
             return false;
@@ -10327,7 +10332,7 @@ BytecodeEmitter::emitFunctionBody(ParseNode* funBody)
         if (!emit1(JSOP_UNDEFINED))
             return false;
 
-        if (sc->asFunctionBox()->isStarGenerator() && !emitFinishIteratorResult(true))
+        if (funbox->isStarGenerator() && !emitFinishIteratorResult(true))
             return false;
 
         if (!emit1(JSOP_SETRVAL))

@@ -7476,7 +7476,7 @@ DebuggerFrame::getEnvironment(JSContext* cx, HandleDebuggerFrame frame,
 DebuggerFrame::getIsGenerator(HandleDebuggerFrame frame)
 {
     AbstractFramePtr referent = DebuggerFrame::getReferent(frame);
-    return referent.hasScript() && referent.script()->isGenerator();
+    return referent.hasScript() && (referent.script()->isStarGenerator() || referent.script()->isLegacyGenerator());
 }
 
 /* static */ bool

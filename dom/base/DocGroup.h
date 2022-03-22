@@ -15,6 +15,7 @@
 
 #include "mozilla/dom/Dispatcher.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/dom/CustomElementRegistry.h"
 
 namespace mozilla {
 class AbstractThread;
@@ -59,6 +60,14 @@ public:
   {
     return mTabGroup;
   }
+  mozilla::dom::CustomElementReactionsStack* CustomElementReactionsStack()
+  {
+    if (!mReactionsStack) {
+      mReactionsStack = new mozilla::dom::CustomElementReactionsStack();
+    }
+
+    return mReactionsStack;
+  }
   void RemoveDocument(nsIDocument* aWindow);
 
   // Iterators for iterating over every document within the DocGroup
@@ -87,6 +96,7 @@ private:
   nsCString mKey;
   RefPtr<TabGroup> mTabGroup;
   nsTArray<nsIDocument*> mDocuments;
+  RefPtr<mozilla::dom::CustomElementReactionsStack> mReactionsStack;
 };
 
 } // namespace dom

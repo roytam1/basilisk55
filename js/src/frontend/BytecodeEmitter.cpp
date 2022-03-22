@@ -8073,7 +8073,8 @@ BytecodeEmitter::emitFunction(ParseNode* pn, bool needsProto)
         MOZ_ASSERT(fun->isArrow() == (pn->getOp() == JSOP_LAMBDA_ARROW));
         if (funbox->isAsync()) {
             MOZ_ASSERT(!needsProto);
-            return emitAsyncWrapper(index, funbox->needsHomeObject(), fun->isArrow());
+            return emitAsyncWrapper(index, funbox->needsHomeObject(), fun->isArrow(),
+                                    fun->isStarGenerator());
         }
 
         if (fun->isArrow()) {
@@ -8128,8 +8129,11 @@ BytecodeEmitter::emitFunction(ParseNode* pn, bool needsProto)
             MOZ_ASSERT(pn->getOp() == JSOP_NOP);
             switchToPrologue();
             if (funbox->isAsync()) {
-                if (!emitAsyncWrapper(index, fun->isMethod(), fun->isArrow()))
+                if (!emitAsyncWrapper(index, fun->isMethod(), fun->isArrow(),
+                                      fun->isStarGenerator()))
+                {
                     return false;
+                }
             } else {
                 if (!emitIndex32(JSOP_LAMBDA, index))
                     return false;
@@ -8145,10 +8149,12 @@ BytecodeEmitter::emitFunction(ParseNode* pn, bool needsProto)
         // initialize the binding name of the function in the current scope.
 
         bool isAsync = funbox->isAsync();
-        auto emitLambda = [index, isAsync](BytecodeEmitter* bce, const NameLocation&, bool) {
+        bool isStarGenerator = funbox->isStarGenerator();
+        auto emitLambda = [index, isAsync, isStarGenerator](BytecodeEmitter* bce,
+                                                            const NameLocation&, bool) {
             if (isAsync) {
                 return bce->emitAsyncWrapper(index, /* needsHomeObject = */ false,
-                                             /* isArrow = */ false);
+                                             /* isArrow = */ false, isStarGenerator);
             }
             return bce->emitIndexOp(JSOP_LAMBDA, index);
         };
@@ -8183,7 +8189,8 @@ BytecodeEmitter::emitAsyncWrapperLambda(unsigned index, bool isArrow) {
 }
 
 bool
-BytecodeEmitter::emitAsyncWrapper(unsigned index, bool needsHomeObject, bool isArrow)
+BytecodeEmitter::emitAsyncWrapper(unsigned index, bool needsHomeObject, bool isArrow,
+                                  bool isStarGenerator)
 {
     // needsHomeObject can be true for propertyList for extended class.
     // In that case push both unwrapped and wrapped function, in order to
@@ -8215,8 +8222,13 @@ BytecodeEmitter::emitAsyncWrapper(unsigned index, bool needsHomeObject, bool isA
         if (!emit1(JSOP_DUP))
             return false;
     }
-    if (!emit1(JSOP_TOASYNC))
-        return false;
+    if (isStarGenerator) {
+        if (!emit1(JSOP_TOASYNCGEN))
+            return false;
+    } else {
+        if (!emit1(JSOP_TOASYNC))
+            return false;
+    }
     return true;
 }
 

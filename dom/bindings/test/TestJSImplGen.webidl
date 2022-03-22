@@ -797,6 +797,10 @@ interface TestJSImplInterface {
   [Throws] attribute boolean throwingAttr;
   [GetterThrows] attribute boolean throwingGetterAttr;
   [SetterThrows] attribute boolean throwingSetterAttr;
+  [CEReactions] void ceReactionsMethod();
+  [CEReactions] void ceReactionsMethodOverload();
+  [CEReactions] void ceReactionsMethodOverload(DOMString bar);
+  [CEReactions] attribute boolean ceReactionsAttr;
   [CanOOM] void canOOMMethod();
   [CanOOM] attribute boolean canOOMAttr;
   [GetterCanOOM] attribute boolean canOOMGetterAttr;

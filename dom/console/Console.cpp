@@ -30,6 +30,7 @@
 #include "nsContentUtils.h"
 #include "nsDocShell.h"
 #include "nsProxyRelease.h"
+#include "mozilla/TimerClamping.h"
 #include "mozilla/ConsoleTimelineMarker.h"
 #include "mozilla/TimestampTimelineMarker.h"
 
@@ -1322,7 +1323,7 @@ Console::MethodInternal(JSContext* aCx, MethodName aMethodName,
       WorkerPrivate* workerPrivate = GetCurrentThreadWorkerPrivate();
       MOZ_ASSERT(workerPrivate);
 
-      monotonicTimer = workerPrivate->TimeStampToDOMHighRes(TimeStamp::Now());
+      monotonicTimer = TimerClamping::ReduceMsTimeValue(workerPrivate->TimeStampToDOMHighRes(TimeStamp::Now()));
     }
   }
 

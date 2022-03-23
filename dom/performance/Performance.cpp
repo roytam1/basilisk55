@@ -23,6 +23,7 @@
 #include "mozilla/dom/PerformanceNavigationTiming.h"
 #include "mozilla/IntegerPrintfMacros.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/TimerClamping.h"
 #include "WorkerPrivate.h"
 #include "WorkerRunnable.h"
 
@@ -225,9 +226,9 @@ Performance::ClearResourceTimings()
 DOMHighResTimeStamp
 Performance::RoundTime(double aTime) const
 {
-  // Round down to the nearest 50us, because if the timer is too accurate people
+  // Round down to the nearest 2ms, because if the timer is too accurate people
   // can do nasty timing attacks with it.
-  const double maxResolutionMs = 1.0;
+  const double maxResolutionMs = 2;
   return floor(aTime / maxResolutionMs) * maxResolutionMs;
 }
 

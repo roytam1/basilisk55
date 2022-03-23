@@ -6,6 +6,7 @@
 
 #include "URLClassifierParent.h"
 #include "nsComponentManagerUtils.h"
+#include "nsNetCID.h"
 #include "mozilla/Unused.h"
 
 using namespace mozilla;

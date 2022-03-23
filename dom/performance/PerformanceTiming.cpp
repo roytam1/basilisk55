@@ -341,11 +341,8 @@ PerformanceTiming::SecureConnectionStartHighRes()
     return mZeroTime;
   }
 
-  // Round down to the nearest 1ms
-  const double maxResolutionMs = 1;
-  return mSecureConnectionStart.IsNull()
-         ? mZeroTime
-         : floor(TimeStampToDOMHighRes(mSecureConnectionStart) / maxResolutionMs) * maxResolutionMs;
+  return mSecureConnectionStart.IsNull() ? mZeroTime
+                                         : TimerClamping::ReduceMsTimeValue(TimeStampToDOMHighRes(mSecureConnectionStart));
 }
 
 DOMTimeMilliSec

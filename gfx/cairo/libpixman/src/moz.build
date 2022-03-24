@@ -1,5 +1,4 @@
 # -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
-# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,11 +8,7 @@ EXPORTS += [
     'pixman.h',
 ]
 
-# Apple's arm assembler doesn't support the same syntax as
-# the standard GNU assembler, so use the C fallback paths for now.
-# This may be fixable if clang's ARM/iOS assembler improves into a
-# viable solution in the future.
-if CONFIG['OS_ARCH'] != 'Darwin' and CONFIG['GNU_CC']:
+if CONFIG['GNU_CC']:
     if CONFIG['HAVE_ARM_NEON']:
         SOURCES += [
             'pixman-arm-neon-asm-bilinear.S',
@@ -35,7 +30,6 @@ SOURCES += [
     'pixman-arm.c',
     'pixman-bits-image.c',
     'pixman-combine-float.c',
-    'pixman-combine16.c',
     'pixman-combine32.c',
     'pixman-conical-gradient.c',
     'pixman-edge-accessors.c',
@@ -71,7 +65,7 @@ LOCAL_INCLUDES += [
 ]
 
 if CONFIG['MOZ_USE_PTHREADS']:
-    DEFINES['HAVE_PTHREAD_SETSPECIFIC'] = True
+    DEFINES['HAVE_PTHREADS'] = True
 
 if CONFIG['_MSC_VER']:
     DEFINES['PIXMAN_USE_XP_DLL_TLS_WORKAROUND'] = True
@@ -82,11 +76,13 @@ DEFINES['_USE_MATH_DEFINES'] = True
 
 use_mmx = False
 use_sse2 = False
+use_ssse3 = False
 use_vmx = False
 use_arm_simd_gcc = False
 use_arm_neon_gcc = False
 if '86' in CONFIG['OS_TEST']:
     use_sse2 = True
+    use_ssse3 = True
     if '64' not in CONFIG['OS_TEST']:
         if CONFIG['_MSC_VER']:
             use_mmx = True
@@ -95,16 +91,11 @@ if '86' in CONFIG['OS_TEST']:
 elif 'ppc' in CONFIG['OS_TEST']:
     if CONFIG['GNU_CC']:
         use_vmx = True
-# Apple's arm assembler doesn't support the same syntax as
-# the standard GNU assembler, so use the C fallback paths for now.
-# This may be fixable if clang's ARM/iOS assembler improves into a
-# viable solution in the future.
 elif 'arm' in CONFIG['OS_TEST']:
-    if CONFIG['OS_ARCH'] != 'Darwin':
-        if CONFIG['HAVE_ARM_SIMD']:
-            use_arm_simd_gcc = True
-        if CONFIG['HAVE_ARM_NEON']:
-            use_arm_neon_gcc = True
+    if CONFIG['HAVE_ARM_SIMD']:
+        use_arm_simd_gcc = True
+    if CONFIG['HAVE_ARM_NEON']:
+        use_arm_neon_gcc = True
 
 if use_mmx:
     DEFINES['USE_MMX'] = True
@@ -113,8 +104,8 @@ if use_mmx:
     if CONFIG['GNU_CC']:
         SOURCES['pixman-mmx.c'].flags += [
             '-Winline',
-            '--param inline-unit-growth=10000',
-            '--param large-function-growth=10000',
+            '--param', 'inline-unit-growth=10000',
+            '--param', 'large-function-growth=10000',
         ]
 
 if use_sse2:
@@ -124,6 +115,15 @@ if use_sse2:
     SOURCES['pixman-sse2.c'].flags += CONFIG['SSE_FLAGS'] + CONFIG['SSE2_FLAGS']
     if CONFIG['GNU_CC']:
         SOURCES['pixman-sse2.c'].flags += ['-Winline']
+
+if use_ssse3:
+    DEFINES['USE_SSE'] = True
+    DEFINES['USE_SSE2'] = True
+    DEFINES['USE_SSSE3'] = True
+    SOURCES += ['pixman-ssse3.c']
+    SOURCES['pixman-ssse3.c'].flags += CONFIG['SSE_FLAGS'] + CONFIG['SSE2_FLAGS'] + CONFIG['SSSE3_FLAGS']
+    if CONFIG['GNU_CC']:
+        SOURCES['pixman-ssse3.c'].flags += ['-Winline']
 
 if use_vmx:
     DEFINES['USE_VMX'] = True
@@ -145,6 +145,7 @@ if CONFIG['GNU_CC'] or CONFIG['CLANG_CL']:
         '-Wno-address',
         '-Wno-missing-field-initializers',
         '-Wno-sign-compare',
+        '-Wno-incompatible-pointer-types',
         '-Wno-unused',                      # too many unused warnings; ignore
     ]
 if CONFIG['CLANG_CXX'] or CONFIG['CLANG_CL']:
@@ -157,7 +158,3 @@ if CONFIG['CLANG_CL']:
     CFLAGS += [
         '-Wno-unused-variable',
     ]
-
-# See bug 386897.
-if CONFIG['OS_TARGET'] == 'Android' and CONFIG['MOZ_OPTIMIZE']:
-    CFLAGS += ['-O2']

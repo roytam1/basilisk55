@@ -3589,6 +3589,11 @@ nsDisplayImageContainer::CanOptimizeToImageLayer(LayerManager* aManager,
     return false;
   }
 
+  if (gfxPrefs::ImageLayerizeAlways()) {
+    // If the user decides to trade off quality for performance, so be it!
+    return true;
+  }
+  
   const int32_t factor = mFrame->PresContext()->AppUnitsPerDevPixel();
   const LayoutDeviceRect destRect =
     LayoutDeviceRect::FromAppUnits(GetDestRect(), factor);

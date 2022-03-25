@@ -4428,6 +4428,11 @@ pref("image.http.accept", "image/webp,image/png,image/*;q=0.8,*/*;q=0.5");
 // disable.
 pref("image.infer-src-animation.threshold-ms", 2000);
 
+// Whether to always optimize to image layers. Setting this to true will increase
+// performance of downscaled large images at the expense of visual quality,
+// because we can't use HQ downscaling in image layers.
+pref("image.layerize.always", false);
+
 //
 // Image memory management prefs
 //

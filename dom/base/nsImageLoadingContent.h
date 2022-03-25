@@ -357,6 +357,11 @@ protected:
    *
    * No-op if aImage is null.
    *
+   * @param aFrame If called from FrameCreated the frame passed to FrameCreated.
+   *               This is our frame, but at the time of the FrameCreated call
+   *               our primary frame pointer hasn't been set yet, so this is
+   *               only way to get our frame.
+   *
    * @param aNonvisibleAction A requested action if the frame has become
    *                          nonvisible. If Nothing(), no action is
    *                          requested. If DISCARD_IMAGES is specified, the
@@ -364,7 +369,7 @@ protected:
    *                          associated with to discard their surfaces if
    *                          possible.
    */
-  void TrackImage(imgIRequest* aImage);
+  void TrackImage(imgIRequest* aImage, nsIFrame* aFrame = nullptr);
   void UntrackImage(imgIRequest* aImage,
                     const Maybe<OnNonvisible>& aNonvisibleAction = Nothing());
 
@@ -455,9 +460,6 @@ private:
   //
   // Also we use this variable to check if some evil code is reentering LoadImage.
   bool mIsStartingImageLoad;
-
-  // True when FrameCreate has been called but FrameDestroy has not.
-  bool mFrameCreateCalled;
 };
 
 #endif // nsImageLoadingContent_h__

@@ -3211,6 +3211,10 @@ pref("ui.mouse.radius.inputSource.touchOnly", true);
 
 #ifdef XP_WIN
 
+// Be as uniform as possible, use Twemoji everywhere. 
+// Optional: prefix with `Segoe UI Emoji` to use Win8+ Segoe UI font emoji where available.
+pref("font.name-list.emoji", "Twemoji Mozilla");
+
 pref("font.name.serif.ar", "Times New Roman");
 pref("font.name.sans-serif.ar", "Segoe UI");
 pref("font.name-list.sans-serif.ar", "Segoe UI, Tahoma, Arial");
@@ -3644,6 +3648,8 @@ pref("ui.osk.debug.keyboardDisplayReason", "");
 pref("browser.drag_out_of_frame_style", 1);
 pref("ui.key.saveLink.shift", false); // true = shift, false = meta
 
+pref("font.name-list.emoji", "Apple Color Emoji");
+
 // default fonts (in UTF8 and using canonical names)
 // to determine canonical font names, use a debug build and
 // enable NSPR logging for module fontInfoLog:5
@@ -4066,6 +4072,10 @@ pref("print.print_extra_margin", 0); // twips
 
 // font names
 
+// fontconfig doesn't support emoji yet
+// https://lists.freedesktop.org/archives/fontconfig/2016-October/005842.html
+pref("font.name-list.emoji", "Twemoji Mozilla");
+
 pref("font.name.serif.ar", "serif");
 pref("font.name.sans-serif.ar", "sans-serif");
 pref("font.name.monospace.ar", "monospace");
@@ -4246,6 +4256,8 @@ pref("font.size.fixed.x-western", 12);
 
 #if defined(ANDROID)
 // We use the bundled fonts for Firefox for Android
+
+pref("font.name-list.emoji", "Noto Color Emoji");
 
 pref("font.name.serif.ar", "Noto Naskh Arabic");
 pref("font.name.sans-serif.ar", "Noto Naskh Arabic");

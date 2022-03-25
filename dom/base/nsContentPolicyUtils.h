@@ -134,6 +134,7 @@ NS_CP_ContentTypeName(uint32_t contentType)
     CASE_RETURN( TYPE_INTERNAL_IMAGE_FAVICON      );
     CASE_RETURN( TYPE_INTERNAL_STYLESHEET         );
     CASE_RETURN( TYPE_INTERNAL_STYLESHEET_PRELOAD );
+    CASE_RETURN( TYPE_SAVEAS_DOWNLOAD             );
    default:
     return "<Unknown Type>";
   }

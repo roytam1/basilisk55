@@ -23,6 +23,7 @@
 #define BEHAVIOR_NOFOREIGN 3
 
 // From nsIContentPolicy
+// and nsIContentPolicyBase.idl: Their order must be retained!
 static const char *kTypeString[] = {
                                     "other",
                                     "script",
@@ -59,6 +60,13 @@ static const char *kTypeString[] = {
                                     "", // TYPE_INTERNAL_XMLHTTPREQUEST
                                     "", // TYPE_INTERNAL_EVENTSOURCE
                                     "", // TYPE_INTERNAL_SERVICE_WORKER
+                                    "", // TYPE_INTERNAL_SCRIPT_PRELOAD
+                                    "", // TYPE_INTERNAL_IMAGE
+                                    "", // TYPE_INTERNAL_IMAGE_PRELOAD
+                                    "", // TYPE_INTERNAL_STYLESHEET
+                                    "", // TYPE_INTERNAL_STYLESHEET_PRELOAD
+                                    "", // TYPE_INTERNAL_IMAGE_FAVICON
+                                    "saveas_download",
 };
 
 #define NUMBER_OF_TYPES MOZ_ARRAY_LENGTH(kTypeString)

@@ -28,7 +28,7 @@ interface nsIDOMElement;
  * by launching a dialog to prompt the user for something).
  */
 
-[scriptable,uuid(b9df71e3-a9b3-4706-b2d5-e6c0d3d68ec7)]
+[scriptable,uuid(1553a476-8a14-410b-8ecc-47f48e937392)]
 interface nsISimpleContentPolicy : nsIContentPolicyBase
 {
   /**

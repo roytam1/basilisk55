@@ -205,6 +205,10 @@ pref("dom.requestIdleCallback.enabled", true);
 pref("dom.requestIdleCallback.enabled", false);
 #endif
 
+// Enable Intersection Observers
+// See WD https://w3c.github.io/IntersectionObserver/
+pref("dom.IntersectionObserver.enabled", true);
+
 // Whether the Gamepad API is enabled
 pref("dom.gamepad.enabled", true);
 pref("dom.gamepad.test.enabled", false);
@@ -5553,4 +5557,3 @@ pref("prompts.authentication_dialog_abuse_limit", 3);
 // Enable the Storage management in about:preferences and persistent-storage permission request
 // To enable the DOM implementation, turn on "dom.storageManager.enabled"
 pref("browser.storageManager.enabled", false);
-pref("dom.IntersectionObserver.enabled", false);

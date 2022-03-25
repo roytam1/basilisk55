@@ -287,6 +287,7 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
     nsContentUtils::InternalContentPolicyTypeToExternalOrWorker(policyType);
 
   int16_t aDecision = nsIContentPolicy::ACCEPT;
+  nsCOMPtr<nsISupports> requestContext = loadInfo->GetLoadingContext();
   // 1) Apply speculative CSP for preloads
   if (isPreload) {
     nsCOMPtr<nsIContentSecurityPolicy> preloadCsp;
@@ -297,7 +298,7 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
       preloadCsp->ShouldLoad(policyType,     // load type per nsIContentPolicy (uint32_t)
                              newUri,         // nsIURI
                              nullptr,        // nsIURI
-                             nullptr,        // nsISupports
+                             requestContext, // nsISupports
                              EmptyCString(), // ACString - MIME guess
                              originalUri,    // aExtra
                              &aDecision);
@@ -320,7 +321,7 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
     csp->ShouldLoad(policyType,     // load type per nsIContentPolicy (uint32_t)
                     newUri,         // nsIURI
                     nullptr,        // nsIURI
-                    nullptr,        // nsISupports
+                    requestContext, // nsISupports
                     EmptyCString(), // ACString - MIME guess
                     originalUri,    // aExtra
                     &aDecision);

@@ -49,6 +49,12 @@ enum IdentifierType {
   IDTYPE_ASPIRATIONAL = 2,
 };
 
+enum EmojiPresentation {
+  TextOnly = 0,
+  TextDefault = 1,
+  EmojiDefault = 2
+};
+
 #if ENABLE_INTL_API // ICU is available, so simply forward to its API
 
 extern const hb_unicode_general_category_t sICUtoHBcategory[];
@@ -233,6 +239,19 @@ inline bool IsDefaultIgnorable(uint32_t aCh)
 }
 
 #endif // !ENABLE_INTL_API
+
+inline EmojiPresentation
+GetEmojiPresentation(uint32_t aCh)
+{
+  if (!u_hasBinaryProperty(aCh, UCHAR_EMOJI)) {
+    return TextOnly;
+  }
+
+  if (u_hasBinaryProperty(aCh, UCHAR_EMOJI_PRESENTATION)) {
+    return EmojiDefault;
+  }
+  return TextDefault;
+}
 
 // returns the simplified Gen Category as defined in nsIUGenCategory
 inline nsIUGenCategory::nsUGenCategory GetGenCategory(uint32_t aCh) {

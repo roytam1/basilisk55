@@ -56,7 +56,7 @@ static RedirEntry kRedirMap[] = {
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
     nsIAboutModule::MAKE_LINKABLE
   },
-#ifdef MOZ_DEVTOOLS_ALL
+#ifdef MOZ_DEVTOOLS
   {
     "debugging", "chrome://devtools/content/aboutdebugging/aboutdebugging.xhtml",
     nsIAboutModule::ALLOW_SCRIPT

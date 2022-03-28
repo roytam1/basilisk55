@@ -169,6 +169,8 @@ def old_configure_options(*options):
     '--enable-crashreporter',
     '--enable-dbus',
     '--enable-debug-js-modules',
+    '--enable-devtools-server',
+    '--enable-devtools',
     '--enable-directshow',
     '--enable-dtrace',
     '--enable-dump-painting',

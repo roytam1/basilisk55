@@ -1153,7 +1153,9 @@ nsHttpTransaction::Close(nsresult reason)
     }
 
     // closing this pipe triggers the channel's OnStopRequest method.
-    mPipeOut->CloseWithStatus(reason);
+    if (mPipeOut) {
+      mPipeOut->CloseWithStatus(reason);
+    }
 
 #ifdef WIN32 // bug 1153929
     MOZ_DIAGNOSTIC_ASSERT(mPipeOut);

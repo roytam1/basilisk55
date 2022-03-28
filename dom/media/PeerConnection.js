@@ -602,7 +602,7 @@ class RTCPeerConnection {
         }
       }}, Ci.nsIThread.DISPATCH_NORMAL);
     });
-  },
+  }
 
   /**
    * An RTCConfiguration may look like this:

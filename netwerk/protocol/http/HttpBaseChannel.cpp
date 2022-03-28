@@ -1790,13 +1790,7 @@ HttpBaseChannel::SetRequestHeader(const nsACString& aHeader,
     return NS_ERROR_INVALID_ARG;
   }
 
-  nsHttpAtom atom = nsHttp::ResolveAtom(flatHeader.get());
-  if (!atom) {
-    NS_WARNING("failed to resolve atom");
-    return NS_ERROR_NOT_AVAILABLE;
-  }
-
-  return mRequestHead.SetHeader(atom, flatValue, aMerge);
+  return mRequestHead.SetHeader(aHeader, flatValue, aMerge);
 }
 
 NS_IMETHODIMP
@@ -1813,13 +1807,7 @@ HttpBaseChannel::SetEmptyRequestHeader(const nsACString& aHeader)
     return NS_ERROR_INVALID_ARG;
   }
 
-  nsHttpAtom atom = nsHttp::ResolveAtom(flatHeader.get());
-  if (!atom) {
-    NS_WARNING("failed to resolve atom");
-    return NS_ERROR_NOT_AVAILABLE;
-  }
-
-  return mRequestHead.SetEmptyHeader(atom);
+ return mRequestHead.SetEmptyHeader(aHeader);
 }
 
 NS_IMETHODIMP
@@ -1875,7 +1863,7 @@ HttpBaseChannel::SetResponseHeader(const nsACString& header,
 
   mResponseHeadersModified = true;
 
-  return mResponseHead->SetHeader(atom, value, merge);
+  return mResponseHead->SetHeader(header, value, merge);
 }
 
 NS_IMETHODIMP

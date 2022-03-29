@@ -2279,6 +2279,7 @@ MOZ_SANDBOX=1
 MOZ_BINARY_EXTENSIONS=
 MOZ_DEVTOOLS_SERVER=1
 MOZ_DEVTOOLS=
+MOZ_USERINFO=1
 
 case "$target_os" in
     mingw*)
@@ -4828,6 +4829,20 @@ if test -n "$MOZ_DEVTOOLS"; then
 fi
 
 AC_SUBST(MOZ_DEVTOOLS)
+
+dnl ========================================================
+dnl = Disable nsUserInfo
+dnl ========================================================
+MOZ_ARG_DISABLE_BOOL(userinfo,
+[  --disable-userinfo         Disable nsUserInfo (default=enabled)],
+    MOZ_USERINFO=,
+    MOZ_USERINFO=1)
+
+if test -n "$MOZ_USERINFO"; then
+    AC_DEFINE(MOZ_USERINFO)
+fi
+
+AC_SUBST(MOZ_USERINFO)
 
 dnl ========================================================
 dnl =

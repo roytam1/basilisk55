@@ -66,6 +66,7 @@ LoadInfo::LoadInfo(nsIPrincipal* aLoadingPrincipal,
   , mForcePreflight(false)
   , mIsPreflight(false)
   , mLoadTriggeredFromExternal(false)
+  , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming(false)
   , mMixedContentWouldBlock(false)
 {
@@ -243,6 +244,7 @@ LoadInfo::LoadInfo(nsPIDOMWindowOuter* aOuterWindow,
   , mForcePreflight(false)
   , mIsPreflight(false)
   , mLoadTriggeredFromExternal(false)
+  , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming(false)
   , mMixedContentWouldBlock(false)
 {
@@ -309,6 +311,7 @@ LoadInfo::LoadInfo(const LoadInfo& rhs)
   , mForcePreflight(rhs.mForcePreflight)
   , mIsPreflight(rhs.mIsPreflight)
   , mLoadTriggeredFromExternal(rhs.mLoadTriggeredFromExternal)
+  , mIsFromProcessingFrameAttributes(rhs.mIsFromProcessingFrameAttributes)
   , mForceHSTSPriming(rhs.mForceHSTSPriming)
   , mMixedContentWouldBlock(rhs.mMixedContentWouldBlock)
 {
@@ -364,6 +367,7 @@ LoadInfo::LoadInfo(nsIPrincipal* aLoadingPrincipal,
   , mForcePreflight(aForcePreflight)
   , mIsPreflight(aIsPreflight)
   , mLoadTriggeredFromExternal(aLoadTriggeredFromExternal)
+  , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming (aForceHSTSPriming)
   , mMixedContentWouldBlock(aMixedContentWouldBlock)
 {
@@ -1006,6 +1010,20 @@ LoadInfo::GetIsTopLevelLoad(bool *aResult)
 {
   *aResult = mFrameOuterWindowID ? mFrameOuterWindowID == mOuterWindowID
                                  : mParentOuterWindowID == mOuterWindowID;
+  return NS_OK;
+}
+
+void
+LoadInfo::SetIsFromProcessingFrameAttributes()
+{
+  mIsFromProcessingFrameAttributes = true;
+}
+
+NS_IMETHODIMP
+LoadInfo::GetIsFromProcessingFrameAttributes(bool *aIsFromProcessingFrameAttributes)
+{
+  MOZ_ASSERT(aIsFromProcessingFrameAttributes);
+  *aIsFromProcessingFrameAttributes = mIsFromProcessingFrameAttributes;
   return NS_OK;
 }
 

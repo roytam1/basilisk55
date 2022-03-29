@@ -76,6 +76,7 @@ public:
 
   void SetIsPreflight();
   void SetUpgradeInsecureRequests();
+  void SetIsFromProcessingFrameAttributes();
 
 private:
   // private constructor that is only allowed to be called from within
@@ -154,6 +155,11 @@ private:
   bool                             mForcePreflight;
   bool                             mIsPreflight;
   bool                             mLoadTriggeredFromExternal;
+
+  // Is true if this load was triggered by processing the attributes of the
+  // browsing context container.
+  // See nsILoadInfo.isFromProcessingFrameAttributes
+  bool                             mIsFromProcessingFrameAttributes;
 
   bool                             mForceHSTSPriming : 1;
   bool                             mMixedContentWouldBlock : 1;

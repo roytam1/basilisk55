@@ -374,6 +374,7 @@ protected:
   nsresult DoURILoad(nsIURI* aURI,
                      nsIURI* aOriginalURI,
                      bool aLoadReplace,
+                     bool aIsFromProcessingFrameAttributes,
                      bool aLoadFromExternal,
                      bool aForceAllowDataURI,
                      nsIURI* aReferrer,

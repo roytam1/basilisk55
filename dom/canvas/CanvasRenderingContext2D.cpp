@@ -791,6 +791,15 @@ public:
   : mCanvas(aCanvas)
   {}
 
+  void OnShutdown() {
+    if(!mCanvas) {
+      return;
+    }
+    
+    mCanvas = nullptr;
+    nsContentUtils::UnregisterShutdownObserver(this);
+  }
+  
   NS_DECL_ISUPPORTS
   NS_DECL_NSIOBSERVER
 private:
@@ -808,7 +817,7 @@ CanvasShutdownObserver::Observe(nsISupports* aSubject,
 {
   if (mCanvas && strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID) == 0) {
     mCanvas->OnShutdown();
-    nsContentUtils::UnregisterShutdownObserver(this);
+    OnShutdown();
   }
 
   return NS_OK;
@@ -1225,7 +1234,7 @@ void
 CanvasRenderingContext2D::RemoveShutdownObserver()
 {
   if (mShutdownObserver) {
-    nsContentUtils::UnregisterShutdownObserver(mShutdownObserver);
+    mShutdownObserver->OnShutdown();
     mShutdownObserver = nullptr;
   }
 }

@@ -106,7 +106,10 @@ class DOMIntersectionObserver final : public nsISupports,
 public:
   DOMIntersectionObserver(already_AddRefed<nsPIDOMWindowInner>&& aOwner,
                           mozilla::dom::IntersectionCallback& aCb)
-  : mOwner(aOwner), mDocument(mOwner->GetExtantDoc()), mCallback(&aCb), mConnected(false)
+  : mOwner(aOwner)
+  , mDocument(mOwner->GetExtantDoc())
+  , mCallback(&aCb)
+  , mConnected(false)
   {
   }
   NS_DECL_CYCLE_COLLECTING_ISUPPORTS

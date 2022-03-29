@@ -211,8 +211,8 @@ pref("dom.requestIdleCallback.enabled", false);
 #endif
 
 // Enable Intersection Observers
-// See WD https://w3c.github.io/IntersectionObserver/
-pref("dom.IntersectionObserver.enabled", false);
+// See WD https://www.w3.org/TR/intersection-observer/
+pref("dom.IntersectionObserver.enabled", true);
 
 // Whether the Gamepad API is enabled
 pref("dom.gamepad.enabled", true);

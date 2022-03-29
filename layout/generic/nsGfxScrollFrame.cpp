@@ -1775,6 +1775,18 @@ public:
     return true;
   }
 
+  /**
+   * The mCallee holds a strong ref to us since the refresh driver doesn't.
+   * Our dtor and mCallee's Destroy() method both call RemoveObserver() -
+   * whichever comes first removes us from the refresh driver.
+   */
+  void RemoveObserver() {
+    if (mCallee) {
+      RefreshDriver(mCallee)->RemoveRefreshObserver(this, FlushType::Style);
+      mCallee = nullptr;
+    }
+  }
+
 private:
   // Private destructor, to discourage deletion outside of Release():
   ~AsyncSmoothMSDScroll() {
@@ -1785,17 +1797,6 @@ private:
 
   nsRefreshDriver* RefreshDriver(ScrollFrameHelper* aCallee) {
     return aCallee->mOuter->PresContext()->RefreshDriver();
-  }
-
-  /*
-   * The refresh driver doesn't hold a reference to its observers,
-   *   so releasing this object can (and is) used to remove the observer on DTOR.
-   * Currently, this object is released once the scrolling ends.
-   */
-  void RemoveObserver() {
-    if (mCallee) {
-      RefreshDriver(mCallee)->RemoveRefreshObserver(this, FlushType::Style);
-    }
   }
 
   mozilla::layers::AxisPhysicsMSDModel mXAxisModel, mYAxisModel;
@@ -1876,23 +1877,24 @@ public:
     ScrollFrameHelper::AsyncScrollCallback(mCallee, aTime);
   }
 
-private:
-  ScrollFrameHelper *mCallee;
-
-  nsRefreshDriver* RefreshDriver(ScrollFrameHelper* aCallee) {
-    return aCallee->mOuter->PresContext()->RefreshDriver();
-  }
-
-  /*
-   * The refresh driver doesn't hold a reference to its observers,
-   *   so releasing this object can (and is) used to remove the observer on DTOR.
-   * Currently, this object is released once the scrolling ends.
+  /**
+   * The mCallee holds a strong ref to us since the refresh driver doesn't.
+   * Our dtor and mCallee's Destroy() method both call RemoveObserver() -
+   * whichever comes first removes us from the refresh driver.
    */
   void RemoveObserver() {
     if (mCallee) {
       RefreshDriver(mCallee)->RemoveRefreshObserver(this, FlushType::Style);
       APZCCallbackHelper::SuppressDisplayport(false, mCallee->mOuter->PresContext()->PresShell());
+      mCallee = nullptr;
     }
+  }
+
+private:
+  ScrollFrameHelper *mCallee;
+
+  nsRefreshDriver* RefreshDriver(ScrollFrameHelper* aCallee) {
+    return aCallee->mOuter->PresContext()->RefreshDriver();
   }
 };
 
@@ -4614,6 +4616,12 @@ ScrollFrameHelper::Destroy()
   if (mScrollActivityTimer) {
     mScrollActivityTimer->Cancel();
     mScrollActivityTimer = nullptr;
+  }
+  if (mAsyncScroll) {
+    mAsyncScroll->RemoveObserver();
+  }
+  if (mAsyncSmoothMSDScroll) {
+    mAsyncSmoothMSDScroll->RemoveObserver();
   }
 }
 

@@ -3478,6 +3478,8 @@ BackgroundCursorChild::RecvResponse(const CursorResponse& aResponse)
 
   RefPtr<IDBCursor> cursor;
   mStrongCursor.swap(cursor);
+  
+  RefPtr<IDBTransaction> transaction = mTransaction;
 
   switch (aResponse.type()) {
     case CursorResponse::Tnsresult:
@@ -3508,7 +3510,7 @@ BackgroundCursorChild::RecvResponse(const CursorResponse& aResponse)
       MOZ_CRASH("Should never get here!");
   }
 
-  mTransaction->OnRequestFinished(/* aActorDestroyedNormally */ true);
+  transaction->OnRequestFinished(/* aActorDestroyedNormally */ true);
 
   return IPC_OK();
 }

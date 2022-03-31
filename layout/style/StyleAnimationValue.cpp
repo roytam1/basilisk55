@@ -4481,7 +4481,6 @@ StyleAnimationValue::ExtractComputedValue(nsCSSPropertyID aProperty,
           ExtractImageLayerPositionYList(layers, aComputedValue);
           break;
         }
-#ifdef MOZ_ENABLE_MASK_AS_SHORTHAND
         case eCSSProperty_mask_position_x: {
           const nsStyleImageLayers& layers =
             static_cast<const nsStyleSVGReset*>(styleStruct)->mMask;
@@ -4495,21 +4494,18 @@ StyleAnimationValue::ExtractComputedValue(nsCSSPropertyID aProperty,
 
           break;
         }
-#endif
         case eCSSProperty_background_size: {
           const nsStyleImageLayers& layers =
             static_cast<const nsStyleBackground*>(styleStruct)->mImage;
           ExtractImageLayerSizePairList(layers, aComputedValue);
           break;
         }
-#ifdef MOZ_ENABLE_MASK_AS_SHORTHAND
         case eCSSProperty_mask_size: {
           const nsStyleImageLayers& layers =
             static_cast<const nsStyleSVGReset*>(styleStruct)->mMask;
           ExtractImageLayerSizePairList(layers, aComputedValue);
           break;
         }
-#endif
 
         case eCSSProperty_clip_path: {
           const nsStyleSVGReset* svgReset =

@@ -2670,19 +2670,6 @@ CSS_PROP_SVG(
     nullptr,
     CSS_PROP_NO_OFFSET,
     eStyleAnimType_Discrete)
-#ifndef MOZ_ENABLE_MASK_AS_SHORTHAND
-CSS_PROP_SVGRESET(
-    mask,
-    mask,
-    Mask,
-    CSS_PROPERTY_PARSE_VALUE |
-      CSS_PROPERTY_CREATES_STACKING_CONTEXT,
-    "",
-    VARIANT_HUO,
-    nullptr,
-    CSS_PROP_NO_OFFSET,
-    eStyleAnimType_Discrete)
-#else
 CSS_PROP_SHORTHAND(
     mask,
     mask,
@@ -2801,7 +2788,6 @@ CSS_PROP_SVGRESET(
     kImageLayerSizeKTable,
     CSS_PROP_NO_OFFSET,
     eStyleAnimType_Custom)
-#endif // MOZ_ENABLE_MASK_AS_SHORTHAND
 CSS_PROP_SVGRESET(
     mask-type,
     mask_type,

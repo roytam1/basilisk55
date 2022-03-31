@@ -3017,7 +3017,6 @@ static const nsCSSPropertyID gScrollSnapTypeSubpropTable[] = {
   eCSSProperty_scroll_snap_type_y,
   eCSSProperty_UNKNOWN
 };
-#ifdef MOZ_ENABLE_MASK_AS_SHORTHAND
 static const nsCSSPropertyID gMaskSubpropTable[] = {
   eCSSProperty_mask_image,
   eCSSProperty_mask_repeat,
@@ -3035,7 +3034,6 @@ static const nsCSSPropertyID gMaskPositionSubpropTable[] = {
   eCSSProperty_mask_position_y,
   eCSSProperty_UNKNOWN
 };
-#endif
 // FIXME: mask-border tables should be added when we implement
 // mask-border properties.
 

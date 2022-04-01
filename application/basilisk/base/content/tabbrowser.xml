@@ -1528,7 +1528,6 @@
             var aRelatedBrowser;
             var aOriginPrincipal;
             var aOpener;
-            var aSkipBackgroundNotify;
             if (arguments.length == 2 &&
                 typeof arguments[1] == "object" &&
                 !(arguments[1] instanceof Ci.nsIURI)) {
@@ -2155,6 +2154,7 @@
         <parameter name="aOwner"/>
         <parameter name="aAllowThirdPartyFixup"/>
         <parameter name="aIsPrerendered"/>
+        <parameter name="skipBackgroundNotify"/>
         <body>
           <![CDATA[
             "use strict";
@@ -2175,6 +2175,7 @@
             var aOriginPrincipal;
             var aDisallowInheritPrincipal;
             var aOpener;
+            var aSkipBackgroundNotify;
             if (arguments.length == 2 &&
                 typeof arguments[1] == "object" &&
                 !(arguments[1] instanceof Ci.nsIURI)) {

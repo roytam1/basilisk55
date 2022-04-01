@@ -573,6 +573,6 @@ int cubeb_set_log_callback(cubeb_log_level log_level,
 void
 cubeb_crash()
 {
-  abort();
   *((volatile int *) NULL) = 0;
+  abort();
 }

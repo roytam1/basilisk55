@@ -23,7 +23,7 @@
 // This include is required in order for content_decryption_module to work
 // on Unix systems.
 #include "stddef.h"
-#include "content_decryption_module.h"
+#include "content_decryption_module_export.h"
 
 #ifdef ENABLE_WMF
 #include "WMFUtils.h"
@@ -31,12 +31,12 @@
 
 extern "C" {
 
-CDM_EXPORT
+CDM_API
 void INITIALIZE_CDM_MODULE() {
 
 }
 
-CDM_EXPORT
+CDM_API
 void* CreateCdmInstance(int cdm_interface_version,
                         const char* key_system,
                         uint32_t key_system_size,

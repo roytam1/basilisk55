@@ -73,6 +73,8 @@ EXPORTS += [
     'GMPVideoi420FrameImpl.h',
     'GMPVideoPlaneImpl.h',
     'widevine-adapter/content_decryption_module.h',
+    'widevine-adapter/content_decryption_module_export.h',
+    'widevine-adapter/content_decryption_module_ext.h',
 ]
 
 # We link GMPLoader into xul on Android and Linux as its code does not

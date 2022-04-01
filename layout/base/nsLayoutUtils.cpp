@@ -2702,6 +2702,10 @@ nsLayoutUtils::GetTransformToAncestorScaleExcludingAnimated(nsIFrame* aFrame)
 nsIFrame*
 nsLayoutUtils::FindNearestCommonAncestorFrame(nsIFrame* aFrame1, nsIFrame* aFrame2)
 {
+  if (!aFrame1 || !aFrame2) {
+    return nullptr;
+  }
+
   AutoTArray<nsIFrame*,100> ancestors1;
   AutoTArray<nsIFrame*,100> ancestors2;
   nsIFrame* commonAncestor = nullptr;

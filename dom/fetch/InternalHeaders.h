@@ -21,7 +21,7 @@ class ErrorResult;
 
 namespace dom {
 
-template<typename T> class MozMap;
+template<typename K, typename V> class Record;
 class HeadersEntry;
 
 class InternalHeaders final
@@ -114,7 +114,7 @@ public:
 
   void Fill(const InternalHeaders& aInit, ErrorResult& aRv);
   void Fill(const Sequence<Sequence<nsCString>>& aInit, ErrorResult& aRv);
-  void Fill(const MozMap<nsCString>& aInit, ErrorResult& aRv);
+  void Fill(const Record<nsCString, nsCString>& aInit, ErrorResult& aRv);
 
   bool HasOnlySimpleHeaders() const;
 

@@ -2083,6 +2083,15 @@ if (privileged) {
     return rv;
   }
 
+  // Disallow access to null principal pages
+  if (principal->GetIsNullPrincipal()) {
+    RefPtr<MediaStreamError> error =
+        new MediaStreamError(aWindow,
+                             NS_LITERAL_STRING("NotAllowedError"));
+    onFailure->OnError(error);
+    return NS_OK;
+  }
+  
   if (!Preferences::GetBool("media.navigator.video.enabled", true)) {
     c.mVideo.SetAsBoolean() = false;
   }

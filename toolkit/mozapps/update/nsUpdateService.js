@@ -2401,7 +2401,7 @@ UpdateService.prototype = {
       if (getElevationRequired()) {
         let installAttemptVersion = Services.prefs.getCharPref(
                                             PREF_APP_UPDATE_ELEVATE_VERSION,
-                                            null);
+                                            "");
         if (vc.compare(installAttemptVersion, update.appVersion) != 0) {
           Services.prefs.setCharPref(PREF_APP_UPDATE_ELEVATE_VERSION,
                                      update.appVersion);
@@ -3103,7 +3103,7 @@ UpdateManager.prototype = {
       return;
     }
     // Only prompt when the UI isn't already open.
-    let windowType = Services.prefs.getCharPref(PREF_APP_UPDATE_ALTWINDOWTYPE, null);
+    let windowType = Services.prefs.getCharPref(PREF_APP_UPDATE_ALTWINDOWTYPE, "");
     if (Services.wm.getMostRecentWindow(UPDATE_WINDOW_NAME) ||
         windowType && Services.wm.getMostRecentWindow(windowType)) {
       return;
@@ -3187,7 +3187,7 @@ Checker.prototype = {
     let url;
     try {
       url = Services.prefs.getDefaultBranch(null).
-            getCharPref(PREF_APP_UPDATE_URL);
+            getCharPref(PREF_APP_UPDATE_URL, "");
     } catch (e) {
     }
 
@@ -4342,7 +4342,7 @@ UpdatePrompt.prototype = {
    * application update user interface window.
    */
   _getAltUpdateWindow: function UP__getAltUpdateWindow() {
-    let windowType = Services.prefs.getCharPref(PREF_APP_UPDATE_ALTWINDOWTYPE, null);
+    let windowType = Services.prefs.getCharPref(PREF_APP_UPDATE_ALTWINDOWTYPE, "");
     if (!windowType)
       return null;
     return Services.wm.getMostRecentWindow(windowType);

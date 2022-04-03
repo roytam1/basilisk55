@@ -5321,6 +5321,9 @@ pref("intl.allow-insecure-text-input", false);
 // Enable meta-viewport support in remote APZ-enabled frames.
 pref("dom.meta-viewport.enabled", false);
 
+// Disable <meta http-equiv=set-cookie> support. See m-c bug 1457503 / UXP #1102.
+pref("dom.meta-set-cookie.enabled", false);
+
 // The interval at which to check for slow running addons
 #ifdef NIGHTLY_BUILD
 pref("browser.addon-watch.interval", 15000);

@@ -97,6 +97,8 @@ public:
 
     static bool BlockToplevelDataUriNavigations();
 
+    static bool BlockFTPSubresources();
+
     // Used to trigger a recheck of the captive portal status
     nsresult RecheckCaptivePortal();
 private:
@@ -179,6 +181,8 @@ private:
     static bool                          sTelemetryEnabled;
 
     static bool                          sBlockToplevelDataUriNavigations;
+
+    static bool                          sBlockFTPSubresources;
 
     // These timestamps are needed for collecting telemetry on PR_Connect,
     // PR_ConnectContinue and PR_Close blocking time.  If we spend very long

@@ -5575,6 +5575,9 @@ pref ("security.mixed_content.hsts_priming_request_timeout", 3000);
 // URL-Bar will not be blocked when flipping this pref.
 pref("security.data_uri.block_toplevel_data_uri_navigations", true);
 
+// If true, all FTP subresource loads will be blocked.
+pref("security.block_ftp_subresources", true);
+
 // Disable Storage api in release builds.
 #ifdef NIGHTLY_BUILD
 pref("dom.storageManager.enabled", true);

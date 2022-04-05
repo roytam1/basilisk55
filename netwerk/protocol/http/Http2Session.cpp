@@ -2216,6 +2216,7 @@ Http2Session::RecvAltSvc(Http2Session *self)
     }
     
     if (NS_FAILED(self->SetInputFrameDataStream(self->mInputFrameID)) ||
+        !self->mInputFrameDataStream ||
         !self->mInputFrameDataStream->Transaction() ||
         !self->mInputFrameDataStream->Transaction()->RequestHead()) {
       LOG3(("Http2Session::RecvAltSvc %p got frame w/o origin on invalid stream", self));

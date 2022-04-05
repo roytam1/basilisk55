@@ -4700,8 +4700,6 @@ GetDefiniteSize(const nsStyleCoord&       aStyle,
         nscoord pb = aIsInlineAxis ? aPercentageBasis.value().ISize(wm)
                                    : aPercentageBasis.value().BSize(wm);
         if (pb == NS_UNCONSTRAINEDSIZE) {
-          // XXXmats given that we're calculating an intrinsic size here,
-          // maybe we should back-compute the calc-size using AddPercents?
           return false;
         }
         *aResult = std::max(0, calc->mLength +
@@ -4945,12 +4943,9 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
   nscoord result = aContentSize;
   nscoord min = aContentMinSize;
   nscoord coordOutsideSize = 0;
-  float pctOutsideSize = 0;
-  float pctTotal = 0.0f;
 
   if (!(aFlags & nsLayoutUtils::IGNORE_PADDING)) {
     coordOutsideSize += aOffsets.hPadding;
-    pctOutsideSize += aOffsets.hPctPadding;
   }
 
   coordOutsideSize += aOffsets.hBorder;
@@ -4958,21 +4953,15 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
   if (aBoxSizing == StyleBoxSizing::Border) {
     min += coordOutsideSize;
     result = NSCoordSaturatingAdd(result, coordOutsideSize);
-    pctTotal += pctOutsideSize;
 
     coordOutsideSize = 0;
-    pctOutsideSize = 0.0f;
   }
 
   coordOutsideSize += aOffsets.hMargin;
-  pctOutsideSize += aOffsets.hPctMargin;
 
   min += coordOutsideSize;
   result = NSCoordSaturatingAdd(result, coordOutsideSize);
-  pctTotal += pctOutsideSize;
 
-  const bool shouldAddPercent = aType == nsLayoutUtils::PREF_ISIZE ||
-                                (aFlags & nsLayoutUtils::ADD_PERCENTS);
   nscoord size;
   if (aType == nsLayoutUtils::MIN_ISIZE &&
       (((aStyleSize.HasPercent() || aStyleMaxSize.HasPercent()) &&
@@ -4990,18 +4979,6 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
              GetIntrinsicCoord(aStyleSize, aRenderingContext, aFrame,
                                PROP_WIDTH, size)) {
     result = size + coordOutsideSize;
-    if (shouldAddPercent) {
-      result = nsLayoutUtils::AddPercents(result, pctOutsideSize);
-    }
-  } else {
-    // NOTE: We could really do a lot better for percents and for some
-    // cases of calc() containing percent (certainly including any where
-    // the coefficient on the percent is positive and there are no max()
-    // expressions).  However, doing better for percents wouldn't be
-    // backwards compatible.
-    if (shouldAddPercent) {
-      result = nsLayoutUtils::AddPercents(result, pctTotal);
-    }
   }
 
   nscoord maxSize = aFixedMaxSize ? *aFixedMaxSize : 0;
@@ -5009,9 +4986,6 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
       GetIntrinsicCoord(aStyleMaxSize, aRenderingContext, aFrame,
                         PROP_MAX_WIDTH, maxSize)) {
     maxSize += coordOutsideSize;
-    if (shouldAddPercent) {
-      maxSize = nsLayoutUtils::AddPercents(maxSize, pctOutsideSize);
-    }
     if (result > maxSize) {
       result = maxSize;
     }
@@ -5022,17 +4996,11 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
       GetIntrinsicCoord(aStyleMinSize, aRenderingContext, aFrame,
                         PROP_MIN_WIDTH, minSize)) {
     minSize += coordOutsideSize;
-    if (shouldAddPercent) {
-      minSize = nsLayoutUtils::AddPercents(minSize, pctOutsideSize);
-    }
     if (result < minSize) {
       result = minSize;
     }
   }
 
-  if (shouldAddPercent) {
-    min = nsLayoutUtils::AddPercents(min, pctTotal);
-  }
   if (result < min) {
     result = min;
   }
@@ -5049,9 +5017,6 @@ AddIntrinsicSizeOffset(nsRenderingContext* aRenderingContext,
                                                      : devSize.width);
     // GetMinimumWidgetSize() returns a border-box width.
     themeSize += aOffsets.hMargin;
-    if (shouldAddPercent) {
-      themeSize = nsLayoutUtils::AddPercents(themeSize, aOffsets.hPctMargin);
-    }
     if (themeSize > result || !canOverride) {
       result = themeSize;
     }
@@ -5296,9 +5261,19 @@ nsLayoutUtils::IntrinsicForAxis(PhysicalAxis              aAxis,
     min = aFrame->GetMinISize(aRenderingContext);
   }
 
+  nscoord pmPercentageBasis = NS_UNCONSTRAINEDSIZE;
+  if (aPercentageBasis.isSome()) {
+    // The padding/margin percentage basis is the inline-size in the parent's
+    // writing-mode.
+    auto childWM = aFrame->GetWritingMode();
+    pmPercentageBasis =
+      aFrame->GetParent()->GetWritingMode().IsOrthogonalTo(childWM) ?
+        aPercentageBasis->BSize(childWM) :
+        aPercentageBasis->ISize(childWM);
+  }
   nsIFrame::IntrinsicISizeOffsetData offsets =
-    MOZ_LIKELY(isInlineAxis) ? aFrame->IntrinsicISizeOffsets()
-                             : aFrame->IntrinsicBSizeOffsets();
+    MOZ_LIKELY(isInlineAxis) ? aFrame->IntrinsicISizeOffsets(pmPercentageBasis)
+                             : aFrame->IntrinsicBSizeOffsets(pmPercentageBasis);
   nscoord contentBoxSize = result;
   result = AddIntrinsicSizeOffset(aRenderingContext, aFrame, offsets, aType,
                                   boxSizing, result, min, styleISize,
@@ -5339,11 +5314,12 @@ nsLayoutUtils::IntrinsicForContainer(nsRenderingContext* aRenderingContext,
 }
 
 /* static */ nscoord
-nsLayoutUtils::MinSizeContributionForAxis(PhysicalAxis        aAxis,
+nsLayoutUtils::MinSizeContributionForAxis(PhysicalAxis       aAxis,
                                           nsRenderingContext* aRC,
-                                          nsIFrame*           aFrame,
-                                          IntrinsicISizeType  aType,
-                                          uint32_t            aFlags)
+                                          nsIFrame*          aFrame,
+                                          IntrinsicISizeType aType,
+                                          const LogicalSize& aPercentageBasis,
+                                          uint32_t           aFlags)
 {
   MOZ_ASSERT(aFrame);
   MOZ_ASSERT(aFrame->IsFlexOrGridItem(),
@@ -5357,9 +5333,7 @@ nsLayoutUtils::MinSizeContributionForAxis(PhysicalAxis        aAxis,
                 aWM.IsVertical() ? "vertical" : "horizontal");
 #endif
 
-  // Note: this method is only meant for grid/flex items which always
-  // include percentages in their intrinsic size.
-  aFlags |= nsLayoutUtils::ADD_PERCENTS;
+  // Note: this method is only meant for grid/flex items.
   const nsStylePosition* const stylePos = aFrame->StylePosition();
   const nsStyleCoord* style = aAxis == eAxisHorizontal ? &stylePos->mMinWidth
                                                        : &stylePos->mMinHeight;
@@ -5404,11 +5378,17 @@ nsLayoutUtils::MinSizeContributionForAxis(PhysicalAxis        aAxis,
   // wrapping inside of it should not apply font size inflation.
   AutoMaybeDisableFontInflation an(aFrame);
 
-  PhysicalAxis ourInlineAxis =
-    aFrame->GetWritingMode().PhysicalAxis(eLogicalAxisInline);
+  // The padding/margin percentage basis is the inline-size in the parent's
+  // writing-mode.
+  auto childWM = aFrame->GetWritingMode();
+  nscoord pmPercentageBasis =
+    aFrame->GetParent()->GetWritingMode().IsOrthogonalTo(childWM) ?
+      aPercentageBasis.BSize(childWM) :
+      aPercentageBasis.ISize(childWM);
+  PhysicalAxis ourInlineAxis = childWM.PhysicalAxis(eLogicalAxisInline);
   nsIFrame::IntrinsicISizeOffsetData offsets =
-    ourInlineAxis == aAxis ? aFrame->IntrinsicISizeOffsets()
-                           : aFrame->IntrinsicBSizeOffsets();
+    ourInlineAxis == aAxis ? aFrame->IntrinsicISizeOffsets(pmPercentageBasis)
+                           : aFrame->IntrinsicBSizeOffsets(pmPercentageBasis);
   nscoord result = 0;
   nscoord min = 0;
 

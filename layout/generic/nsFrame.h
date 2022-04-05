@@ -264,7 +264,8 @@ public:
                          InlineMinISizeData *aData) override;
   void AddInlinePrefISize(nsRenderingContext *aRenderingContext,
                           InlinePrefISizeData *aData) override;
-  IntrinsicISizeOffsetData IntrinsicISizeOffsets() override;
+  IntrinsicISizeOffsetData
+  IntrinsicISizeOffsets(nscoord aPercentageBasis = NS_UNCONSTRAINEDSIZE) override;
   mozilla::IntrinsicSize GetIntrinsicSize() override;
   nsSize GetIntrinsicRatio() override;
 

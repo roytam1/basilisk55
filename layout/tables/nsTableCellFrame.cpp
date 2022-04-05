@@ -12,7 +12,6 @@
 #include "nsTableColFrame.h"
 #include "nsTableRowFrame.h"
 #include "nsTableRowGroupFrame.h"
-#include "nsTablePainter.h"
 #include "nsStyleContext.h"
 #include "nsStyleConsts.h"
 #include "nsPresContext.h"
@@ -379,19 +378,6 @@ nsTableCellFrame::PaintBackground(nsRenderingContext& aRenderingContext,
   return nsCSSRendering::PaintStyleImageLayer(params);
 }
 
-// Called by nsTablePainter
-DrawResult
-nsTableCellFrame::PaintCellBackground(nsRenderingContext& aRenderingContext,
-                                      const nsRect& aDirtyRect, nsPoint aPt,
-                                      uint32_t aFlags)
-{
-  if (!StyleVisibility()->IsVisible()) {
-    return DrawResult::SUCCESS;
-  }
-
-  return PaintBackground(aRenderingContext, aDirtyRect, aPt, aFlags);
-}
-
 nsresult
 nsTableCellFrame::ProcessBorders(nsTableFrame* aFrame,
                                  nsDisplayListBuilder* aBuilder,
@@ -499,7 +485,7 @@ nsTableCellFrame::BuildDisplayList(nsDisplayListBuilder*   aBuilder,
 
     // display background if we need to.
     if (aBuilder->IsForEventDelivery() ||
-        !StyleBackground()->IsTransparent() ||
+        !StyleBackground()->IsTransparent(this) ||
         StyleDisplay()->mAppearance) {
       nsDisplayBackgroundImage::AppendBackgroundItemsToTop(aBuilder,
           this,

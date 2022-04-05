@@ -513,6 +513,7 @@ nsXHTMLContentSerializer::CheckElementStart(nsIContent * aContent,
 
 bool
 nsXHTMLContentSerializer::CheckElementEnd(mozilla::dom::Element* aElement,
+                                          mozilla::dom::Element* aOriginalElement,
                                           bool& aForceFormat,
                                           nsAString& aStr)
 {
@@ -531,7 +532,7 @@ nsXHTMLContentSerializer::CheckElementEnd(mozilla::dom::Element* aElement,
   }
 
   bool dummyFormat;
-  return nsXMLContentSerializer::CheckElementEnd(aElement, dummyFormat, aStr);
+  return nsXMLContentSerializer::CheckElementEnd(aElement, aOriginalElement, dummyFormat, aStr);
 }
 
 bool

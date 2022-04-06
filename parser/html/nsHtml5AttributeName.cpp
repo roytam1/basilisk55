@@ -93,7 +93,7 @@ nsHtml5AttributeName::COLONIFIED_LOCAL(nsIAtom* name, nsIAtom* suffix)
   return arr;
 }
 
-nsIAtom** 
+nsIAtom**
 nsHtml5AttributeName::SAME_LOCAL(nsIAtom* name)
 {
   nsIAtom** arr = new nsIAtom*[4];
@@ -106,7 +106,7 @@ nsHtml5AttributeName::SAME_LOCAL(nsIAtom* name)
 nsHtml5AttributeName* 
 nsHtml5AttributeName::nameByBuffer(char16_t* buf, int32_t offset, int32_t length, nsHtml5AtomTable* interner)
 {
-  int32_t hash = nsHtml5AttributeName::bufToHash(buf, length);
+  uint32_t hash = nsHtml5AttributeName::bufToHash(buf, length);
   int32_t index = nsHtml5AttributeName::ATTRIBUTE_HASHES.binarySearch(hash);
   if (index < 0) {
     return nsHtml5AttributeName::createAttributeName(nsHtml5Portability::newLocalNameFromBuffer(buf, offset, length, interner));
@@ -120,11 +120,11 @@ nsHtml5AttributeName::nameByBuffer(char16_t* buf, int32_t offset, int32_t length
   }
 }
 
-int32_t 
+uint32_t
 nsHtml5AttributeName::bufToHash(char16_t* buf, int32_t len)
 {
-  int32_t hash2 = 0;
-  int32_t hash = len;
+  uint32_t hash2 = 0;
+  uint32_t hash = len;
   hash <<= 5;
   hash += buf[0] - 0x60;
   int32_t j = len;

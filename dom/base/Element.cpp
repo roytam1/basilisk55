@@ -4024,6 +4024,26 @@ Element::SetCustomElementData(CustomElementData* aData)
   slots->mCustomElementData = aData;
 }
 
+CustomElementDefinition*
+Element::GetCustomElementDefinition() const
+{
+  CustomElementData* data = GetCustomElementData();
+  if (!data) {
+    return nullptr;
+  }
+
+  return data->GetCustomElementDefinition();
+}
+
+void
+Element::SetCustomElementDefinition(CustomElementDefinition* aDefinition)
+{
+  CustomElementData* data = GetCustomElementData();
+  MOZ_ASSERT(data);
+
+  data->SetCustomElementDefinition(aDefinition);
+}
+
 void
 Element::ClearServoData() {
 #ifdef MOZ_STYLO

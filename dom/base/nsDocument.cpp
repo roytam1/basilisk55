@@ -398,6 +398,21 @@ nsIdentifierMapEntry::FireChangeCallbacks(Element* aOldElement,
   }
 }
 
+void
+nsIdentifierMapEntry::ClearAndNotify()
+{
+  Element* currentElement = mIdContentList.SafeElementAt(0);
+  mIdContentList.Clear();
+  if (currentElement) {
+    FireChangeCallbacks(currentElement, nullptr);
+  }
+  mNameContentList = nullptr;
+  if (mImageElement) {
+    SetImageElement(nullptr);
+  }
+  mChangeCallbacks = nullptr;
+}
+
 namespace {
 
 struct PositionComparator
@@ -1479,11 +1494,11 @@ nsDocument::~nsDocument()
   delete mSubDocuments;
   mSubDocuments = nullptr;
 
+  nsAutoScriptBlocker scriptBlocker;
+
   // Destroy link map now so we don't waste time removing
   // links one by one
   DestroyElementMaps();
-
-  nsAutoScriptBlocker scriptBlocker;
 
   for (uint32_t indx = mChildren.ChildCount(); indx-- != 0; ) {
     mChildren.ChildAt(indx)->UnbindFromTree();
@@ -2029,15 +2044,16 @@ nsDocument::ResetToURI(nsIURI *aURI, nsILoadGroup *aLoadGroup,
   delete mSubDocuments;
   mSubDocuments = nullptr;
 
-  // Destroy link map now so we don't waste time removing
-  // links one by one
-  DestroyElementMaps();
-
   bool oldVal = mInUnlinkOrDeletion;
   mInUnlinkOrDeletion = true;
   uint32_t count = mChildren.ChildCount();
   { // Scope for update
     MOZ_AUTO_DOC_UPDATE(this, UPDATE_CONTENT_MODEL, true);
+
+    // Destroy link map now so we don't waste time removing
+    // links one by one
+    DestroyElementMaps();
+
     for (int32_t i = int32_t(count) - 1; i >= 0; i--) {
       nsCOMPtr<nsIContent> content = mChildren.ChildAt(i);
 
@@ -9098,7 +9114,14 @@ nsDocument::DestroyElementMaps()
   mStyledLinksCleared = true;
 #endif
   mStyledLinks.Clear();
+
+  // Notify ID change listeners before clearing the identifier map.
+  for (auto iter = mIdentifierMap.Iter(); !iter.Done(); iter.Next()) {
+    iter.Get()->ClearAndNotify();
+  }
+
   mIdentifierMap.Clear();
+
   ++mExpandoAndGeneration.generation;
 }
 

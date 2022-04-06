@@ -187,6 +187,10 @@ private:
                                             // completion status from server
     bool                mRlist1xxReceived;  // TRUE if we have received a LIST
                                             // 1xx response from the server
+    bool                mRstor1xxReceived;  // TRUE if the server has sent a
+                                            // STOR 1xx response.
+    bool                mRretr1xxReceived;  // TRUE if the server has sent a
+                                            // RETR 1xx response.
     nsresult            mInternalError; // represents internal state errors
     bool                mReconnectAndLoginAgain;
     bool                mCacheConnection;

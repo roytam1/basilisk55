@@ -5622,7 +5622,7 @@ pref("dom.storageManager.enabled", false);
 pref("prompts.authentication_dialog_abuse_limit", 3);
 
 // Whether module scripts (<script type="module">) are enabled for content.
-pref("dom.moduleScripts.enabled", false);
+pref("dom.moduleScripts.enabled", true);
 
 // Enable the Storage management in about:preferences and persistent-storage permission request
 // To enable the DOM implementation, turn on "dom.storageManager.enabled"

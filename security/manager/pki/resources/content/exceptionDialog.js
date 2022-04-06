@@ -123,10 +123,8 @@ function getURI() {
   // Use fixup service instead of just ioservice's newURI since it's quite
   // likely that the host will be supplied without a protocol prefix, resulting
   // in malformed uri exceptions being thrown.
-  let fus = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                      .getService(Components.interfaces.nsIURIFixup);
   let locationTextBox = document.getElementById("locationTextBox");
-  let uri = fus.createFixupURI(locationTextBox.value, 0);
+  let uri = Services.uriFixup.createFixupURI(locationTextBox.value, 0);
 
   if (!uri) {
     return null;
@@ -233,8 +231,7 @@ function updateCertStatus() {
       pe.checked = !inPrivateBrowsing;
 
       setText("headerDescription", gPKIBundle.getString("addExceptionInvalidHeader"));
-    }
-    else {
+    } else {
       shortDesc = "addExceptionValidShort";
       longDesc  = "addExceptionValidLong";
       gDialog.getButton("extra1").disabled = true;
@@ -246,11 +243,8 @@ function updateCertStatus() {
     document.getElementById("viewCertButton").disabled = false;
 
     // Notify observers about the availability of the certificate
-    Components.classes["@mozilla.org/observer-service;1"]
-              .getService(Components.interfaces.nsIObserverService)
-              .notifyObservers(null, "cert-exception-ui-ready", null);
-  }
-  else if (gChecking) {
+    Services.obs.notifyObservers(null, "cert-exception-ui-ready");
+  } else if (gChecking) {
     shortDesc = "addExceptionCheckingShort";
     longDesc  = "addExceptionCheckingLong2";
     // We're checking the certificate, so we disable the Get Certificate
@@ -260,8 +254,7 @@ function updateCertStatus() {
     document.getElementById("viewCertButton").disabled = true;
     gDialog.getButton("extra1").disabled = true;
     document.getElementById("permanent").disabled = true;
-  }
-  else {
+  } else {
     shortDesc = "addExceptionNoCertShort";
     longDesc  = "addExceptionNoCertLong2";
     // We're done checking the certificate, so allow the user to check it again.

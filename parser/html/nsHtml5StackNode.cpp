@@ -117,8 +117,8 @@ nsHtml5StackNode::setValues(nsHtml5ElementName* elementName,
 {
   MOZ_ASSERT(isUnused());
   this->flags = elementName->getFlags();
-  this->name = elementName->name;
-  this->popName = elementName->name;
+  this->name = elementName->getName();
+  this->popName = elementName->getName();
   this->ns = kNameSpaceID_XHTML;
   this->node = node;
   this->attributes = nullptr;
@@ -134,8 +134,8 @@ nsHtml5StackNode::setValues(nsHtml5ElementName* elementName,
 {
   MOZ_ASSERT(isUnused());
   this->flags = elementName->getFlags();
-  this->name = elementName->name;
-  this->popName = elementName->name;
+  this->name = elementName->getName();
+  this->popName = elementName->getName();
   this->ns = kNameSpaceID_XHTML;
   this->node = node;
   this->attributes = attributes;
@@ -151,7 +151,7 @@ nsHtml5StackNode::setValues(nsHtml5ElementName* elementName,
 {
   MOZ_ASSERT(isUnused());
   this->flags = elementName->getFlags();
-  this->name = elementName->name;
+  this->name = elementName->getName();
   this->popName = popName;
   this->ns = kNameSpaceID_XHTML;
   this->node = node;
@@ -167,7 +167,7 @@ nsHtml5StackNode::setValues(nsHtml5ElementName* elementName,
 {
   MOZ_ASSERT(isUnused());
   this->flags = prepareSvgFlags(elementName->getFlags());
-  this->name = elementName->name;
+  this->name = elementName->getName();
   this->popName = popName;
   this->ns = kNameSpaceID_SVG;
   this->node = node;
@@ -185,7 +185,7 @@ nsHtml5StackNode::setValues(nsHtml5ElementName* elementName,
   MOZ_ASSERT(isUnused());
   this->flags =
     prepareMathFlags(elementName->getFlags(), markAsIntegrationPoint);
-  this->name = elementName->name;
+  this->name = elementName->getName();
   this->popName = popName;
   this->ns = kNameSpaceID_MathML;
   this->node = node;

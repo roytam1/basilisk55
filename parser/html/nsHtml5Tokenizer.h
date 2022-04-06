@@ -122,6 +122,7 @@ class nsHtml5Tokenizer
     bool endTag;
   private:
     nsHtml5ElementName* tagName;
+    nsHtml5ElementName* nonInternedTagName;
   protected:
     nsHtml5AttributeName* attributeName;
   private:

@@ -1681,11 +1681,6 @@ private:
   // Set to true when the document is possibly controlled by the ServiceWorker.
   // Used to prevent multiple requests to ServiceWorkerManager.
   bool mMaybeServiceWorkerControlled;
-
-#ifdef DEBUG
-public:
-  bool mWillReparent;
-#endif
 };
 
 class nsDocumentOnStack

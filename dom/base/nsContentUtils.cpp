@@ -9724,6 +9724,7 @@ nsContentUtils::EnqueueUpgradeReaction(Element* aElement,
 nsContentUtils::EnqueueLifecycleCallback(nsIDocument::ElementCallbackType aType,
                                          Element* aCustomElement,
                                          LifecycleCallbackArgs* aArgs,
+                                         LifecycleAdoptedCallbackArgs* aAdoptedCallbackArgs,
                                          CustomElementDefinition* aDefinition)
 {
   // No DocGroup means no custom element reactions stack.
@@ -9732,6 +9733,7 @@ nsContentUtils::EnqueueLifecycleCallback(nsIDocument::ElementCallbackType aType,
   }
 
   CustomElementRegistry::EnqueueLifecycleCallback(aType, aCustomElement, aArgs,
+                                                  aAdoptedCallbackArgs,
                                                   aDefinition);
 }
 

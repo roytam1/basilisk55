@@ -176,33 +176,6 @@ nsXULElement::~nsXULElement()
 {
 }
 
-nsXULElement::nsXULSlots::nsXULSlots()
-    : nsXULElement::nsDOMSlots()
-{
-}
-
-nsXULElement::nsXULSlots::~nsXULSlots()
-{
-    NS_IF_RELEASE(mControllers); // Forces release
-    nsCOMPtr<nsIFrameLoader> frameLoader = do_QueryInterface(mFrameLoaderOrOpener);
-    if (frameLoader) {
-        static_cast<nsFrameLoader*>(frameLoader.get())->Destroy();
-    }
-}
-
-void
-nsXULElement::nsXULSlots::Traverse(nsCycleCollectionTraversalCallback &cb)
-{
-    NS_CYCLE_COLLECTION_NOTE_EDGE_NAME(cb, "mSlots->mFrameLoaderOrOpener");
-    cb.NoteXPCOMChild(mFrameLoaderOrOpener);
-}
-
-nsINode::nsSlots*
-nsXULElement::CreateSlots()
-{
-    return new nsXULSlots();
-}
-
 void
 nsXULElement::MaybeUpdatePrivateLifetime()
 {
@@ -328,12 +301,7 @@ NS_IMPL_CYCLE_COLLECTION_CLASS(nsXULElement)
 
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN_INHERITED(nsXULElement,
                                                   nsStyledElement)
-    {
-        nsXULSlots* slots = static_cast<nsXULSlots*>(tmp->GetExistingSlots());
-        if (slots) {
-            slots->Traverse(cb);
-        }
-    }
+
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
 
 NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(nsXULElement,
@@ -875,9 +843,9 @@ nsXULElement::UnbindFromTree(bool aDeep, bool aNullParent)
     // mDocument in nsGlobalWindow::SetDocShell, but I'm not
     // sure whether that would fix all possible cycles through
     // mControllers.)
-    nsXULSlots* slots = static_cast<nsXULSlots*>(GetExistingDOMSlots());
+    nsExtendedDOMSlots* slots = GetExistingExtendedDOMSlots();
     if (slots) {
-        NS_IF_RELEASE(slots->mControllers);
+        slots->mControllers = nullptr;
         RefPtr<nsFrameLoader> frameLoader = GetFrameLoader();
         if (frameLoader) {
             frameLoader->Destroy();
@@ -1222,9 +1190,9 @@ nsXULElement::RemoveBroadcaster(const nsAString & broadcasterId)
 void
 nsXULElement::DestroyContent()
 {
-    nsXULSlots* slots = static_cast<nsXULSlots*>(GetExistingDOMSlots());
+    nsExtendedDOMSlots* slots = GetExistingExtendedDOMSlots();
     if (slots) {
-        NS_IF_RELEASE(slots->mControllers);
+        slots->mControllers = nullptr;
         RefPtr<nsFrameLoader> frameLoader = GetFrameLoader();
         if (frameLoader) {
             frameLoader->Destroy();
@@ -1449,7 +1417,7 @@ nsIControllers*
 nsXULElement::GetControllers(ErrorResult& rv)
 {
     if (! Controllers()) {
-        nsDOMSlots* slots = DOMSlots();
+        nsExtendedDOMSlots* slots = ExtendedDOMSlots();
 
         rv = NS_NewXULControllers(nullptr, NS_GET_IID(nsIControllers),
                                   reinterpret_cast<void**>(&slots->mControllers));
@@ -1488,7 +1456,7 @@ nsXULElement::LoadSrc()
     RefPtr<nsFrameLoader> frameLoader = GetFrameLoader();
     if (!frameLoader) {
         // Check if we have an opener we need to be setting
-        nsXULSlots* slots = static_cast<nsXULSlots*>(Slots());
+        nsExtendedDOMSlots* slots = ExtendedDOMSlots();
         nsCOMPtr<nsPIDOMWindowOuter> opener = do_QueryInterface(slots->mFrameLoaderOrOpener);
         if (!opener) {
             // If we are a primary xul-browser, we want to take the opener property!
@@ -1534,7 +1502,7 @@ nsXULElement::GetFrameLoaderXPCOM(nsIFrameLoader **aFrameLoader)
 already_AddRefed<nsFrameLoader>
 nsXULElement::GetFrameLoader()
 {
-    nsXULSlots* slots = static_cast<nsXULSlots*>(GetExistingSlots());
+    nsExtendedDOMSlots* slots = GetExistingExtendedDOMSlots();
     if (!slots)
         return nullptr;
 
@@ -1545,7 +1513,7 @@ nsXULElement::GetFrameLoader()
 void
 nsXULElement::PresetOpenerWindow(mozIDOMWindowProxy* aWindow, ErrorResult& aRv)
 {
-    nsXULSlots* slots = static_cast<nsXULSlots*>(Slots());
+    nsExtendedDOMSlots* slots = ExtendedDOMSlots();
     MOZ_ASSERT(!slots->mFrameLoaderOrOpener, "A frameLoader or opener is present when calling PresetOpenerWindow");
 
     slots->mFrameLoaderOrOpener = aWindow;
@@ -1561,7 +1529,7 @@ nsXULElement::SetIsPrerendered()
 void
 nsXULElement::InternalSetFrameLoader(nsIFrameLoader* aNewFrameLoader)
 {
-    nsXULSlots* slots = static_cast<nsXULSlots*>(GetExistingDOMSlots());
+    nsExtendedDOMSlots* slots = GetExistingExtendedDOMSlots();
     MOZ_ASSERT(slots);
 
     slots->mFrameLoaderOrOpener = aNewFrameLoader;

@@ -3997,6 +3997,14 @@ Element::UpdateIntersectionObservation(DOMIntersectionObserver* aObserver, int32
 }
 
 void
+Element::SetCustomElementData(CustomElementData* aData)
+{
+  nsDOMSlots *slots = DOMSlots();
+  MOZ_ASSERT(!slots->mCustomElementData, "Custom element data may not be changed once set.");
+  slots->mCustomElementData = aData;
+}
+
+void
 Element::ClearServoData() {
 #ifdef MOZ_STYLO
   Servo_Element_ClearData(this);

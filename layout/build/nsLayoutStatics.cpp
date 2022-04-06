@@ -436,8 +436,6 @@ nsLayoutStatics::Shutdown()
 
   DisplayItemClip::Shutdown();
 
-  CustomElementRegistry::XPCOMShutdown();
-
   CacheObserver::Shutdown();
 
   PromiseDebugging::Shutdown();

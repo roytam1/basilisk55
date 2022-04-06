@@ -306,9 +306,10 @@ PluginInstanceChild::InternalGetNPObjectForValue(NPNVariable aValue,
     switch (aValue) {
         case NPNVWindowNPObject:
             if (!(actor = mCachedWindowActor)) {
+                result = NPERR_GENERIC_ERROR;
                 PPluginScriptableObjectChild* actorProtocol;
-                CallNPN_GetValue_NPNVWindowNPObject(&actorProtocol, &result);
-                if (result == NPERR_NO_ERROR) {
+                if (CallNPN_GetValue_NPNVWindowNPObject(&actorProtocol, &result) &&
+                    result == NPERR_NO_ERROR) {
                     actor = mCachedWindowActor =
                         static_cast<PluginScriptableObjectChild*>(actorProtocol);
                     NS_ASSERTION(actor, "Null actor!");
@@ -320,10 +321,10 @@ PluginInstanceChild::InternalGetNPObjectForValue(NPNVariable aValue,
 
         case NPNVPluginElementNPObject:
             if (!(actor = mCachedElementActor)) {
+                result = NPERR_GENERIC_ERROR;
                 PPluginScriptableObjectChild* actorProtocol;
-                CallNPN_GetValue_NPNVPluginElementNPObject(&actorProtocol,
-                                                           &result);
-                if (result == NPERR_NO_ERROR) {
+                if (CallNPN_GetValue_NPNVPluginElementNPObject(&actorProtocol, &result) &&
+                    result == NPERR_NO_ERROR) {
                     actor = mCachedElementActor =
                         static_cast<PluginScriptableObjectChild*>(actorProtocol);
                     NS_ASSERTION(actor, "Null actor!");
@@ -334,6 +335,7 @@ PluginInstanceChild::InternalGetNPObjectForValue(NPNVariable aValue,
             break;
 
         default:
+            result = NPERR_GENERIC_ERROR;
             NS_NOTREACHED("Don't know what to do with this value type!");
     }
 
@@ -430,6 +432,7 @@ PluginInstanceChild::NPN_GetValue(NPNVariable aVar,
     case NPNVWindowNPObject: // Intentional fall-through
     case NPNVPluginElementNPObject: {
         NPObject* object;
+        *((NPObject**)aValue) = nullptr;
         NPError result = InternalGetNPObjectForValue(aVar, &object);
         if (result == NPERR_NO_ERROR) {
             *((NPObject**)aValue) = object;

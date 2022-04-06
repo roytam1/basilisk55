@@ -2745,6 +2745,9 @@ public:
                                       nsIAtom* aExtensionType,
                                       nsIAtom* aAttrName);
 
+  static void EnqueueUpgradeReaction(Element* aElement,
+                                     mozilla::dom::CustomElementDefinition* aDefinition);
+
   static void EnqueueLifecycleCallback(nsIDocument* aDoc,
                                        nsIDocument::ElementCallbackType aType,
                                        Element* aCustomElement,

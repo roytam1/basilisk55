@@ -62,6 +62,7 @@ class nsFrameLoader;
 class nsHTMLCSSStyleSheet;
 class nsHTMLDocument;
 class nsHTMLStyleSheet;
+class nsGenericHTMLElement;
 class nsIAtom;
 class nsIBFCacheEntry;
 class nsIChannel;
@@ -1084,6 +1085,9 @@ public:
   Element* GetHeadElement() {
     return GetHtmlChildElement(nsGkAtoms::head);
   }
+  // Get the "body" in the sense of document.body: The first <body> or
+  // <frameset> that's a child of a root <html>
+  nsGenericHTMLElement* GetBody();
 
   /**
    * Accessors to the collection of stylesheets owned by this document.

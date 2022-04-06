@@ -957,10 +957,6 @@ public:
    */
   nsresult GetSrcdocData(nsAString& aSrcdocData);
 
-  bool DidDocumentOpen() {
-    return mDidDocumentOpen;
-  }
-
   already_AddRefed<mozilla::dom::AnonymousContent>
   InsertAnonymousContent(mozilla::dom::Element& aElement,
                          mozilla::ErrorResult& aError);
@@ -3233,11 +3229,6 @@ protected:
 
   // Whether the document was created by a srcdoc iframe.
   bool mIsSrcdocDocument : 1;
-
-  // Records whether we've done a document.open. If this is true, it's possible
-  // for nodes from this document to have outdated wrappers in their wrapper
-  // caches.
-  bool mDidDocumentOpen : 1;
 
   // Whether this document has a display document and thus is considered to
   // be a resource document.  Normally this is the same as !!mDisplayDocument,

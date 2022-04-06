@@ -1553,27 +1553,6 @@ AdoptNodeIntoOwnerDoc(nsINode *aParent, nsINode *aNode)
 }
 
 static nsresult
-CheckForOutdatedParent(nsINode* aParent, nsINode* aNode)
-{
-  if (JSObject* existingObjUnrooted = aNode->GetWrapper()) {
-    JS::Rooted<JSObject*> existingObj(RootingCx(), existingObjUnrooted);
-
-    AutoJSContext cx;
-    nsIGlobalObject* global = aParent->OwnerDoc()->GetScopeObject();
-    MOZ_ASSERT(global);
-
-    if (js::GetGlobalForObjectCrossCompartment(existingObj) !=
-        global->GetGlobalJSObject()) {
-      JSAutoCompartment ac(cx, existingObj);
-      nsresult rv = ReparentWrapper(cx, existingObj);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-
-  return NS_OK;
-}
-
-static nsresult
 ReparentWrappersInSubtree(nsIContent* aRoot)
 {
   MOZ_ASSERT(ShouldUseXBLScope(aRoot));
@@ -1633,9 +1612,6 @@ nsINode::doInsertChildAt(nsIContent* aKid, uint32_t aIndex,
 
   if (OwnerDoc() != aKid->OwnerDoc()) {
     rv = AdoptNodeIntoOwnerDoc(this, aKid);
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else if (OwnerDoc()->DidDocumentOpen()) {
-    rv = CheckForOutdatedParent(this, aKid);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -2481,11 +2457,6 @@ nsINode::ReplaceOrInsertBefore(bool aReplace, nsINode* aNewChild,
   nsIDocument* doc = OwnerDoc();
   if (doc != newContent->OwnerDoc()) {
     aError = AdoptNodeIntoOwnerDoc(this, aNewChild);
-    if (aError.Failed()) {
-      return nullptr;
-    }
-  } else if (doc->DidDocumentOpen()) {
-    aError = CheckForOutdatedParent(this, aNewChild);
     if (aError.Failed()) {
       return nullptr;
     }

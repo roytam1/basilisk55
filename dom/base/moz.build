@@ -199,6 +199,7 @@ EXPORTS.mozilla.dom += [
     'ScreenOrientation.h',
     'ScriptSettings.h',
     'ShadowRoot.h',
+    'SimpleTreeIterator.h',
     'StructuredCloneHolder.h',
     'StructuredCloneTags.h',
     'StyleSheetList.h',

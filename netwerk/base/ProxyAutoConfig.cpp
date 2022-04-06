@@ -299,9 +299,15 @@ public:
   // nsITimerCallback
   NS_IMETHOD Notify(nsITimer *timer) override
   {
-    if (mRequest)
-      mRequest->Cancel(NS_ERROR_NET_TIMEOUT);
-    mTimer = nullptr;
+    nsCOMPtr<nsICancelable> request;
+    {
+      MutexAutoLock lock(mMutex);
+      request.swap(mRequest);
+      mTimer = nullptr;
+    }
+    if (request) {
+      request->Cancel(NS_ERROR_NET_TIMEOUT);
+    }
     return NS_OK;
   }
 

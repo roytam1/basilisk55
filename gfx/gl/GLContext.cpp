@@ -584,6 +584,10 @@ GLContext::LoadFeatureSymbols(const char* prefix, bool trygl, const SymLoadStruc
 bool
 GLContext::InitWithPrefixImpl(const char* prefix, bool trygl)
 {
+    // wglGetProcAddress requires a current context.
+    if (!MakeCurrent(true))
+        return false;
+
     mWorkAroundDriverBugs = gfxPrefs::WorkAroundDriverBugs();
 
     const SymLoadStruct coreSymbols[] = {
@@ -720,7 +724,6 @@ GLContext::InitWithPrefixImpl(const char* prefix, bool trygl)
 
     ////////////////
 
-    MakeCurrent();
     MOZ_ASSERT(mProfile != ContextProfile::Unknown);
 
     uint32_t version = 0;
@@ -2259,13 +2262,11 @@ GLContext::MarkDestroyed()
     mBlitHelper = nullptr;
     mReadTexImageHelper = nullptr;
 
-    if (MakeCurrent()) {
-        mTexGarbageBin->GLContextTeardown();
-    } else {
-        NS_WARNING("MakeCurrent() failed during MarkDestroyed! Skipping GL object teardown.");
-    }
-
+    mIsDestroyed = true;
     mSymbols.Zero();
+    if (MakeCurrent(true)) {
+        mTexGarbageBin->GLContextTeardown();
+    }
 }
 
 #ifdef MOZ_GL_DEBUG

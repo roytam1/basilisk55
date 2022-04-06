@@ -43,7 +43,7 @@ asserts-if(stylo,1) load 732870.html # bug 1324683
 asserts-if(stylo,1) load 751995.html # bug 1324683
 asserts-if(stylo,1) load 761831.html # bug 1324683
 asserts(0-1) asserts-if(stylo,10) load 752038.html # We may hit bug 645229 here. # bug 1324683
-asserts(1) asserts-if(stylo,3) load 753162.html # We hit bug 675518 or bug 680086 here. # bug 1324683
+load 753162.html
 asserts-if(stylo,1) load 754311.html # bug 1324683
 asserts(0-1) asserts-if(stylo,2) load 786142.html # We may hit bug 645229 here. # bug 1324683
 load 797583.html

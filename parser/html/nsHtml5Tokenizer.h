@@ -276,6 +276,7 @@ class nsHtml5Tokenizer
   protected:
     bool endTag;
   private:
+    bool containsHyphen;
     nsHtml5ElementName* tagName;
     nsHtml5ElementName* nonInternedTagName;
   protected:

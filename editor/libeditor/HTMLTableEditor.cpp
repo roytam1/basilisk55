@@ -2726,8 +2726,8 @@ HTMLEditor::GetCellDataAt(nsIDOMElement* aTable,
   }
 
   *aIsSelected = cellFrame->IsSelected();
-  cellFrame->GetRowIndex(*aStartRowIndex);
-  cellFrame->GetColIndex(*aStartColIndex);
+  *aStartRowIndex = cellFrame->RowIndex();
+  *aStartColIndex = cellFrame->ColIndex();
   *aRowSpan = cellFrame->GetRowSpan();
   *aColSpan = cellFrame->GetColSpan();
   *aActualRowSpan = tableFrame->GetEffectiveRowSpanAt(aRowIndex, aColIndex);

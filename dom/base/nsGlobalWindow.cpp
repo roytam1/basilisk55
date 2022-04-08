@@ -9745,8 +9745,13 @@ nsGlobalWindow::ShowModalDialogOuter(const nsAString& aUrl,
   options.AppendLiteral(",scrollbars=1,centerscreen=1,resizable=0");
 
   EnterModalState();
-  uint32_t oldMicroTaskLevel = nsContentUtils::MicroTaskLevel();
-  nsContentUtils::SetMicroTaskLevel(0);
+  uint32_t oldMicroTaskLevel;
+  CycleCollectedJSContext* ccjs = CycleCollectedJSContext::Get();
+  if (ccjs) {
+    oldMicroTaskLevel = ccjs->MicroTaskLevel();
+    ccjs->SetMicroTaskLevel(0);
+  }
+
   aError = OpenInternal(aUrl, EmptyString(), options,
                         false,          // aDialog
                         true,           // aContentModal
@@ -9757,7 +9762,9 @@ nsGlobalWindow::ShowModalDialogOuter(const nsAString& aUrl,
                         nullptr,        // aLoadInfo
                         false,          // aForceNoOpener
                         getter_AddRefs(dlgWin));
-  nsContentUtils::SetMicroTaskLevel(oldMicroTaskLevel);
+  if (ccjs) {
+    ccjs->SetMicroTaskLevel(oldMicroTaskLevel);
+  }
   LeaveModalState();
   if (aError.Failed()) {
     return nullptr;

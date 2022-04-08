@@ -2729,7 +2729,7 @@ public:
    */
   static mozilla::dom::CustomElementDefinition*
     LookupCustomElementDefinition(nsIDocument* aDoc,
-                                  const nsAString& aLocalName,
+                                  nsIAtom* aNameAtom,
                                   uint32_t aNameSpaceID,
                                   nsIAtom* aTypeAtom);
 

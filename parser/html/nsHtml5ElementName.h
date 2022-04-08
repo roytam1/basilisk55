@@ -43,6 +43,7 @@
 #include "nsHtml5Macros.h"
 #include "nsIContentHandle.h"
 #include "nsHtml5Portability.h"
+#include "nsHtml5ContentCreatorFunction.h"
 
 class nsHtml5StreamParser;
 
@@ -79,6 +80,8 @@ class nsHtml5ElementName
   private:
     nsIAtom* name;
     nsIAtom* camelCaseName;
+    mozilla::dom::HTMLContentCreatorFunction htmlCreator;
+    mozilla::dom::SVGContentCreatorFunction svgCreator;
   public:
     int32_t flags;
     inline nsIAtom* getName()
@@ -89,6 +92,16 @@ class nsHtml5ElementName
     inline nsIAtom* getCamelCaseName()
     {
       return camelCaseName;
+    }
+
+    inline mozilla::dom::HTMLContentCreatorFunction getHtmlCreator()
+    {
+      return htmlCreator;
+    }
+
+    inline mozilla::dom::SVGContentCreatorFunction getSvgCreator()
+    {
+      return svgCreator;
     }
 
     inline int32_t getFlags()
@@ -172,16 +185,27 @@ class nsHtml5ElementName
       return len + first + second + third + fourth + fifth;
     }
 
-    nsHtml5ElementName(nsIAtom* name, nsIAtom* camelCaseName, int32_t flags);
+    nsHtml5ElementName(nsIAtom* name, nsIAtom* camelCaseName, mozilla::dom::HTMLContentCreatorFunction htmlCreator, mozilla::dom::SVGContentCreatorFunction svgCreator, int32_t flags);
   public:
     nsHtml5ElementName();
     ~nsHtml5ElementName();
-    inline void setNameForNonInterned(nsIAtom* name)
+    inline void setNameForNonInterned(nsIAtom* name, bool custom)
     {
       this->name = name;
       this->camelCaseName = name;
+      if (custom) {
+        this->htmlCreator = NS_NewCustomElement;
+      } else {
+        this->htmlCreator = NS_NewHTMLUnknownElement;
+      }
       MOZ_ASSERT(this->flags == nsHtml5ElementName::NOT_INTERNED);
     }
+
+    inline bool isCustom()
+    {
+      return this->htmlCreator == NS_NewCustomElement;
+    }
+
     static nsHtml5ElementName* ELT_ISINDEX;
     static nsHtml5ElementName* ELT_ANNOTATION_XML;
     static nsHtml5ElementName* ELT_AND;
@@ -247,6 +271,7 @@ class nsHtml5ElementName
     static nsHtml5ElementName* ELT_H5;
     static nsHtml5ElementName* ELT_H6;
     static nsHtml5ElementName* ELT_AREA;
+    static nsHtml5ElementName* ELT_DATA;
     static nsHtml5ElementName* ELT_EULERGAMMA;
     static nsHtml5ElementName* ELT_FEFUNCA;
     static nsHtml5ElementName* ELT_LAMBDA;
@@ -512,8 +537,10 @@ class nsHtml5ElementName
     static nsHtml5ElementName* ELT_ARCCOT;
     static nsHtml5ElementName* ELT_BASEFONT;
     static nsHtml5ElementName* ELT_CARTESIANPRODUCT;
+    static nsHtml5ElementName* ELT_CONTENT;
     static nsHtml5ElementName* ELT_GT;
     static nsHtml5ElementName* ELT_DETERMINANT;
+    static nsHtml5ElementName* ELT_DATALIST;
     static nsHtml5ElementName* ELT_EMPTYSET;
     static nsHtml5ElementName* ELT_EQUIVALENT;
     static nsHtml5ElementName* ELT_FONT_FACE_FORMAT;
@@ -567,6 +594,7 @@ class nsHtml5ElementName
     static nsHtml5ElementName* ELT_FEDROPSHADOW;
     static nsHtml5ElementName* ELT_MROW;
     static nsHtml5ElementName* ELT_MATRIXROW;
+    static nsHtml5ElementName* ELT_SHADOW;
     static nsHtml5ElementName* ELT_VIEW;
     static nsHtml5ElementName* ELT_APPROX;
     static nsHtml5ElementName* ELT_FECOLORMATRIX;

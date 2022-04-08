@@ -66,11 +66,6 @@ public:
 
     virtual already_AddRefed<mozilla::gfx::VsyncSource> CreateHardwareVsyncSource() override;
 
-protected:
-    bool AccelerateLayersByDefault() override {
-      return true;
-    }
-
 private:
     gfxImageFormat mOffscreenFormat;
 };

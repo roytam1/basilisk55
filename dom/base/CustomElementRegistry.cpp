@@ -524,9 +524,7 @@ static const char* kLifeCycleCallbackNames[] = {
   "adoptedCallback",
   "attributeChangedCallback",
   // The life cycle callbacks from v0 spec.
-  "createdCallback",
-  "attachedCallback",
-  "detachedCallback"
+  "createdCallback"
 };
 
 static void

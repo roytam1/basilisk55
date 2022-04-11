@@ -1145,7 +1145,7 @@ nsScriptLoader::InstantiateModuleTree(nsModuleLoadRequest* aRequest)
 
   nsModuleScript* ms = aRequest->mModuleScript;
   MOZ_ASSERT(ms);
-  if (!ms->ModuleRecord()) {
+  if (!ms || !ms->ModuleRecord()) {
     return false;
   }
 

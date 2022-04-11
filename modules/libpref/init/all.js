@@ -204,11 +204,7 @@ pref("dom.enable_performance_observer", false);
 #endif
 
 // Enable requestIdleCallback API
-#ifdef NIGHTLY_BUILD
 pref("dom.requestIdleCallback.enabled", true);
-#else
-pref("dom.requestIdleCallback.enabled", false);
-#endif
 
 // Enable Intersection Observers
 // See WD https://www.w3.org/TR/intersection-observer/

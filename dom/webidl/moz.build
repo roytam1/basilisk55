@@ -12,6 +12,7 @@ PREPROCESSED_WEBIDL_FILES = [
     'HTMLMediaElement.webidl',
     'Navigator.webidl',
     'Node.webidl',
+    'Performance.webidl',
     'Window.webidl',
 ]
 
@@ -358,7 +359,6 @@ WEBIDL_FILES = [
     'PaintWorkletGlobalScope.webidl',
     'PannerNode.webidl',
     'ParentNode.webidl',
-    'Performance.webidl',
     'PerformanceEntry.webidl',
     'PerformanceMark.webidl',
     'PerformanceMeasure.webidl',

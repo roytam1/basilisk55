@@ -6809,6 +6809,7 @@ js::gc::NextCellUniqueId(JSRuntime* rt)
 
 namespace js {
 namespace gc {
+#ifdef MOZ_DEVTOOLS_SERVER
 namespace MemInfo {
 
 static bool
@@ -7024,6 +7025,7 @@ NewMemoryInfoObject(JSContext* cx)
 
     return obj;
 }
+#endif // MOZ_DEVTOOLS_SERVER
 
 const char*
 StateName(State state)

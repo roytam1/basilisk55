@@ -64,3 +64,10 @@ fails == pre-1.html pre-1.html
 
 # Test video with rotation information can be rotated.
 == bug1228601-video-rotation-90.html bug1228601-video-rotation-90.html
+
+# Test that dynamically setting body margin attributes updates style appropriately
+== body-topmargin-dynamic.html body-topmargin-dynamic.html
+
+# Test that dynamically removing a nonmargin mapped attribute does not
+# destroy margins inherited from the frame.
+== body-frame-margin-remove-other-pres-hint.html body-frame-margin-remove-other-pres-hint.html

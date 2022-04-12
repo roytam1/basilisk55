@@ -10,8 +10,9 @@
 #include "mozilla/FlushType.h"          // for FlushType enum
 #include "mozilla/OwningNonNull.h"      // for OwningNonNull
 #include "mozilla/SelectionState.h"     // for RangeUpdater, etc.
-#include "mozilla/StyleSheet.h"   // for StyleSheet
+#include "mozilla/StyleSheet.h"         // for StyleSheet
 #include "mozilla/UniquePtr.h"
+#include "mozilla/WeakPtr.h"            // for WeakPtr
 #include "mozilla/dom/Text.h"
 #include "nsCOMPtr.h"                   // for already_AddRefed, nsCOMPtr
 #include "nsCycleCollectionParticipant.h"
@@ -117,6 +118,7 @@ class ErrorResult;
 class InsertNodeTransaction;
 class InsertTextTransaction;
 class JoinNodeTransaction;
+class PlaceholderTransaction;
 class RemoveStyleSheetTransaction;
 class SplitNodeTransaction;
 class TextComposition;
@@ -994,11 +996,11 @@ protected:
   // Weak reference to the nsISelectionController.
   nsWeakPtr mSelConWeak;
   // Weak reference to placeholder for begin/end batch purposes.
-  nsWeakPtr mPlaceHolderTxn;
+  WeakPtr<PlaceholderTransaction> mPlaceholderTransactionWeak;
   // Weak reference to the nsIDOMDocument.
   nsWeakPtr mDocWeak;
   // Name of placeholder transaction.
-  nsIAtom* mPlaceHolderName;
+  nsIAtom* mPlaceholderName;
   // Saved selection state for placeholder transaction batching.
   mozilla::UniquePtr<SelectionState> mSelState;
   nsString* mPhonetic;
@@ -1032,7 +1034,7 @@ protected:
   int32_t mUpdateCount;
 
   // Nesting count for batching.
-  int32_t mPlaceHolderBatch;
+  int32_t mPlaceholderBatch;
   // The current editor action.
   EditAction mAction;
 

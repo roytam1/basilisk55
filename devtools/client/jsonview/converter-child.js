@@ -118,7 +118,7 @@ Converter.prototype = {
     this.listener.onStopRequest(request, context, statusCode);
     this.listener = null;
   }
-});
+};
 
 // Lets "save as" save the original JSON, not the viewer.
 // To save with the proper extension we need the original content type,

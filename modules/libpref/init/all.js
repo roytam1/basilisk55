@@ -4865,6 +4865,9 @@ pref("dom.vibrator.max_vibrate_list_len", 128);
 // Battery API
 pref("dom.battery.enabled", true);
 
+// Abort API
+pref("dom.abortController.enabled", true);
+
 // Push
 
 pref("dom.push.enabled", false);

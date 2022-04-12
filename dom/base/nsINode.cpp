@@ -1518,7 +1518,6 @@ nsINode::SetExplicitBaseURI(nsIURI* aURI)
 {
   nsresult rv = SetProperty(nsGkAtoms::baseURIProperty, aURI, ReleaseURI);
   if (NS_SUCCEEDED(rv)) {
-    SetHasExplicitBaseURI();
     NS_ADDREF(aURI);
   }
   return rv;

@@ -68,7 +68,7 @@ FetchDriver::~FetchDriver()
 }
 
 nsresult
-FetchDriver::Fetch(FetchDriverObserver* aObserver)
+FetchDriver::Fetch(FetchSignal* aSignal, FetchDriverObserver* aObserver)
 {
   workers::AssertIsOnMainThread();
 #ifdef DEBUG
@@ -94,6 +94,18 @@ FetchDriver::Fetch(FetchDriverObserver* aObserver)
   }
 
   mRequest->SetPrincipalInfo(Move(principalInfo));
+
+  // If the signal is aborted, it's time to inform the observer and terminate
+  // the operation.
+  if (aSignal) {
+    if (aSignal->Aborted()) {
+      Aborted();
+      return NS_OK;
+    }
+
+    Follow(aSignal);
+  }
+
   if (NS_FAILED(HttpFetch())) {
     FailWithNetworkError();
   }
@@ -120,11 +132,7 @@ FetchDriver::HttpFetch()
   nsAutoCString url;
   mRequest->GetURL(url);
   nsCOMPtr<nsIURI> uri;
-  rv = NS_NewURI(getter_AddRefs(uri),
-                          url,
-                          nullptr,
-                          nullptr,
-                          ios);
+  rv = NS_NewURI(getter_AddRefs(uri), url, nullptr, nullptr, ios);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Unsafe requests aren't allowed with when using no-core mode.
@@ -356,6 +364,8 @@ FetchDriver::HttpFetch()
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Step 4 onwards of "HTTP Fetch" is handled internally by Necko.
+
+  mChannel = chan;
   return NS_OK;
 }
 already_AddRefed<InternalResponse>
@@ -409,9 +419,11 @@ FetchDriver::FailWithNetworkError()
 #ifdef DEBUG
     mResponseAvailableCalled = true;
 #endif
-    mObserver->OnResponseEnd();
+    mObserver->OnResponseEnd(FetchDriverObserver::eByNetworking);
     mObserver = nullptr;
   }
+  
+  mChannel = nullptr;
 }
 
 namespace {
@@ -755,10 +767,11 @@ FetchDriver::OnStopRequest(nsIRequest* aRequest,
       #endif
     }
 
-    mObserver->OnResponseEnd();
+    mObserver->OnResponseEnd(FetchDriverObserver::eByNetworking);
     mObserver = nullptr;
   }
 
+  mChannel = nullptr;
   return NS_OK;
 }
 
@@ -882,6 +895,22 @@ FetchDriver::SetRequestHeaders(nsIHttpChannel* aChannel) const
                                  NS_ConvertUTF16toUTF8(origin),
                                  false /* merge */);
     }
+  }
+}
+
+void FetchDriver::Aborted()
+{
+  if (mObserver) {
+#ifdef DEBUG
+    mResponseAvailableCalled = true;
+#endif
+    mObserver->OnResponseEnd(FetchDriverObserver::eAborted);
+    mObserver = nullptr;
+  }
+
+  if (mChannel) {
+    mChannel->Cancel(NS_BINDING_ABORTED);
+    mChannel = nullptr;
   }
 }
 

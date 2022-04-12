@@ -32,7 +32,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_usrreq.c 280459 2015-03-24 21:12:45Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_usrreq.c 356270 2020-01-02 13:55:10Z tuexen $");
 #endif
 
 #include <netinet/sctp_os.h>
@@ -5990,6 +5990,14 @@ sctp_setopt(struct socket *so, int optname, void *optval, size_t optsize,
 		}
 
 		if ((paddrp->spp_flags & SPP_PMTUD_ENABLE) && (paddrp->spp_flags & SPP_PMTUD_DISABLE)) {
+			if (stcb)
+				SCTP_TCB_UNLOCK(stcb);
+			SCTP_LTRACE_ERR_RET(inp, NULL, NULL, SCTP_FROM_SCTP_USRREQ, EINVAL);
+			return (EINVAL);
+		}
+		if ((paddrp->spp_flags & SPP_PMTUD_DISABLE) &&
+		    ((paddrp->spp_pathmtu < SCTP_SMALLEST_PMTU) ||
+		     (paddrp->spp_pathmtu > SCTP_LARGEST_PMTU))) {
 			if (stcb)
 				SCTP_TCB_UNLOCK(stcb);
 			SCTP_LTRACE_ERR_RET(inp, NULL, NULL, SCTP_FROM_SCTP_USRREQ, EINVAL);

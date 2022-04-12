@@ -2782,6 +2782,12 @@ public:
   static bool
   IsWebComponentsEnabled() { return sIsWebComponentsEnabled; }
 
+  /**
+   * Walks up the tree from aElement until it finds an element that is
+   * not native anonymous content.  aElement must be NAC itself.
+   */
+  static Element* GetClosestNonNativeAnonymousAncestor(Element* aElement);
+
   static bool
   IsCustomElementsEnabled() { return sIsCustomElementsEnabled; }
 

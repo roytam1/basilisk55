@@ -101,7 +101,7 @@ IPDL_SOURCES += [
     'PHttpChannel.ipdl',
 ]
 
-EXTRA_JS_MODULES += [
+EXTRA_PP_JS_MODULES += [
     'UserAgentOverrides.jsm',
     'UserAgentUpdates.jsm',
 ]

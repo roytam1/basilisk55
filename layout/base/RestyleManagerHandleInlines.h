@@ -123,7 +123,7 @@ RestyleManagerHandle::Ptr::RestyleForAppend(nsIContent* aContainer,
   FORWARD(RestyleForAppend, (aContainer, aFirstNewContent));
 }
 
-nsresult
+void
 RestyleManagerHandle::Ptr::ContentStateChanged(nsIContent* aContent,
                                           EventStates aStateMask)
 {

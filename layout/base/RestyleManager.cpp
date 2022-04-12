@@ -247,14 +247,14 @@ ElementForStyleContext(nsIContent* aParentContent,
 
 // Forwarded nsIDocumentObserver method, to handle restyling (and
 // passing the notification to the frame).
-nsresult
+void
 RestyleManager::ContentStateChanged(nsIContent* aContent,
                                     EventStates aStateMask)
 {
   // XXXbz it would be good if this function only took Elements, but
   // we'd have to make ESM guarantee that usefully.
   if (!aContent->IsElement()) {
-    return NS_OK;
+    return;
   }
 
   Element* aElement = aContent->AsElement();
@@ -264,7 +264,6 @@ RestyleManager::ContentStateChanged(nsIContent* aContent,
   ContentStateChangedInternal(aElement, aStateMask, &changeHint, &restyleHint);
 
   PostRestyleEvent(aElement, restyleHint, changeHint);
-  return NS_OK;
 }
 
 // Forwarded nsIMutationObserver method, to handle restyling.
@@ -1831,7 +1830,7 @@ ElementRestyler::ConditionallyRestyleUndisplayedNodes(
   }
 
   for (UndisplayedNode* undisplayed = aUndisplayed; undisplayed;
-       undisplayed = undisplayed->mNext) {
+       undisplayed = undisplayed->getNext()) {
 
     if (!undisplayed->mContent->IsElement()) {
       continue;
@@ -3472,7 +3471,7 @@ ElementRestyler::RestyleUndisplayedNodes(nsRestyleHint      aChildRestyleHint,
   if (undisplayed) {
     pusher.PushAncestorAndStyleScope(undisplayedParent);
   }
-  for (; undisplayed; undisplayed = undisplayed->mNext) {
+  for (; undisplayed; undisplayed = undisplayed->getNext()) {
     NS_ASSERTION(undisplayedParent ||
                  undisplayed->mContent ==
                    mPresContext->Document()->GetRootElement(),

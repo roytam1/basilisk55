@@ -406,12 +406,12 @@ ServoRestyleManager::ContentRemoved(nsINode* aContainer,
   NS_WARNING("stylo: ServoRestyleManager::ContentRemoved not implemented");
 }
 
-nsresult
+void
 ServoRestyleManager::ContentStateChanged(nsIContent* aContent,
                                          EventStates aChangedBits)
 {
   if (!aContent->IsElement()) {
-    return NS_OK;
+    return;
   }
 
   Element* aElement = aContent->AsElement();
@@ -446,8 +446,6 @@ ServoRestyleManager::ContentStateChanged(nsIContent* aContent,
     snapshot->AddState(previousState);
     PostRestyleEvent(aElement, restyleHint, changeHint);
   }
-
-  return NS_OK;
 }
 
 void

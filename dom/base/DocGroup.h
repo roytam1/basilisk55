@@ -16,6 +16,7 @@
 #include "mozilla/dom/Dispatcher.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/dom/CustomElementRegistry.h"
+#include "mozilla/dom/HTMLSlotElement.h"
 
 namespace mozilla {
 class AbstractThread;
@@ -89,6 +90,23 @@ public:
   virtual AbstractThread*
   AbstractMainThreadFor(TaskCategory aCategory) override;
 
+  // Append aSlot to the list of signal slot list, if it's not in it already
+  // list, and queue a mutation observer microtask.
+  void SignalSlotChange(const mozilla::dom::HTMLSlotElement* aSlot);
+
+  const nsTArray<RefPtr<HTMLSlotElement>>& SignalSlotList() const
+  {
+    return mSignalSlotList;
+  }
+
+  void ClearSignalSlotList()
+  {
+    mSignalSlotList.Clear();
+  }
+
+  // List of DocGroups that has non-empty signal slot list.
+  static AutoTArray<RefPtr<DocGroup>, 2>* sPendingDocGroups;
+
 private:
   DocGroup(TabGroup* aTabGroup, const nsACString& aKey);
   ~DocGroup();
@@ -97,6 +115,7 @@ private:
   RefPtr<TabGroup> mTabGroup;
   nsTArray<nsIDocument*> mDocuments;
   RefPtr<mozilla::dom::CustomElementReactionsStack> mReactionsStack;
+  nsTArray<RefPtr<HTMLSlotElement>> mSignalSlotList;
 };
 
 } // namespace dom

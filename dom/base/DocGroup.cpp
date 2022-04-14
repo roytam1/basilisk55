@@ -8,9 +8,12 @@
 #include "mozilla/dom/TabGroup.h"
 #include "mozilla/Telemetry.h"
 #include "nsIDocShell.h"
+#include "nsDOMMutationObserver.h"
 
 namespace mozilla {
 namespace dom {
+
+AutoTArray<RefPtr<DocGroup>, 2>* DocGroup::sPendingDocGroups = nullptr;
 
 /* static */ nsresult
 DocGroup::GetKey(nsIPrincipal* aPrincipal, nsACString& aKey)
@@ -73,6 +76,24 @@ DocGroup::AbstractMainThreadFor(TaskCategory aCategory)
 {
   MOZ_RELEASE_ASSERT(NS_IsMainThread());
   return mTabGroup->AbstractMainThreadFor(aCategory);
+}
+
+void
+DocGroup::SignalSlotChange(const HTMLSlotElement* aSlot)
+{
+  if (mSignalSlotList.Contains(aSlot)) {
+    return;
+  }
+
+  mSignalSlotList.AppendElement(const_cast<HTMLSlotElement*>(aSlot));
+
+  if (!sPendingDocGroups) {
+    // Queue a mutation observer compound microtask.
+    nsDOMMutationObserver::QueueMutationObserverMicroTask();
+    sPendingDocGroups = new AutoTArray<RefPtr<DocGroup>, 2>;
+  }
+
+  sPendingDocGroups->AppendElement(this);
 }
 
 }

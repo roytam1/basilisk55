@@ -527,6 +527,9 @@ protected:
     mState &= ~aStates;
   }
 
+  already_AddRefed<ShadowRoot> AttachShadowInternal(bool aClosed,
+                                                    ErrorResult& aError);
+
 private:
   // Need to allow the ESM, nsGlobalWindow, and the focus manager to
   // set our state
@@ -985,6 +988,13 @@ public:
   already_AddRefed<DOMRectList> GetClientRects();
   already_AddRefed<DOMRect> GetBoundingClientRect();
 
+  // Shadow DOM v1
+  already_AddRefed<ShadowRoot> AttachShadow(const ShadowRootInit& aInit,
+                                            ErrorResult& aError);
+  void SetSlot(const nsAString& aName, ErrorResult& aError);
+  void GetSlot(nsAString& aName);
+
+  // [deprecated] Shadow DOM v0
   already_AddRefed<ShadowRoot> CreateShadowRoot(ErrorResult& aError);
   already_AddRefed<DestinationInsertionPointList> GetDestinationInsertionPoints();
 

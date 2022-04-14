@@ -1145,11 +1145,6 @@ public:
   // WebIDL bits
   virtual mozilla::dom::DOMImplementation*
     GetImplementation(mozilla::ErrorResult& rv) override;
-  virtual void
-    RegisterElement(JSContext* aCx, const nsAString& aName,
-                    const mozilla::dom::ElementRegistrationOptions& aOptions,
-                    JS::MutableHandle<JSObject*> aRetval,
-                    mozilla::ErrorResult& rv) override;
   virtual mozilla::dom::StyleSheetList* StyleSheets() override;
   virtual void SetSelectedStyleSheetSet(const nsAString& aSheetSet) override;
   virtual void GetLastStyleSheetSet(nsString& aSheetSet) override;
@@ -1412,13 +1407,8 @@ protected:
   // Do not use this value directly. Call the |IsThirdParty()| method, which
   // caches its result here.
   mozilla::Maybe<bool> mIsThirdParty;
-private:
-  static bool CustomElementConstructor(JSContext* aCx, unsigned aArgc, JS::Value* aVp);
 
 public:
-  virtual already_AddRefed<mozilla::dom::CustomElementRegistry>
-    GetCustomElementRegistry() override;
-
   // Check whether web components are enabled for the global of aObject.
   static bool IsWebComponentsEnabled(JSContext* aCx, JSObject* aObject);
   // Check whether web components are enabled for the global of the document

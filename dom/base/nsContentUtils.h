@@ -606,7 +606,7 @@ public:
 
   /**
    * Returns true if |aName| is a valid name to be registered via
-   * document.registerElement.
+   * customElements.define.
    */
   static bool IsCustomElementName(nsIAtom* aName);
 
@@ -2758,11 +2758,6 @@ public:
                                        mozilla::dom::LifecycleCallbackArgs* aArgs = nullptr,
                                        mozilla::dom::LifecycleAdoptedCallbackArgs* aAdoptedCallbackArgs = nullptr,
                                        mozilla::dom::CustomElementDefinition* aDefinition = nullptr);
-
-  static void GetCustomPrototype(nsIDocument* aDoc,
-                                 int32_t aNamespaceID,
-                                 nsIAtom* aAtom,
-                                 JS::MutableHandle<JSObject*> prototype);
 
   static bool AttemptLargeAllocationLoad(nsIHttpChannel* aChannel);
 

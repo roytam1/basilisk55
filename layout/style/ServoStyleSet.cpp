@@ -419,7 +419,7 @@ ServoStyleSet::AddDocStyleSheet(ServoStyleSheet* aSheet,
   mSheets[SheetType::Doc].RemoveElement(aSheet);
 
   size_t index =
-    aDocument->FindDocStyleSheetInsertionPoint(mSheets[SheetType::Doc], aSheet);
+    aDocument->FindDocStyleSheetInsertionPoint(mSheets[SheetType::Doc], *aSheet);
   mSheets[SheetType::Doc].InsertElementAt(index, aSheet);
 
   if (mRawSet) {

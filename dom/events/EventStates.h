@@ -317,8 +317,7 @@ private:
 // attribute or any HTML element which has a "dir" attribute whose value is
 // "auto".
 #define NS_EVENT_STATE_DIR_ATTR_LIKE_AUTO NS_DEFINE_EVENT_STATE_MACRO(49)
-// Element is an unresolved custom element candidate
-#define NS_EVENT_STATE_UNRESOLVED NS_DEFINE_EVENT_STATE_MACRO(50)
+// Free bit                          NS_DEFINE_EVENT_STATE_MACRO(50)
 // Element is transitioning for rules changed by style editor
 #define NS_EVENT_STATE_STYLEEDITOR_TRANSITIONING NS_DEFINE_EVENT_STATE_MACRO(51)
 // This bit is currently free.
@@ -343,8 +342,7 @@ private:
 #define ESM_MANAGED_STATES (DIR_ATTR_STATES | NS_EVENT_STATE_ACTIVE | NS_EVENT_STATE_FOCUS |  \
                             NS_EVENT_STATE_HOVER | NS_EVENT_STATE_DRAGOVER |   \
                             NS_EVENT_STATE_URLTARGET | NS_EVENT_STATE_FOCUSRING | \
-                            NS_EVENT_STATE_FULL_SCREEN | NS_EVENT_STATE_UNRESOLVED | \
-                            NS_EVENT_STATE_FOCUS_WITHIN)
+                            NS_EVENT_STATE_FULL_SCREEN | NS_EVENT_STATE_FOCUS_WITHIN)
 
 #define INTRINSIC_STATES (~ESM_MANAGED_STATES)
 

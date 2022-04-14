@@ -273,6 +273,9 @@ void
 AudioBuffer::CopyFromChannel(const Float32Array& aDestination, uint32_t aChannelNumber,
                              uint32_t aStartInChannel, ErrorResult& aRv)
 {
+  JS::AutoCheckCannotGC nogc;
+  aDestination.ComputeLengthAndData();
+
   uint32_t length = aDestination.Length();
   CheckedInt<uint32_t> end = aStartInChannel;
   end += length;
@@ -282,8 +285,6 @@ AudioBuffer::CopyFromChannel(const Float32Array& aDestination, uint32_t aChannel
     return;
   }
 
-  JS::AutoCheckCannotGC nogc;
-  aDestination.ComputeLengthAndData();
   JSObject* channelArray = mJSChannels[aChannelNumber];
   const float* sourceData = nullptr;
   if (channelArray) {
@@ -314,6 +315,9 @@ AudioBuffer::CopyToChannel(JSContext* aJSContext, const Float32Array& aSource,
                            uint32_t aChannelNumber, uint32_t aStartInChannel,
                            ErrorResult& aRv)
 {
+  JS::AutoCheckCannotGC nogc;
+  aSource.ComputeLengthAndData();
+
   uint32_t length = aSource.Length();
   CheckedInt<uint32_t> end = aStartInChannel;
   end += length;
@@ -328,7 +332,6 @@ AudioBuffer::CopyToChannel(JSContext* aJSContext, const Float32Array& aSource,
     return;
   }
 
-  JS::AutoCheckCannotGC nogc;
   JSObject* channelArray = mJSChannels[aChannelNumber];
   if (JS_GetTypedArrayLength(channelArray) != mLength) {
     // The array's buffer was detached.
@@ -336,7 +339,6 @@ AudioBuffer::CopyToChannel(JSContext* aJSContext, const Float32Array& aSource,
     return;
   }
 
-  aSource.ComputeLengthAndData();
   bool isShared = false;
   float* channelData = JS_GetFloat32ArrayData(channelArray, &isShared, nogc);
   // The channelData arrays should all have originated in

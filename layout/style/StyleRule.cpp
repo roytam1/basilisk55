@@ -1056,6 +1056,8 @@ protected:
   friend class mozilla::DefaultDelete<DOMCSSDeclarationImpl>;
 
 public:
+  typedef mozilla::dom::DocGroup DocGroup;
+
   explicit DOMCSSDeclarationImpl(css::StyleRule *aRule);
 
   NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParent) override;
@@ -1071,6 +1073,16 @@ public:
   virtual nsINode *GetParentObject() override
   {
     return mRule ? mRule->GetDocument() : nullptr;
+  }
+
+  virtual DocGroup* GetDocGroup() const override
+  {
+    if (!mRule) {
+      return nullptr;
+    }
+
+    nsIDocument* document = mRule->GetDocument();
+    return document ? document->GetDocGroup() : nullptr;
   }
 
 protected:

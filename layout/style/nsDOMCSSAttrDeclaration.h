@@ -15,6 +15,7 @@
 namespace mozilla {
 namespace dom {
 class Element;
+class DocGroup;
 } // namespace dom
 } // namespace mozilla
 
@@ -22,6 +23,7 @@ class nsDOMCSSAttributeDeclaration final : public nsDOMCSSDeclaration
 {
 public:
   typedef mozilla::dom::Element Element;
+  typedef mozilla::dom::DocGroup DocGroup;
   nsDOMCSSAttributeDeclaration(Element* aContent, bool aIsSMILOverride);
 
   NS_DECL_CYCLE_COLLECTING_ISUPPORTS
@@ -35,6 +37,7 @@ public:
   NS_IMETHOD GetParentRule(nsIDOMCSSRule **aParent) override;
 
   virtual nsINode* GetParentObject() override;
+  virtual DocGroup* GetDocGroup() const override;
 
   NS_IMETHOD SetPropertyValue(const nsCSSPropertyID aPropID,
                               const nsAString& aValue) override;

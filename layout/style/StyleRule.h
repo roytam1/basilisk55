@@ -28,6 +28,9 @@ struct nsCSSSelectorList;
 namespace mozilla {
 enum class CSSPseudoClassType : uint8_t;
 class CSSStyleSheet;
+namespace dom {
+class DocGroup;
+} // namespace dom
 } // namespace mozilla
 
 struct nsAtomList {

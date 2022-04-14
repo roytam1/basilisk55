@@ -39,6 +39,11 @@ class nsMediaList;
 
 namespace mozilla {
 
+namespace dom {
+class DocGroup;
+class DocGroup;
+} // namespace dom
+
 class ErrorResult;
 
 namespace css {
@@ -215,6 +220,7 @@ public:
   using nsICSSDeclaration::GetPropertyCSSValue;
 
   virtual nsINode *GetParentObject() override;
+  virtual mozilla::dom::DocGroup* GetDocGroup() const override;
   virtual void IndexedGetter(uint32_t aIndex, bool& aFound, nsAString& aPropName) override;
 
   nsresult GetPropertyValue(nsCSSFontDesc aFontDescID,
@@ -396,6 +402,7 @@ public:
                                                          nsICSSDeclaration)
 
   virtual nsINode* GetParentObject() override;
+  virtual mozilla::dom::DocGroup* GetDocGroup() const override;
 
 protected:
   virtual ~nsCSSKeyframeStyleDeclaration();
@@ -536,6 +543,7 @@ public:
                                                          nsICSSDeclaration)
 
   virtual nsINode *GetParentObject() override;
+  virtual mozilla::dom::DocGroup* GetDocGroup() const override;
 
 protected:
   virtual ~nsCSSPageStyleDeclaration();

@@ -17,6 +17,10 @@
 
 namespace mozilla {
 
+namespace dom {
+class DocGroup;
+} // namespace dom
+
 class ServoDeclarationBlock;
 class ServoStyleRule;
 
@@ -27,6 +31,7 @@ public:
 
   NS_IMETHOD GetParentRule(nsIDOMCSSRule** aParent) final;
   nsINode* GetParentObject() final;
+  mozilla::dom::DocGroup* GetDocGroup() const final;
 
 protected:
   DeclarationBlock* GetCSSDeclaration(Operation aOperation) final;
@@ -43,6 +48,7 @@ private:
   ~ServoStyleRuleDeclaration();
 
   inline ServoStyleRule* Rule();
+  const inline ServoStyleRule* Rule() const;
 
   RefPtr<ServoDeclarationBlock> mDecls;
 };
@@ -90,6 +96,13 @@ ServoStyleRuleDeclaration::Rule()
 {
   return reinterpret_cast<ServoStyleRule*>(reinterpret_cast<uint8_t*>(this) -
                                            offsetof(ServoStyleRule, mDecls));
+}
+
+const ServoStyleRule*
+ServoStyleRuleDeclaration::Rule() const
+{
+  return reinterpret_cast<const ServoStyleRule*>(reinterpret_cast<const uint8_t*>(this) -
+                                                 offsetof(ServoStyleRule, mDecls));
 }
 
 } // namespace mozilla

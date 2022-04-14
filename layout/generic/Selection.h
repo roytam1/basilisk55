@@ -31,6 +31,9 @@ class nsHTMLCopyEncoder;
 namespace mozilla {
 class ErrorResult;
 struct AutoPrepareFocusRange;
+namespace dom {
+class DocGroup;
+} // namespace dom
 } // namespace mozilla
 
 struct RangeData
@@ -72,6 +75,7 @@ public:
   nsresult EndBatchChangesInternal(int16_t aReason = nsISelectionListener::NO_REASON);
 
   nsIDocument* GetParentObject() const;
+  DocGroup* GetDocGroup() const;
 
   // utility methods for scrolling the selection into view
   nsPresContext* GetPresContext() const;

@@ -794,6 +794,7 @@ ScriptLoader::StartFetchingModuleAndDependencies(ModuleLoadRequest* aRequest,
   childRequest->mIsInline = false;
   childRequest->mReferrerPolicy = aRequest->mReferrerPolicy;
   childRequest->mParent = aRequest;
+  aRequest->mImports.AppendElement(childRequest);
 
   RefPtr<GenericPromise> ready = childRequest->mReady.Ensure(__func__);
 
@@ -804,7 +805,6 @@ ScriptLoader::StartFetchingModuleAndDependencies(ModuleLoadRequest* aRequest,
     return ready;
   }
 
-  aRequest->mImports.AppendElement(childRequest);
   return ready;
 }
 

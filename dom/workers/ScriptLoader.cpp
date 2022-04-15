@@ -699,7 +699,7 @@ private:
     ir->SetPrincipalInfo(Move(principalInfo));
 
     RefPtr<mozilla::dom::Response> response =
-      new mozilla::dom::Response(mCacheCreator->Global(), ir);
+      new mozilla::dom::Response(mCacheCreator->Global(), ir, nullptr);
 
     mozilla::dom::RequestOrUSVString request;
 

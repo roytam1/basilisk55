@@ -163,6 +163,9 @@ public:
   // Always set whenever the FetchBody is created on the worker thread.
   workers::WorkerPrivate* mWorkerPrivate;
 
+  virtual AbortSignal*
+  GetSignal() const = 0;
+
 protected:
   FetchBody();
 

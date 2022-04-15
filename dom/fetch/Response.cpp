@@ -33,10 +33,11 @@ NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(Response)
   NS_INTERFACE_MAP_ENTRY(nsISupports)
 NS_INTERFACE_MAP_END
 
-Response::Response(nsIGlobalObject* aGlobal, InternalResponse* aInternalResponse)
+Response::Response(nsIGlobalObject* aGlobal, InternalResponse* aInternalResponse, AbortSignal* aSignal)
   : FetchBody<Response>()
   , mOwner(aGlobal)
   , mInternalResponse(aInternalResponse)
+  , mSignal(aSignal)
 {
   MOZ_ASSERT(aInternalResponse->Headers()->Guard() == HeadersGuardEnum::Immutable ||
              aInternalResponse->Headers()->Guard() == HeadersGuardEnum::Response);
@@ -52,7 +53,7 @@ Response::Error(const GlobalObject& aGlobal)
 {
   nsCOMPtr<nsIGlobalObject> global = do_QueryInterface(aGlobal.GetAsSupports());
   RefPtr<InternalResponse> error = InternalResponse::NetworkError();
-  RefPtr<Response> r = new Response(global, error);
+  RefPtr<Response> r = new Response(global, error, nullptr);
   return r.forget();
 }
 
@@ -172,7 +173,7 @@ Response::Constructor(const GlobalObject& aGlobal,
     internalResponse->InitChannelInfo(worker->GetChannelInfo());
   }
 
-  RefPtr<Response> r = new Response(global, internalResponse);
+  RefPtr<Response> r = new Response(global, internalResponse, nullptr);
 
   if (aInit.mHeaders.WasPassed()) {
     internalResponse->Headers()->Clear();
@@ -235,7 +236,7 @@ Response::Clone(ErrorResult& aRv) const
   }
 
   RefPtr<InternalResponse> ir = mInternalResponse->Clone();
-  RefPtr<Response> response = new Response(mOwner, ir);
+  RefPtr<Response> response = new Response(mOwner, ir, mSignal);
   return response.forget();
 }
 
@@ -249,7 +250,7 @@ Response::CloneUnfiltered(ErrorResult& aRv) const
 
   RefPtr<InternalResponse> clone = mInternalResponse->Clone();
   RefPtr<InternalResponse> ir = clone->Unfiltered();
-  RefPtr<Response> ref = new Response(mOwner, ir);
+  RefPtr<Response> ref = new Response(mOwner, ir, mSignal);
   return ref.forget();
 }
 

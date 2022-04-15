@@ -487,8 +487,6 @@ ScriptLoader::ProcessFetchedModuleSource(ModuleLoadRequest* aRequest)
   nsresult rv = CreateModuleScript(aRequest);
   MOZ_ASSERT(NS_FAILED(rv) == !aRequest->mModuleScript);
 
-  SetModuleFetchFinishedAndResumeWaitingRequests(aRequest, rv);
-
   free(aRequest->mScriptTextBuf);
   aRequest->mScriptTextBuf = nullptr;
   aRequest->mScriptTextLength = 0;
@@ -496,6 +494,10 @@ ScriptLoader::ProcessFetchedModuleSource(ModuleLoadRequest* aRequest)
   if (NS_FAILED(rv)) {
     aRequest->LoadFailed();
     return rv;
+  }
+
+  if (!aRequest->mIsInline) {
+    SetModuleFetchFinishedAndResumeWaitingRequests(aRequest, rv);
   }
 
   if (!aRequest->mModuleScript->HasParseError()) {
@@ -1458,20 +1460,19 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
   if (request->IsModuleRequest()) {
     ModuleLoadRequest* modReq = request->AsModuleRequest();
     modReq->mBaseURL = mDocument->GetDocBaseURI();
-    rv = CreateModuleScript(modReq);
-    MOZ_ASSERT(NS_FAILED(rv) == !modReq->mModuleScript);
-    if (NS_FAILED(rv)) {
-      modReq->LoadFailed();
-      return false;
-    }
+
     if (aElement->GetScriptAsync()) {
-      mLoadingAsyncRequests.AppendElement(request);
+      modReq->mIsAsync = true;
+      mLoadingAsyncRequests.AppendElement(modReq);
     } else {
-      AddDeferRequest(request);
+      AddDeferRequest(modReq);
     }
-    if (!modReq->mModuleScript->HasParseError()) {
-      StartFetchingModuleDependencies(modReq);
+
+    nsresult rv = ProcessFetchedModuleSource(modReq);
+    if (NS_FAILED(rv)) {
+      HandleLoadError(modReq, rv);
     }
+
     return false;
   }
   request->mProgress = ScriptLoadRequest::Progress::Ready;
@@ -2344,6 +2345,11 @@ ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
   if (aResult == NS_ERROR_TRACKING_URI) {
     nsCOMPtr<nsIContent> cont = do_QueryInterface(aRequest->mElement);
     mDocument->AddBlockedTrackingNode(cont);
+  }
+
+  if (aRequest->IsModuleRequest() && !aRequest->mIsInline) {
+    auto request = aRequest->AsModuleRequest();
+    SetModuleFetchFinishedAndResumeWaitingRequests(request, aResult);
   }
 
   if (aRequest->mIsDefer) {

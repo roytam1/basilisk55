@@ -3596,6 +3596,9 @@ GetModuleEnvironmentNames(JSContext* cx, unsigned argc, Value* vp)
         return false;
     }
 
+//-    if (module->status() == MODULE_STATUS_ERRORED) {
+//+    if (module->hadEvaluationError()) {
+
     RootedModuleEnvironmentObject env(cx, GetModuleEnvironment(cx, args[0]));
     Rooted<IdVector> ids(cx, IdVector(cx));
     if (!JS_Enumerate(cx, env, &ids))
@@ -3632,6 +3635,9 @@ GetModuleEnvironmentValue(JSContext* cx, unsigned argc, Value* vp)
         JS_ReportErrorASCII(cx, "Second argument should be a string");
         return false;
     }
+
+//-    if (module->status() == MODULE_STATUS_ERRORED) {
+//+    if (module->hadEvaluationError()) {
 
     RootedModuleEnvironmentObject env(cx, GetModuleEnvironment(cx, args[0]));
     RootedString name(cx, args[1].toString());

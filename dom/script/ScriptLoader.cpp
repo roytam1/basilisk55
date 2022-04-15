@@ -535,7 +535,6 @@ ScriptLoader::CreateModuleScript(ModuleLoadRequest* aRequest)
   nsresult rv;
   {
     // Update our current script.
-    AutoCurrentScriptUpdater scriptUpdater(this, aRequest->mElement);
     Maybe<AutoCurrentScriptUpdater> masterScriptUpdater;
     nsCOMPtr<nsIDocument> master = mDocument->MasterDocument();
     if (master != mDocument) {
@@ -1457,7 +1456,7 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
     return false;
   }
 
-  // Inline scripts ignore ther CORS mode and are always CORS_NONE.
+  // Inline scripts ignore their CORS mode and are always CORS_NONE.
   request = CreateLoadRequest(scriptKind, mDocument->GetDocumentURI(), aElement,
                               version, CORS_NONE,
                               SRIMetadata(), // SRI doesn't apply
@@ -1976,8 +1975,6 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
   context->SetProcessingScriptTag(true);
   nsresult rv;
   {
-    // Update our current script.
-    AutoCurrentScriptUpdater scriptUpdater(this, aRequest->mElement);
     Maybe<AutoCurrentScriptUpdater> masterScriptUpdater;
     nsCOMPtr<nsIDocument> master = mDocument->MasterDocument();
     if (master != mDocument) {
@@ -1991,6 +1988,9 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
     }
 
     if (aRequest->IsModuleRequest()) {
+      // For modules, currentScript is set to null.
+      AutoCurrentScriptUpdater scriptUpdater(this, nullptr);
+
       EnsureModuleResolveHook(cx);
 
       ModuleLoadRequest* request = aRequest->AsModuleRequest();
@@ -2015,6 +2015,9 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
         rv = NS_OK; // An error is reported by AutoEntryScript.
       }
     } else {
+      // Update our current script.
+      AutoCurrentScriptUpdater scriptUpdater(this, aRequest->mElement);
+
       JS::CompileOptions options(cx);
       rv = FillCompileOptionsForRequest(aes, aRequest, global, &options);
 

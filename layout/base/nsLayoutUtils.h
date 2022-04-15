@@ -64,6 +64,7 @@ struct nsStyleImageOrientation;
 struct nsOverflowAreas;
 
 namespace mozilla {
+struct aspectRatio;
 enum class CSSPseudoElementType : uint8_t;
 class EventListenerManager;
 class SVGImageContext;
@@ -125,6 +126,7 @@ enum class RelativeTo {
  */
 class nsLayoutUtils
 {
+  typedef mozilla::AspectRatio AspectRatio;
   typedef mozilla::dom::DOMRectList DOMRectList;
   typedef mozilla::layers::Layer Layer;
   typedef mozilla::ContainerLayerParameters ContainerLayerParameters;
@@ -1220,7 +1222,7 @@ public:
    */
   static nsRect ComputeObjectDestRect(const nsRect& aConstraintRect,
                                       const IntrinsicSize& aIntrinsicSize,
-                                      const nsSize& aIntrinsicRatio,
+                                      const AspectRatio& aIntrinsicRatio,
                                       const nsStylePosition* aStylePos,
                                       nsPoint* aAnchorPoint = nullptr);
 
@@ -1852,7 +1854,7 @@ public:
    */
   static void ComputeSizeForDrawing(imgIContainer* aImage,
                                     CSSIntSize&    aImageSize,
-                                    nsSize&        aIntrinsicRatio,
+                                    AspectRatio&        aIntrinsicRatio,
                                     bool&          aGotWidth,
                                     bool&          aGotHeight);
 

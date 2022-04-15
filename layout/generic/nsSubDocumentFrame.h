@@ -51,7 +51,7 @@ public:
   nscoord GetPrefISize(nsRenderingContext *aRenderingContext) override;
 
   mozilla::IntrinsicSize GetIntrinsicSize() override;
-  nsSize  GetIntrinsicRatio() override;
+  virtual mozilla::AspectRatio GetIntrinsicRatio() override;
 
   mozilla::LogicalSize
   ComputeAutoSize(nsRenderingContext*         aRenderingContext,

@@ -3658,9 +3658,9 @@ HTMLInputElement::NeedToInitializeEditorForEvent(
 }
 
 bool
-HTMLInputElement::IsDisabledForEvents(EventMessage aMessage)
+HTMLInputElement::IsDisabledForEvents(WidgetEvent* aEvent)
 {
-  return IsElementDisabledForEvents(aMessage, GetPrimaryFrame());
+  return IsElementDisabledForEvents(aEvent, GetPrimaryFrame());
 }
 
 nsresult
@@ -3668,7 +3668,7 @@ HTMLInputElement::GetEventTargetParent(EventChainPreVisitor& aVisitor)
 {
   // Do not process any DOM events if the element is disabled
   aVisitor.mCanHandle = false;
-  if (IsDisabledForEvents(aVisitor.mEvent->mMessage)) {
+  if (IsDisabledForEvents(aVisitor.mEvent)) {
     return NS_OK;
   }
 

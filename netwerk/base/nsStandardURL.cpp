@@ -2701,7 +2701,8 @@ nsStandardURL::SetFilePath(const nsACString &input)
 
         return SetSpec(spec);
     }
-    else if (mPath.mLen > 1) {
+
+    if (mPath.mLen > 1) {
         mSpec.Cut(mPath.mPos + 1, mFilepath.mLen - 1);
         // left shift query, and ref
         ShiftFromQuery(1 - mFilepath.mLen);

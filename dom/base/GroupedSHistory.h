@@ -7,11 +7,14 @@
 #ifndef GroupedSHistory_h
 #define GroupedSHistory_h
 
+#include "nsCycleCollectionParticipant.h"
+#include "nsCOMArray.h"
 #include "nsIFrameLoader.h"
 #include "nsIGroupedSHistory.h"
 #include "nsIPartialSHistory.h"
 #include "nsTArray.h"
 #include "nsWeakReference.h"
+#include "mozilla/dom/Promise.h"
 
 namespace mozilla {
 namespace dom {

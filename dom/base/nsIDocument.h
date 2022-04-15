@@ -155,6 +155,7 @@ class ProcessingInstruction;
 class Promise;
 class Selection;
 class ScriptLoader;
+class ResizeObserver;
 class StyleSheetList;
 class SVGDocument;
 class SVGSVGElement;
@@ -2930,6 +2931,10 @@ public:
   }
 
   bool ModuleScriptsEnabled();
+
+  virtual void AddResizeObserver(mozilla::dom::ResizeObserver* aResizeObserver) = 0;
+
+  virtual void ScheduleResizeObserversNotification() const = 0;
 
 protected:
   bool GetUseCounter(mozilla::UseCounter aUseCounter)

@@ -14,10 +14,10 @@
 #include "mozilla/dom/PromiseNativeHandler.h"
 #include "mozilla/dom/RegisterWorkletBindings.h"
 #include "mozilla/dom/Response.h"
+#include "mozilla/dom/ScriptLoader.h"
 #include "mozilla/dom/ScriptSettings.h"
 #include "nsIThreadRetargetableRequest.h"
 #include "nsNetUtil.h"
-#include "nsScriptLoader.h"
 #include "xpcprivate.h"
 
 namespace mozilla {
@@ -172,9 +172,9 @@ public:
     char16_t* scriptTextBuf;
     size_t scriptTextLength;
     nsresult rv =
-      nsScriptLoader::ConvertToUTF16(nullptr, aString, aStringLen,
-                                     NS_LITERAL_STRING("UTF-8"), nullptr,
-                                     scriptTextBuf, scriptTextLength);
+      ScriptLoader::ConvertToUTF16(nullptr, aString, aStringLen,
+                                   NS_LITERAL_STRING("UTF-8"), nullptr,
+                                   scriptTextBuf, scriptTextLength);
     if (NS_WARN_IF(NS_FAILED(rv))) {
       RejectPromises(rv);
       return NS_OK;

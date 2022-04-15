@@ -1714,7 +1714,7 @@ CSS_PROP_SVG(
     FillOpacity,
     CSS_PROPERTY_PARSE_VALUE,
     "",
-    VARIANT_HN | VARIANT_OPENTYPE_SVG_KEYWORD,
+    VARIANT_HPN | VARIANT_OPENTYPE_SVG_KEYWORD,
     kContextOpacityKTable,
     offsetof(nsStyleSVG, mFillOpacity),
     eStyleAnimType_float)
@@ -1852,7 +1852,7 @@ CSS_PROP_SVGRESET(
     FloodOpacity,
     CSS_PROPERTY_PARSE_VALUE,
     "",
-    VARIANT_HN,
+    VARIANT_HPN,
     nullptr,
     offsetof(nsStyleSVGReset, mFloodOpacity),
     eStyleAnimType_float)
@@ -3081,7 +3081,7 @@ CSS_PROP_EFFECTS(
         CSS_PROPERTY_CAN_ANIMATE_ON_COMPOSITOR |
         CSS_PROPERTY_CREATES_STACKING_CONTEXT,
     "",
-    VARIANT_HN,
+    VARIANT_HPN,
     nullptr,
     offsetof(nsStyleEffects, mOpacity),
     eStyleAnimType_float)
@@ -3772,7 +3772,7 @@ CSS_PROP_SVGRESET(
     StopOpacity,
     CSS_PROPERTY_PARSE_VALUE,
     "",
-    VARIANT_HN,
+    VARIANT_HPN,
     nullptr,
     offsetof(nsStyleSVGReset, mStopOpacity),
     eStyleAnimType_float)
@@ -3847,7 +3847,7 @@ CSS_PROP_SVG(
     StrokeOpacity,
     CSS_PROPERTY_PARSE_VALUE,
     "",
-    VARIANT_HN | VARIANT_OPENTYPE_SVG_KEYWORD,
+    VARIANT_HPN | VARIANT_OPENTYPE_SVG_KEYWORD,
     kContextOpacityKTable,
     offsetof(nsStyleSVG, mStrokeOpacity),
     eStyleAnimType_float)

@@ -1363,6 +1363,7 @@ nsStylePosition::nsStylePosition(const nsPresContext* aContext)
   , mGridAutoColumnsMax(eStyleUnit_Auto)
   , mGridAutoRowsMin(eStyleUnit_Auto)
   , mGridAutoRowsMax(eStyleUnit_Auto)
+  , mAspectRatio(0.0f)
   , mGridAutoFlow(NS_STYLE_GRID_AUTO_FLOW_ROW)
   , mBoxSizing(StyleBoxSizing::Content)
   , mAlignContent(NS_STYLE_ALIGN_NORMAL)
@@ -1421,6 +1422,7 @@ nsStylePosition::nsStylePosition(const nsStylePosition& aSource)
   , mGridAutoColumnsMax(aSource.mGridAutoColumnsMax)
   , mGridAutoRowsMin(aSource.mGridAutoRowsMin)
   , mGridAutoRowsMax(aSource.mGridAutoRowsMax)
+  , mAspectRatio(aSource.mAspectRatio)
   , mGridAutoFlow(aSource.mGridAutoFlow)
   , mBoxSizing(aSource.mBoxSizing)
   , mAlignContent(aSource.mAlignContent)
@@ -1590,6 +1592,11 @@ nsStylePosition::CalcDifference(const nsStylePosition& aNewData,
 
     if (isVertical ? heightChanged : widthChanged) {
       hint |= nsChangeHint_ReflowHintsForISizeChange;
+    }
+
+    if (mAspectRatio != aNewData.mAspectRatio) {
+      hint |= nsChangeHint_ReflowHintsForISizeChange |
+              nsChangeHint_ReflowHintsForBSizeChange;
     }
   } else {
     if (widthChanged || heightChanged) {

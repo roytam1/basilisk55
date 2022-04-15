@@ -62,6 +62,7 @@ protected:
 
 public:
   ScriptLoadRequest(ScriptKind aKind,
+                    nsIURI* aURI,
                     nsIScriptElement* aElement,
                     uint32_t aVersion,
                     mozilla::CORSMode aCORSMode,
@@ -82,6 +83,7 @@ public:
       mScriptTextBuf(nullptr),
       mScriptTextLength(0),
       mJSVersion(aVersion),
+      mURI(aURI),
       mLineNo(1),
       mCORSMode(aCORSMode),
       mIntegrity(aIntegrity),
@@ -177,7 +179,7 @@ public:
   char16_t* mScriptTextBuf; // Holds script text for non-inline scripts. Don't
   size_t mScriptTextLength; // use nsString so we can give ownership to jsapi.
   uint32_t mJSVersion;
-  nsCOMPtr<nsIURI> mURI;
+  const nsCOMPtr<nsIURI> mURI;
   nsCOMPtr<nsIPrincipal> mOriginPrincipal;
   nsAutoCString mURL;     // Keep the URI's filename alive during off thread parsing.
   int32_t mLineNo;
@@ -487,6 +489,7 @@ private:
 
   ScriptLoadRequest* CreateLoadRequest(
     ScriptKind aKind,
+    nsIURI* aURI,
     nsIScriptElement* aElement,
     uint32_t aVersion,
     mozilla::CORSMode aCORSMode,
@@ -605,7 +608,7 @@ private:
   void StartFetchingModuleDependencies(ModuleLoadRequest* aRequest);
 
   RefPtr<mozilla::GenericPromise>
-  StartFetchingModuleAndDependencies(ModuleLoadRequest* aRequest, nsIURI* aURI);
+  StartFetchingModuleAndDependencies(ModuleLoadRequest* aParent, nsIURI* aURI);
 
   nsIDocument* mDocument;                   // [WEAK]
   nsCOMArray<nsIScriptLoaderObserver> mObservers;

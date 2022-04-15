@@ -1188,14 +1188,14 @@ nsDataObj :: GetFileDescriptorInternetShortcutA ( FORMATETC& aFE, STGMEDIUM& aST
   }
 
   // get a valid filename in the following order: 1) from the page title, 
-  // 2) localized string for an untitled page, 3) just use "Untitled.URL"
-  if (!CreateFilenameFromTextA(title, ".URL", 
+  // 2) localized string for an untitled page, 3) just use "Untitled.url"
+  if (!CreateFilenameFromTextA(title, ".url", 
                                fileGroupDescA->fgd[0].cFileName, NS_MAX_FILEDESCRIPTOR)) {
     nsXPIDLString untitled;
     if (!GetLocalizedString(u"noPageTitle", untitled) ||
-        !CreateFilenameFromTextA(untitled, ".URL", 
+        !CreateFilenameFromTextA(untitled, ".url", 
                                  fileGroupDescA->fgd[0].cFileName, NS_MAX_FILEDESCRIPTOR)) {
-      strcpy(fileGroupDescA->fgd[0].cFileName, "Untitled.URL");
+      strcpy(fileGroupDescA->fgd[0].cFileName, "Untitled.url");
     }
   }
 
@@ -1229,14 +1229,14 @@ nsDataObj :: GetFileDescriptorInternetShortcutW ( FORMATETC& aFE, STGMEDIUM& aST
   }
 
   // get a valid filename in the following order: 1) from the page title, 
-  // 2) localized string for an untitled page, 3) just use "Untitled.URL"
-  if (!CreateFilenameFromTextW(title, L".URL",
+  // 2) localized string for an untitled page, 3) just use "Untitled.url"
+  if (!CreateFilenameFromTextW(title, L".url",
                                fileGroupDescW->fgd[0].cFileName, NS_MAX_FILEDESCRIPTOR)) {
     nsXPIDLString untitled;
     if (!GetLocalizedString(u"noPageTitle", untitled) ||
-        !CreateFilenameFromTextW(untitled, L".URL",
+        !CreateFilenameFromTextW(untitled, L".url",
                                  fileGroupDescW->fgd[0].cFileName, NS_MAX_FILEDESCRIPTOR)) {
-      wcscpy(fileGroupDescW->fgd[0].cFileName, L"Untitled.URL");
+      wcscpy(fileGroupDescW->fgd[0].cFileName, L"Untitled.url");
     }
   }
 

@@ -3481,7 +3481,7 @@ AdvanceToNextTab(gfxFloat aX, nsIFrame* aFrame,
   // Advance aX to the next multiple of *aCachedTabWidth. We must advance
   // by at least 1 appunit.
   // XXX should we make this 1 CSS pixel?
-  return ceil((aX + 1) / aTabWidth) * aTabWidth;
+  return NS_round((aX + 1) / aTabWidth) * aTabWidth;
 }
 
 void

@@ -9317,6 +9317,7 @@ exports.PSEUDO_ELEMENTS = [
   ":backdrop",
   ":first-letter",
   ":first-line",
+  ":selection",
   ":-moz-selection",
   ":-moz-focus-inner",
   ":-moz-focus-outer",

@@ -7814,6 +7814,7 @@ exports.CSS_PROPERTIES = {
     ],
     "supports": [],
     "values": [
+      "anywhere",
       "break-word",
       "inherit",
       "initial",
@@ -9259,6 +9260,7 @@ exports.CSS_PROPERTIES = {
     ],
     "supports": [],
     "values": [
+      "anywhere",
       "break-word",
       "inherit",
       "initial",

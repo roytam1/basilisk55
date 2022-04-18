@@ -363,7 +363,7 @@ ifneq (android,$(MOZ_WIDGET_TOOLKIT))
   OPTIMIZEJARS = 1
   ifneq (gonk,$(MOZ_WIDGET_TOOLKIT))
     ifdef NIGHTLY_BUILD
-      DISABLE_JAR_COMPRESSION = 1
+      JAR_COMPRESSION ?= none
     endif
   endif
 endif

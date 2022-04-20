@@ -1497,6 +1497,8 @@ ReloadPrefsCallback(const char* pref, void* data)
 
     bool extraWarnings = Preferences::GetBool(JS_OPTIONS_DOT_STR "strict");
 
+    bool inlining = Preferences::GetBool(JS_OPTIONS_DOT_STR "ion.inlining");
+
     sSharedMemoryEnabled = Preferences::GetBool(JS_OPTIONS_DOT_STR "shared_memory");
 
 #ifdef DEBUG
@@ -1525,6 +1527,8 @@ ReloadPrefsCallback(const char* pref, void* data)
                                   useBaselineEager ? 0 : baselineThreshold);
     JS_SetGlobalJitCompilerOption(cx, JSJITCOMPILER_ION_WARMUP_TRIGGER,
                                   useIonEager ? 0 : ionThreshold);
+    JS_SetGlobalJitCompilerOption(cx, JSJITCOMPILER_ION_INLINING,
+                                  inlining);
 #ifdef DEBUG
     JS_SetGlobalJitCompilerOption(cx, JSJITCOMPILER_FULL_DEBUG_CHECKS, fullJitDebugChecks);
 #endif

@@ -6632,6 +6632,9 @@ JS_SetGlobalJitCompilerOption(JSContext* cx, JSJitCompilerOption opt, uint32_t v
       case JSJITCOMPILER_ION_INTERRUPT_WITHOUT_SIGNAL:
         jit::JitOptions.ionInterruptWithoutSignals = !!value;
         break;
+      case JSJITCOMPILER_ION_INLINING:
+        jit::JitOptions.disableInlining = !value;
+        break;
 #ifdef DEBUG
       case JSJITCOMPILER_FULL_DEBUG_CHECKS:
         jit::JitOptions.fullDebugChecks = !!value;

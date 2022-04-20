@@ -1,4 +1,3 @@
-// vim:set sw=4 sts=4 et cin:
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -58,6 +57,51 @@ Atomic<PRThread*, Relaxed> gSocketThread;
 
 uint32_t nsSocketTransportService::gMaxCount;
 PRCallOnceType nsSocketTransportService::gMaxCountInitOnce;
+
+//-----------------------------------------------------------------------------
+bool
+nsSocketTransportService::SocketContext::IsTimedOut(PRIntervalTime now) const
+{
+    return TimeoutIn(now) == 0;
+}
+
+void
+nsSocketTransportService::SocketContext::StartTimeout(PRIntervalTime now)
+{
+    if (!mPollStartEpoch) {
+        mPollStartEpoch = now;
+    }
+}
+
+void
+nsSocketTransportService::SocketContext::StopTimeout()
+{
+    mPollStartEpoch = 0;
+}
+
+void
+nsSocketTransportService::SocketContext::ResetTimeout()
+{
+  if (mPollStartEpoch && mHandler->mPollTimeout == UINT16_MAX) {
+    mPollStartEpoch = 0;
+  }
+}
+
+PRIntervalTime
+nsSocketTransportService::SocketContext::TimeoutIn(PRIntervalTime now) const
+{
+    if (mHandler->mPollTimeout == UINT16_MAX || !mPollStartEpoch) {
+        return NS_SOCKET_POLL_TIMEOUT;
+    }
+
+    PRIntervalTime elapsed = (now - mPollStartEpoch);
+    PRIntervalTime timeout = PR_SecondsToInterval(mHandler->mPollTimeout);
+
+    if (elapsed >= timeout) {
+        return 0;
+    }
+    return timeout - elapsed;
+}
 
 //-----------------------------------------------------------------------------
 // ctor/dtor (called on the main/UI thread by the service manager)
@@ -198,7 +242,7 @@ nsSocketTransportService::AttachSocket(PRFileDesc *fd, nsASocketHandler *handler
     SocketContext sock;
     sock.mFD = fd;
     sock.mHandler = handler;
-    sock.mElapsedTime = 0;
+    sock.mPollStartEpoch = 0;
 
     nsresult rv = AddToIdleList(&sock);
     if (NS_SUCCEEDED(rv))
@@ -297,6 +341,8 @@ nsSocketTransportService::AddToPollList(SocketContext *sock)
       PodMove(mPollList + newSocketIndex + 2, mPollList + newSocketIndex + 1,
               mActiveCount - newSocketIndex);
     }
+    
+    sock->StartTimeout(PR_IntervalNow());
     mActiveList[newSocketIndex] = *sock;
     mActiveCount++;
 
@@ -421,34 +467,32 @@ nsSocketTransportService::GrowIdleList()
 }
 
 PRIntervalTime
-nsSocketTransportService::PollTimeout()
+nsSocketTransportService::PollTimeout(PRIntervalTime now)
 {
-    if (mActiveCount == 0)
+    if (mActiveCount == 0) {
         return NS_SOCKET_POLL_TIMEOUT;
+    }
 
     // compute minimum time before any socket timeout expires.
-    uint32_t minR = UINT16_MAX;
+    PRIntervalTime minR = NS_SOCKET_POLL_TIMEOUT;
     for (uint32_t i=0; i<mActiveCount; ++i) {
         const SocketContext &s = mActiveList[i];
-        // mPollTimeout could be less than mElapsedTime if setTimeout
-        // was called with a value smaller than mElapsedTime.
-        uint32_t r = (s.mElapsedTime < s.mHandler->mPollTimeout)
-          ? s.mHandler->mPollTimeout - s.mElapsedTime
-          : 0;
-        if (r < minR)
+        PRIntervalTime r = s.TimeoutIn(now);
+        if (r < minR) {
             minR = r;
+        }
     }
-    // nsASocketHandler defines UINT16_MAX as do not timeout
-    if (minR == UINT16_MAX) {
+    
+    if (minR == NS_SOCKET_POLL_TIMEOUT) {
         SOCKET_LOG(("poll timeout: none\n"));
         return NS_SOCKET_POLL_TIMEOUT;
     }
-    SOCKET_LOG(("poll timeout: %lu\n", minR));
-    return PR_SecondsToInterval(minR);
+    SOCKET_LOG(("poll timeout: %lu seconds\n", PR_IntervalToSeconds(minR)));
+    return minR;
 }
 
 int32_t
-nsSocketTransportService::Poll(uint32_t *interval,
+nsSocketTransportService::Poll(PRIntervalTime ts,
                                TimeDuration *pollDuration)
 {
     PRPollDesc *pollList;
@@ -460,12 +504,12 @@ nsSocketTransportService::Poll(uint32_t *interval,
     // DoPollIteration() should service the network without blocking.
     bool pendingEvents = false;
     mRawThread->HasPendingEvents(&pendingEvents);
-
+    
     if (mPollList[0].fd) {
         mPollList[0].out_flags = 0;
         pollList = mPollList;
         pollCount = mActiveCount + 1;
-        pollTimeout = pendingEvents ? PR_INTERVAL_NO_WAIT : PollTimeout();
+        pollTimeout = pendingEvents ? PR_INTERVAL_NO_WAIT : PollTimeout(ts);
     }
     else {
         // no pollable event, so busy wait...
@@ -478,8 +522,6 @@ nsSocketTransportService::Poll(uint32_t *interval,
             pendingEvents ? PR_INTERVAL_NO_WAIT : PR_MillisecondsToInterval(25);
     }
 
-    PRIntervalTime ts = PR_IntervalNow();
-
     TimeStamp pollStart;
     if (mTelemetryEnabledPref) {
         pollStart = TimeStamp::NowLoRes();
@@ -487,18 +529,16 @@ nsSocketTransportService::Poll(uint32_t *interval,
 
     SOCKET_LOG(("    timeout = %i milliseconds\n",
          PR_IntervalToMilliseconds(pollTimeout)));
-    int32_t rv = PR_Poll(pollList, pollCount, pollTimeout);
 
-    PRIntervalTime passedInterval = PR_IntervalNow() - ts;
+    int32_t rv = PR_Poll(pollList, pollCount, pollTimeout);
 
     if (mTelemetryEnabledPref && !pollStart.IsNull()) {
         *pollDuration = TimeStamp::NowLoRes() - pollStart;
     }
 
     SOCKET_LOG(("    ...returned after %i milliseconds\n",
-         PR_IntervalToMilliseconds(passedInterval))); 
+         PR_IntervalToMilliseconds(PR_IntervalNow() - ts))); 
 
-    *interval = PR_IntervalToSeconds(passedInterval);
     return rv;
 }
 
@@ -882,7 +922,6 @@ nsSocketTransportService::Run()
     // For calculating the time needed for a new element to run.
     TimeStamp startOfIteration;
     TimeStamp startOfNextIteration;
-    int numberOfPendingEvents;
 
     // If there is too many pending events queued, we will run some poll()
     // between them and the following variable is cumulative time spent
@@ -892,7 +931,6 @@ nsSocketTransportService::Run()
     for (;;) {
         bool pendingEvents = false;
 
-        numberOfPendingEvents = 0;
         numberOfPendingEventsLastCycle = 0;
         if (mTelemetryEnabledPref) {
             startOfCycleForLastCycleCalc = TimeStamp::NowLoRes();
@@ -942,29 +980,12 @@ nsSocketTransportService::Run()
                 TimeStamp eventQueueStart = TimeStamp::NowLoRes();
                 do {
                     NS_ProcessNextEvent(mRawThread);
-                    numberOfPendingEvents++;
                     pendingEvents = false;
                     mRawThread->HasPendingEvents(&pendingEvents);
                 } while (pendingEvents && mServingPendingQueue &&
                          ((TimeStamp::NowLoRes() -
                            eventQueueStart).ToMilliseconds() <
                           mMaxTimePerPollIter));
-
-                if (mTelemetryEnabledPref && !mServingPendingQueue &&
-                    !startOfIteration.IsNull()) {
-                    Telemetry::AccumulateTimeDelta(
-                        Telemetry::STS_POLL_AND_EVENTS_CYCLE,
-                        startOfIteration + pollDuration,
-                        TimeStamp::NowLoRes());
-
-                    Telemetry::Accumulate(
-                        Telemetry::STS_NUMBER_OF_PENDING_EVENTS,
-                        numberOfPendingEvents);
-
-                    numberOfPendingEventsLastCycle += numberOfPendingEvents;
-                    numberOfPendingEvents = 0;
-                    pollDuration = 0;
-                }
             }
         } while (pendingEvents);
 
@@ -1046,6 +1067,9 @@ nsSocketTransportService::DoPollIteration(TimeDuration *pollDuration)
 {
     SOCKET_LOG(("STS poll iter\n"));
 
+    // Freeze "now" for list updates and polling.
+    PRIntervalTime now = PR_IntervalNow();
+    
     int32_t i, count;
     //
     // poll loop
@@ -1063,16 +1087,18 @@ nsSocketTransportService::DoPollIteration(TimeDuration *pollDuration)
             mActiveList[i].mHandler->mCondition,
             mActiveList[i].mHandler->mPollFlags));
         //---
-        if (NS_FAILED(mActiveList[i].mHandler->mCondition))
+        if (NS_FAILED(mActiveList[i].mHandler->mCondition)) {
             DetachSocket(mActiveList, &mActiveList[i]);
-        else {
+        } else {
             uint16_t in_flags = mActiveList[i].mHandler->mPollFlags;
-            if (in_flags == 0)
+            if (in_flags == 0) {
                 MoveToIdleList(&mActiveList[i]);
-            else {
+            } else {
                 // update poll flags
                 mPollList[i+1].in_flags = in_flags;
                 mPollList[i+1].out_flags = 0;
+                // Active polling entry; start timeout.
+                mActiveList[i].StartTimeout(now);
             }
         }
     }
@@ -1083,10 +1109,11 @@ nsSocketTransportService::DoPollIteration(TimeDuration *pollDuration)
             mIdleList[i].mHandler->mCondition,
             mIdleList[i].mHandler->mPollFlags));
         //---
-        if (NS_FAILED(mIdleList[i].mHandler->mCondition))
+        if (NS_FAILED(mIdleList[i].mHandler->mCondition)) {
             DetachSocket(mIdleList, &mIdleList[i]);
-        else if (mIdleList[i].mHandler->mPollFlags != 0)
+        } else if (mIdleList[i].mHandler->mPollFlags != 0) {
             MoveToPollList(&mIdleList[i]);
+        }
     }
 
     SOCKET_LOG(("  calling PR_Poll [active=%u idle=%u]\n", mActiveCount, mIdleCount));
@@ -1100,29 +1127,30 @@ nsSocketTransportService::DoPollIteration(TimeDuration *pollDuration)
 #endif
 
     // Measures seconds spent while blocked on PR_Poll
-    uint32_t pollInterval = 0;
     int32_t n = 0;
     *pollDuration = 0;
+
     if (!gIOService->IsNetTearingDown()) {
         // Let's not do polling during shutdown.
 #if defined(XP_WIN)
         StartPolling();
 #endif
-        n = Poll(&pollInterval, pollDuration);
+        n = Poll(now, pollDuration);
 #if defined(XP_WIN)
         EndPolling();
 #endif
     }
+    
+    // Refresh when "now" is for following checks.
+    now = PR_IntervalNow();
 
     if (n < 0) {
         SOCKET_LOG(("  PR_Poll error [%d] os error [%d]\n", PR_GetError(),
                     PR_GetOSError()));
-    }
-    else {
+    } else {
         //
         // service "active" sockets...
         //
-        uint32_t numberOfOnSocketReadyCalls = 0;
         for (i=0; i<int32_t(mActiveCount); ++i) {
             PRPollDesc &desc = mPollList[i+1];
             SocketContext &s = mActiveList[i];
@@ -1130,38 +1158,18 @@ nsSocketTransportService::DoPollIteration(TimeDuration *pollDuration)
 #ifdef MOZ_TASK_TRACER
 		tasktracer::AutoSourceEvent taskTracerEvent(tasktracer::SourceEventType::SocketIO);
 #endif
-                s.mElapsedTime = 0;
+                s.StopTimeout();
                 s.mHandler->OnSocketReady(desc.fd, desc.out_flags);
-                numberOfOnSocketReadyCalls++;
+            } else if (s.IsTimedOut(now)) {
+                // Socket timed out; disengage.
+                s.StopTimeout();
+                s.mHandler->OnSocketReady(desc.fd, -1);
+            } else {
+                // We may have recorded a timeout start on a socket and subsequently
+                // set it to not time out. Check the socket and reset the timestamp
+                // in this case to keep our states predictable.
+                s.ResetTimeout();
             }
-            // check for timeout errors unless disabled...
-            else if (s.mHandler->mPollTimeout != UINT16_MAX) {
-                // update elapsed time counter
-                // (NOTE: We explicitly cast UINT16_MAX to be an unsigned value
-                // here -- otherwise, some compilers will treat it as signed,
-                // which makes them fire signed/unsigned-comparison build
-                // warnings for the comparison against 'pollInterval'.)
-                if (MOZ_UNLIKELY(pollInterval >
-                                static_cast<uint32_t>(UINT16_MAX) -
-                                s.mElapsedTime))
-                    s.mElapsedTime = UINT16_MAX;
-                else
-                    s.mElapsedTime += uint16_t(pollInterval);
-                // check for timeout expiration 
-                if (s.mElapsedTime >= s.mHandler->mPollTimeout) {
-#ifdef MOZ_TASK_TRACER
-		    tasktracer::AutoSourceEvent taskTracerEvent(tasktracer::SourceEventType::SocketIO);
-#endif
-                    s.mElapsedTime = 0;
-                    s.mHandler->OnSocketReady(desc.fd, -1);
-                    numberOfOnSocketReadyCalls++;
-                }
-            }
-        }
-        if (mTelemetryEnabledPref) {
-            Telemetry::Accumulate(
-                Telemetry::STS_NUMBER_OF_ONSOCKETREADY_CALLS,
-                numberOfOnSocketReadyCalls);
         }
 
         //

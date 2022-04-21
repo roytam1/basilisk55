@@ -2976,11 +2976,8 @@ pref("svg.marker-improvements.enabled", true);
 // See https://svgwg.org/svg2-draft/single-page.html#types-SVGBoundingBoxOptions
 pref("svg.new-getBBox.enabled", false);
 
-#ifdef RELEASE_OR_BETA
-pref("svg.transform-box.enabled", false);
-#else
+// Is support for the transform-box property of SVG enabled?
 pref("svg.transform-box.enabled", true);
-#endif // RELEASE_OR_BETA
 
 // Default font types and sizes by locale
 pref("font.default.ar", "sans-serif");
@@ -4871,13 +4868,9 @@ pref("dom.battery.enabled", true);
 pref("dom.abortController.enabled", true);
 
 // Push
-
 pref("dom.push.enabled", false);
-
 pref("dom.push.loglevel", "error");
-
 pref("dom.getRootNode.enabled", false);
-
 pref("dom.push.serverURL", "wss://push.services.mozilla.com/");
 pref("dom.push.userAgentID", "");
 
@@ -4913,6 +4906,9 @@ pref("dom.push.requestTimeout", 10000);
 pref("dom.push.http2.reset_retry_count_after_ms", 60000);
 pref("dom.push.http2.maxRetries", 2);
 pref("dom.push.http2.retryInterval", 5000);
+
+// Whether WC getRootNode is available
+pref("dom.getRootNode.enabled", false);
 
 // W3C touch events
 // 0 - disabled, 1 - enabled, 2 - autodetect
@@ -5115,11 +5111,8 @@ pref("captivedetect.maxWaitingTime", 5000);
 pref("captivedetect.pollingTime", 3000);
 pref("captivedetect.maxRetryCount", 5);
 
-#ifdef RELEASE_OR_BETA
-pref("dom.forms.inputmode", false);
-#else
+// Enable support for specifying inputmode for soft keyboards
 pref("dom.forms.inputmode", true);
-#endif
 
 pref("dom.flyweb.enabled", false);
 
@@ -5346,8 +5339,8 @@ pref("dom.presentation.discoverable.retry_ms", 5000);
 pref("dom.presentation.session_transport.data_channel.enable", false);
 
 #ifdef XP_MACOSX
-#if !defined(RELEASE_OR_BETA) || defined(DEBUG)
-// In non-release builds we crash by default on insecure text input (when a
+#if defined(DEBUG)
+// In debug builds we crash by default on insecure text input (when a
 // password editor has focus but secure event input isn't enabled).  The
 // following pref, when turned on, disables this behavior.  See bug 1188425.
 pref("intl.allow-insecure-text-input", false);
@@ -5562,24 +5555,18 @@ pref("media.seekToNextFrame.enabled", false);
 pref("media.seekToNextFrame.enabled", true);
 #endif
 
-// return the maximum number of cores that navigator.hardwareCurrency returns
+// return the maximum number of cores that navigator.hardwareConcurrency returns
 pref("dom.maxHardwareConcurrency", 16);
 
-// Shutdown the osfile worker if its no longer needed.
-#if !defined(RELEASE_OR_BETA)
+// Shutdown the async osfile worker if it's no longer needed.
 pref("osfile.reset_worker_delay", 30000);
-#endif
 
 #if !defined(MOZ_WIDGET_GONK) && !defined(MOZ_WIDGET_ANDROID)
 pref("dom.webkitBlink.dirPicker.enabled", true);
 pref("dom.webkitBlink.filesystem.enabled", true);
 #endif
 
-#ifdef NIGHTLY_BUILD
 pref("media.block-autoplay-until-in-foreground", true);
-#else
-pref("media.block-autoplay-until-in-foreground", false);
-#endif
 
 #ifdef MOZ_STYLO
 // Is the Servo-backed style system enabled?
@@ -5614,12 +5601,8 @@ pref("security.data_uri.block_toplevel_data_uri_navigations", true);
 // If true, all FTP subresource loads will be blocked.
 pref("security.block_ftp_subresources", true);
 
-// Disable Storage api in release builds.
-#ifdef NIGHTLY_BUILD
-pref("dom.storageManager.enabled", true);
-#else
+// Disable Storage api by default. This needs specific front-end parts to be usable.
 pref("dom.storageManager.enabled", false);
-#endif
 
 // When a user cancels this number of authentication dialogs coming from
 // a single web page in a row, all following authentication dialogs will

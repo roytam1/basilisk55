@@ -451,6 +451,10 @@ pref("browser.tabs.showAudioPlayingIcon", true);
 // This should match Chromium's audio indicator delay.
 pref("browser.tabs.delayHidingAudioPlayingIconMS", 3000);
 
+// Whether dragging a tab off the tab bar to tear it off into its own
+// window is enabled.
+pref("browser.tabs.allowTabDetach", true);
+
 pref("browser.ctrlTab.previews", false);
 
 // By default, do not export HTML at shutdown.

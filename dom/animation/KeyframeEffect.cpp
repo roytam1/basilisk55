@@ -11,6 +11,7 @@
 #include "mozilla/dom/AnimationEffectTiming.h"
 #include "mozilla/dom/KeyframeEffectBinding.h"
 #include "mozilla/KeyframeUtils.h"
+#include "mozilla/Preferences.h"
 #include "nsDOMMutationObserver.h" // For nsAutoAnimationMutationBatch
 #include "nsIScriptError.h"
 
@@ -136,9 +137,10 @@ KeyframeEffect::SetIterationComposite(
   const IterationCompositeOperation& aIterationComposite,
   CallerType aCallerType)
 {
-  // Ignore iterationComposite if the Web Animations API is not enabled,
+  // Ignore iterationComposite if the API is not enabled,
   // then the default value 'Replace' will be used.
-  if (!AnimationUtils::IsCoreAPIEnabledForCaller(aCallerType)) {
+//  if (!AnimationUtils::IsCoreAPIEnabledForCaller(aCallerType)) {
+  if (!Preferences::GetBool("dom.animations-api.compositing.enabled")) {
     return;
   }
 

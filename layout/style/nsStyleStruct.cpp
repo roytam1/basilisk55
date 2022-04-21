@@ -4015,6 +4015,7 @@ nsStyleUserInterface::nsStyleUserInterface(const nsPresContext* aContext)
   , mPointerEvents(NS_STYLE_POINTER_EVENTS_AUTO)
   , mCursor(NS_STYLE_CURSOR_AUTO)
   , mCaretColor(StyleComplexColor::Auto())
+  , mScrollbarWidth(StyleScrollbarWidth::Auto)
 {
   MOZ_COUNT_CTOR(nsStyleUserInterface);
 }
@@ -4027,6 +4028,7 @@ nsStyleUserInterface::nsStyleUserInterface(const nsStyleUserInterface& aSource)
   , mCursor(aSource.mCursor)
   , mCursorImages(aSource.mCursorImages)
   , mCaretColor(aSource.mCaretColor)
+  , mScrollbarWidth(aSource.mScrollbarWidth)
 {
   MOZ_COUNT_CTOR(nsStyleUserInterface);
 }
@@ -4090,6 +4092,13 @@ nsStyleUserInterface::CalcDifference(const nsStyleUserInterface& aNewData) const
 
   if (mCaretColor != aNewData.mCaretColor) {
     hint |= nsChangeHint_RepaintFrame;
+  }
+  
+  if (mScrollbarWidth != aNewData.mScrollbarWidth) {
+    // For scrollbar-width change, we need some special handling similar
+    // to overflow properties. Specifically, we may need to reconstruct
+    // the scrollbar or force reflow of the viewport scrollbar.
+    hint |= nsChangeHint_ScrollbarChange;
   }
 
   return hint;

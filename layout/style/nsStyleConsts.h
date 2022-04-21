@@ -137,6 +137,13 @@ enum class StyleFloatEdge : uint8_t {
   MarginBox,
 };
 
+// scrollbar-width
+enum class StyleScrollbarWidth : uint8_t {
+  Auto,
+  Thin,
+  None,
+};
+
 // Hyphens
 enum class StyleHyphens : uint8_t {
   None,

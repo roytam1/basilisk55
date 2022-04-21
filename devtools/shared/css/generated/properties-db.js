@@ -3018,6 +3018,7 @@ exports.CSS_PROPERTIES = {
       "scroll-snap-points-y",
       "scroll-snap-type-x",
       "scroll-snap-type-y",
+      "scrollbar-width",
       "shape-outside",
       "shape-rendering",
       "-moz-stack-sizing",

@@ -5,6 +5,7 @@
 #ifndef mozilla_dom_MessagePortParent_h
 #define mozilla_dom_MessagePortParent_h
 
+#include "mozilla/WeakPtr.h"
 #include "mozilla/dom/PMessagePortParent.h"
 
 namespace mozilla {
@@ -12,7 +13,8 @@ namespace dom {
 
 class MessagePortService;
 
-class MessagePortParent final : public PMessagePortParent
+class MessagePortParent final : public PMessagePortParent,
+                                public SupportsWeakPtr<MessagePortParent>
 {
 public:
   explicit MessagePortParent(const nsID& aUUID);
@@ -39,6 +41,8 @@ public:
   static bool ForceClose(const nsID& aUUID,
                          const nsID& aDestinationUUID,
                          const uint32_t& aSequenceID);
+
+  MOZ_DECLARE_WEAKREFERENCE_TYPENAME(MessagePortParent)
 
 private:
   virtual mozilla::ipc::IPCResult RecvPostMessages(nsTArray<ClonedMessageData>&& aMessages)

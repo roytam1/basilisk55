@@ -249,7 +249,8 @@ FilePickerParent::CreateFilePicker()
     return false;
   }
 
-  return NS_SUCCEEDED(mFilePicker->Init(window, mTitle, mMode));
+  return NS_SUCCEEDED(mFilePicker->Init(window, mTitle, mMode,
+                                        element->IsNodeOfType(nsINode::eHTML_FORM_CONTROL)));
 }
 
 mozilla::ipc::IPCResult

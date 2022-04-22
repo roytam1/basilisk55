@@ -6483,6 +6483,11 @@ nsCSSFrameConstructor::IsValidSibling(nsIFrame*              aSibling,
                                       nsIContent*            aContent,
                                       StyleDisplay&          aDisplay)
 {
+  if (!aSibling || !aContent) {
+    // If either of these are null, no sane comparison can be made.
+    return false;
+  }
+  
   nsIFrame* parentFrame = aSibling->GetParent();
   nsIAtom* parentType = parentFrame->GetType();
 

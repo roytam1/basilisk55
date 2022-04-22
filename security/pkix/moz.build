@@ -18,6 +18,7 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
+    '../nss/cpputil',
     'include',
 ]
 

@@ -13,7 +13,7 @@
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Assertions.h"
 #include "pkix/pkixnss.h"
-#include "pkixutil.h"
+#include "pkix/pkixutil.h"
 
 namespace mozilla { namespace ct {
 
@@ -45,12 +45,12 @@ public:
   }
 
   Result CheckRevocation(EndEntityOrCA, const CertID&, Time, Duration,
-                         const Input*, const Input*) override
+                         const Input*, const Input*, const Input*) override
   {
     return Result::FATAL_ERROR_LIBRARY_FAILURE;
   }
 
-  Result IsChainValid(const DERArray&, Time) override
+  Result IsChainValid(const DERArray&, Time, const CertPolicyId&) override
   {
     return Result::FATAL_ERROR_LIBRARY_FAILURE;
   }

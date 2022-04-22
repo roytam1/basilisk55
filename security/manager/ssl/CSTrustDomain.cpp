@@ -130,7 +130,8 @@ CSTrustDomain::CheckRevocation(EndEntityOrCA endEntityOrCA,
                                const CertID& certID, Time time,
                                Duration validityDuration,
                                /*optional*/ const Input* stapledOCSPresponse,
-                               /*optional*/ const Input* aiaExtension)
+                               /*optional*/ const Input* aiaExtension,
+                               /*optional*/ const Input* sctExtension)
 {
   // We're relying solely on the CertBlocklist for revocation - and we're
   // performing checks on this in GetCertTrust (as per nsNSSCertDBTrustDomain)
@@ -138,7 +139,8 @@ CSTrustDomain::CheckRevocation(EndEntityOrCA endEntityOrCA,
 }
 
 Result
-CSTrustDomain::IsChainValid(const DERArray& certChain, Time time)
+CSTrustDomain::IsChainValid(const DERArray& certChain, Time time,
+                            const CertPolicyId& requiredPolicy)
 {
   // Check that our chain is not empty
   if (certChain.GetLength() == 0) {

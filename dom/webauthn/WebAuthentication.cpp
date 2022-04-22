@@ -11,7 +11,7 @@
 #include "mozilla/dom/Promise.h"
 #include "nsICryptoHash.h"
 #include "pkix/Input.h"
-#include "pkixutil.h"
+#include "pkix/pkixutil.h"
 
 #define PREF_WEBAUTHN_SOFTTOKEN_ENABLED "security.webauth.webauthn_enable_softtoken"
 #define PREF_WEBAUTHN_USBTOKEN_ENABLED  "security.webauth.webauthn_enable_usbtoken"

@@ -1,32 +1,13 @@
-/* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
-/* This code is made available to you under your choice of the following sets
- * of licensing terms:
- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-/* Copyright 2013 Mozilla Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 #include <limits>
 
 #include "pkix/pkix.h"
-#include "pkixcheck.h"
-#include "pkixutil.h"
+#include "pkix/pkixcheck.h"
+#include "pkix/pkixutil.h"
 
 namespace mozilla { namespace pkix {
 
@@ -40,16 +21,16 @@ enum class CertStatus : uint8_t {
 class Context final
 {
 public:
-  Context(TrustDomain& trustDomain, const CertID& certID, Time time,
-          uint16_t maxLifetimeInDays, /*optional out*/ Time* thisUpdate,
-          /*optional out*/ Time* validThrough)
-    : trustDomain(trustDomain)
-    , certID(certID)
-    , time(time)
-    , maxLifetimeInDays(maxLifetimeInDays)
+  Context(TrustDomain& aTrustDomain, const CertID& aCertID, Time aTime,
+          uint16_t aMaxLifetimeInDays, /*optional out*/ Time* aThisUpdate,
+          /*optional out*/ Time* aValidThrough)
+    : trustDomain(aTrustDomain)
+    , certID(aCertID)
+    , time(aTime)
+    , maxLifetimeInDays(aMaxLifetimeInDays)
     , certStatus(CertStatus::Unknown)
-    , thisUpdate(thisUpdate)
-    , validThrough(validThrough)
+    , thisUpdate(aThisUpdate)
+    , validThrough(aValidThrough)
     , expired(false)
     , matchFound(false)
   {
@@ -167,9 +148,13 @@ static Result ExtensionNotUnderstood(Reader& extnID, Input extnValue,
 static Result RememberSingleExtension(Context& context, Reader& extnID,
                                       Input extnValue, bool critical,
                                       /*out*/ bool& understood);
-static inline Result CertID(Reader& input,
-                            const Context& context,
-                            /*out*/ bool& match);
+// It is convention to name the function after the part of the data structure
+// we're parsing from the RFC (e.g. OCSPResponse, ResponseBytes).
+// But since we also have a C++ type called CertID, this function doesn't
+// follow the convention to prevent shadowing.
+static inline Result MatchCertID(Reader& input,
+                                 const Context& context,
+                                 /*out*/ bool& match);
 static Result MatchKeyHash(TrustDomain& trustDomain,
                            DigestAlgorithm hashAlgorithm,
                            Input issuerKeyHash,
@@ -434,12 +419,13 @@ BasicResponse(Reader& input, Context& context)
                      der::SEQUENCE, [&certs](Reader& certsDER) -> Result {
       while (!certsDER.AtEnd()) {
         Input cert;
-        Result rv = der::ExpectTagAndGetTLV(certsDER, der::SEQUENCE, cert);
-        if (rv != Success) {
-          return rv;
+        Result nestedRv =
+          der::ExpectTagAndGetTLV(certsDER, der::SEQUENCE, cert);
+        if (nestedRv != Success) {
+          return nestedRv;
         }
-        rv = certs.Append(cert);
-        if (rv != Success) {
+        nestedRv = certs.Append(cert);
+        if (nestedRv != Success) {
           return Result::ERROR_BAD_DER; // Too many certs
         }
       }
@@ -534,7 +520,7 @@ SingleResponse(Reader& input, Context& context)
 {
   bool match = false;
   Result rv = der::Nested(input, der::SEQUENCE, [&context, &match](Reader& r) {
-    return CertID(r, context, match);
+    return MatchCertID(r, context, match);
   });
   if (rv != Success) {
     return rv;
@@ -691,7 +677,7 @@ SingleResponse(Reader& input, Context& context)
 //        issuerKeyHash       OCTET STRING, -- Hash of issuer's public key
 //        serialNumber        CertificateSerialNumber }
 static inline Result
-CertID(Reader& input, const Context& context, /*out*/ bool& match)
+MatchCertID(Reader& input, const Context& context, /*out*/ bool& match)
 {
   match = false;
 
@@ -981,8 +967,8 @@ CreateEncodedOCSPRequest(TrustDomain& trustDomain, const struct CertID& certID,
   *d++ = 0x30; *d++ = totalLen - 10u; //         reqCert (CertID SEQUENCE)
 
   // reqCert.hashAlgorithm
-  for (size_t i = 0; i < sizeof(hashAlgorithm); ++i) {
-    *d++ = hashAlgorithm[i];
+  for (const uint8_t hashAlgorithmByte : hashAlgorithm) {
+    *d++ = hashAlgorithmByte;
   }
 
   // reqCert.issuerNameHash (OCTET STRING)

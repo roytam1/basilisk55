@@ -355,7 +355,8 @@ NSSCertDBTrustDomain::CheckRevocation(EndEntityOrCA endEntityOrCA,
                                       const CertID& certID, Time time,
                                       Duration validityDuration,
                          /*optional*/ const Input* stapledOCSPResponse,
-                         /*optional*/ const Input* aiaExtension)
+                         /*optional*/ const Input* aiaExtension,
+                         /*optional*/ const Input* sctExtension)
 {
   // Actively distrusted certificates will have already been blocked by
   // GetCertTrust.
@@ -795,7 +796,9 @@ CheckForStartComOrWoSign(const UniqueCERTCertList& certChain)
 }
 
 Result
-NSSCertDBTrustDomain::IsChainValid(const DERArray& certArray, Time time)
+NSSCertDBTrustDomain::IsChainValid(const DERArray& certArray,
+                                   Time time,
+                                   const CertPolicyId& requiredPolicy)
 {
   MOZ_LOG(gCertVerifierLog, LogLevel::Debug,
          ("NSSCertDBTrustDomain: IsChainValid"));

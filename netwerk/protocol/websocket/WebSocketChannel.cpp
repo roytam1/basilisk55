@@ -1267,10 +1267,10 @@ WebSocketChannel::Observe(nsISupports *subject,
         // Next we check mDataStarted, which we need to do on mTargetThread.
         if (!IsOnTargetThread()) {
           mTargetThread->Dispatch(
-            NewRunnableMethod(this, &WebSocketChannel::OnNetworkChanged),
+            NewRunnableMethod(this, &WebSocketChannel::OnNetworkChangedTargetThread),
             NS_DISPATCH_NORMAL);
         } else {
-          nsresult rv = OnNetworkChanged();
+          nsresult rv = OnNetworkChangedTargetThread();
           if (NS_FAILED(rv)) {
             LOG(("WebSocket: OnNetworkChanged failed (%08x)", rv));
           }
@@ -1283,21 +1283,23 @@ WebSocketChannel::Observe(nsISupports *subject,
 }
 
 nsresult
-WebSocketChannel::OnNetworkChanged()
+WebSocketChannel::OnNetworkChangedTargetThread()
 {
-  if (IsOnTargetThread()) {
-    LOG(("WebSocketChannel::OnNetworkChanged() - on target thread %p", this));
+  LOG(("WebSocketChannel::OnNetworkChangedTargetThread() - on target thread %p", this));
 
-    if (!mDataStarted) {
-      LOG(("WebSocket: data not started yet, no ping needed"));
-      return NS_OK;
-    }
-
-    return mSocketThread->Dispatch(
-      NewRunnableMethod(this, &WebSocketChannel::OnNetworkChanged),
-      NS_DISPATCH_NORMAL);
+  if (!mDataStarted) {
+    LOG(("WebSocket: data not started yet, no ping needed"));
+    return NS_OK;
   }
 
+  return mSocketThread->Dispatch(
+    NewRunnableMethod(this, &WebSocketChannel::OnNetworkChanged),
+    NS_DISPATCH_NORMAL);
+}
+
+nsresult
+WebSocketChannel::OnNetworkChanged()
+{
   MOZ_ASSERT(PR_GetCurrentThread() == gSocketThread, "not socket thread");
 
   LOG(("WebSocketChannel::OnNetworkChanged() - on socket thread %p", this));

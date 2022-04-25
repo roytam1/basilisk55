@@ -263,6 +263,46 @@ DumpLeakedURLs::~DumpLeakedURLs()
 }
 #endif
 
+bool nsStandardURL::IsValid() {
+  auto checkSegment = [&](const nsStandardURL::URLSegment& aSeg) {
+    // Bad value
+    if (NS_WARN_IF(aSeg.mLen < -1)) {
+      return false;
+    }
+    if (aSeg.mLen == -1) {
+      return true;
+    }
+
+    // Position outside of string
+    if (NS_WARN_IF(aSeg.mPos + aSeg.mLen > mSpec.Length())) {
+      return false;
+    }
+
+    // Overflow
+    if (NS_WARN_IF(aSeg.mPos + aSeg.mLen < aSeg.mPos)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  bool allSegmentsValid = checkSegment(mScheme) && checkSegment(mAuthority) &&
+                          checkSegment(mUsername) && checkSegment(mPassword) &&
+                          checkSegment(mHost) && checkSegment(mPath) &&
+                          checkSegment(mFilepath) && checkSegment(mDirectory) &&
+                          checkSegment(mBasename) && checkSegment(mExtension) &&
+                          checkSegment(mQuery) && checkSegment(mRef);
+  if (!allSegmentsValid) {
+    return false;
+  }
+
+  if (mScheme.mPos != 0) {
+    return false;
+  }
+
+  return true;
+}
+
 void
 nsStandardURL::InitGlobalObjects()
 {
@@ -3510,6 +3550,10 @@ nsStandardURL::Deserialize(const URIParams& aParams)
         return false;
     }
 
+    // If we exit early, make sure to clear the URL so we don't fail the sanity
+    // check in the destructor
+    auto clearOnExit = MakeScopeExit([&] { Clear(); });
+
     const StandardURLParams& params = aParams.get_StandardURLParams();
 
     mURLType = params.urlType();
@@ -3557,7 +3601,7 @@ nsStandardURL::Deserialize(const URIParams& aParams)
     mSupportsFileURL = params.supportsFileURL();
     mHostEncoding = params.hostEncoding();
 
-    // Some sanity checks
+    // Some segment sanity checks
     NS_ENSURE_TRUE(mScheme.mPos == 0, false);
     NS_ENSURE_TRUE(mScheme.mLen > 0, false);
     // Make sure scheme is followed by :// (3 characters)
@@ -3569,43 +3613,12 @@ nsStandardURL::Deserialize(const URIParams& aParams)
     NS_ENSURE_TRUE(mQuery.mLen == -1 || mSpec.CharAt(mQuery.mPos - 1) == '?', false);
     NS_ENSURE_TRUE(mRef.mLen == -1 || mSpec.CharAt(mRef.mPos - 1) == '#', false);
 
-    // "bool nsStandardURL::IsValid()" from bug 1700895
-    auto checkSegment = [&](const nsStandardURL::URLSegment& aSeg) {
-      // Bad value
-      if (NS_WARN_IF(aSeg.mLen < -1)) {
-        return false;
-      }
-      if (aSeg.mLen == -1) {
-        return true;
-      }
-
-      // Points out of string
-      if (NS_WARN_IF(aSeg.mPos + aSeg.mLen > mSpec.Length())) {
-        return false;
-      }
-
-      // Overflow
-      if (NS_WARN_IF(aSeg.mPos + aSeg.mLen < aSeg.mPos)) {
-        return false;
-      }
-
-      return true;
-    };
-
-    bool allSegmentsValid = checkSegment(mScheme) && checkSegment(mAuthority) &&
-                            checkSegment(mUsername) && checkSegment(mPassword) &&
-                            checkSegment(mHost) && checkSegment(mPath) &&
-                            checkSegment(mFilepath) && checkSegment(mDirectory) &&
-                            checkSegment(mBasename) && checkSegment(mExtension) &&
-                            checkSegment(mQuery) && checkSegment(mRef);
-    if (!allSegmentsValid) {
-      NS_WARNING("bogus URL");
+    // Sanity-check the result
+    if (!IsValid()) {
       return false;
     }
 
-    if (mScheme.mPos != 0) {
-      return false;
-    }
+    clearOnExit.release();
 
     // mSpecEncoding and mHostA are just caches that can be recovered as needed.
     return true;

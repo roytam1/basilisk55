@@ -254,10 +254,7 @@ HttpBaseChannel::Init(nsIURI *aURI,
   int32_t port = -1;
   bool isHTTPS = false;
 
-  nsresult rv = mURI->SchemeIs("https", &isHTTPS);
-  if (NS_FAILED(rv)) return rv;
-
-  rv = mURI->GetAsciiHost(host);
+  nsresult rv = mURI->GetAsciiHost(host);
   if (NS_FAILED(rv)) return rv;
 
   // Reject the URL if it doesn't specify a host
@@ -284,7 +281,7 @@ HttpBaseChannel::Init(nsIURI *aURI,
   rv = mRequestHead.SetHeader(nsHttp::Host, hostLine);
   if (NS_FAILED(rv)) return rv;
 
-  rv = gHttpHandler->AddStandardRequestHeaders(&mRequestHead, isHTTPS, aContentPolicyType);
+  rv = gHttpHandler->AddStandardRequestHeaders(&mRequestHead, aContentPolicyType);
   if (NS_FAILED(rv)) return rv;
 
   nsAutoCString type;
@@ -1084,9 +1081,7 @@ HttpBaseChannel::DoApplyContentConversions(nsIStreamListener* aNextListener,
       break;
     }
 
-    bool isHTTPS = false;
-    mURI->SchemeIs("https", &isHTTPS);
-    if (gHttpHandler->IsAcceptableEncoding(val, isHTTPS)) {
+    if (gHttpHandler->IsAcceptableEncoding(val)) {
       nsCOMPtr<nsIStreamConverterService> serv;
       rv = gHttpHandler->GetStreamConverterService(getter_AddRefs(serv));
 

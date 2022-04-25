@@ -278,7 +278,6 @@
     macro(parseInt, parseInt, "parseInt") \
     macro(pattern, pattern, "pattern") \
     macro(pending, pending, "pending") \
-    macro(public, public_, "public") \
     macro(PluralRules, PluralRules, "PluralRules") \
     macro(PluralRulesSelect, PluralRulesSelect, "Intl_PluralRules_Select") \
     macro(percentSign, percentSign, "percentSign") \
@@ -291,6 +290,7 @@
     macro(proto, proto, "__proto__") \
     macro(prototype, prototype, "prototype") \
     macro(proxy, proxy, "proxy") \
+    macro(public, public_, "public") \
     macro(raw, raw, "raw") \
     macro(reason, reason, "reason") \
     macro(RegExpFlagsGetter, RegExpFlagsGetter, "RegExpFlagsGetter") \

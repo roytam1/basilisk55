@@ -17,6 +17,8 @@
 #include "nss.h"
 #include "pk11pub.h"
 
+#include "nsNetUtil.h"  // for NS_CheckPortSafety
+
 #include "nsNetCID.h"
 #include "nsIProperty.h"
 #include "nsIPropertyBag2.h"

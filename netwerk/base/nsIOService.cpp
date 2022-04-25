@@ -1230,7 +1230,7 @@ nsIOService::AllowPort(int32_t inPort, const char *scheme, bool *_retval)
         return NS_OK;
     }
 
-    if (port <= 0 || port >= std::numeric_limits<uint16_t>::max()) {
+    if (port <= 0 || port > std::numeric_limits<uint16_t>::max()) {
         *_retval = false;
         return NS_OK;
     }

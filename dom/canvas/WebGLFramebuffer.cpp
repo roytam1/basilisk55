@@ -1240,6 +1240,7 @@ WebGLFramebuffer::RefreshDrawBuffers() const
         }
     }
 
+    gl->fBindFramebuffer(LOCAL_GL_DRAW_FRAMEBUFFER, mGLName);
     gl->fDrawBuffers(driverBuffers.size(), driverBuffers.data());
 }
 
@@ -1259,6 +1260,7 @@ WebGLFramebuffer::RefreshReadBuffer() const
         driverBuffer = mColorReadBuffer->mAttachmentPoint;
     }
 
+    gl->fBindFramebuffer(LOCAL_GL_READ_FRAMEBUFFER, mGLName);
     gl->fReadBuffer(driverBuffer);
 }
 

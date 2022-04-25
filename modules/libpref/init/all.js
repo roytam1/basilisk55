@@ -243,6 +243,12 @@ pref("dom.compartment_per_addon", true);
 // of content viewers to cache based on the amount of available memory.
 pref("browser.sessionhistory.max_total_viewers", -1);
 
+// Determines whether the browser's current theme should be light or dark.
+// 0 = feature disabled
+// 1 = default: light theme
+// 2 = dark theme
+pref("ui.color_scheme", 1);
+
 pref("ui.use_native_colors", true);
 pref("ui.click_hold_context_menus", false);
 // Duration of timeout of incremental search in menus (ms).  0 means infinite.
@@ -258,6 +264,7 @@ pref("browser.display.document_color_use", 0);
 // 0 = feature disabled
 // 1 = default: light theme preferred
 // 2 = dark theme preferred
+// 3 = match ui.color_scheme
 pref("browser.display.prefers_color_scheme", 1);
 pref("browser.display.use_system_colors",   false);
 pref("browser.display.foreground_color",    "#000000");

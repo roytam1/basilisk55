@@ -174,7 +174,7 @@ int16_t gBadPortList[] = {
     6668,  // irc (alternate)
     6669,  // irc (alternate)
     6697,  // irc+tls
-    10080, // amanda
+    // 10080,  // (Amanda) too many collisions with other services, disabled for now.
     0,     // Sentinel value: This MUST be zero
 };
 

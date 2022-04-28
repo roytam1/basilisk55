@@ -328,7 +328,8 @@ private:
   void setNextUnsafe(RawType aElem)
   {
     LinkedListElement *listElem = static_cast<LinkedListElement*>(aElem);
-    MOZ_ASSERT(!listElem->isInList());
+    if (listElem->isInList())
+      return;
 
     listElem->mNext = this->mNext;
     listElem->mPrev = this;
@@ -345,7 +346,8 @@ private:
   void setPreviousUnsafe(RawType aElem)
   {
     LinkedListElement<T>* listElem = static_cast<LinkedListElement<T>*>(aElem);
-    MOZ_ASSERT(!listElem->isInList());
+    if (listElem->isInList())
+      return;
 
     listElem->mNext = this;
     listElem->mPrev = this->mPrev;

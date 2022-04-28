@@ -1716,6 +1716,7 @@ WorkerLoadInfo::StealFrom(WorkerLoadInfo& aOther)
   mPrincipalInfo = aOther.mPrincipalInfo.forget();
 
   mDomain = aOther.mDomain;
+  mOrigin = aOther.mOrigin;
   mServiceWorkerCacheName = aOther.mServiceWorkerCacheName;
   mLoadFlags = aOther.mLoadFlags;
   mWindowID = aOther.mWindowID;
@@ -3562,6 +3563,8 @@ WorkerPrivateParent<Derived>::SetPrincipal(nsIPrincipal* aPrincipal,
 
   mLoadInfo.mPrincipalInfo = new PrincipalInfo();
   mLoadInfo.mOriginAttributes = nsContentUtils::GetOriginAttributes(aLoadGroup);
+
+  nsContentUtils::GetUTFOrigin(aPrincipal, mLoadInfo.mOrigin);
 
   MOZ_ALWAYS_SUCCEEDS(
     PrincipalToPrincipalInfo(aPrincipal, mLoadInfo.mPrincipalInfo));

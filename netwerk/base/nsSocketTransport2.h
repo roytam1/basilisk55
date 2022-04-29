@@ -314,6 +314,9 @@ private:
     uint16_t         SocketPort() { return (!mProxyHost.IsEmpty() && !mProxyTransparent) ? mProxyPort : mPort; }
     const nsCString &SocketHost() { return (!mProxyHost.IsEmpty() && !mProxyTransparent) ? mProxyHost : mHost; }
 
+    Atomic<bool> mInputClosed{true};
+    Atomic<bool> mOutputClosed{true};
+
     //-------------------------------------------------------------------------
     // members accessible only on the socket transport thread:
     //  (the exception being initialization/shutdown time)
@@ -322,8 +325,6 @@ private:
     // socket state vars:
     uint32_t     mState;     // STATE_??? flags
     bool mAttached;
-    bool mInputClosed;
-    bool mOutputClosed;
 
     // The platform-specific network interface id that this socket
     // associated with.
@@ -463,7 +464,7 @@ private:
     int32_t mKeepaliveRetryIntervalS;
     int32_t mKeepaliveProbeCount;
 
-    bool mDoNotRetryToConnect;
+    Atomic<bool> mDoNotRetryToConnect{false};
 };
 
 } // namespace net

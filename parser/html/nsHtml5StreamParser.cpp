@@ -1158,14 +1158,14 @@ nsHtml5StreamParser::OnDataAvailable(nsIRequest* aRequest,
                                      uint32_t aLength)
 {
   nsresult rv;
-  if (NS_FAILED(rv = mExecutor->IsBroken())) {
-    return rv;
-  }
 
   NS_ASSERTION(mRequest == aRequest, "Got data on wrong stream.");
   uint32_t totalRead;
   // Main thread to parser thread dispatch requires copying to buffer first.
   if (NS_IsMainThread()) {
+    if (NS_FAILED(rv = mExecutor->IsBroken())) {
+      return rv;
+    }
     auto data = MakeUniqueFallible<uint8_t[]>(aLength);
     if (!data) {
       return mExecutor->MarkAsBroken(NS_ERROR_OUT_OF_MEMORY);
@@ -1186,6 +1186,9 @@ nsHtml5StreamParser::OnDataAvailable(nsIRequest* aRequest,
     NS_ASSERTION(IsParserThread(), "Wrong thread!");
     mozilla::MutexAutoLock autoLock(mTokenizerMutex);
 
+    if (NS_FAILED(rv = mTreeBuilder->IsBroken())) {
+      return rv;
+    }
     // Read directly from response buffer.
     rv = aInStream->ReadSegments(CopySegmentsToParser, this, aLength,
                                  &totalRead);
@@ -1197,6 +1200,7 @@ nsHtml5StreamParser::OnDataAvailable(nsIRequest* aRequest,
   }
 }
 
+// Called under lock by function ptr
 /* static */ nsresult
 nsHtml5StreamParser::CopySegmentsToParser(nsIInputStream *aInStream,
                                           void *aClosure,

@@ -145,9 +145,6 @@ public:
     return MappedAttrCount();
   }
 
-  // Force this to have mapped attributes, even if those attributes are empty.
-  nsresult ForceMapped(nsMappedAttributeElement* aContent, nsIDocument* aDocument);
-
 private:
   nsAttrAndChildArray(const nsAttrAndChildArray& aOther) = delete;
   nsAttrAndChildArray& operator=(const nsAttrAndChildArray& aOther) = delete;
@@ -161,8 +158,7 @@ private:
   nsMappedAttributes*
   GetModifiableMapped(nsMappedAttributeElement* aContent,
                       nsHTMLStyleSheet* aSheet,
-                      bool aWillAddAttr,
-                      int32_t aAttrCount = 1);
+                      bool aWillAddAttr);
   nsresult MakeMappedUnique(nsMappedAttributes* aAttributes);
 
   uint32_t AttrSlotsSize() const

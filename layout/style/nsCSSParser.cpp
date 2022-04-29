@@ -1180,6 +1180,14 @@ protected:
 
   CSSParseResult ParseColor(nsCSSValue& aValue);
 
+static bool
+IsCSSTokenCalcFunction(const nsCSSToken& aToken)
+{
+  return aToken.mType == eCSSToken_Function &&
+         (aToken.mIdent.LowerCaseEqualsLiteral("calc") ||
+          aToken.mIdent.LowerCaseEqualsLiteral("-moz-calc"));
+}
+
   template<typename ComponentType>
   bool ParseRGBColor(ComponentType& aR,
                      ComponentType& aG,
@@ -6796,7 +6804,7 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
         if (GetToken(true)) {
           UngetToken();
         }
-        if (mToken.mType == eCSSToken_Number) { // <number>
+        if (mToken.mType == eCSSToken_Number || mToken.mType == eCSSToken_Function) { // <number>
           uint8_t r, g, b, a;
 
           if (ParseRGBColor(r, g, b, a)) {
@@ -6903,13 +6911,23 @@ CSSParserImpl::ParseColorComponent(uint8_t& aComponent, Maybe<char> aSeparator)
     return false;
   }
 
-  if (mToken.mType != eCSSToken_Number) {
+  float value;
+
+  if (mToken.mType == eCSSToken_Number)
+    value = mToken.mNumber;
+  else if (IsCSSTokenCalcFunction(mToken)) {
+    nsCSSValue aValue;
+    if (!ParseCalc(aValue, VARIANT_LPN | VARIANT_CALC)) {
+      return false;
+    }
+    ReduceNumberCalcOps ops;
+    value = mozilla::css::ComputeCalc(aValue, ops);
+  }
+  else {
     REPORT_UNEXPECTED_TOKEN(PEExpectedNumber);
     UngetToken();
     return false;
   }
-
-  float value = mToken.mNumber;
 
   if (aSeparator && !ExpectSymbol(*aSeparator, true)) {
     REPORT_UNEXPECTED_TOKEN_CHAR(PEColorComponentBadTerm, *aSeparator);
@@ -6931,13 +6949,23 @@ CSSParserImpl::ParseColorComponent(float& aComponent, Maybe<char> aSeparator)
     return false;
   }
 
-  if (mToken.mType != eCSSToken_Percentage) {
+  float value;
+
+  if (mToken.mType == eCSSToken_Percentage)
+    value = mToken.mNumber;
+  else if (IsCSSTokenCalcFunction(mToken)) {
+    nsCSSValue aValue;
+    if (!ParseCalc(aValue, VARIANT_LPN | VARIANT_CALC)) {
+      return false;
+    }
+    ReduceNumberCalcOps ops;
+    value = mozilla::css::ComputeCalc(aValue, ops);
+  }
+  else {
     REPORT_UNEXPECTED_TOKEN(PEExpectedPercent);
     UngetToken();
     return false;
   }
-
-  float value = mToken.mNumber;
 
   if (aSeparator && !ExpectSymbol(*aSeparator, true)) {
     REPORT_UNEXPECTED_TOKEN_CHAR(PEColorComponentBadTerm, *aSeparator);
@@ -6964,6 +6992,17 @@ CSSParserImpl::ParseHue(float& aAngle)
     aAngle = mToken.mNumber;
     return true;
   }
+
+  if (IsCSSTokenCalcFunction(mToken)) {
+    nsCSSValue aValue;
+    if (!ParseCalc(aValue, VARIANT_LPN | VARIANT_CALC)) {
+      return false;
+    }
+    ReduceNumberCalcOps ops;
+    aAngle = mozilla::css::ComputeCalc(aValue, ops);
+    return true;
+  }
+
   UngetToken();
 
   // <angle>
@@ -7863,13 +7902,6 @@ CSSParserImpl::ParseOneOrLargerVariant(nsCSSValue& aValue,
     }
   }
   return result;
-}
-
-static bool
-IsCSSTokenCalcFunction(const nsCSSToken& aToken)
-{
-  return aToken.mType == eCSSToken_Function &&
-         aToken.mIdent.LowerCaseEqualsLiteral("calc");
 }
 
 // Assigns to aValue iff it returns CSSParseResult::Ok.
@@ -10885,7 +10917,7 @@ CSSParserImpl::ParseWebkitGradientRadius(float& aRadius)
 //   (either a percentage or a number between 0 and 1.0), and a color (any
 //   valid CSS color). In addition the shorthand functions from and to are
 //   supported. These functions only require a color argument and are
-//   equivalent to color-stop(0, ...) and color-stop(1.0, …) respectively.
+//   equivalent to color-stop(0, ...) and color-stop(1.0, ...) respectively.
 bool
 CSSParserImpl::ParseWebkitGradientColorStop(nsCSSValueGradient* aGradient)
 {

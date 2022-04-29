@@ -91,6 +91,8 @@ StorageObserver::Shutdown()
   if (!sSelf) {
     return NS_ERROR_NOT_INITIALIZED;
   }
+  
+  sSelf->mSinks.Clear();
 
   NS_RELEASE(sSelf);
   return NS_OK;
@@ -150,6 +152,10 @@ StorageObserver::Observe(nsISupports* aSubject,
                          const char* aTopic,
                          const char16_t* aData)
 {
+  if (NS_WARN_IF(!sSelf)) {  // Shutdown took place, so bail.
+    return NS_OK;
+  }
+
   nsresult rv;
 
   // Start the thread that opens the database.

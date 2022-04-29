@@ -216,8 +216,10 @@ StorageDBChild::RecvObserve(const nsCString& aTopic,
                             const nsString& aOriginAttributesPattern,
                             const nsCString& aOriginScope)
 {
-  StorageObserver::Self()->Notify(
-    aTopic.get(), aOriginAttributesPattern, aOriginScope);
+  StorageObserver* observer = StorageObserver::Self();
+  if (observer) {
+    observer->Notify(aTopic.get(), aOriginAttributesPattern, aOriginScope);
+  }
   return IPC_OK();
 }
 

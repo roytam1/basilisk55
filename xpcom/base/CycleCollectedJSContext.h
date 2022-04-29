@@ -138,7 +138,7 @@ struct CycleCollectorResults
 class MicroTaskRunnable
 {
 public:
-  MicroTaskRunnable() {}
+  MicroTaskRunnable() = default;
   NS_INLINE_DECL_REFCOUNTING(MicroTaskRunnable)
   virtual void Run(AutoSlowOperation& aAso) = 0;
   virtual bool Suppressed() { return false; }

@@ -1283,6 +1283,11 @@ public:
 
   mozilla::dom::Performance* GetPerformance();
 
+  virtual bool IsInSyncOperation() override
+  {
+    return GetExtantDoc() && GetExtantDoc()->IsInSyncOperation();
+  }
+
 protected:
   // Web IDL helpers
 

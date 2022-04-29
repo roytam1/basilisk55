@@ -4587,9 +4587,14 @@ WorkerPrivate::DoRunLoop(JSContext* aCx)
   AssertIsOnWorkerThread();
   MOZ_ASSERT(mThread);
 
+  RefPtr<WorkerThread> thread;
   {
     MutexAutoLock lock(mMutex);
     mJSContext = aCx;
+    // mThread is set before we enter, and is never changed during DoRunLoop.
+    // copy to local so we don't trigger mutex analysis
+    MOZ_ASSERT(mThread);
+    thread = mThread;
 
     MOZ_ASSERT(mStatus == Pending);
     mStatus = Running;
@@ -4619,7 +4624,7 @@ WorkerPrivate::DoRunLoop(JSContext* aCx)
 
       while (mControlQueue.IsEmpty() &&
              !(debuggerRunnablesPending = !mDebuggerQueue.IsEmpty()) &&
-             !(normalRunnablesPending = NS_HasPendingEvents(mThread))) {
+             !(normalRunnablesPending = NS_HasPendingEvents(thread))) {
         WaitForWorkerEvents();
       }
 
@@ -4629,7 +4634,7 @@ WorkerPrivate::DoRunLoop(JSContext* aCx)
         // irrelevant
 
         // The state of the world may have changed, recheck it.
-        normalRunnablesPending = NS_HasPendingEvents(mThread);
+        normalRunnablesPending = NS_HasPendingEvents(thread);
         // The debugger queue doesn't get cleared, so we can ignore that.
       }
 
@@ -4722,9 +4727,9 @@ WorkerPrivate::DoRunLoop(JSContext* aCx)
       }
     } else if (normalRunnablesPending) {
       // Process a single runnable from the main queue.
-      NS_ProcessNextEvent(mThread, false);
+      NS_ProcessNextEvent(thread, false);
 
-      normalRunnablesPending = NS_HasPendingEvents(mThread);
+      normalRunnablesPending = NS_HasPendingEvents(thread);
       if (normalRunnablesPending && GlobalScope()) {
         // Now *might* be a good time to GC. Let the JS engine make the decision.
         JSAutoCompartment ac(aCx, GlobalScope()->GetGlobalJSObject());
@@ -5126,10 +5131,14 @@ WorkerPrivate::ClearMainEventQueue(WorkerRanOrNot aRanOrNot)
   mCancelAllPendingRunnables = true;
 
   if (WorkerNeverRan == aRanOrNot) {
-    for (uint32_t count = mPreStartRunnables.Length(), index = 0;
-         index < count;
+    nsTArray<RefPtr<WorkerRunnable>> prestart;
+    {
+      MutexAutoLock lock(mMutex);
+      mPreStartRunnables.SwapElements(prestart);
+    }
+    for (uint32_t count = prestart.Length(), index = 0; index < count;
          index++) {
-      RefPtr<WorkerRunnable> runnable = mPreStartRunnables[index].forget();
+      RefPtr<WorkerRunnable> runnable = prestart[index].forget();
       static_cast<nsIRunnable*>(runnable.get())->Run();
     }
   } else {
@@ -5375,19 +5384,19 @@ WorkerPrivate::CreateNewSyncLoop(Status aFailStatus)
 {
   AssertIsOnWorkerThread();
 
+  nsCOMPtr<nsIEventTarget> realEventTarget;
   {
     MutexAutoLock lock(mMutex);
 
     if (mStatus >= aFailStatus) {
       return nullptr;
     }
+    
+    nsCOMPtr<nsIThreadInternal> thread = do_QueryInterface(NS_GetCurrentThread());
+    MOZ_ASSERT(thread);
+    
+    MOZ_ALWAYS_SUCCEEDS(thread->PushEventQueue(getter_AddRefs(realEventTarget)));
   }
-
-  nsCOMPtr<nsIThreadInternal> thread = do_QueryInterface(NS_GetCurrentThread());
-  MOZ_ASSERT(thread);
-
-  nsCOMPtr<nsIEventTarget> realEventTarget;
-  MOZ_ALWAYS_SUCCEEDS(thread->PushEventQueue(getter_AddRefs(realEventTarget)));
 
   RefPtr<EventTarget> workerEventTarget =
     new EventTarget(this, realEventTarget);
@@ -5410,8 +5419,17 @@ WorkerPrivate::RunCurrentSyncLoop()
 {
   AssertIsOnWorkerThread();
 
+  RefPtr<WorkerThread> thread;
   JSContext* cx = GetJSContext();
   MOZ_ASSERT(cx);
+
+  // mThread is set before we enter, and is never changed during
+  // RunCurrentSyncLoop.
+  {
+    MutexAutoLock lock(mMutex);
+    // Copy to local
+    thread = mThread;
+  }
 
   // This should not change between now and the time we finish running this sync
   // loop.
@@ -5431,7 +5449,7 @@ WorkerPrivate::RunCurrentSyncLoop()
     bool normalRunnablesPending = false;
 
     // Don't block with the periodic GC timer running.
-    if (!NS_HasPendingEvents(mThread)) {
+    if (!NS_HasPendingEvents(thread)) {
       SetGCTimerMode(IdleTimer);
     }
 
@@ -5442,7 +5460,7 @@ WorkerPrivate::RunCurrentSyncLoop()
       for (;;) {
         while (mControlQueue.IsEmpty() &&
                !normalRunnablesPending &&
-               !(normalRunnablesPending = NS_HasPendingEvents(mThread))) {
+               !(normalRunnablesPending = NS_HasPendingEvents(thread))) {
           WaitForWorkerEvents();
         }
 
@@ -5451,7 +5469,7 @@ WorkerPrivate::RunCurrentSyncLoop()
           // XXXkhuey how should we handle Abort here? See Bug 1003730.
 
           // The state of the world may have changed. Recheck it.
-          normalRunnablesPending = NS_HasPendingEvents(mThread);
+          normalRunnablesPending = NS_HasPendingEvents(thread);
 
           // NB: If we processed a NotifyRunnable, we might have run
           // non-control runnables, one of which may have shut down the
@@ -5474,7 +5492,7 @@ WorkerPrivate::RunCurrentSyncLoop()
       // Make sure the periodic timer is running before we continue.
       SetGCTimerMode(PeriodicTimer);
 
-      MOZ_ALWAYS_TRUE(NS_ProcessNextEvent(mThread, false));
+      MOZ_ALWAYS_TRUE(NS_ProcessNextEvent(thread, false));
 
       // Now *might* be a good time to GC. Let the JS engine make the decision.
       if (JS::CurrentGlobalOrNull(cx)) {
@@ -5483,7 +5501,7 @@ WorkerPrivate::RunCurrentSyncLoop()
     }
   }
 
-  // Make sure that the stack didn't change underneath us.
+  // Make sure that the stack didn't change under us.
   MOZ_ASSERT(mSyncLoopStack[currentLoopIndex] == loopInfo);
 
   return DestroySyncLoop(currentLoopIndex);

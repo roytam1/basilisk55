@@ -139,6 +139,11 @@ public:
 
   mozilla::dom::XBLChildrenElement* FindInsertionPointFor(nsIContent* aChild);
 
+  bool IsShadowRootBinding()
+  {
+    return mIsShadowRootBinding;
+  }
+
   bool HasFilteredInsertionPoints()
   {
     return !mInsertionPoints.IsEmpty();

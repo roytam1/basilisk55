@@ -229,6 +229,8 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
         return PushUnaryNodeChild(pn, stack);
 
       // Nodes with a single nullable child.
+      case PNK_OPTCHAIN:
+      case PNK_DELETEOPTCHAIN:
       case PNK_THIS:
       case PNK_SEMI: {
         MOZ_ASSERT(pn->isArity(PN_UNARY));
@@ -254,6 +256,7 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       case PNK_MODASSIGN:
       case PNK_POWASSIGN:
       // ...and a few others.
+      case PNK_OPTELEM:
       case PNK_ELEM:
       case PNK_IMPORT_SPEC:
       case PNK_EXPORT_SPEC:
@@ -450,6 +453,7 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       case PNK_POW:
       case PNK_COMMA:
       case PNK_NEW:
+      case PNK_OPTCALL:
       case PNK_CALL:
       case PNK_SUPERCALL:
       case PNK_GENEXP:
@@ -484,6 +488,7 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       }
 
       case PNK_LABEL:
+      case PNK_OPTDOT:
       case PNK_DOT:
       case PNK_NAME:
         return PushNameNodeChildren(pn, stack);

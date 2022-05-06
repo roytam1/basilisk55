@@ -1238,11 +1238,6 @@ class PropertyAccessBase : public ParseNode
     PropertyName& name() const {
         return *pn_u.name.atom->asPropertyName();
     }
-
-    bool isSuper() const {
-        // PNK_SUPERBASE cannot result from any expression syntax.
-        return expression().isKind(PNK_SUPERBASE);
-    }
 };
 
 class PropertyAccess : public PropertyAccessBase
@@ -1260,6 +1255,11 @@ class PropertyAccess : public PropertyAccessBase
         bool match = node.isKind(PNK_DOT);
         MOZ_ASSERT_IF(match, node.isArity(PN_NAME));
         return match;
+    }
+
+    bool isSuper() const {
+        // PNK_SUPERBASE cannot result from any expression syntax.
+        return expression().isKind(PNK_SUPERBASE);
     }
 };
 
@@ -1298,10 +1298,6 @@ class PropertyByValueBase : public ParseNode
         MOZ_ASSERT_IF(match, node.isArity(PN_BINARY));
         return match;
     }
-
-    bool isSuper() const {
-        return pn_left->isKind(PNK_SUPERBASE);
-    }
 };
 
 class PropertyByValue : public PropertyByValueBase {
@@ -1314,6 +1310,10 @@ class PropertyByValue : public PropertyByValueBase {
         bool match = node.isKind(PNK_ELEM);
         MOZ_ASSERT_IF(match, node.isArity(PN_BINARY));
         return match;
+    }
+
+    bool isSuper() const {
+        return pn_left->isKind(PNK_SUPERBASE);
     }
 };
 

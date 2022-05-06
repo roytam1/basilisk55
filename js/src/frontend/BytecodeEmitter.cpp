@@ -9403,19 +9403,9 @@ BytecodeEmitter::emitDeleteOptionalChain(ParseNode* deleteNode)
 
     ParseNode* kid = deleteNode->pn_kid;
     switch (kid->getKind()) {
-      case PNK_ELEM: {
-        PropertyByValue* elemExpr = &kid->as<PropertyByValue>();
-        if (!emitDeleteElementInOptChain(elemExpr, oe)) {
-            //              [stack] # If shortcircuit
-            //              [stack] UNDEFINED-OR-NULL
-            //              [stack] # otherwise
-            //              [stack] TRUE
-            return false;
-        }
-        break;
-      }
+      case PNK_ELEM:
       case PNK_OPTELEM: {
-        OptionalPropertyByValue* elemExpr = &kid->as<OptionalPropertyByValue>();
+        PropertyByValueBase* elemExpr = &kid->as<PropertyByValueBase>();
         if (!emitDeleteElementInOptChain(elemExpr, oe)) {
             //              [stack] # If shortcircuit
             //              [stack] UNDEFINED-OR-NULL
@@ -9425,19 +9415,9 @@ BytecodeEmitter::emitDeleteOptionalChain(ParseNode* deleteNode)
         }
         break;
       }
-      case PNK_DOT: {
-        PropertyAccess* propExpr = &kid->as<PropertyAccess>();
-        if (!emitDeletePropertyInOptChain(propExpr, oe)) {
-            //              [stack] # If shortcircuit
-            //              [stack] UNDEFINED-OR-NULL
-            //              [stack] # otherwise
-            //              [stack] TRUE
-            return false;
-        }
-        break;
-      }
+      case PNK_DOT:
       case PNK_OPTDOT: {
-        OptionalPropertyAccess* propExpr = &kid->as<OptionalPropertyAccess>();
+        PropertyAccessBase* propExpr = &kid->as<PropertyAccessBase>();
         if (!emitDeletePropertyInOptChain(propExpr, oe)) {
             //              [stack] # If shortcircuit
             //              [stack] UNDEFINED-OR-NULL
@@ -9467,54 +9447,26 @@ BytecodeEmitter::emitDeletePropertyInOptChain(
     PropertyAccessBase* propExpr,
     OptionalEmitter& oe)
 {
-    if (propExpr->isSuper()) {
-        // The expression |delete super.foo;| has to evaluate |super.foo|,
-        // which could throw if |this| hasn't yet been set by a |super(...)|
-        // call or the super-base is not an object, before throwing a
-        // ReferenceError for attempting to delete a super-reference.
-        ParseNode* base = &propExpr->expression();
-        if (!emitGetThisForSuperBase(base)) {
-            //            [stack] THIS
-            return false;
-        }
-    } else {
-        if (!emitOptionalTree(&propExpr->expression(), oe)) {
+    MOZ_ASSERT_IF(propExpr->is<PropertyAccess>(),
+                  !propExpr->as<PropertyAccess>().isSuper());
+
+    if (!emitOptionalTree(&propExpr->expression(), oe)) {
+        //            [stack] OBJ
+        return false;
+    }
+    if (propExpr->isKind(PNK_OPTDOT)) {
+        if (!oe.emitJumpShortCircuit()) {
+            //            [stack] # if Jump
+            //            [stack] UNDEFINED-OR-NULL
+            //            [stack] # otherwise
             //            [stack] OBJ
             return false;
         }
-        if (propExpr->isKind(PNK_OPTDOT)) {
-            if (!oe.emitJumpShortCircuit()) {
-                //            [stack] # if Jump
-                //            [stack] UNDEFINED-OR-NULL
-                //            [stack] # otherwise
-                //            [stack] OBJ
-                return false;
-            }
-        }
     }
 
-    if (propExpr->isSuper()) {
-        // Still have to calculate the base, even though we are are going
-        // to throw unconditionally, as calculating the base could also
-        // throw.
-        if (!emit1(JSOP_SUPERBASE)) {
-            return false;
-        }
-
-        if (!emitUint16Operand(JSOP_THROWMSG, JSMSG_CANT_DELETE_SUPER)) {
-            return false;
-        }
-
-        // Another wrinkle: Balance the stack from the emitter's point of view.
-        // Execution will not reach here, as the last bytecode threw.
-        if (!emit1(JSOP_POP)) {
-            return false;
-        }
-    } else {
-        JSOp delOp = sc->strict() ? JSOP_STRICTDELPROP : JSOP_DELPROP;
-        if (!emitAtomOp(propExpr, delOp)) {
-            return false;
-        }
+    JSOp delOp = sc->strict() ? JSOP_STRICTDELPROP : JSOP_DELPROP;
+    if (!emitAtomOp(propExpr, delOp)) {
+        return false;
     }
 
     return true;
@@ -9525,6 +9477,9 @@ BytecodeEmitter::emitDeleteElementInOptChain(
     PropertyByValueBase* elemExpr,
     OptionalEmitter& oe)
 {
+    MOZ_ASSERT_IF(elemExpr->is<PropertyByValue>(),
+                  !elemExpr->as<PropertyByValue>().isSuper());
+
     if (!emitOptionalTree(elemExpr->pn_left, oe)) {
         //              [stack] OBJ
         return false;
@@ -9543,19 +9498,6 @@ BytecodeEmitter::emitDeleteElementInOptChain(
     if (!emitTree(elemExpr->pn_right)) {
         //              [stack] OBJ KEY
         return false;
-    }
-
-    if (elemExpr->isSuper()) {
-        if (!emit1(JSOP_SUPERBASE)) {
-            return false;
-        }
-        if (!emitUint16Operand(JSOP_THROWMSG, JSMSG_CANT_DELETE_SUPER)) {
-            return false;
-        }
-
-        // Another wrinkle: Balance the stack from the emitter's point of view.
-        // Execution will not reach here, as the last bytecode threw.
-        return emit1(JSOP_POP);
     }
 
     JSOp delOp = sc->strict() ? JSOP_STRICTDELELEM : JSOP_DELELEM;
@@ -9865,18 +9807,11 @@ BytecodeEmitter::emitOptionalCalleeAndThis(
         isCall = false;
         break;
       }
-      case PNK_SUPERBASE: {
-        MOZ_ASSERT(callNode->isKind(PNK_SUPERCALL));
-        MOZ_ASSERT(parser->handler.isSuperBase(calleeNode));
-        if (!emit1(JSOP_SUPERFUN)) {
-            return false;
-        }
-        break;
-      }
       case PNK_OPTCHAIN: {
         return emitCalleeAndThisForOptionalChain(calleeNode, callNode, isCall);
       }
       default: {
+        MOZ_RELEASE_ASSERT(calleeNode->getKind() != PNK_SUPERBASE);
         if (!emitOptionalTree(calleeNode, oe)) {
             return false;
         }
@@ -9906,10 +9841,10 @@ BytecodeEmitter::emitOptionalCalleeAndThis(
 bool
 BytecodeEmitter::emitOptionalCall(
     ParseNode* callNode,
-    OptionalEmitter& oe)
+    OptionalEmitter& oe,
+    ValueUsage valueUsage)
 {
     bool isCall = true;
-    ValueUsage valueUsage = ValueUsage::WantValue;
     ParseNode* calleeNode = callNode->pn_head;
 
     if (!emitOptionalCalleeAndThis(callNode, calleeNode, isCall, oe)) {
@@ -11516,7 +11451,7 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         break;
 
       case PNK_OPTCHAIN:
-        if (!emitOptionalChain(pn)) {
+        if (!emitOptionalChain(pn, valueUsage)) {
             return false;
         }
         break;
@@ -11720,7 +11655,8 @@ BytecodeEmitter::emitTreeInBranch(ParseNode* pn,
 bool
 BytecodeEmitter::emitOptionalTree(
     ParseNode* pn,
-    OptionalEmitter& oe)
+    OptionalEmitter& oe,
+    ValueUsage valueUsage /* = ValueUsage::WantValue */)
 {
     JS_CHECK_RECURSION(cx, return false);
   
@@ -11756,7 +11692,7 @@ BytecodeEmitter::emitOptionalTree(
       }
       case PNK_CALL:
       case PNK_OPTCALL: {
-        if (!emitOptionalCall(pn, oe)) {
+        if (!emitOptionalCall(pn, oe, valueUsage)) {
             return false;
         }
         break;
@@ -11766,28 +11702,38 @@ BytecodeEmitter::emitOptionalTree(
       // For example, a taggedTemplateExpr node might occur if we have
       // `test`?.b, with `test` as the taggedTemplateExpr ParseNode.
       default: {
-        MOZ_ASSERT(
-            (kind == PNK_ARRAY ||
-             kind == PNK_OBJECT ||
-             kind == PNK_TRUE ||
-             kind == PNK_FALSE ||
-             kind == PNK_STRING ||
-             kind == PNK_NUMBER ||
-             kind == PNK_RAW_UNDEFINED ||
-             kind == PNK_NULL ||
-             kind == PNK_NAME ||
-             kind == PNK_FUNCTION ||
-             kind == PNK_THIS ||
-             kind == PNK_TAGGED_TEMPLATE ||
-             kind == PNK_TEMPLATE_STRING ||
-             kind == PNK_AWAIT ||
-             kind == PNK_REGEXP ||
-             kind == PNK_CLASS ||
-             kind == PNK_COMMA ||
-             kind == PNK_NEW ||
-             kind == PNK_SETTHIS ||
-             kind == PNK_NEWTARGET),
-            "Unknown ParseNodeKind for OptionalChain");
+#ifdef DEBUG
+        // https://tc39.es/ecma262/#sec-primary-expression
+        bool isPrimaryExpression =
+            kind == PNK_THIS ||
+            kind == PNK_NAME ||
+            kind == PNK_NULL ||
+            kind == PNK_TRUE ||
+            kind == PNK_FALSE ||
+            kind == PNK_NUMBER ||
+            kind == PNK_STRING ||
+            kind == PNK_ARRAY ||
+            kind == PNK_OBJECT ||
+            kind == PNK_FUNCTION ||
+            kind == PNK_CLASS ||
+            kind == PNK_REGEXP ||
+            kind == PNK_TEMPLATE_STRING ||
+            kind == PNK_RAW_UNDEFINED ||
+            pn->isInParens();
+
+        // https://tc39.es/ecma262/#sec-left-hand-side-expressions
+        bool isMemberExpression = isPrimaryExpression ||
+                                  kind == PNK_TAGGED_TEMPLATE ||
+                                  kind == PNK_NEW ||
+                                  kind == PNK_NEWTARGET;
+                                  //kind == ParseNodeKind::ImportMetaExpr;
+
+        bool isCallExpression = kind == PNK_SETTHIS;
+                                //kind == ParseNodeKind::CallImportExpr;
+
+        MOZ_ASSERT(isMemberExpression || isCallExpression,
+                   "Unknown ParseNodeKind for OptionalChain");
+#endif
         return emitTree(pn);
       }
     }
@@ -11831,13 +11777,15 @@ BytecodeEmitter::emitCalleeAndThisForOptionalChain(
 }
 
 bool
-BytecodeEmitter::emitOptionalChain(ParseNode* optionalChain)
+BytecodeEmitter::emitOptionalChain(
+    ParseNode* optionalChain,
+    ValueUsage valueUsage)
 {
     ParseNode* expression = optionalChain->pn_kid;
 
     OptionalEmitter oe(this, stackDepth);
 
-    if (!emitOptionalTree(expression, oe)) {
+    if (!emitOptionalTree(expression, oe, valueUsage)) {
         //              [stack] VAL
         return false;
     }
@@ -11860,12 +11808,13 @@ BytecodeEmitter::emitOptionalDotExpression(
     ParseNode* calleeNode,
     bool isCall)
 {
-    bool isSuper = prop->isSuper();
+    bool isSuper = prop->is<PropertyAccess>() &&
+                   prop->as<PropertyAccess>().isSuper();
 
     ParseNode* base = &prop->expression();
     if (isSuper) {
         if (!emitGetThisForSuperBase(base)) {
-            //            [stack] THIS
+            //            [stack] OBJ
             return false;
         }
     } else {
@@ -11876,6 +11825,7 @@ BytecodeEmitter::emitOptionalDotExpression(
     }
 
     if (prop->isKind(PNK_OPTDOT)) {
+        MOZ_ASSERT(!isSuper);
         if (!oe.emitJumpShortCircuit()) {
             //            [stack] # if Jump
             //            [stack] UNDEFINED-OR-NULL
@@ -11922,20 +11872,23 @@ BytecodeEmitter::emitOptionalElemExpression(
     ParseNode* calleeNode,
     bool isCall)
 {
-    if (elem->isSuper()) {
-        if (!emitSuperElemOp(calleeNode, JSOP_GETELEM_SUPER, isCall)) {
+    bool isSuper = elem->is<PropertyByValue>() &&
+                   elem->as<PropertyByValue>().isSuper();
+
+    if (isSuper) {
+        if (!emitGetThisForSuperBase(calleeNode)) {
+            //            [stack] OBJ
             return false;
         }
-
-        return true;
-    }
-
-    if (!emitOptionalTree(calleeNode->pn_left, oe)) {
-        //              [stack] OBJ
-        return false;
+    } else {
+        if (!emitOptionalTree(calleeNode->pn_left, oe)) {
+            //              [stack] OBJ
+            return false;
+        }
     }
 
     if (elem->isKind(PNK_OPTELEM)) {
+        MOZ_ASSERT(!isSuper);
         if (!oe.emitJumpShortCircuit()) {
             //            [stack] # if Jump
             //            [stack] UNDEFINED-OR-NULL

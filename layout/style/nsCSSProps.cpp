@@ -1964,7 +1964,8 @@ const KTableEntry nsCSSProps::kScrollSnapTypeKTable[] = {
 const KTableEntry nsCSSProps::kScrollbarWidthKTable[] = {
   { eCSSKeyword_auto, StyleScrollbarWidth::Auto },
   { eCSSKeyword_thin, StyleScrollbarWidth::Thin },
-  { eCSSKeyword_none, StyleScrollbarWidth::None }
+  { eCSSKeyword_none, StyleScrollbarWidth::None },
+  { eCSSKeyword_UNKNOWN,   -1 }
 };
 
 const KTableEntry nsCSSProps::kStackSizingKTable[] = {

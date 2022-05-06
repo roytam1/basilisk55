@@ -577,10 +577,11 @@ class NodeBuilder
                                     MutableHandleValue dst);
 
     MOZ_MUST_USE bool callExpression(HandleValue callee, NodeVector& args, TokenPos* pos,
-                                     MutableHandleValue dst);
+                                     MutableHandleValue dst, bool isOptional = false);
 
     MOZ_MUST_USE bool memberExpression(bool computed, HandleValue expr, HandleValue member,
-                                       TokenPos* pos, MutableHandleValue dst);
+                                       TokenPos* pos, MutableHandleValue dst,
+                                       bool isOptional = false);
 
     MOZ_MUST_USE bool arrayExpression(NodeVector& elts, TokenPos* pos, MutableHandleValue dst);
 
@@ -593,6 +594,11 @@ class NodeBuilder
                                   MutableHandleValue dst);
 
     MOZ_MUST_USE bool spreadExpression(HandleValue expr, TokenPos* pos, MutableHandleValue dst);
+
+    MOZ_MUST_USE bool optionalExpression(HandleValue expr, TokenPos* pos, MutableHandleValue dst);
+
+    MOZ_MUST_USE bool deleteOptionalExpression(HandleValue expr, TokenPos* pos,
+                                               MutableHandleValue dst);
 
     MOZ_MUST_USE bool computedName(HandleValue name, TokenPos* pos, MutableHandleValue dst);
 
@@ -1122,7 +1128,7 @@ NodeBuilder::sequenceExpression(NodeVector& elts, TokenPos* pos, MutableHandleVa
 
 bool
 NodeBuilder::callExpression(HandleValue callee, NodeVector& args, TokenPos* pos,
-                            MutableHandleValue dst)
+                            MutableHandleValue dst, bool isOptional)
 {
     RootedValue array(cx);
     if (!newArray(args, &array))
@@ -1132,9 +1138,12 @@ NodeBuilder::callExpression(HandleValue callee, NodeVector& args, TokenPos* pos,
     if (!cb.isNull())
         return callback(cb, callee, array, pos, dst);
 
-    return newNode(AST_CALL_EXPR, pos,
-                   "callee", callee,
-                   "arguments", array,
+    return newNode(isOptional ? AST_OPT_CALL_EXPR : AST_CALL_EXPR,
+                   pos,
+                   "callee",
+                   callee,
+                   "arguments",
+                   array,
                    dst);
 }
 
@@ -1158,7 +1167,7 @@ NodeBuilder::newExpression(HandleValue callee, NodeVector& args, TokenPos* pos,
 
 bool
 NodeBuilder::memberExpression(bool computed, HandleValue expr, HandleValue member, TokenPos* pos,
-                              MutableHandleValue dst)
+                              MutableHandleValue dst, bool isOptional)
 {
     RootedValue computedVal(cx, BooleanValue(computed));
 
@@ -1166,10 +1175,14 @@ NodeBuilder::memberExpression(bool computed, HandleValue expr, HandleValue membe
     if (!cb.isNull())
         return callback(cb, computedVal, expr, member, pos, dst);
 
-    return newNode(AST_MEMBER_EXPR, pos,
-                   "object", expr,
-                   "property", member,
-                   "computed", computedVal,
+    return newNode(isOptional ? AST_OPT_MEMBER_EXPR : AST_MEMBER_EXPR,
+                   pos,
+                   "object",
+                   expr,
+                   "property",
+                   member,
+                   "computed",
+                   computedVal,
                    dst);
 }
 
@@ -1230,6 +1243,22 @@ NodeBuilder::spreadExpression(HandleValue expr, TokenPos* pos, MutableHandleValu
     return newNode(AST_SPREAD_EXPR, pos,
                    "expression", expr,
                    dst);
+}
+
+bool
+NodeBuilder::optionalExpression(HandleValue expr, TokenPos* pos, MutableHandleValue dst)
+{
+  return newNode(AST_OPTIONAL_EXPR, pos,
+                 "expression", expr,
+                 dst);
+}
+
+bool
+NodeBuilder::deleteOptionalExpression(HandleValue expr, TokenPos* pos, MutableHandleValue dst)
+{
+  return newNode(AST_DELETE_OPTIONAL_EXPR, pos,
+                 "expression", expr,
+                 dst);
 }
 
 bool
@@ -2951,9 +2980,22 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
       case PNK_GENEXP:
         return generatorExpression(pn->generatorExpr(), dst);
 
+      case PNK_DELETEOPTCHAIN: {
+        RootedValue expr(cx);
+        return expression(pn->pn_kid, &expr) &&
+               builder.deleteOptionalExpression(expr, &pn->pn_pos, dst);
+      }
+
+      case PNK_OPTCHAIN: {
+        RootedValue expr(cx);
+        return expression(pn->pn_kid, &expr) &&
+               builder.optionalExpression(expr, &pn->pn_pos, dst);
+      }
+
       case PNK_NEW:
       case PNK_TAGGED_TEMPLATE:
       case PNK_CALL:
+      case PNK_OPTCALL:
       case PNK_SUPERCALL:
       {
         ParseNode* next = pn->pn_head;
@@ -2985,13 +3027,15 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
         if (pn->getKind() == PNK_TAGGED_TEMPLATE)
             return builder.taggedTemplate(callee, args, &pn->pn_pos, dst);
 
+        bool isOptional = pn->isKind(PNK_OPTCALL);
+
         // SUPERCALL is Call(super, args)
         return pn->isKind(PNK_NEW)
                ? builder.newExpression(callee, args, &pn->pn_pos, dst)
-
-            : builder.callExpression(callee, args, &pn->pn_pos, dst);
+               : builder.callExpression(callee, args, &pn->pn_pos, dst, isOptional);
       }
 
+      case PNK_OPTDOT:
       case PNK_DOT:
       {
         MOZ_ASSERT(pn->pn_pos.encloses(pn->pn_expr->pn_pos));
@@ -3000,7 +3044,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
         RootedValue propname(cx);
         RootedAtom pnAtom(cx, pn->pn_atom);
 
-        if (pn->as<PropertyAccess>().isSuper()) {
+        if (pn->as<PropertyAccessBase>().isSuper()) {
             if (!builder.super(&pn->pn_expr->pn_pos, &expr))
                 return false;
         } else {
@@ -3008,10 +3052,14 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
                 return false;
         }
 
+        bool isOptional = pn->isKind(PNK_OPTDOT);
+
         return identifier(pnAtom, nullptr, &propname) &&
-               builder.memberExpression(false, expr, propname, &pn->pn_pos, dst);
+               builder.memberExpression(false, expr, propname, &pn->pn_pos,
+                                        dst, isOptional);
       }
 
+      case PNK_OPTELEM:
       case PNK_ELEM:
       {
         MOZ_ASSERT(pn->pn_pos.encloses(pn->pn_left->pn_pos));
@@ -3019,7 +3067,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
 
         RootedValue left(cx), right(cx);
 
-        if (pn->as<PropertyByValue>().isSuper()) {
+        if (pn->as<PropertyByValueBase>().isSuper()) {
             if (!builder.super(&pn->pn_left->pn_pos, &left))
                 return false;
         } else {
@@ -3027,8 +3075,11 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
                 return false;
         }
 
+        bool isOptional = pn->isKind(PNK_OPTELEM);
+
         return expression(pn->pn_right, &right) &&
-               builder.memberExpression(true, left, right, &pn->pn_pos, dst);
+               builder.memberExpression(true, left, right, &pn->pn_pos, dst,
+                                        isOptional);
       }
 
       case PNK_CALLSITEOBJ:

@@ -12179,6 +12179,10 @@ OptionalEmitter::emitJumpShortCircuit() {
         return false;
     }
 
+    if (!bce_->newSrcNote(SRC_OPTCHAIN)) {
+        return false;
+    }
+
     if (!bce_->emitJump(JSOP_GOTO, &jumpShortCircuit_)) {
         //              [stack] UNDEFINED-OR-NULL
         return false;
@@ -12222,6 +12226,10 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
 
     if (!bce_->emit1(JSOP_POP)) {
         //              [stack] VAL
+        return false;
+    }
+
+    if (!bce_->newSrcNote(SRC_OPTCHAIN)) {
         return false;
     }
 

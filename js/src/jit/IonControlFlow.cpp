@@ -303,6 +303,12 @@ ControlFlowGenerator::snoopControlFlow(JSOp op)
             // while (cond) { }
             return processWhileOrForInLoop(sn);
 
+          case SRC_OPTCHAIN:
+            // XXX Instead of aborting early, breaking at this point works.
+            // However, I'm not sure if we still need to further process
+            // optional chains under IonBuilder.
+            break;
+
           default:
             // Hard assert for now - make an error later.
             MOZ_CRASH("unknown goto case");

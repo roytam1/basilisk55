@@ -121,7 +121,8 @@ MediaSource::IsTypeSupported(const nsAString& aType, DecoderDoctorDiagnostics* a
     }
     return NS_OK;
   }
-  if (mimeType == MEDIAMIMETYPE("audio/webm")) {
+  if (mimeType == MEDIAMIMETYPE("audio/webm") ||
+      mimeType == MEDIAMIMETYPE("audio/x-matroska")) {
     if (!(Preferences::GetBool("media.mediasource.webm.enabled", false) ||
           Preferences::GetBool("media.mediasource.webm.audio.enabled", true))) {
       return NS_ERROR_DOM_NOT_SUPPORTED_ERR;

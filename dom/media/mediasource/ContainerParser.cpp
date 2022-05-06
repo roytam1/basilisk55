@@ -680,7 +680,8 @@ ContainerParser::CreateForMIMEType(const MediaContainerType& aType)
     return new WebMContainerParser(aType);
   }
 
-  if (aType.Type() == MEDIAMIMETYPE("video/x-matroska")) {
+  if (aType.Type() == MEDIAMIMETYPE("video/x-matroska")
+      || aType.Type() == MEDIAMIMETYPE("audio/x-matroska")) {
     return new WebMContainerParser(aType);
   }
 

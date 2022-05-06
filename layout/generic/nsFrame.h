@@ -269,6 +269,16 @@ public:
   mozilla::IntrinsicSize GetIntrinsicSize() override;
   virtual mozilla::AspectRatio GetIntrinsicRatio() override;
 
+  /**
+   * Helper function for determining if flex items should use their
+   * 'flex-basis' property instead of their main-size property, such
+   * as 'width', for sizing purposes.
+   */
+  void SetCoordToFlexBasis(bool aIsInlineFlexItem,
+                           const nsStyleCoord* aFlexBasis,
+                           const nsStyleCoord** aInlineStyle,
+                           const nsStyleCoord** aBlockStyle);
+
   mozilla::LogicalSize
   ComputeSize(nsRenderingContext*         aRenderingContext,
               mozilla::WritingMode        aWM,
@@ -298,7 +308,7 @@ public:
   // Compute tight bounds assuming this frame honours its border, background
   // and outline, its children's tight bounds, and nothing else.
   nsRect ComputeSimpleTightBounds(mozilla::gfx::DrawTarget* aDrawTarget) const;
-  
+
   /**
    * A helper, used by |nsFrame::ComputeSize| (for frames that need to
    * override only this part of ComputeSize), that computes the size

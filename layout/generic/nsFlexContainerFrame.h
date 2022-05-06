@@ -73,6 +73,9 @@ public:
               const ReflowInput& aReflowInput,
               nsReflowStatus& aStatus) override;
 
+  nscoord GetIntrinsicISize(nsRenderingContext* aRenderingContext,
+                            nsLayoutUtils::IntrinsicISizeType aType);
+
   nscoord GetMinISize(nsRenderingContext* aRenderingContext) override;
   nscoord GetPrefISize(nsRenderingContext* aRenderingContext) override;
 
@@ -159,7 +162,9 @@ protected:
                     nscoord aContentBoxMainSize,
                     nscoord aAvailableBSizeForContent,
                     nsTArray<StrutInfo>& aStruts,
-                    const FlexboxAxisTracker& aAxisTracker);
+                    const FlexboxAxisTracker& aAxisTracker,
+                    nscoord aMainGapSize,
+                    nscoord aCrossGapSize);
 
   /**
    * Checks whether our child-frame list "mFrames" is sorted, using the given
@@ -243,6 +248,7 @@ protected:
                          nscoord aAvailableBSizeForContent,
                          const nsTArray<StrutInfo>& aStruts,
                          const FlexboxAxisTracker& aAxisTracker,
+                         nscoord aMainGapSize,
                          nsTArray<nsIFrame*>& aPlaceholders,
                          mozilla::LinkedList<FlexLine>& aLines);
 

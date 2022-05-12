@@ -697,6 +697,13 @@ nsFormFillController::GetUserContextId(uint32_t* aUserContextId)
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsFormFillController::GetInvalidatePreviousResult(
+    bool* aInvalidatePreviousResult) {
+  *aInvalidatePreviousResult = mInvalidatePreviousResult;
+  return NS_OK;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //// nsIAutoCompleteSearch
 
@@ -834,6 +841,8 @@ void nsFormFillController::RevalidateDataList()
       return;
     }
 
+    // We cannot use previous result since any items in search target are updated.
+    mInvalidatePreviousResult = true;
     controller->StartSearch(mLastSearchString);
     return;
   }
@@ -844,6 +853,8 @@ void nsFormFillController::RevalidateDataList()
 
   nsCOMPtr<nsIAutoCompleteResult> result;
 
+  // We cannot use previous result since any items in search target are updated.
+  mInvalidatePreviousResult = true;
   rv = inputListAutoComplete->AutoCompleteSearch(mLastSearchString,
                                                  mFocusedInput,
                                                  getter_AddRefs(result));
@@ -891,6 +902,8 @@ nsFormFillController::OnSearchCompletion(nsIAutoCompleteResult *aResult)
 NS_IMETHODIMP
 nsFormFillController::HandleEvent(nsIDOMEvent* aEvent)
 {
+  mInvalidatePreviousResult = false;
+  
   nsAutoString type;
   aEvent->GetType(type);
 

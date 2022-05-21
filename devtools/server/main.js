@@ -1488,7 +1488,9 @@ DebuggerServerConnection.prototype = {
   },
 
   send(packet) {
-    this.transport.send(packet);
+    if (this.transport) {
+      this.transport.send(packet);
+    }
   },
 
   /**

@@ -272,6 +272,7 @@ namespace jit {
     _(IsConstructor)                                                        \
     _(IsCallable)                                                           \
     _(IsObject)                                                             \
+    _(IsNullOrUndefined)                                                    \
     _(HasClass)                                                             \
     _(GuardToClass)                                                         \
     _(CopySign)                                                             \

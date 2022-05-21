@@ -332,9 +332,10 @@ ControlFlowGenerator::snoopControlFlow(JSOp op)
       case JSOP_IFEQ:
         return processIfStart(JSOP_IFEQ);
 
+      case JSOP_COALESCE:
       case JSOP_AND:
       case JSOP_OR:
-        return processAndOr(op);
+        return processShortCircuit(op);
 
       case JSOP_LABEL:
         return processLabel();
@@ -485,8 +486,8 @@ ControlFlowGenerator::processCfgEntry(CFGState& state)
       case CFGState::COND_SWITCH_BODY:
         return processCondSwitchBody(state);
 
-      case CFGState::AND_OR:
-        return processAndOrEnd(state);
+      case CFGState::SHORT_CIRCUIT:
+        return processShortCircuitEnd(state);
 
       case CFGState::LABEL:
         return processLabelEnd(state);
@@ -1382,7 +1383,7 @@ ControlFlowGenerator::processCondSwitchBody(CFGState& state)
 }
 
 ControlFlowGenerator::ControlStatus
-ControlFlowGenerator::processAndOrEnd(CFGState& state)
+ControlFlowGenerator::processShortCircuitEnd(CFGState& state)
 {
     MOZ_ASSERT(current);
     CFGBlock* lhs = state.branch.ifFalse;
@@ -2064,10 +2065,10 @@ ControlFlowGenerator::CFGState::IfElse(jsbytecode* trueEnd, jsbytecode* falseEnd
 }
 
 ControlFlowGenerator::CFGState
-ControlFlowGenerator::CFGState::AndOr(jsbytecode* join, CFGBlock* lhs)
+ControlFlowGenerator::CFGState::ShortCircuit(jsbytecode* join, CFGBlock* lhs)
 {
     CFGState state;
-    state.state = AND_OR;
+    state.state = SHORT_CIRCUIT;
     state.stopAt = join;
     state.branch.ifFalse = lhs;
     state.branch.test = nullptr;
@@ -2123,9 +2124,9 @@ ControlFlowGenerator::CFGState::Try(jsbytecode* exitpc, CFGBlock* successor)
 }
 
 ControlFlowGenerator::ControlStatus
-ControlFlowGenerator::processAndOr(JSOp op)
+ControlFlowGenerator::processShortCircuit(JSOp op)
 {
-    MOZ_ASSERT(op == JSOP_AND || op == JSOP_OR);
+    MOZ_ASSERT(op == JSOP_AND || op == JSOP_OR || op == JSOP_COALESCE);
 
     jsbytecode* rhsStart = pc + CodeSpec[op].length;
     jsbytecode* joinStart = pc + GetJumpOffset(pc);
@@ -2134,15 +2135,26 @@ ControlFlowGenerator::processAndOr(JSOp op)
     CFGBlock* evalLhs = CFGBlock::New(alloc(), joinStart);
     CFGBlock* evalRhs = CFGBlock::New(alloc(), rhsStart);
 
-    CFGTest* test = (op == JSOP_AND)
-                  ? CFGTest::New(alloc(), evalRhs, evalLhs)
-                  : CFGTest::New(alloc(), evalLhs, evalRhs);
-    test->keepCondition();
+    CFGTest* test;
+    switch (op) {
+      case JSOP_AND:
+          test = CFGTest::New(alloc(), evalRhs, evalLhs, CFGTestKind::ToBoolean);
+          break;
+      case JSOP_OR:
+          test = CFGTest::New(alloc(), evalLhs, evalRhs, CFGTestKind::ToBoolean);
+          break;
+      case JSOP_COALESCE:
+          test = CFGTest::New(alloc(), evalLhs, evalRhs, CFGTestKind::Coalesce);
+          break;
+      default:
+          MOZ_CRASH("Unexpected op code");
+    }
+
     current->setStopIns(test);
     current->setStopPc(pc);
 
     // Create the rhs block.
-    if (!cfgStack_.append(CFGState::AndOr(joinStart, evalLhs)))
+    if (!cfgStack_.append(CFGState::ShortCircuit(joinStart, evalLhs)))
         return ControlStatus::Error;
 
     if (!addBlock(evalLhs))

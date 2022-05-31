@@ -318,10 +318,6 @@ class TenuredCell : public Cell
     MOZ_ALWAYS_INLINE void unmark(uint32_t color) const;
     MOZ_ALWAYS_INLINE void copyMarkBitsFrom(const TenuredCell* src);
 
-    // Note: this is in TenuredCell because JSObject subclasses are sometimes
-    // used tagged.
-    static MOZ_ALWAYS_INLINE bool isNullLike(const Cell* thing) { return !thing; }
-
     // Access to the arena.
     inline Arena* arena() const;
     inline AllocKind getAllocKind() const;
@@ -1303,7 +1299,7 @@ TenuredCell::isInsideZone(JS::Zone* zone) const
 TenuredCell::readBarrier(TenuredCell* thing)
 {
     MOZ_ASSERT(!CurrentThreadIsIonCompiling());
-    MOZ_ASSERT(!isNullLike(thing));
+    MOZ_ASSERT(thing);
 
     // It would be good if barriers were never triggered during collection, but
     // at the moment this can happen e.g. when rekeying tables containing
@@ -1336,7 +1332,6 @@ AssertSafeToSkipBarrier(TenuredCell* thing);
 TenuredCell::writeBarrierPre(TenuredCell* thing)
 {
     MOZ_ASSERT(!CurrentThreadIsIonCompiling());
-    MOZ_ASSERT_IF(thing, !isNullLike(thing));
     if (!thing)
         return;
 

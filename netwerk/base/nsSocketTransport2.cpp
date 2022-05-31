@@ -936,7 +936,6 @@ nsresult
 nsSocketTransport::InitWithConnectedSocket(PRFileDesc *fd, const NetAddr *addr)
 {
     MOZ_ASSERT(PR_GetCurrentThread() == gSocketThread, "wrong thread");
-    NS_ASSERTION(!mFD.IsInitialized(), "already initialized");
 
     char buf[kNetAddrMaxCStrBufSize];
     NetAddrToString(addr, buf, sizeof(buf));
@@ -962,6 +961,7 @@ nsSocketTransport::InitWithConnectedSocket(PRFileDesc *fd, const NetAddr *addr)
     {
         MutexAutoLock lock(mLock);
 
+        NS_ASSERTION(!mFD.IsInitialized(), "already initialized");
         mFD = fd;
         mFDref = 1;
         mFDconnected = 1;
@@ -1326,11 +1326,14 @@ nsSocketTransport::InitiateSocket()
     //
     // if we already have a connected socket, then just attach and return.
     //
-    if (mFD.IsInitialized()) {
+    {
+      MutexAutoLock lock(mLock);
+      if (mFD.IsInitialized()) {
         rv = mSocketTransportService->AttachSocket(mFD, this);
         if (NS_SUCCEEDED(rv))
-            mAttached = true;
+          mAttached = true;
         return rv;
+      }
     }
 
     //
@@ -1422,19 +1425,19 @@ nsSocketTransport::InitiateSocket()
     PR_SetSocketOption(fd, &opt);
 #endif
 
-    // inform socket transport about this newly created socket...
-    rv = mSocketTransportService->AttachSocket(fd, this);
-    if (NS_FAILED(rv)) {
-        CloseSocket(fd,
-            mSocketTransportService->IsTelemetryEnabledAndNotSleepPhase());
-        return rv;
-    }
-    mAttached = true;
-
     // assign mFD so that we can properly handle OnSocketDetached before we've
     // established a connection.
     {
         MutexAutoLock lock(mLock);
+        // inform socket transport about this newly created socket...
+        rv = mSocketTransportService->AttachSocket(fd, this);
+        if (NS_FAILED(rv)) {
+            CloseSocket(fd,
+                mSocketTransportService->IsTelemetryEnabledAndNotSleepPhase());
+            return rv;
+        }
+        mAttached = true;
+
         mFD = fd;
         mFDref = 1;
         mFDconnected = false;
@@ -1607,8 +1610,12 @@ nsSocketTransport::RecoverFromError()
 
     nsresult rv;
 
-    // OK to check this outside mLock
-    NS_ASSERTION(!mFDconnected, "socket should not be connected");
+#ifdef DEBUG
+    {
+      MutexAutoLock lock(mLock);
+      NS_ASSERTION(!mFDconnected, "socket should not be connected");
+    }
+#endif
 
     // all connection failures need to be reported to DNS so that the next
     // time we will use a different address if available.

@@ -757,6 +757,7 @@ nsScriptSecurityManager::CheckLoadURIWithPrincipal(nsIPrincipal* aPrincipal,
     }
 
     bool targetIsViewSource = false;
+    bool targetIsMozIcon = false;
 
     if (sourceScheme.LowerCaseEqualsLiteral(NS_NULLPRINCIPAL_SCHEME)) {
         // A null principal can target its own URI.
@@ -774,12 +775,11 @@ nsScriptSecurityManager::CheckLoadURIWithPrincipal(nsIPrincipal* aPrincipal,
     }
     else if ((!sourceScheme.EqualsIgnoreCase("http") &&
               !sourceScheme.EqualsIgnoreCase("https")) &&
-             targetScheme.EqualsIgnoreCase("moz-icon"))
+             NS_SUCCEEDED(aTargetURI->SchemeIs("moz-icon", &targetIsMozIcon)) &&
+             targetIsMozIcon)
     {
-        // Exception for linking to moz-icon://.ext?size=...
-        // Note that because targetScheme is the base (innermost) URI scheme,
-        // this does NOT allow e.g. file -> moz-icon:file:///... links.
-        // This is intentional.
+        // Exception for linking to moz-icon: including file:// icons except for
+        // the web.
         return NS_OK;
     }
 

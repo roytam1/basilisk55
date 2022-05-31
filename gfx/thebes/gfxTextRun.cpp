@@ -1441,8 +1441,8 @@ gfxTextRun::SetSpaceGlyphIfSimple(gfxFont* aFont, uint32_t aCharIndex,
 
     AddGlyphRun(aFont, gfxTextRange::kFontGroup, aCharIndex, false,
                 aOrientation);
-    CompressedGlyph g;
-    g.SetSimpleGlyph(spaceWidthAppUnits, spaceGlyph);
+    CompressedGlyph g =
+        CompressedGlyph::MakeSimpleGlyph(spaceWidthAppUnits, spaceGlyph);
     if (aSpaceChar == ' ') {
         g.SetIsSpace();
     }
@@ -2520,8 +2520,8 @@ gfxFontGroup::InitScriptRun(DrawTarget* aDrawTarget,
                             detailedGlyph.mGlyphID = mainFont->GetSpaceGlyph();
                             detailedGlyph.mAdvance = advance;
                             detailedGlyph.mXOffset = detailedGlyph.mYOffset = 0;
-                            gfxShapedText::CompressedGlyph g;
-                            g.SetComplex(true, true, 1);
+                            CompressedGlyph g =
+                                CompressedGlyph::MakeComplex(true, true, 1);
                             aTextRun->SetGlyphs(aOffset + index,
                                                 g, &detailedGlyph);
                         }
@@ -3134,7 +3134,7 @@ gfxFontGroup::WhichPrefFontSupportsChar(uint32_t aCh, uint32_t aNextCh)
         uint32_t unicodeRange = FindCharUnicodeRange(aCh);
         charLang = pfl->GetFontPrefLangFor(unicodeRange);
     }
- 
+
     // if the last pref font was the first family in the pref list, no need to recheck through a list of families
     if (mLastPrefFont && charLang == mLastPrefLang &&
         mLastPrefFirstFont && mLastPrefFont->HasCharacter(aCh)) {

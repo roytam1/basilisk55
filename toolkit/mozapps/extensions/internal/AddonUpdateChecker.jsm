@@ -616,14 +616,6 @@ function UpdateParser(aId, aUpdateKey, aUrl, aObserver) {
   }
 
   logger.debug("Requesting " + aUrl);
-
-  if (!aUrl) {
-    logger.warn("Request failed: empty update manifest URL");
-    this._doneAt = new Error("UP_emptyManifestURL");
-    this.notifyError(AddonUpdateChecker.ERROR_DOWNLOAD_ERROR);
-    return;
-  }
-
   try {
     this.request = new ServiceRequest();
     this.request.open("GET", this.url, true);

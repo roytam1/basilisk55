@@ -414,6 +414,7 @@ public:
                                  bool *aUsedHyphenation,
                                  uint32_t *aLastBreak,
                                  bool aCanWordWrap,
+                                 bool aCanWhitespaceWrap,
                                  gfxBreakPriority *aBreakPriority);
 
     // Utility getters

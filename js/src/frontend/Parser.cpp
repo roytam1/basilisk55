@@ -7091,6 +7091,7 @@ JSOpFromPropertyType(PropertyType propType)
       case PropertyType::Method:
       case PropertyType::GeneratorMethod:
       case PropertyType::AsyncMethod:
+      case PropertyType::AsyncGeneratorMethod:
       case PropertyType::Constructor:
       case PropertyType::DerivedConstructor:
         return JSOP_INITPROP;
@@ -7214,7 +7215,7 @@ Parser<ParseHandler>::classDefinition(YieldHandling yieldHandling,
 
         if (propType != PropertyType::Getter && propType != PropertyType::Setter &&
             propType != PropertyType::Method && propType != PropertyType::GeneratorMethod &&
-            propType != PropertyType::AsyncMethod &&
+            propType != PropertyType::AsyncMethod && propType != PropertyType::AsyncGeneratorMethod &&
             propType != PropertyType::Constructor && propType != PropertyType::DerivedConstructor)
         {
             errorAt(nameOffset, JSMSG_BAD_METHOD_DEF);
@@ -9742,6 +9743,9 @@ Parser<ParseHandler>::propertyName(YieldHandling yieldHandling,
         // AsyncMethod[Yield, Await]:
         //   async [no LineTerminator here] PropertyName[?Yield, ?Await] ...
         //
+        //  AsyncGeneratorMethod[Yield, Await]:
+        //    async [no LineTerminator here] * PropertyName[?Yield, ?Await] ...
+        //
         // PropertyName:
         //   LiteralPropertyName
         //   ComputedPropertyName[?Yield, ?Await]
@@ -9757,7 +9761,7 @@ Parser<ParseHandler>::propertyName(YieldHandling yieldHandling,
         if (!tokenStream.peekTokenSameLine(&tt))
             return null();
         if (tt == TOK_STRING || tt == TOK_NUMBER || tt == TOK_LB ||
-            TokenKindIsPossibleIdentifierName(tt))
+            TokenKindIsPossibleIdentifierName(tt) || tt == TOK_MUL)
         {
             isAsync = true;
             tokenStream.consumeKnownToken(tt);
@@ -9897,7 +9901,9 @@ Parser<ParseHandler>::propertyName(YieldHandling yieldHandling,
 
     if (tt == TOK_LP) {
         tokenStream.ungetToken();
-        if (isGenerator)
+        if (isGenerator && isAsync)
+            *propType = PropertyType::AsyncGeneratorMethod;
+        else if (isGenerator)
             *propType = PropertyType::GeneratorMethod;
         else if (isAsync)
             *propType = PropertyType::AsyncMethod;
@@ -10175,6 +10181,7 @@ Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType prop
       case PropertyType::Method:
       case PropertyType::GeneratorMethod:
       case PropertyType::AsyncMethod:
+      case PropertyType::AsyncGeneratorMethod:
         kind = Method;
         break;
 
@@ -10190,11 +10197,13 @@ Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType prop
         MOZ_CRASH("unexpected property type");
     }
 
-    GeneratorKind generatorKind = propType == PropertyType::GeneratorMethod
+    GeneratorKind generatorKind = (propType == PropertyType::GeneratorMethod ||
+                                   propType == PropertyType::AsyncGeneratorMethod)
                                   ? StarGenerator
                                   : NotGenerator;
 
-    FunctionAsyncKind asyncKind = (propType == PropertyType::AsyncMethod)
+    FunctionAsyncKind asyncKind = (propType == PropertyType::AsyncMethod ||
+                                   propType == PropertyType::AsyncGeneratorMethod)
                                   ? AsyncFunction
                                   : SyncFunction;
 

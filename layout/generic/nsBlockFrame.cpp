@@ -1195,8 +1195,8 @@ nsBlockFrame::Reflow(nsPresContext*           aPresContext,
   nsOverflowAreas ocBounds;
   nsReflowStatus ocStatus = NS_FRAME_COMPLETE;
   if (GetPrevInFlow()) {
-    ReflowOverflowContainerChildren(aPresContext, *reflowInput, ocBounds, 0,
-                                    ocStatus);
+    ReflowOverflowContainerChildren(aPresContext, *reflowInput, ocBounds,
+                                    ReflowChildFlags::Default, ocStatus);
   }
 
   // Now that we're done cleaning up our overflow container lists, we can
@@ -6311,10 +6311,9 @@ nsBlockFrame::ReflowFloat(BlockReflowInput& aState,
   WritingMode metricsWM = metrics.GetWritingMode();
   aFloat->SetSize(metricsWM, metrics.Size(metricsWM));
   if (aFloat->HasView()) {
-    nsContainerFrame::SyncFrameViewAfterReflow(aState.mPresContext, aFloat,
-                                               aFloat->GetView(),
-                                               metrics.VisualOverflow(),
-                                               NS_FRAME_NO_MOVE_VIEW);
+    nsContainerFrame::SyncFrameViewAfterReflow(
+        aState.mPresContext, aFloat, aFloat->GetView(),
+        metrics.VisualOverflow(), ReflowChildFlags::NoMoveView);
   }
   // Pass floatRS so the frame hierarchy can be used (redoFloatRS has the same hierarchy)
   aFloat->DidReflow(aState.mPresContext, &floatRS,

@@ -673,12 +673,12 @@ nsCanvasFrame::Reflow(nsPresContext*           aPresContext,
     kidReflowInput.ApplyRelativePositioning(&kidPt, containerSize);
 
     // Reflow the frame
-    ReflowChild(kidFrame, aPresContext, kidDesiredSize, kidReflowInput,
-                kidWM, kidPt, containerSize, 0, aStatus);
+    ReflowChild(kidFrame, aPresContext, kidDesiredSize, kidReflowInput, kidWM,
+                kidPt, containerSize, ReflowChildFlags::Default, aStatus);
 
     // Complete the reflow and position and size the child frame
     FinishReflowChild(kidFrame, aPresContext, kidDesiredSize, &kidReflowInput,
-                      kidWM, kidPt, containerSize, 0);
+                      kidWM, kidPt, containerSize, ReflowChildFlags::Default);
 
     if (!NS_FRAME_IS_FULLY_COMPLETE(aStatus)) {
       nsIFrame* nextFrame = kidFrame->GetNextInFlow();
@@ -733,8 +733,8 @@ nsCanvasFrame::Reflow(nsPresContext*           aPresContext,
 
   if (prevCanvasFrame) {
     ReflowOverflowContainerChildren(aPresContext, aReflowInput,
-                                    aDesiredSize.mOverflowAreas, 0,
-                                    aStatus);
+                                    aDesiredSize.mOverflowAreas,
+                                    ReflowChildFlags::Default, aStatus);
   }
 
   FinishReflowWithAbsoluteFrames(aPresContext, aDesiredSize, aReflowInput, aStatus);

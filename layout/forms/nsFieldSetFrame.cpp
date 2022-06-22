@@ -345,8 +345,8 @@ nsFieldSetFrame::Reflow(nsPresContext*           aPresContext,
   nsOverflowAreas ocBounds;
   nsReflowStatus ocStatus = NS_FRAME_COMPLETE;
   if (GetPrevInFlow()) {
-    ReflowOverflowContainerChildren(aPresContext, aReflowInput, ocBounds, 0,
-                                    ocStatus);
+    ReflowOverflowContainerChildren(aPresContext, aReflowInput, ocBounds,
+                                    ReflowChildFlags::Default, ocStatus);
   }
 
   //------------ Handle Incremental Reflow -----------------
@@ -395,7 +395,7 @@ nsFieldSetFrame::Reflow(nsPresContext*           aPresContext,
     const nsSize dummyContainerSize;
     ReflowChild(legend, aPresContext, legendDesiredSize, *legendReflowInput,
                 wm, LogicalPoint(wm), dummyContainerSize,
-                NS_FRAME_NO_MOVE_FRAME, aStatus);
+                ReflowChildFlags::NoMoveFrame, aStatus);
 #ifdef NOISY_REFLOW
     printf("  returned (%d, %d)\n",
            legendDesiredSize.Width(), legendDesiredSize.Height());
@@ -424,7 +424,7 @@ nsFieldSetFrame::Reflow(nsPresContext*           aPresContext,
 
     FinishReflowChild(legend, aPresContext, legendDesiredSize,
                       legendReflowInput.ptr(), wm, LogicalPoint(wm),
-                      dummyContainerSize, NS_FRAME_NO_MOVE_FRAME);
+                      dummyContainerSize, ReflowChildFlags::NoMoveFrame);
   } else if (!legend) {
     mLegendRect.SetEmpty();
     mLegendSpace = 0;
@@ -476,13 +476,13 @@ nsFieldSetFrame::Reflow(nsPresContext*           aPresContext,
     // if necessary.
     const nsSize dummyContainerSize;
     ReflowChild(inner, aPresContext, kidDesiredSize, kidReflowInput,
-                wm, pt, dummyContainerSize, 0, aStatus);
+                wm, pt, dummyContainerSize, ReflowChildFlags::Default, aStatus);
 
     // Update containerSize to account for size of the inner frame, so that
     // FinishReflowChild can position it correctly.
     containerSize += kidDesiredSize.PhysicalSize();
-    FinishReflowChild(inner, aPresContext, kidDesiredSize,
-                      &kidReflowInput, wm, pt, containerSize, 0);
+    FinishReflowChild(inner, aPresContext, kidDesiredSize, &kidReflowInput, wm,
+                      pt, containerSize, ReflowChildFlags::Default);
     NS_FRAME_TRACE_REFLOW_OUT("FieldSet::Reflow", aStatus);
   } else if (inner) {
     // |inner| didn't need to be reflowed but we do need to include its size

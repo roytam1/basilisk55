@@ -315,6 +315,7 @@ nsVideoFrame::Reflow(nsPresContext* aPresContext,
   // and a container frame for the caption.
   for (nsIFrame* child : mFrames) {
     nsSize oldChildSize = child->GetSize();
+    nsReflowStatus childStatus;
 
     if (child->GetContent() == mPosterImage) {
       // Reflow the poster frame.
@@ -340,10 +341,15 @@ nsVideoFrame::Reflow(nsPresContext* aPresContext,
       kidReflowInput.SetComputedWidth(posterRenderRect.width);
       kidReflowInput.SetComputedHeight(posterRenderRect.height);
       ReflowChild(imageFrame, aPresContext, kidDesiredSize, kidReflowInput,
-                  posterRenderRect.x, posterRenderRect.y, 0, aStatus);
-      FinishReflowChild(imageFrame, aPresContext,
-                        kidDesiredSize, &kidReflowInput,
-                        posterRenderRect.x, posterRenderRect.y, 0);
+                  posterRenderRect.x, posterRenderRect.y,
+                  ReflowChildFlags::Default, childStatus);
+      MOZ_ASSERT(childStatus.IsFullyComplete(),
+                 "We gave our child unconstrained available block-size, "
+                 "so it should be complete!");
+
+      FinishReflowChild(imageFrame, aPresContext, kidDesiredSize,
+                        &kidReflowInput, posterRenderRect.x, posterRenderRect.y,
+                        ReflowChildFlags::Default);
 
 // Android still uses XUL media controls & hence needs this XUL-friendly
 // custom reflow code. This will go away in bug 1310907.
@@ -372,7 +378,11 @@ nsVideoFrame::Reflow(nsPresContext* aPresContext,
                                        availableSize);
       ReflowOutput kidDesiredSize(kidReflowInput);
       ReflowChild(child, aPresContext, kidDesiredSize, kidReflowInput,
-                  borderPadding.left, borderPadding.top, 0, aStatus);
+                  borderPadding.left, borderPadding.top, ReflowChildFlags::Default, childStatus);
+
+      MOZ_ASSERT(childStatus.IsFullyComplete(),
+                 "We gave our child unconstrained available block-size, "
+                 "so it should be complete!");
 
       if (child->GetContent() == mVideoControls && isBSizeShrinkWrapping) {
         // Resolve our own BSize based on the controls' size in the same axis.
@@ -382,7 +392,7 @@ nsVideoFrame::Reflow(nsPresContext* aPresContext,
 
       FinishReflowChild(child, aPresContext,
                         kidDesiredSize, &kidReflowInput,
-                        borderPadding.left, borderPadding.top, 0);
+                        borderPadding.left, borderPadding.top, ReflowChildFlags::Default);
     }
 
     if (child->GetContent() == mVideoControls && child->GetSize() != oldChildSize) {

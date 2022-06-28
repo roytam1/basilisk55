@@ -12,9 +12,7 @@
 
 #include "js/Date.h"
 #include "threading/ExclusiveData.h"
-#if ENABLE_INTL_API
 #include "unicode/timezone.h"
-#endif
 #include "vm/MutexIDs.h"
 
 using mozilla::UnspecifiedNaN;
@@ -336,7 +334,7 @@ JS::ResetTimeZone()
 {
     js::DateTimeInfo::updateTimeZoneAdjustment();
 
-#if ENABLE_INTL_API && defined(ICU_TZ_HAS_RECREATE_DEFAULT)
+#if defined(ICU_TZ_HAS_RECREATE_DEFAULT)
     js::IcuTimeZoneState->lock().get() = js::IcuTimeZoneStatus::NeedsUpdate;
 #endif
 }
@@ -344,7 +342,7 @@ JS::ResetTimeZone()
 void
 js::ResyncICUDefaultTimeZone()
 {
-#if ENABLE_INTL_API && defined(ICU_TZ_HAS_RECREATE_DEFAULT)
+#if defined(ICU_TZ_HAS_RECREATE_DEFAULT)
     auto guard = IcuTimeZoneState->lock();
     if (guard.get() == IcuTimeZoneStatus::NeedsUpdate) {
         icu::TimeZone::recreateDefault();

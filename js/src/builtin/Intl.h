@@ -16,9 +16,7 @@
 #include "js/GCAPI.h"
 #include "js/GCHashTable.h"
 
-#if ENABLE_INTL_API
 #include "unicode/utypes.h"
-#endif
 
 class JSLinearString;
 
@@ -469,7 +467,6 @@ intl_GetCalendarInfo(JSContext* cx, unsigned argc, Value* vp);
 extern MOZ_MUST_USE bool
 intl_ComputeDisplayNames(JSContext* cx, unsigned argc, Value* vp);
 
-#if ENABLE_INTL_API
 /**
  * Cast char16_t* strings to UChar* strings used by ICU.
  */
@@ -497,7 +494,6 @@ UCharToChar16(const UChar* chars)
   return reinterpret_cast<const char16_t*>(chars);
 }
 
-#endif // ENABLE_INTL_API
 
 } // namespace js
 

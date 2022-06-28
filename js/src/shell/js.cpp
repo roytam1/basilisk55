@@ -895,7 +895,6 @@ SetPromiseRejectionTrackerCallback(JSContext* cx, unsigned argc, Value* vp)
     return true;
 }
 
-#ifdef ENABLE_INTL_API
 static bool
 AddIntlExtras(JSContext* cx, unsigned argc, Value* vp)
 {
@@ -921,7 +920,6 @@ AddIntlExtras(JSContext* cx, unsigned argc, Value* vp)
     args.rval().setUndefined();
     return true;
 }
-#endif // ENABLE_INTL_API
 
 static bool
 EvalAndPrint(JSContext* cx, const char* bytes, size_t length,
@@ -6182,7 +6180,6 @@ static const JSFunctionSpecWithHelp shell_functions[] = {
 "Sets the callback to be invoked whenever a Promise rejection is unhandled\n"
 "or a previously-unhandled rejection becomes handled."),
 
-#ifdef ENABLE_INTL_API
     JS_FN_HELP("addIntlExtras", AddIntlExtras, 1, 0,
 "addIntlExtras(obj)",
 "Adds various not-yet-standardized Intl functions as properties on the\n"
@@ -6191,7 +6188,6 @@ static const JSFunctionSpecWithHelp shell_functions[] = {
 "unless you're willing to update your code if these experimental APIs change\n"
 "underneath you.  Calling this function more than once in a realm/global\n"
 "will throw."),
-#endif // ENABLE_INTL_API
 
     JS_FS_HELP_END
 };

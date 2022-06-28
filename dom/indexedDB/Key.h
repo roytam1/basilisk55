@@ -217,10 +217,8 @@ public:
              JS::Handle<JS::Value> aVal,
              bool aCallGetters);
 
-#ifdef ENABLE_INTL_API
   nsresult
   ToLocaleBasedKey(Key& aTarget, const nsCString& aLocale) const;
-#endif
 
   void
   FinishArray()
@@ -304,11 +302,9 @@ private:
   void
   EncodeAsString(const T* aStart, const T* aEnd, uint8_t aType);
 
-#ifdef ENABLE_INTL_API
   nsresult
   EncodeLocaleString(const nsDependentString& aString, uint8_t aTypeOffset,
                      const nsCString& aLocale);
-#endif
 
   void
   EncodeNumber(double aFloat, uint8_t aType);

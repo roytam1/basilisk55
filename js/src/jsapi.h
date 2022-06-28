@@ -5271,7 +5271,7 @@ JS_ResetDefaultLocale(JSContext* cx);
 struct JSLocaleCallbacks {
     JSLocaleToUpperCase     localeToUpperCase;
     JSLocaleToLowerCase     localeToLowerCase;
-    JSLocaleCompare         localeCompare; // not used #if EXPOSE_INTL_API
+    JSLocaleCompare         localeCompare; // not used
     JSLocaleToUnicode       localeToUnicode;
 };
 

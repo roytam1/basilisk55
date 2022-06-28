@@ -804,11 +804,7 @@ function String_static_localeCompare(str1, str2) {
         ThrowTypeError(JSMSG_MISSING_FUN_ARG, 0, "String.localeCompare");
     var locales = arguments.length > 2 ? arguments[2] : undefined;
     var options = arguments.length > 3 ? arguments[3] : undefined;
-#if EXPOSE_INTL_API
     return callFunction(String_localeCompare, str1, str2, locales, options);
-#else
-    return callFunction(std_String_localeCompare, str1, str2, locales, options);
-#endif
 }
 
 // ES6 draft 2014-04-27 B.2.3.3
@@ -1014,7 +1010,6 @@ function String_static_toLocaleUpperCase(string) {
     return callFunction(std_String_toLocaleUpperCase, string);
 }
 
-#if EXPOSE_INTL_API
 function String_static_normalize(string) {
     WarnDeprecatedStringMethod(STRING_GENERICS_NORMALIZE, "normalize");
     if (arguments.length < 1)
@@ -1022,7 +1017,6 @@ function String_static_normalize(string) {
     var form = arguments.length > 1 ? arguments[1] : undefined;
     return callFunction(std_String_normalize, string, form);
 }
-#endif
 
 function String_static_concat(string, arg1) {
     WarnDeprecatedStringMethod(STRING_GENERICS_CONCAT, 'concat');

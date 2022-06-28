@@ -36,11 +36,6 @@ class StringBuffer;
 
 void InitRuntimeNumberState(JSRuntime* rt);
 
-#if !EXPOSE_INTL_API
-extern void
-FinishRuntimeNumberState(JSRuntime* rt);
-#endif
-
 /* Initialize the Number class, returning its prototype object. */
 extern JSObject*
 InitNumberClass(JSContext* cx, HandleObject obj);

@@ -2422,11 +2422,7 @@ static const JSFunctionSpec intrinsic_functions[] = {
     JS_FN("std_String_trimEnd",                  str_trimEnd,                  0,0),
     JS_FN("std_String_toLocaleLowerCase",        str_toLocaleLowerCase,        0,0),
     JS_FN("std_String_toLocaleUpperCase",        str_toLocaleUpperCase,        0,0),
-#if !EXPOSE_INTL_API
-    JS_FN("std_String_localeCompare",            str_localeCompare,            1,0),
-#else
     JS_FN("std_String_normalize",                str_normalize,                0,0),
-#endif
     JS_FN("std_String_concat",                   str_concat,                   1,0),
     
     JS_FN("std_TypedArray_buffer",               js::TypedArray_bufferGetter,  1,0),

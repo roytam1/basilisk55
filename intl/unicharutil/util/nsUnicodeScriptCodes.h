@@ -73,17 +73,6 @@ for the Unicode Character Database, for Version 9.0.0 of the Unicode Standard.
 
 #pragma pack(1)
 
-#if !ENABLE_INTL_API
-
-struct nsCharProps1 {
-  unsigned char mMirrorOffsetIndex:5;
-  unsigned char mHangulType:3;
-  unsigned char mCombiningClass:8;
-};
-
-#endif
-
-#if ENABLE_INTL_API
 
 struct nsCharProps2 {
   // Currently only 4 bits are defined here, so 4 more could be added without
@@ -93,30 +82,6 @@ struct nsCharProps2 {
   unsigned char mIdType:2;
 };
 
-#endif
-
-#if !ENABLE_INTL_API
-
-// This struct currently requires 5 bytes. We try to ensure that whole-byte
-// fields will not straddle byte boundaries, to optimize access to them.
-struct nsCharProps2 {
-  unsigned char mScriptCode:8;
-  // -- byte boundary --
-  unsigned char mPairedBracketType:2;
-  unsigned char mEastAsianWidthFWH:1;
-  unsigned char mCategory:5;
-  // -- byte boundary --
-  unsigned char mIdType:2;
-  unsigned char mDefaultIgnorable:1;
-  unsigned char mBidiCategory:5;
-  // -- byte boundary --
-  unsigned char mVertOrient:2;
-  unsigned char mLineBreak:6;
-  // -- byte boundary --
-  signed char   mNumericValue; // only 5 bits are actually needed here
-};
-
-#endif
 
 #pragma pack()
 

@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#define PI 3.141592653589793238462643383279502884
+
 #ifndef MAX_SB_SIZE
 #define MAX_SB_SIZE 128
 #endif  // ndef MAX_SB_SIZE
@@ -28,6 +30,8 @@ extern "C" {
 #define AOMMIN(x, y) (((x) < (y)) ? (x) : (y))
 #define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
 #define AOMSIGN(x) ((x) < 0 ? -1 : 0)
+
+#define NELEMENTS(x) (int)(sizeof(x) / sizeof(x[0]))
 
 #define IMPLIES(a, b) (!(a) || (b))  //  Logical 'a implies b' (or 'a -> b')
 

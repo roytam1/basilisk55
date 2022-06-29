@@ -15,11 +15,12 @@
 
 #include "config/aom_config.h"
 
-#include "aom_ports/mem.h"  // ROUND_POWER_OF_TWO
 #include "aom/aomcx.h"
 #include "aom/aomdx.h"
 #include "aom/aom_encoder.h"
 #include "aom/aom_decoder.h"
+
+#define NELEMENTS(x) static_cast<int>(sizeof(x) / sizeof(x[0]))
 
 using libaom_test::ACMRandom;
 namespace {
@@ -30,7 +31,11 @@ class CompressedSource {
     aom_codec_iface_t *algo = aom_codec_av1_cx();
 
     aom_codec_enc_cfg_t cfg;
+#if CONFIG_REALTIME_ONLY
+    aom_codec_enc_config_default(algo, &cfg, 1);
+#else
     aom_codec_enc_config_default(algo, &cfg, 0);
+#endif
 
     // force the quantizer, to reduce the sensitivity on encoding choices.
     // e.g, we don't want this test to break when the rate control is modified.

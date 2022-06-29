@@ -39,8 +39,25 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
                                        const aom_codec_enc_cfg_t *cfg,
                                        aom_codec_flags_t flags, int ver) {
   aom_codec_err_t res;
+  // The value of AOM_ENCODER_ABI_VERSION in libaom v3.0.0 and v3.1.0 - v3.1.3.
+  //
+  // We are compatible with these older libaom releases. AOM_ENCODER_ABI_VERSION
+  // was incremented after these releases for two reasons:
+  // 1. AOM_ENCODER_ABI_VERSION takes contribution from
+  //    AOM_EXT_PART_ABI_VERSION. The external partition API is still
+  //    experimental, so it should not be considered as part of the stable ABI.
+  //    fd9ed8366 External partition: Define APIs
+  //    https://aomedia-review.googlesource.com/c/aom/+/135663
+  // 2. As a way to detect the presence of speeds 7-9 in all-intra mode. I (wtc)
+  //    suggested this change because I misunderstood how
+  //    AOM_ENCODER_ABI_VERSION was used.
+  //    bbdfa68d1 AllIntra: Redefine all-intra mode speed features for speed 7+
+  //    https://aomedia-review.googlesource.com/c/aom/+/140624
+  const int aom_encoder_abi_version_25 = 25;
 
-  if (ver != AOM_ENCODER_ABI_VERSION)
+  // TODO(bug aomedia:3228): Remove the check for aom_encoder_abi_version_25 in
+  // libaom v4.0.0.
+  if (ver != AOM_ENCODER_ABI_VERSION && ver != aom_encoder_abi_version_25)
     res = AOM_CODEC_ABI_MISMATCH;
   else if (!ctx || !iface || !cfg)
     res = AOM_CODEC_INVALID_PARAM;
@@ -50,94 +67,21 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
     res = AOM_CODEC_INCAPABLE;
   else if ((flags & AOM_CODEC_USE_PSNR) && !(iface->caps & AOM_CODEC_CAP_PSNR))
     res = AOM_CODEC_INCAPABLE;
-  else {
+  else if (cfg->g_bit_depth > 8 && (flags & AOM_CODEC_USE_HIGHBITDEPTH) == 0) {
+    res = AOM_CODEC_INVALID_PARAM;
+    ctx->err_detail =
+        "High bit-depth used without the AOM_CODEC_USE_HIGHBITDEPTH flag.";
+  } else {
     ctx->iface = iface;
     ctx->name = iface->name;
     ctx->priv = NULL;
     ctx->init_flags = flags;
     ctx->config.enc = cfg;
-    res = ctx->iface->init(ctx, NULL);
+    res = ctx->iface->init(ctx);
 
     if (res) {
       ctx->err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
       aom_codec_destroy(ctx);
-    }
-  }
-
-  return SAVE_STATUS(ctx, res);
-}
-
-aom_codec_err_t aom_codec_enc_init_multi_ver(
-    aom_codec_ctx_t *ctx, aom_codec_iface_t *iface, aom_codec_enc_cfg_t *cfg,
-    int num_enc, aom_codec_flags_t flags, aom_rational_t *dsf, int ver) {
-  aom_codec_err_t res = AOM_CODEC_OK;
-
-  if (ver != AOM_ENCODER_ABI_VERSION)
-    res = AOM_CODEC_ABI_MISMATCH;
-  else if (!ctx || !iface || !cfg || (num_enc > 16 || num_enc < 1))
-    res = AOM_CODEC_INVALID_PARAM;
-  else if (iface->abi_version != AOM_CODEC_INTERNAL_ABI_VERSION)
-    res = AOM_CODEC_ABI_MISMATCH;
-  else if (!(iface->caps & AOM_CODEC_CAP_ENCODER))
-    res = AOM_CODEC_INCAPABLE;
-  else if ((flags & AOM_CODEC_USE_PSNR) && !(iface->caps & AOM_CODEC_CAP_PSNR))
-    res = AOM_CODEC_INCAPABLE;
-  else {
-    int i;
-    void *mem_loc = NULL;
-
-    if (!(res = iface->enc.mr_get_mem_loc(cfg, &mem_loc))) {
-      for (i = 0; i < num_enc; i++) {
-        aom_codec_priv_enc_mr_cfg_t mr_cfg;
-
-        /* Validate down-sampling factor. */
-        if (dsf->num < 1 || dsf->num > 4096 || dsf->den < 1 ||
-            dsf->den > dsf->num) {
-          res = AOM_CODEC_INVALID_PARAM;
-          break;
-        }
-
-        mr_cfg.mr_low_res_mode_info = mem_loc;
-        mr_cfg.mr_total_resolutions = num_enc;
-        mr_cfg.mr_encoder_id = num_enc - 1 - i;
-        mr_cfg.mr_down_sampling_factor.num = dsf->num;
-        mr_cfg.mr_down_sampling_factor.den = dsf->den;
-
-        /* Force Key-frame synchronization. Namely, encoder at higher
-         * resolution always use the same frame_type chosen by the
-         * lowest-resolution encoder.
-         */
-        if (mr_cfg.mr_encoder_id) cfg->kf_mode = AOM_KF_DISABLED;
-
-        ctx->iface = iface;
-        ctx->name = iface->name;
-        ctx->priv = NULL;
-        ctx->init_flags = flags;
-        ctx->config.enc = cfg;
-        res = ctx->iface->init(ctx, &mr_cfg);
-
-        if (res) {
-          const char *error_detail = ctx->priv ? ctx->priv->err_detail : NULL;
-          /* Destroy current ctx */
-          ctx->err_detail = error_detail;
-          aom_codec_destroy(ctx);
-
-          /* Destroy already allocated high-level ctx */
-          while (i) {
-            ctx--;
-            ctx->err_detail = error_detail;
-            aom_codec_destroy(ctx);
-            i--;
-          }
-        }
-
-        if (res) break;
-
-        ctx++;
-        cfg++;
-        dsf++;
-      }
-      ctx--;
     }
   }
 
@@ -225,38 +169,11 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
   else if (!(ctx->iface->caps & AOM_CODEC_CAP_ENCODER))
     res = AOM_CODEC_INCAPABLE;
   else {
-    unsigned int num_enc = ctx->priv->enc.total_encoders;
-
     /* Execute in a normalized floating point environment, if the platform
      * requires it.
      */
     FLOATING_POINT_INIT
-
-    if (num_enc == 1)
-      res =
-          ctx->iface->enc.encode(get_alg_priv(ctx), img, pts, duration, flags);
-    else {
-      /* Multi-resolution encoding:
-       * Encode multi-levels in reverse order. For example,
-       * if mr_total_resolutions = 3, first encode level 2,
-       * then encode level 1, and finally encode level 0.
-       */
-      int i;
-
-      ctx += num_enc - 1;
-      if (img) img += num_enc - 1;
-
-      for (i = num_enc - 1; i >= 0; i--) {
-        if ((res = ctx->iface->enc.encode(get_alg_priv(ctx), img, pts, duration,
-                                          flags)))
-          break;
-
-        ctx--;
-        if (img) img--;
-      }
-      ctx++;
-    }
-
+    res = ctx->iface->enc.encode(get_alg_priv(ctx), img, pts, duration, flags);
     FLOATING_POINT_RESTORE
   }
 

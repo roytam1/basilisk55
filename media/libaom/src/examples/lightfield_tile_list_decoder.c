@@ -37,6 +37,12 @@
 #include "common/tools_common.h"
 #include "common/video_reader.h"
 
+enum {
+  YUV1D,  // 1D tile output for conformance test.
+  YUV,    // Tile output in YUV format.
+  NV12,   // Tile output in NV12 format.
+} UENUM1BYTE(OUTPUT_FORMAT);
+
 static const char *exec_name;
 
 void usage_exit(void) {
@@ -51,14 +57,14 @@ static void write_tile_yuv1d(aom_codec_ctx_t *codec, const aom_image_t *img,
                              FILE *file) {
   // read out the tile size.
   unsigned int tile_size = 0;
-  if (aom_codec_control(codec, AV1D_GET_TILE_SIZE, &tile_size))
+  if (AOM_CODEC_CONTROL_TYPECHECKED(codec, AV1D_GET_TILE_SIZE, &tile_size))
     die_codec(codec, "Failed to get the tile size");
   const unsigned int tile_width = tile_size >> 16;
   const unsigned int tile_height = tile_size & 65535;
   const uint32_t output_frame_width_in_tiles = img->d_w / tile_width;
 
   unsigned int tile_count = 0;
-  if (aom_codec_control(codec, AV1D_GET_TILE_COUNT, &tile_count))
+  if (AOM_CODEC_CONTROL_TYPECHECKED(codec, AV1D_GET_TILE_COUNT, &tile_count))
     die_codec(codec, "Failed to get the tile size");
 
   // Write tile to file.
@@ -98,9 +104,7 @@ static void write_tile_yuv1d(aom_codec_ctx_t *codec, const aom_image_t *img,
 
 int main(int argc, char **argv) {
   FILE *outfile = NULL;
-  aom_codec_ctx_t codec;
   AvxVideoReader *reader = NULL;
-  const AvxInterface *decoder = NULL;
   const AvxVideoInfo *info = NULL;
   int num_references;
   int num_tile_lists;
@@ -129,19 +133,21 @@ int main(int argc, char **argv) {
 
   info = aom_video_reader_get_info(reader);
 
-  decoder = get_aom_decoder_by_fourcc(info->codec_fourcc);
+  aom_codec_iface_t *decoder = get_aom_decoder_by_fourcc(info->codec_fourcc);
   if (!decoder) die("Unknown input codec.");
-  printf("Using %s\n", aom_codec_iface_name(decoder->codec_interface()));
+  printf("Using %s\n", aom_codec_iface_name(decoder));
 
-  if (aom_codec_dec_init(&codec, decoder->codec_interface(), NULL, 0))
-    die_codec(&codec, "Failed to initialize decoder.");
+  aom_codec_ctx_t codec;
+  if (aom_codec_dec_init(&codec, decoder, NULL, 0))
+    die("Failed to initialize decoder.");
 
-  if (aom_codec_control(&codec, AV1D_SET_IS_ANNEXB, info->is_annexb)) {
-    die("Failed to set annex b status");
+  if (AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_SET_IS_ANNEXB,
+                                    info->is_annexb)) {
+    die_codec(&codec, "Failed to set annex b status");
   }
 
   // Decode anchor frames.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 0);
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1_SET_TILE_MODE, 0);
   for (i = 0; i < num_references; ++i) {
     aom_video_reader_read_frame(reader);
     frame = aom_video_reader_get_frame(reader, &frame_size);
@@ -150,11 +156,11 @@ int main(int argc, char **argv) {
 
     if (i == 0) {
       aom_img_fmt_t ref_fmt = 0;
-      if (aom_codec_control(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt))
+      if (AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_GET_IMG_FORMAT, &ref_fmt))
         die_codec(&codec, "Failed to get the image format");
 
       int frame_res[2];
-      if (aom_codec_control(&codec, AV1D_GET_FRAME_SIZE, frame_res))
+      if (AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_GET_FRAME_SIZE, frame_res))
         die_codec(&codec, "Failed to get the image frame size");
 
       // Allocate memory to store decoded references. Allocate memory with the
@@ -169,8 +175,8 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (aom_codec_control(&codec, AV1_COPY_NEW_FRAME_IMAGE,
-                          &reference_images[i]))
+    if (AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1_COPY_NEW_FRAME_IMAGE,
+                                      &reference_images[i]))
       die_codec(&codec, "Failed to copy decoded reference frame");
 
     aom_codec_iter_t iter = NULL;
@@ -178,7 +184,7 @@ int main(int argc, char **argv) {
     while ((img = aom_codec_get_frame(&codec, &iter)) != NULL) {
       char name[1024];
       snprintf(name, sizeof(name), "ref_%d.yuv", i);
-      printf("writing ref image to %s, %d, %d\n", name, img->d_w, img->d_h);
+      printf("writing ref image to %s, %u, %u\n", name, img->d_w, img->d_h);
       FILE *ref_file = fopen(name, "wb");
       aom_img_write(img, ref_file);
       fclose(ref_file);
@@ -186,11 +192,11 @@ int main(int argc, char **argv) {
   }
 
   // Decode the lightfield.
-  aom_codec_control_(&codec, AV1_SET_TILE_MODE, 1);
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1_SET_TILE_MODE, 1);
 
   // Set external references.
   av1_ext_ref_frame_t set_ext_ref = { &reference_images[0], num_references };
-  aom_codec_control_(&codec, AV1D_SET_EXT_REF_PTR, &set_ext_ref);
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_SET_EXT_REF_PTR, &set_ext_ref);
   // Must decode the camera frame header first.
   aom_video_reader_read_frame(reader);
   frame = aom_video_reader_get_frame(reader, &frame_size);

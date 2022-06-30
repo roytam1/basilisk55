@@ -1997,21 +1997,32 @@ class MOZ_STACK_CLASS IfThenElseEmitter
 class MOZ_RAII OptionalEmitter
 {
  public:
-  OptionalEmitter(BytecodeEmitter* bce, int32_t initialDepth);
+  enum class Kind {
+    // Requires two values on the stack
+    Reference,
+    // Requires one value on the stack
+    Other
+  };
 
  private:
   BytecodeEmitter* bce_;
 
   BytecodeEmitter::TDZCheckCache tdzCache_;
 
-  // Jump target for short circuiting code, which has null or undefined values.
-  JumpList jumpShortCircuit_;
+  // jumpTarget for the fake label over the optional chaining code
+  JumpList top_;
 
-  // Jump target for code that does not short circuit.
-  JumpList jumpFinish_;
+  // BreakableControl target for the break from inside the optional chaining code
+  BreakableControl breakInfo_;
 
   // Stack depth when the optional emitter was instantiated.
   int32_t initialDepth_;
+
+  // JSOp is the op code to be emitted, Kind is if we are dealing with a
+  // reference (in which case we need two elements on the stack) or other value
+  // (which needs one element on the stack)
+  JSOp op_;
+  Kind kind_;
 
   // The state of this emitter.
   //
@@ -2052,20 +2063,14 @@ class MOZ_RAII OptionalEmitter
 #endif
 
  public:
-  enum class Kind {
-    // Requires two values on the stack
-    Reference,
-    // Requires one value on the stack
-    Other
-  };
+  OptionalEmitter(BytecodeEmitter* bce, int32_t initialDepth, JSOp op = JSOP_UNDEFINED, Kind kind = Kind::Other);
 
   MOZ_MUST_USE bool emitJumpShortCircuit();
   MOZ_MUST_USE bool emitJumpShortCircuitForCall();
 
-  // JSOp is the op code to be emitted, Kind is if we are dealing with a
-  // reference (in which case we need two elements on the stack) or other value
-  // (which needs one element on the stack)
-  MOZ_MUST_USE bool emitOptionalJumpTarget(JSOp op, Kind kind = Kind::Other);
+  MOZ_MUST_USE bool emitOptionalJumpTarget();
+
+  MOZ_MUST_USE bool emitOptionalJumpLabel();
 };
 
 class ForOfLoopControl : public LoopControl
@@ -9402,7 +9407,11 @@ BytecodeEmitter::emitDeleteOptionalChain(ParseNode* deleteNode)
 {
     MOZ_ASSERT(deleteNode->isKind(PNK_DELETEOPTCHAIN));
 
-    OptionalEmitter oe(this, stackDepth);
+    OptionalEmitter oe(this, this->stackDepth, JSOP_TRUE);
+
+    if (!oe.emitOptionalJumpLabel()) {
+        return false;
+    }
 
     ParseNode* kid = deleteNode->pn_kid;
     switch (kid->getKind()) {
@@ -9434,7 +9443,7 @@ BytecodeEmitter::emitDeleteOptionalChain(ParseNode* deleteNode)
         MOZ_ASSERT_UNREACHABLE("Unrecognized optional delete ParseNodeKind");
     }
 
-    if (!oe.emitOptionalJumpTarget(JSOP_TRUE)) {
+    if (!oe.emitOptionalJumpTarget()) {
         //              [stack] # If shortcircuit
         //              [stack] TRUE
         //              [stack] # otherwise
@@ -11757,7 +11766,11 @@ BytecodeEmitter::emitCalleeAndThisForOptionalChain(
 
     // Create a new OptionalEmitter, in order to emit the right bytecode
     // in isolation.
-    OptionalEmitter oe(this, stackDepth);
+    OptionalEmitter oe(this, stackDepth, JSOP_UNDEFINED, OptionalEmitter::Kind::Reference);
+
+    if (!oe.emitOptionalJumpLabel()) {
+        return false;
+    }
 
     if (!emitOptionalCalleeAndThis(callNode, calleeNode, isCall, oe)) {
         //              [stack] CALLEE THIS
@@ -11768,8 +11781,7 @@ BytecodeEmitter::emitCalleeAndThisForOptionalChain(
     // and the "callee" value to undefined, if the callee is undefined. It
     // does not matter much what the this value is, the function call will
     // fail if it is not optional, and be set to undefined otherwise.
-    if (!oe.emitOptionalJumpTarget(JSOP_UNDEFINED,
-                                   OptionalEmitter::Kind::Reference)) {
+    if (!oe.emitOptionalJumpTarget()) {
         //              [stack] # If shortcircuit
         //              [stack] UNDEFINED UNDEFINED
         //              [stack] # otherwise
@@ -11787,14 +11799,18 @@ BytecodeEmitter::emitOptionalChain(
 {
     ParseNode* expression = optionalChain->pn_kid;
 
-    OptionalEmitter oe(this, stackDepth);
+    OptionalEmitter oe(this, stackDepth, JSOP_UNDEFINED);
+
+    if (!oe.emitOptionalJumpLabel()) {
+        return false;
+    }
 
     if (!emitOptionalTree(expression, oe, valueUsage)) {
         //              [stack] VAL
         return false;
     }
 
-    if (!oe.emitOptionalJumpTarget(JSOP_UNDEFINED)) {
+    if (!oe.emitOptionalJumpTarget()) {
         //              [stack] # If shortcircuit
         //              [stack] UNDEFINED
         //              [stack] # otherwise
@@ -12152,11 +12168,18 @@ BytecodeEmitter::copySrcNotes(jssrcnote* destination, uint32_t nsrcnotes)
     SN_MAKE_TERMINATOR(&destination[totalCount]);
 }
 
-OptionalEmitter::OptionalEmitter(BytecodeEmitter* bce, int32_t initialDepth)
+OptionalEmitter::OptionalEmitter(BytecodeEmitter* bce, int32_t initialDepth, JSOp op /*= JSOP_UNDEFINED*/, Kind kind /*= Kind::Other*/)
   : bce_(bce),
     tdzCache_(bce),
-    initialDepth_(initialDepth)
+    breakInfo_(bce, StatementKind::Label),
+    initialDepth_(initialDepth),
+    op_(op), kind_(kind)
 {
+}
+
+bool OptionalEmitter::emitOptionalJumpLabel()
+{
+    return bce_->emitJump(JSOP_LABEL, &top_);
 }
 
 bool
@@ -12185,7 +12208,22 @@ OptionalEmitter::emitJumpShortCircuit() {
         return false;
     }
 
-    if (!bce_->emitJump(JSOP_GOTO, &jumpShortCircuit_)) {
+    // Perform ShortCircuiting code and break
+    if (!bce_->emit1(JSOP_POP)) {
+        return false;
+    }
+
+    if (!bce_->emit1(op_)) {
+        return false;
+    }
+
+    if (kind_ == Kind::Reference) {
+        if (!bce_->emit1(op_)) {
+            return false;
+        }
+    }
+
+    if (!bce_->emitGoto(&breakInfo_, &breakInfo_.breaks, SRC_BREAK2LABEL)) {
         //              [stack] UNDEFINED-OR-NULL
         return false;
     }
@@ -12226,6 +12264,7 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
         return false;
     }
 
+    // Perform ShortCircuiting code for Call and break
     if (!bce_->emit1(JSOP_POP)) {
         //              [stack] VAL
         return false;
@@ -12235,7 +12274,21 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
         return false;
     }
 
-    if (!bce_->emitJump(JSOP_GOTO, &jumpShortCircuit_)) {
+    if (!bce_->emit1(JSOP_POP)) {
+        return false;
+    }
+
+    if (!bce_->emit1(op_)) {
+        return false;
+    }
+
+    if (kind_ == Kind::Reference) {
+        if (!bce_->emit1(op_)) {
+            return false;
+        }
+    }
+
+    if (!bce_->emitGoto(&breakInfo_, &breakInfo_.breaks, SRC_BREAK2LABEL)) {
         //              [stack] UNDEFINED-OR-NULL
         return false;
     }
@@ -12257,60 +12310,26 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
 }
 
 bool
-OptionalEmitter::emitOptionalJumpTarget(JSOp op,
-                                        Kind kind /* = Kind::Other */) {
+OptionalEmitter::emitOptionalJumpTarget() {
 #ifdef DEBUG
     int32_t depth = bce_->stackDepth;
 #endif
     MOZ_ASSERT(state_ == State::ShortCircuit ||
                state_ == State::ShortCircuitForCall);
 
-    // if we get to this point, it means that the optional chain did not short
-    // circuit, so we should skip the short circuiting bytecode.
-    if (!bce_->emitJump(JSOP_GOTO, &jumpFinish_)) {
-        //              [stack] # if call
-        //              [stack] CALLEE THIS
-        //              [stack] # otherwise, if defined
-        //              [stack] VAL
-        //              [stack] # otherwise
-        //              [stack] UNDEFINED-OR-NULL
+    // Patch the JSOP_LABEL offset.
+    JumpTarget brk{ bce_->lastNonJumpTargetOffset() };
+    bce_->patchJumpsToTarget(top_, brk);
+
+    // Patch the emitGoto() offset.
+    if (!breakInfo_.patchBreaks(bce_)) {
         return false;
     }
 
-    if (!bce_->emitJumpTargetAndPatch(jumpShortCircuit_)) {
-        //              [stack] UNDEFINED-OR-NULL
-        return false;
-    }
+    // XXX: Commented out due to workaround for missing JSOP_GOTO functionality
+    /*// reset stack depth to the depth when we jumped
+    bce_->stackDepth = initialDepth_ + 1;*/
 
-    // reset stack depth to the depth when we jumped
-    bce_->stackDepth = initialDepth_ + 1;
-
-    if (!bce_->emit1(JSOP_POP)) {
-        //              [stack]
-        return false;
-    }
-
-    if (!bce_->emit1(op)) {
-        //              [stack] JSOP
-        return false;
-    }
-
-    if (kind == Kind::Reference) {
-        if (!bce_->emit1(op)) {
-            //              [stack] JSOP JSOP
-            return false;
-        }
-    }
-
-    MOZ_ASSERT(depth == bce_->stackDepth);
-
-    if (!bce_->emitJumpTargetAndPatch(jumpFinish_)) {
-        //              [stack] # if call
-        //              [stack] CALLEE THIS
-        //              [stack] # otherwise
-        //              [stack] VAL
-        return false;
-    }
 #ifdef DEBUG
     state_ = State::JumpEnd;
 #endif

@@ -464,6 +464,7 @@ private:
 
     void SetLoadGroupUserAgentOverride();
 
+    void SetOriginHeader();
     void SetDoNotTrack();
 
 private:

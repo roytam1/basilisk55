@@ -11,6 +11,8 @@ DIRS += [
     # Depends on NSS and NSPR, and must be built after sandbox or else B2G emulator
     # builds fail.
     '/security/certverifier',
+    # Depends on certverifier
+    '/security/apps',
 ]
 
 # the signing related bits of libmar depend on nss

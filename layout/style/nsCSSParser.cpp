@@ -263,7 +263,8 @@ public:
   bool EvaluateSupportsCondition(const nsAString& aCondition,
                                  nsIURI* aDocURL,
                                  nsIURI* aBaseURL,
-                                 nsIPrincipal* aDocPrincipal);
+                                 nsIPrincipal* aDocPrincipal,
+                                 SupportsParsingSettings aSettings = SupportsParsingSettings::Normal);
 
   bool ParseCounterStyleName(const nsAString& aBuffer,
                              nsIURI* aURL,
@@ -2457,7 +2458,8 @@ bool
 CSSParserImpl::EvaluateSupportsCondition(const nsAString& aDeclaration,
                                          nsIURI* aDocURL,
                                          nsIURI* aBaseURL,
-                                         nsIPrincipal* aDocPrincipal)
+                                         nsIPrincipal* aDocPrincipal,
+                                         SupportsParsingSettings aSettings)
 {
   nsCSSScanner scanner(aDeclaration, 0);
   css::ErrorReporter reporter(scanner, mSheet, mChildLoader, aDocURL);
@@ -2465,7 +2467,13 @@ CSSParserImpl::EvaluateSupportsCondition(const nsAString& aDeclaration,
   nsAutoSuppressErrors suppressErrors(this);
 
   bool conditionMet;
-  bool parsedOK = ParseSupportsCondition(conditionMet) && !GetToken(true);
+  bool parsedOK;
+
+  if (aSettings == SupportsParsingSettings::ImpliedParentheses) {
+    parsedOK = ParseSupportsConditionInParensInsideParens(conditionMet) && !GetToken(true);
+  } else {
+    parsedOK = ParseSupportsCondition(conditionMet) && !GetToken(true);
+  }
 
   CLEAR_ERROR();
   ReleaseScanner();
@@ -18366,10 +18374,11 @@ bool
 nsCSSParser::EvaluateSupportsCondition(const nsAString& aCondition,
                                        nsIURI* aDocURL,
                                        nsIURI* aBaseURL,
-                                       nsIPrincipal* aDocPrincipal)
+                                       nsIPrincipal* aDocPrincipal,
+                                       SupportsParsingSettings aSettings)
 {
   return static_cast<CSSParserImpl*>(mImpl)->
-    EvaluateSupportsCondition(aCondition, aDocURL, aBaseURL, aDocPrincipal);
+    EvaluateSupportsCondition(aCondition, aDocURL, aBaseURL, aDocPrincipal, aSettings);
 }
 
 bool

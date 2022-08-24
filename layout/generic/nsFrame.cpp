@@ -40,6 +40,7 @@
 #include "mozilla/Logging.h"
 #include "mozilla/Sprintf.h"
 #include "nsFrameManager.h"
+#include "nsFlexContainerFrame.h"
 #include "nsLayoutUtils.h"
 #include "LayoutLogging.h"
 #include "mozilla/RestyleManager.h"
@@ -4848,12 +4849,11 @@ nsFrame::ComputeSize(nsRenderingContext* aRenderingContext,
   }
   bool isFlexItem = (parentFrameType == nsGkAtoms::flexContainerFrame &&
                      !(GetStateBits() & NS_FRAME_OUT_OF_FLOW));
+
   bool isInlineFlexItem = false;
   if (isFlexItem) {
-    uint32_t flexDirection = GetParent()->StylePosition()->mFlexDirection;
     isInlineFlexItem =
-      flexDirection == NS_STYLE_FLEX_DIRECTION_ROW ||
-      flexDirection == NS_STYLE_FLEX_DIRECTION_ROW_REVERSE;
+      nsFlexContainerFrame::IsItemInlineAxisMainAxis(this);
 
     const nsStyleCoord* flexBasis = &(stylePos->mFlexBasis);
     SetCoordToFlexBasis(isInlineFlexItem, false, flexBasis,
@@ -5069,11 +5069,8 @@ nsFrame::ComputeSizeWithIntrinsicDimensions(nsRenderingContext*  aRenderingConte
   // from our style struct. (Otherwise, we'll be using an irrelevant value in
   // the aspect-ratio calculations below.)
   if (isFlexItem) {
-    uint32_t flexDirection =
-      GetParent()->StylePosition()->mFlexDirection;
     isInlineFlexItem =
-      flexDirection == NS_STYLE_FLEX_DIRECTION_ROW ||
-      flexDirection == NS_STYLE_FLEX_DIRECTION_ROW_REVERSE;
+      nsFlexContainerFrame::IsItemInlineAxisMainAxis(this);
 
     // If FlexItemMainSizeOverride frame-property is set, then that means the
     // flex container is imposing a main-size on this flex item for it to use

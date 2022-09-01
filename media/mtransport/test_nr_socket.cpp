@@ -479,6 +479,10 @@ int TestNrSocket::connect(nr_transport_addr *addr) {
     return R_INTERNAL;
   }
 
+  if (addr->tls_host[0] != '\0') {
+    tls_ = true;
+  }
+
   if (!nat_->enabled_
       || addr->protocol==IPPROTO_UDP  // Horrible hack to allow default address
                                       // discovery to work. Only works because

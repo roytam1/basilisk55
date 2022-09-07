@@ -17,8 +17,6 @@
 #include "nsCacheService.h"
 #include "nsApplicationCache.h"
 
-#include "nsNetCID.h"
-#include "nsNetUtil.h"
 #include "nsIURI.h"
 #include "nsAutoPtr.h"
 #include "nsEscape.h"

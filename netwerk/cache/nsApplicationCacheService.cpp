@@ -15,8 +15,6 @@
 
 using namespace mozilla;
 
-static NS_DEFINE_CID(kCacheServiceCID, NS_CACHESERVICE_CID);
-
 //-----------------------------------------------------------------------------
 // nsApplicationCacheService
 //-----------------------------------------------------------------------------

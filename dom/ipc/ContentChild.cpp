@@ -193,7 +193,7 @@
 #include "mozilla/dom/time/DateCacheCleaner.h"
 #include "mozilla/net/NeckoMessageUtils.h"
 #include "mozilla/widget/PuppetBidiKeyboard.h"
-#include "mozilla/RemoteSpellCheckEngineChild.h"
+#include "mozilla/mozSpellChecker.h"
 #include "GMPServiceChild.h"
 #include "GfxInfoBase.h"
 #include "gfxPlatform.h"

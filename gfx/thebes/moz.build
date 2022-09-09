@@ -139,9 +139,11 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
         'PrintTargetPDF.h',
         'PrintTargetWindows.h',
     ]
+    UNIFIED_SOURCES += [
+        'gfxGDIFontList.cpp',
+    ]
     SOURCES += [
         'gfxGDIFont.cpp',
-        'gfxGDIFontList.cpp',
         'gfxWindowsNativeDrawing.cpp',
         'gfxWindowsPlatform.cpp',
         'gfxWindowsSurface.cpp',

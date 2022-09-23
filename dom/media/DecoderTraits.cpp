@@ -254,7 +254,8 @@ bool DecoderTraits::ShouldHandleMediaType(const char* aMIMEType,
   // behavior, where they use their helper apps to open WAV audio
   // instead. We should allow this old behavior behind a pref for
   // those who want it.
-  if (!Preferences::GetBool("media.wave.play-stand-alone", true)) {
+  if (!Preferences::GetBool("media.wave.play-stand-alone", true) &&
+      WaveDecoder::IsSupportedType(*containerType)) {
     return false;
   }
 

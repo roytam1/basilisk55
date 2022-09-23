@@ -2040,13 +2040,13 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "content",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -2062,13 +2062,13 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "content",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -3130,9 +3130,7 @@ exports.CSS_PROPERTIES = {
       "-moz-mac-source-list-selection",
       "-moz-mac-vibrancy-dark",
       "-moz-mac-vibrancy-light",
-      "-moz-max-content",
       "-moz-middle-with-baseline",
-      "-moz-min-content",
       "-moz-none",
       "-moz-popup",
       "-moz-pre-space",
@@ -3187,6 +3185,7 @@ exports.CSS_PROPERTIES = {
       "bottom",
       "bottom-outside",
       "break-all",
+      "break-spaces",
       "break-word",
       "butt",
       "button",
@@ -3318,6 +3317,7 @@ exports.CSS_PROPERTIES = {
       "margin-box",
       "match-source",
       "mathematical",
+      "max-content",
       "medium",
       "menuarrow",
       "menubar",
@@ -3335,6 +3335,7 @@ exports.CSS_PROPERTIES = {
       "meterbar",
       "meterchunk",
       "middle",
+      "min-content",
       "miter",
       "mixed",
       "multiply",
@@ -5798,13 +5799,13 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "content",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -5820,13 +5821,13 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "content",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -6594,12 +6595,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "normal",
       "unset"
     ]
@@ -6678,12 +6679,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -7412,11 +7413,11 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "none",
       "unset"
     ]
@@ -7433,11 +7434,11 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "none",
       "unset"
     ]
@@ -7454,11 +7455,11 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "none",
       "unset"
     ]
@@ -7492,12 +7493,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -7513,12 +7514,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -7534,12 +7535,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },
@@ -9260,12 +9261,12 @@ exports.CSS_PROPERTIES = {
     "values": [
       "-moz-available",
       "-moz-fit-content",
-      "-moz-max-content",
-      "-moz-min-content",
       "auto",
       "calc",
       "inherit",
       "initial",
+      "max-content",
+      "min-content",
       "unset"
     ]
   },

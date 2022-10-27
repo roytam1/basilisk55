@@ -2412,7 +2412,7 @@ nsDOMWindowUtils::AdvanceTimeAndRefresh(int64_t aMilliseconds)
 
   nsPresContext* presContext = GetPresContext();
   if (presContext) {
-    nsRefreshDriver* driver = presContext->RefreshDriver();
+    RefPtr<nsRefreshDriver> driver = presContext->RefreshDriver();
     driver->AdvanceTimeAndRefresh(aMilliseconds);
 
     RefPtr<LayerTransactionChild> transaction = GetLayerTransaction();

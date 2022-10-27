@@ -314,11 +314,8 @@ if CONFIG['MOZ_ENABLE_LIBPROXY']:
 if CONFIG['OS_ARCH'] == 'SunOS':
     OS_LIBS += [
         'elf',
+        'sendfile',
     ]
-    if CONFIG['GNU_CC']:
-        OS_LIBS += [
-            'demangle',
-        ]
 
 if CONFIG['OS_ARCH'] == 'FreeBSD':
     OS_LIBS += [

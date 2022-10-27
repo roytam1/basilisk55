@@ -552,27 +552,6 @@ CompositorBridgeParent::Invalidate()
 }
 
 mozilla::ipc::IPCResult
-CompositorBridgeParent::RecvStartFrameTimeRecording(const int32_t& aBufferSize, uint32_t* aOutStartIndex)
-{
-  if (mLayerManager) {
-    *aOutStartIndex = mLayerManager->StartFrameTimeRecording(aBufferSize);
-  } else {
-    *aOutStartIndex = 0;
-  }
-  return IPC_OK();
-}
-
-mozilla::ipc::IPCResult
-CompositorBridgeParent::RecvStopFrameTimeRecording(const uint32_t& aStartIndex,
-                                                   InfallibleTArray<float>* intervals)
-{
-  if (mLayerManager) {
-    mLayerManager->StopFrameTimeRecording(aStartIndex, *intervals);
-  }
-  return IPC_OK();
-}
-
-mozilla::ipc::IPCResult
 CompositorBridgeParent::RecvClearApproximatelyVisibleRegions(const uint64_t& aLayersId,
                                                              const uint32_t& aPresShellId)
 {

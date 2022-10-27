@@ -960,8 +960,6 @@ LayerManagerComposite::Render(const nsIntRegion& aInvalidRegion, const nsIntRegi
   }
 
   mCompositor->GetWidget()->PostRender(&widgetContext);
-
-  RecordFrame();
 }
 
 #if defined(MOZ_WIDGET_ANDROID)

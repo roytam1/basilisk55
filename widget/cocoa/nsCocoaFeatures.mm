@@ -21,6 +21,11 @@
 #define MAC_OS_X_VERSION_10_12_HEX 0x000010C0
 #define MAC_OS_X_VERSION_10_13_HEX 0x000010D0
 #define MAC_OS_X_VERSION_10_14_HEX 0x000010E0
+#define MAC_OS_X_VERSION_10_15_HEX 0x000A0F00
+#define MAC_OS_X_VERSION_10_16_HEX 0x000A1000
+#define MAC_OS_X_VERSION_11_0_HEX 0x000B0000
+#define MAC_OS_X_VERSION_12_0_HEX 0x000C0000
+#define MAC_OS_X_VERSION_13_0_HEX 0x000D0000
 
 #include "nsCocoaFeatures.h"
 #include "nsCocoaUtils.h"
@@ -186,6 +191,45 @@ nsCocoaFeatures::OnHighSierraOrLater()
 nsCocoaFeatures::OnMojaveOrLater()
 {
     return (OSXVersion() >= MAC_OS_X_VERSION_10_14_HEX);
+}
+
+/* static */ bool 
+nsCocoaFeatures::OnCatalinaOrLater() 
+{
+  return (macOSVersion() >= MAC_OS_X_VERSION_10_15_HEX);
+}
+
+/* static */ bool
+nsCocoaFeatures::OnBigSurOrLater()
+{
+  // Account for the version being 10.16 or 11.0 on Big Sur.
+  // The version is reported as 10.16 if SYSTEM_VERSION_COMPAT is set to 1,
+  // or if SYSTEM_VERSION_COMPAT is not set and the application is linked
+  // with a pre-Big Sur SDK.
+  // We should set SYSTEM_VERSION_COMPAT to 0 in its Info.plist, so it'll
+  // usually see the correct 11.* version, despite being linked against an
+  // old SDK. However, it still sees the 10.16 compatibility version when
+  // launched from the command line, see bug 1727624. (This only applies to
+  // the Intel build - the arm64 build is linked against a Big Sur SDK and
+  // always sees the correct version.)
+  return ((macOSVersion() >= MAC_OS_X_VERSION_10_16_HEX) ||
+          (macOSVersion() >= MAC_OS_X_VERSION_11_0_HEX));
+}
+
+/* static */ bool
+nsCocoaFeatures::OnMontereyOrLater()
+{
+  // Monterey pretends to be 10.16 and is indistinguishable from Big Sur.
+  // In practice, this means that an Intel build can return false
+  // from this function if it's launched from the command line, see bug 1727624.
+  // This will not be an issue anymore once we link against the Big Sur SDK.
+  return (macOSVersion() >= MAC_OS_X_VERSION_12_0_HEX);
+}
+
+/* static */ bool
+nsCocoaFeatures::OnVenturaOrLater() 
+{
+  return (macOSVersion() >= MAC_OS_X_VERSION_13_0_HEX);
 }
 
 /* static */ bool

@@ -168,6 +168,10 @@ RegExpObject::isOriginalFlagGetter(JSNative native, RegExpFlag* mask)
       *mask = UnicodeFlag;
       return true;
   }
+  if (native == regexp_dotAll) {
+      *mask = DotAllFlag;
+      return true;
+  }
 
   return false;
 }
@@ -1018,7 +1022,7 @@ RegExpShared::compile(JSContext* cx, HandleAtom pattern, HandleLinearString inpu
     irregexp::RegExpCompileData data;
     if (!irregexp::ParsePattern(dummyTokenStream, cx->tempLifoAlloc(), pattern,
                                 multiline(), mode == MatchOnly, unicode(), ignoreCase(),
-                                global(), sticky(), dotall(), &data))
+                                global(), sticky(), dotAll(), &data))
     {
         return false;
     }
@@ -1468,6 +1472,10 @@ ParseRegExpFlags(const CharT* chars, size_t length, RegExpFlag* flagsOut, char16
             break;
           case 'm':
             if (!HandleRegExpFlag(MultilineFlag, flagsOut))
+                return false;
+            break;
+          case 's':
+            if (!HandleRegExpFlag(DotAllFlag, flagsOut))
                 return false;
             break;
           case 'y':

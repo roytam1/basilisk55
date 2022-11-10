@@ -1175,7 +1175,8 @@ nsCORSPreflightListener::AddResultToCache(nsIRequest *aRequest)
     }
     uint32_t i;
     for (i = 0; i < entry->mMethods.Length(); ++i) {
-      if (entry->mMethods[i].token.Equals(method)) {
+      if ((entry->mMethods[i].token.EqualsLiteral("*") && !mWithCredentials) ||
+          entry->mMethods[i].token.Equals(method)) {
         entry->mMethods[i].expirationTime = expirationTime;
         break;
       }
@@ -1205,7 +1206,8 @@ nsCORSPreflightListener::AddResultToCache(nsIRequest *aRequest)
     }
     uint32_t i;
     for (i = 0; i < entry->mHeaders.Length(); ++i) {
-      if (entry->mHeaders[i].token.Equals(header)) {
+      if ((entry->mHeaders[i].token.EqualsLiteral("*") && !mWithCredentials) ||
+          entry->mHeaders[i].token.Equals(header)) {
         entry->mHeaders[i].expirationTime = expirationTime;
         break;
       }

@@ -5650,6 +5650,9 @@ pref("dom.storageManager.enabled", false);
 // when the page is reloaded. To turn this feature off, just set the limit to 0.
 pref("prompts.authentication_dialog_abuse_limit", 3);
 
+// Whether content handling dialog is window modal
+pref("prompts.content_handling_dialog_modal.enabled", false);
+
 // Whether module scripts (<script type="module">) are enabled for content.
 pref("dom.moduleScripts.enabled", true);
 

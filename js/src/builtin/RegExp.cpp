@@ -29,6 +29,8 @@ using mozilla::ArrayLength;
 using mozilla::CheckedInt;
 using mozilla::Maybe;
 
+using CapturesVector = GCVector<Value, 4>;
+
 /*
  * ES 2017 draft rev 6a13789aa9e7c6de4e96b7d3e24d9e6eba6584ad 21.2.5.2.2
  * steps 3, 16-25.
@@ -1266,7 +1268,7 @@ GetParen(JSLinearString* matched, const JS::Value& capture, JSSubString* out)
 template <typename CharT>
 static bool
 InterpretDollar(JSLinearString* matched, JSLinearString* string, size_t position, size_t tailPos,
-                MutableHandle<GCVector<Value>> captures, JSLinearString* replacement,
+                MutableHandle<CapturesVector> captures, JSLinearString* replacement,
                 const CharT* replacementBegin, const CharT* currentDollar,
                 const CharT* replacementEnd,
                 JSSubString* out, size_t* skip)
@@ -1341,7 +1343,7 @@ InterpretDollar(JSLinearString* matched, JSLinearString* string, size_t position
 template <typename CharT>
 static bool
 FindReplaceLengthString(JSContext* cx, HandleLinearString matched, HandleLinearString string,
-                        size_t position, size_t tailPos, MutableHandle<GCVector<Value>> captures,
+                        size_t position, size_t tailPos, MutableHandle<CapturesVector> captures,
                         HandleLinearString replacement, size_t firstDollarIndex, size_t* sizep)
 {
     CheckedInt<uint32_t> replen = replacement->length();
@@ -1380,7 +1382,7 @@ FindReplaceLengthString(JSContext* cx, HandleLinearString matched, HandleLinearS
 
 static bool
 FindReplaceLength(JSContext* cx, HandleLinearString matched, HandleLinearString string,
-                  size_t position, size_t tailPos, MutableHandle<GCVector<Value>> captures,
+                  size_t position, size_t tailPos, MutableHandle<CapturesVector> captures,
                   HandleLinearString replacement, size_t firstDollarIndex, size_t* sizep)
 {
     return replacement->hasLatin1Chars()
@@ -1398,7 +1400,7 @@ FindReplaceLength(JSContext* cx, HandleLinearString matched, HandleLinearString 
 template <typename CharT>
 static void
 DoReplace(HandleLinearString matched, HandleLinearString string,
-          size_t position, size_t tailPos, MutableHandle<GCVector<Value>> captures,
+          size_t position, size_t tailPos, MutableHandle<CapturesVector> captures,
           HandleLinearString replacement, size_t firstDollarIndex, StringBuffer &sb)
 {
     JS::AutoCheckCannotGC nogc;
@@ -1433,7 +1435,7 @@ DoReplace(HandleLinearString matched, HandleLinearString string,
 
 static bool
 NeedTwoBytes(HandleLinearString string, HandleLinearString replacement,
-             HandleLinearString matched, Handle<GCVector<Value>> captures)
+             HandleLinearString matched, Handle<CapturesVector> captures)
 {
     if (string->hasTwoByteChars())
         return true;
@@ -1476,7 +1478,7 @@ js::RegExpGetSubstitution(JSContext* cx, HandleLinearString matched, HandleLinea
     if (!GetLengthProperty(cx, capturesObj, &nCaptures))
         return false;
 
-    Rooted<GCVector<Value>> captures(cx, GCVector<Value>(cx));
+    Rooted<CapturesVector> captures(cx, CapturesVector(cx));
     if (!captures.reserve(nCaptures))
         return false;
 

@@ -18,6 +18,7 @@
 #include "proxy/Proxy.h"
 #include "vm/ArrayObject.h"
 #include "vm/Shape.h"
+#include "irregexp/InfallibleVector.h"
 
 /*
  * JavaScript Regular Expressions
@@ -134,6 +135,9 @@ class RegExpShared
     bool               canStringMatch;
     bool               marked_;
 
+    uint32_t            numNamedCaptures_;
+    GCPtr<PlainObject*> groupsTemplate_;
+
     RegExpCompilation  compilationArray[4];
 
     static int CompilationIndex(CompilationMode mode, bool latin1) {
@@ -188,6 +192,11 @@ class RegExpShared
     /* Accounts for the "0" (whole match) pair. */
     size_t pairCount() const            { return getParenCount() + 1; }
 
+    // not public due to circular inclusion problems
+    bool initializeNamedCaptures(JSContext* cx, irregexp::CharacterVectorVector* names, irregexp::IntegerVector* indices);
+    PlainObject* getGroupsTemplate() { return groupsTemplate_; }
+    uint32_t numNamedCaptures() const { return numNamedCaptures_; }
+
     JSAtom* getSource() const           { return source; }
     RegExpFlag getFlags() const         { return flags; }
     bool ignoreCase() const             { return flags & IgnoreCaseFlag; }
@@ -237,6 +246,10 @@ class RegExpShared
         return offsetof(RegExpShared, compilationArray)
              + (CompilationIndex(mode, false) * sizeof(RegExpCompilation))
              + offsetof(RegExpCompilation, jitCode);
+    }
+
+    static size_t offsetOfGroupsTemplate() {
+        return offsetof(RegExpShared, groupsTemplate_);
     }
 
     size_t sizeOfIncludingThis(mozilla::MallocSizeOf mallocSizeOf);

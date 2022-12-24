@@ -5019,7 +5019,7 @@ QuickCheckDetails::Clear()
 void
 QuickCheckDetails::Advance(int by, bool ascii)
 {
-    if (by >= characters_) {
+    if (by >= characters_ || by < 0) {
         Clear();
         return;
     }

@@ -1006,7 +1006,7 @@ RegExpParser<CharT>::ParseClassEscape(char16_t* char_class, widechar *value,
               }
               return true;
             }
-            MOZ_FALLTHROUGH
+            MOZ_FALLTHROUGH;
           default:
             if (!ParseClassCharacterEscape(value))
                 return false;

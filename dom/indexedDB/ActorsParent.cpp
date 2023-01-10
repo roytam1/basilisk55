@@ -12618,7 +12618,7 @@ ConnectionPool::ShutdownThread(ThreadInfo& aThreadInfo)
                                        NS_DISPATCH_NORMAL));
 
   MOZ_ALWAYS_SUCCEEDS(NS_DispatchToMainThread(
-                        NewRunnableMethod(thread, &nsIThread::Shutdown)));
+                        NewRunnableMethod(thread, &nsIThread::AsyncShutdown)));
 
   mTotalThreadCount--;
 }

@@ -1916,6 +1916,9 @@ class FrameIter
 
     // This is used to provide a raw interface for debugging.
     void* rawFramePtr() const;
+    
+    // Determines if we're in the prologue of a baseline function.
+    bool inPrologue() const;
 
   private:
     Data data_;

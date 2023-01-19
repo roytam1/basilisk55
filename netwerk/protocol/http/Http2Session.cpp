@@ -1156,7 +1156,9 @@ Http2Session::RemoveStreamFromQueues(Http2Stream *aStream)
 }
 
 void
-Http2Session::CloseStream(Http2Stream *aStream, nsresult aResult)
+Http2Session::CloseStream(Http2Stream *aStream,
+                          nsresult aResult,
+                          bool aRemoveFromQueue)
 {
   MOZ_ASSERT(PR_GetCurrentThread() == gSocketThread);
   LOG3(("Http2Session::CloseStream %p %p 0x%x %X\n",
@@ -1171,7 +1173,9 @@ Http2Session::CloseStream(Http2Stream *aStream, nsresult aResult)
     mInputFrameDataStream = nullptr;
   }
 
-  RemoveStreamFromQueues(aStream);
+  if (aRemoveFromQueue) {
+    RemoveStreamFromQueues(aStream);
+  }
 
   if (aStream->IsTunnel()) {
     UnRegisterTunnel(aStream);
@@ -1952,7 +1956,7 @@ Http2Session::RecvGoAway(Http2Session *self)
     if (self->mPeerGoAwayReason == HTTP_1_1_REQUIRED) {
       stream->Transaction()->DisableSpdy();
     }
-    self->CloseStream(stream, NS_ERROR_NET_RESET);
+    self->CloseStream(stream, NS_ERROR_NET_RESET, false);
     self->mStreamTransactionHash.Remove(stream->Transaction());
   }
 

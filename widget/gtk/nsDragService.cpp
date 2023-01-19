@@ -794,12 +794,8 @@ nsDragService::GetData(nsITransferable * aTransferable,
                 // Dragging and dropping from the file manager would cause us 
                 // to parse the source text as a nsIFile URL.
                 if ( strcmp(flavorStr, kFileMime) == 0 ) {
-                    gdkFlavor = gdk_atom_intern(kTextMime, FALSE);
+                    gdkFlavor = gdk_atom_intern(gTextUriListType, FALSE);
                     GetTargetDragData(gdkFlavor);
-                    if (!mTargetDragData) {
-                        gdkFlavor = gdk_atom_intern(gTextUriListType, FALSE);
-                        GetTargetDragData(gdkFlavor);
-                    }
                     if (mTargetDragData) {
                         const char* text = static_cast<char*>(mTargetDragData);
                         char16_t* convertedText = nullptr;
@@ -1078,8 +1074,8 @@ nsDragService::IsDataFlavorSupported(const char *aDataFlavor,
             (strcmp(aDataFlavor, kURLMime) == 0 ||
              strcmp(aDataFlavor, kFileMime) == 0)) {
             MOZ_LOG(sDragLm, LogLevel::Debug,
-                   ("good! ( it's text/uri-list and \
-                   we're checking against text/x-moz-url )\n"));
+                   ("good! (it's text/uri-list and \
+                   we're checking against text/x-moz-url)\n"));
             *_retval = true;
         }
         // check for automatic _NETSCAPE_URL -> text/x-moz-url mapping
@@ -1088,19 +1084,18 @@ nsDragService::IsDataFlavorSupported(const char *aDataFlavor,
             (strcmp(name, gMozUrlType) == 0) &&
             (strcmp(aDataFlavor, kURLMime) == 0)) {
             MOZ_LOG(sDragLm, LogLevel::Debug,
-                   ("good! ( it's _NETSCAPE_URL and \
-                   we're checking against text/x-moz-url )\n"));
+                   ("good! (it's _NETSCAPE_URL and \
+                   we're checking against text/x-moz-url)\n"));
             *_retval = true;
         }
         // check for auto text/plain -> text/unicode mapping
         if (!*_retval && 
             name &&
             (strcmp(name, kTextMime) == 0) &&
-            ((strcmp(aDataFlavor, kUnicodeMime) == 0) ||
-             (strcmp(aDataFlavor, kFileMime) == 0))) {
+            (strcmp(aDataFlavor, kUnicodeMime) == 0)) {
             MOZ_LOG(sDragLm, LogLevel::Debug,
-                   ("good! ( it's text plain and we're checking \
-                   against text/unicode or application/x-moz-file)\n"));
+                   ("good! (it's text plain and we're checking \
+                   against text/unicode)\n"));
             *_retval = true;
         }
         g_free(name);

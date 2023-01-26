@@ -244,6 +244,24 @@ NativeObject::getDenseOrTypedArrayElement(uint32_t idx)
 }
 
 /* static */ inline NativeObject*
+NativeObject::createWithTemplate(JSContext* cx, gc::InitialHeap heap,
+                                 HandleObject templateObject)
+{
+    RootedObjectGroup group(cx, templateObject->group());
+    RootedShape shape(cx, templateObject->as<NativeObject>().lastProperty());
+
+    gc::AllocKind kind = gc::GetGCObjectKind(shape->numFixedSlots());
+    MOZ_ASSERT(CanBeFinalizedInBackground(kind, shape->getObjectClass()));
+    kind = gc::GetBackgroundAllocKind(kind);
+
+    JSObject* baseObj;
+    JS_TRY_VAR_OR_RETURN_NULL(cx, baseObj, create(cx, kind, heap, shape, group));
+
+    NativeObject* obj = &baseObj->as<NativeObject>();
+    return obj;
+}
+
+/* static */ inline NativeObject*
 NativeObject::copy(ExclusiveContext* cx, gc::AllocKind kind, gc::InitialHeap heap,
                    HandleNativeObject templateObject)
 {

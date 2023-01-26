@@ -578,8 +578,9 @@ AutoJSAPI::ReportException()
   }
   JSAutoCompartment ac(cx(), errorGlobal);
   JS::Rooted<JS::Value> exn(cx());
+  JS::Rooted<JSObject*> exnStack(cx());
   js::ErrorReport jsReport(cx());
-  if (StealException(&exn) &&
+  if (StealExceptionAndStack(&exn, &exnStack) &&
       jsReport.init(cx(), exn, js::ErrorReport::WithSideEffects)) {
     if (mIsMainThread) {
       RefPtr<xpc::ErrorReport> xpcReport = new xpc::ErrorReport();
@@ -598,10 +599,10 @@ AutoJSAPI::ReportException()
                       inner ? inner->WindowID() : 0);
       if (inner && jsReport.report()->errorNumber != JSMSG_OUT_OF_MEMORY) {
         JS::RootingContext* rcx = JS::RootingContext::get(cx());
-        DispatchScriptErrorEvent(inner, rcx, xpcReport, exn);
+        DispatchScriptErrorEvent(inner, rcx, xpcReport, exn, exnStack);
       } else {
         JS::Rooted<JSObject*> stack(cx(),
-          xpc::FindExceptionStackForConsoleReport(inner, exn));
+          xpc::FindExceptionStackForConsoleReport(inner, exn, exnStack));
         xpcReport->LogToConsoleWithStack(stack);
       }
     } else {
@@ -641,9 +642,16 @@ AutoJSAPI::PeekException(JS::MutableHandle<JS::Value> aVal)
 bool
 AutoJSAPI::StealException(JS::MutableHandle<JS::Value> aVal)
 {
+  JS::Rooted<JSObject*> stack(cx());
+  return StealExceptionAndStack(aVal, &stack);
+}
+
+bool AutoJSAPI::StealExceptionAndStack(JS::MutableHandle<JS::Value> aVal,
+                                       JS::MutableHandle<JSObject*> aStack) {
   if (!PeekException(aVal)) {
     return false;
   }
+  aStack.set(JS::GetPendingExceptionStack(cx()));
   JS_ClearPendingException(cx());
   return true;
 }

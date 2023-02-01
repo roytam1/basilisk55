@@ -25,9 +25,8 @@ enum PromiseSlots {
 #define PROMISE_FLAG_FULFILLED 0x2
 #define PROMISE_FLAG_HANDLED   0x4
 #define PROMISE_FLAG_REPORTED  0x8
-#define PROMISE_FLAG_DEFAULT_RESOLVE_FUNCTION 0x10
-#define PROMISE_FLAG_DEFAULT_REJECT_FUNCTION  0x20
-#define PROMISE_FLAG_ASYNC    0x40
+#define PROMISE_FLAG_DEFAULT_RESOLVING_FUNCTIONS 0x10
+#define PROMISE_FLAG_ASYNC    0x20
 
 class AutoSetNewObjectMetadata;
 
@@ -45,8 +44,11 @@ class PromiseObject : public NativeObject
     static JSObject* unforgeableResolve(JSContext* cx, HandleValue value);
     static JSObject* unforgeableReject(JSContext* cx, HandleValue value);
 
+    int32_t flags() {
+        return getFixedSlot(PromiseSlot_Flags).toInt32();
+    }
     JS::PromiseState state() {
-        int32_t flags = getFixedSlot(PromiseSlot_Flags).toInt32();
+        int32_t flags = this->flags();
         if (!(flags & PROMISE_FLAG_RESOLVED)) {
             MOZ_ASSERT(!(flags & PROMISE_FLAG_FULFILLED));
             return JS::PromiseState::Pending;
@@ -55,12 +57,20 @@ class PromiseObject : public NativeObject
             return JS::PromiseState::Fulfilled;
         return JS::PromiseState::Rejected;
     }
+    Value reactions() {
+        MOZ_ASSERT(state() == JS::PromiseState::Pending);
+        return getFixedSlot(PromiseSlot_ReactionsOrResult);
+    }
     Value value()  {
         MOZ_ASSERT(state() == JS::PromiseState::Fulfilled);
         return getFixedSlot(PromiseSlot_ReactionsOrResult);
     }
     Value reason() {
         MOZ_ASSERT(state() == JS::PromiseState::Rejected);
+        return getFixedSlot(PromiseSlot_ReactionsOrResult);
+    }
+    Value valueOrReason()  {
+        MOZ_ASSERT(state() != JS::PromiseState::Pending);
         return getFixedSlot(PromiseSlot_ReactionsOrResult);
     }
 
@@ -84,7 +94,7 @@ class PromiseObject : public NativeObject
     uint64_t getID();
     bool isUnhandled() {
         MOZ_ASSERT(state() == JS::PromiseState::Rejected);
-        return !(getFixedSlot(PromiseSlot_Flags).toInt32() & PROMISE_FLAG_HANDLED);
+        return !(flags() & PROMISE_FLAG_HANDLED);
     }
     void markAsReported() {
         MOZ_ASSERT(isUnhandled());

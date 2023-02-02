@@ -24,6 +24,9 @@ CopyErrorNote(JSContext* cx, JSErrorNotes::Note* note);
 JSErrorReport*
 CopyErrorReport(JSContext* cx, JSErrorReport* report);
 
+bool
+CaptureStack(JSContext* cx, MutableHandleObject stack);
+
 JSString*
 ComputeStackString(JSContext* cx);
 

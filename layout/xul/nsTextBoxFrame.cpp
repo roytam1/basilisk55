@@ -632,6 +632,10 @@ nsTextBoxFrame::CalculateTitleForWidth(nsRenderingContext& aRenderingContext,
 {
     DrawTarget* drawTarget = aRenderingContext.GetDrawTarget();
 
+    if (mContent->HasAttr(kNameSpaceID_None, nsGkAtoms::_is_cropped)) {
+        mContent->UnsetAttr(kNameSpaceID_None, nsGkAtoms::_is_cropped, true);
+    }
+
     if (mTitle.IsEmpty()) {
         mCroppedTitle.Truncate();
         return 0;
@@ -833,6 +837,9 @@ nsTextBoxFrame::CalculateTitleForWidth(nsRenderingContext& aRenderingContext,
         }
         break;
     }
+
+    mContent->SetAttr(kNameSpaceID_None, nsGkAtoms::_is_cropped,
+                      NS_LITERAL_STRING("true"), true);
 
     return nsLayoutUtils::AppUnitWidthOfStringBidi(mCroppedTitle, this, *fm,
                                                    aRenderingContext);

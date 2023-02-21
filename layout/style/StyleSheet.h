@@ -205,6 +205,7 @@ public:
   // WillDirty and then make no change and skip the DidDirty call.
   inline void WillDirty();
   inline void DidDirty();
+  inline void AssertHasUniqueInner();
 
 private:
   // Get a handle to the various stylesheet bits which live on the 'inner' for

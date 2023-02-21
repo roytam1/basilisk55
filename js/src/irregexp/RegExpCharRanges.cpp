@@ -37,6 +37,8 @@
 // Generated table
 #include "irregexp/RegExpCharacters-inl.h"
 
+using js::LifoAlloc;
+
 using namespace js::irregexp;
 
 using mozilla::ArrayLength;

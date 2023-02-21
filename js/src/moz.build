@@ -773,6 +773,7 @@ selfhosted.inputs = [
     'builtin/IntlCurrency.js',
     'builtin/intl/IntlObject.js',
     'builtin/intl/LangTagMappingsGenerated.js',
+    'builtin/intl/RelativeTimeFormat.js',
     'builtin/Iterator.js',
     'builtin/Map.js',
     'builtin/Module.js',

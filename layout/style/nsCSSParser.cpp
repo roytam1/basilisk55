@@ -785,8 +785,7 @@ protected:
                                                          CSSPseudoClassType aType);
 
   nsSelectorParsingStatus ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
-                                                              CSSPseudoClassType aType,
-                                                              bool aIsForgiving);
+                                                              CSSPseudoClassType aType);
 
   nsSelectorParsingStatus ParseNegatedSimpleSelector(int32_t&       aDataMask,
                                                      nsCSSSelector& aSelector);
@@ -6192,11 +6191,8 @@ CSSParserImpl::ParsePseudoSelector(int32_t&       aDataMask,
       else {
         MOZ_ASSERT(nsCSSPseudoClasses::HasSelectorListArg(pseudoClassType),
                    "unexpected pseudo with function token");
-        bool isForgiving =
-          nsCSSPseudoClasses::HasForgivingSelectorListArg(pseudoClassType);
         parsingStatus = ParsePseudoClassWithSelectorListArg(aSelector,
-                                                            pseudoClassType,
-                                                            isForgiving);
+                                                            pseudoClassType);
       }
       if (eSelectorParsingStatus_Continue != parsingStatus) {
         if (eSelectorParsingStatus_Error == parsingStatus) {
@@ -6569,11 +6565,13 @@ CSSParserImpl::ParsePseudoClassWithNthPairArg(nsCSSSelector& aSelector,
 //
 CSSParserImpl::nsSelectorParsingStatus
 CSSParserImpl::ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
-                                                   CSSPseudoClassType aType,
-                                                   bool aIsForgiving)
+                                                   CSSPseudoClassType aType)
 {
+  bool isForgiving =
+    nsCSSPseudoClasses::HasForgivingSelectorListArg(aType);
+
   nsAutoPtr<nsCSSSelectorList> slist;
-  if (! ParseSelectorList(*getter_Transfers(slist), char16_t(')'), aIsForgiving)) {
+  if (! ParseSelectorList(*getter_Transfers(slist), char16_t(')'), isForgiving)) {
     return eSelectorParsingStatus_Error; // our caller calls SkipUntil(')')
   }
 
@@ -6585,13 +6583,13 @@ CSSParserImpl::ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
   for (nsCSSSelectorList *l = slist; l; l = l->mNext) {
     nsCSSSelector *s = l->mSelectors;
     if (s == nullptr) {
-      MOZ_ASSERT(aIsForgiving,
+      MOZ_ASSERT(isForgiving,
                  "unexpected empty selector in unforgiving selector list");
       break;
     }
     // Check that none of the selectors in the list have combinators or
     // pseudo-elements.
-    if ((!aIsForgiving && s->mNext) || s->IsPseudoElement()) {
+    if ((!isForgiving && s->mNext) || s->IsPseudoElement()) {
       return eSelectorParsingStatus_Error; // our caller calls SkipUntil(')')
     }
   }

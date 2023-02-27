@@ -35,7 +35,11 @@ ifeq ($(OS_ARCH),Darwin)
 ifdef UNIVERSAL_BINARY
 MOZ_PKG_PLATFORM := mac
 else
-MOZ_PKG_PLATFORM := mac
+ifeq ($(TARGET_CPU),x86_64)
+MOZ_PKG_PLATFORM := intel64
+else
+MOZ_PKG_PLATFORM := arm64
+endif
 endif
 endif
 ifeq ($(TARGET_OS),linux-gnu)

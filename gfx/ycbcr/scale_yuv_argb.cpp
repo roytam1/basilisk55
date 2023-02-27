@@ -9,6 +9,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#include "libyuv/convert_argb.h"
 #include "libyuv/scale.h"
 
 #include <assert.h>

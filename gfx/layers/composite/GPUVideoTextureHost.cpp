@@ -77,6 +77,15 @@ GPUVideoTextureHost::GetYUVColorSpace() const
   return YUVColorSpace::UNKNOWN;
 }
 
+ColorRange
+GPUVideoTextureHost::GetColorRange() const
+{
+  if (mWrappedTextureHost) {
+    return mWrappedTextureHost->GetColorRange();
+  }
+  return ColorRange::UNKNOWN;
+}
+
 gfx::IntSize
 GPUVideoTextureHost::GetSize() const
 {

@@ -162,14 +162,17 @@ struct EffectRGB : public TexturedEffect
 
 struct EffectYCbCr : public TexturedEffect
 {
-  EffectYCbCr(TextureSource *aSource, YUVColorSpace aYUVColorSpace, gfx::SamplingFilter aSamplingFilter)
+  EffectYCbCr(TextureSource *aSource, YUVColorSpace aYUVColorSpace, ColorRange aColorRange,
+              gfx::SamplingFilter aSamplingFilter)
     : TexturedEffect(EffectTypes::YCBCR, aSource, false, aSamplingFilter)
     , mYUVColorSpace(aYUVColorSpace)
+    , mColorRange(aColorRange)
   {}
 
   virtual const char* Name() { return "EffectYCbCr"; }
 
   YUVColorSpace mYUVColorSpace;
+  ColorRange mColorRange;
 };
 
 struct EffectNV12 : public TexturedEffect
@@ -275,7 +278,9 @@ CreateTexturedEffect(TextureHost* aHost,
   RefPtr<TexturedEffect> result;
   if (aHost->GetReadFormat() == gfx::SurfaceFormat::YUV) {
     MOZ_ASSERT(aHost->GetYUVColorSpace() != YUVColorSpace::UNKNOWN);
-    result = new EffectYCbCr(aSource, aHost->GetYUVColorSpace(), aSamplingFilter);
+    MOZ_ASSERT(aHost->GetColorRange() != ColorRange::UNKNOWN);
+    result = new EffectYCbCr(aSource, aHost->GetYUVColorSpace(), aHost->GetColorRange(),
+                             aSamplingFilter);
   } else {
     result = CreateTexturedEffect(aHost->GetReadFormat(),
                                   aSource,

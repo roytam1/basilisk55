@@ -450,6 +450,7 @@ public:
 
     Plane mPlanes[3];
     YUVColorSpace mYUVColorSpace = YUVColorSpace::BT601;
+    ColorRange mColorRange = ColorRange::LIMITED;
   };
 
   class Listener {

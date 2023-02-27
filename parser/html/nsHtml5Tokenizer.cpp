@@ -599,7 +599,6 @@ nsHtml5Tokenizer::stateLoop(int32_t state, char16_t c, int32_t pos, char16_t* bu
                 containsHyphen = true;
               }
               appendStrBuf(c);
-              containsHyphen = false;
               continue;
             }
           }

@@ -1313,7 +1313,8 @@ pref("dom.event.highrestimestamp.enabled",  true);
 pref("dom.event.highrestimestamp.enabled",  false);
 #endif
 
-pref("dom.webcomponents.enabled",           false);
+// Enable Google WebComponents?
+pref("dom.webcomponents.enabled",           true);
 
 pref("javascript.enabled",                  true);
 // Enable Array.prototype.values

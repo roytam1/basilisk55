@@ -1307,8 +1307,11 @@ pref("dom.event.highrestimestamp.enabled",  true);
 pref("dom.event.highrestimestamp.enabled",  false);
 #endif
 
+// TODO: merge these two prefs!
 // Enable Google WebComponents?
 pref("dom.webcomponents.enabled",           true);
+// Whether WC getRootNode is available
+pref("dom.getRootNode.enabled",             true);
 
 pref("javascript.enabled",                  true);
 // Enable Array.prototype.values
@@ -4921,7 +4924,6 @@ pref("dom.abortController.enabled", true);
 // Push
 pref("dom.push.enabled", false);
 pref("dom.push.loglevel", "error");
-pref("dom.getRootNode.enabled", false);
 pref("dom.push.serverURL", "wss://push.services.mozilla.com/");
 pref("dom.push.userAgentID", "");
 
@@ -4957,9 +4959,6 @@ pref("dom.push.requestTimeout", 10000);
 pref("dom.push.http2.reset_retry_count_after_ms", 60000);
 pref("dom.push.http2.maxRetries", 2);
 pref("dom.push.http2.retryInterval", 5000);
-
-// Whether WC getRootNode is available
-pref("dom.getRootNode.enabled", false);
 
 // W3C touch events
 // 0 - disabled, 1 - enabled, 2 - autodetect

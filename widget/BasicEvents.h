@@ -430,6 +430,7 @@ public:
 
   /// The possible related target
   nsCOMPtr<dom::EventTarget> mRelatedTarget;
+  nsCOMPtr<dom::EventTarget> mOriginalRelatedTarget;
 
   nsTArray<EventTargetChainItem>* mPath;
 
@@ -451,6 +452,8 @@ public:
     mCurrentTarget = aCopyTargets ? aEvent.mCurrentTarget : nullptr;
     mOriginalTarget = aCopyTargets ? aEvent.mOriginalTarget : nullptr;
     mRelatedTarget = aCopyTargets ? aEvent.mRelatedTarget : nullptr;
+    mOriginalRelatedTarget =
+      aCopyTargets ? aEvent.mOriginalRelatedTarget : nullptr;
   }
 
   /**

@@ -382,13 +382,14 @@ HTMLEditor::FindSelectionRoot(nsINode* aNode)
                   aNode->IsNodeOfType(nsINode::eCONTENT),
                   "aNode must be content or document node");
 
-  nsCOMPtr<nsIDocument> doc = aNode->GetUncomposedDoc();
+  nsCOMPtr<nsIDocument> doc = aNode->GetComposedDoc();
   if (!doc) {
     return nullptr;
   }
 
   nsCOMPtr<nsIContent> content;
-  if (doc->HasFlag(NODE_IS_EDITABLE) || !aNode->IsContent()) {
+  if (aNode->IsInUncomposedDoc() &&
+      doc->HasFlag(NODE_IS_EDITABLE) || !aNode->IsContent()) {
     content = doc->GetRootElement();
     return content.forget();
   }
@@ -5088,7 +5089,11 @@ HTMLEditor::IsAcceptableInputEvent(WidgetGUIEvent* aGUIEvent)
     return true;
   }
 
-  nsCOMPtr<nsIDOMEventTarget> target = aGUIEvent->GetDOMEventTarget();
+  nsCOMPtr<nsIDOMEventTarget> target = aGUIEvent->GetOriginalDOMEventTarget();
+  nsCOMPtr<nsIContent> content = do_QueryInterface(target);
+  if (content) {
+    target = content->FindFirstNonChromeOnlyAccessContent();
+  }
   NS_ENSURE_TRUE(target, false);
 
   nsCOMPtr<nsIDocument> document = GetDocument();

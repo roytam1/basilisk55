@@ -8028,7 +8028,7 @@ HTMLEditRules::ConfirmSelectionInBody()
 
   // check that selNode is inside body
   while (temp && !temp->IsHTMLElement(nsGkAtoms::body)) {
-    temp = temp->GetParentNode();
+    temp = temp->GetParentOrHostNode();
   }
 
   // if we aren't in the body, force the issue
@@ -8047,7 +8047,7 @@ HTMLEditRules::ConfirmSelectionInBody()
 
   // check that selNode is inside body
   while (temp && !temp->IsHTMLElement(nsGkAtoms::body)) {
-    temp = temp->GetParentNode();
+    temp = temp->GetParentOrHostNode();
   }
 
   // if we aren't in the body, force the issue

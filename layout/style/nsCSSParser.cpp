@@ -1050,6 +1050,7 @@ protected:
   bool ParseFontSrc(nsCSSValue& aValue);
   bool ParseFontSrcFormat(InfallibleTArray<nsCSSValue>& values);
   bool ParseFontRanges(nsCSSValue& aValue);
+  bool ParseInset();
   bool ParseListStyle();
   bool ParseListStyleType(nsCSSValue& aValue);
   bool ParseMargin();
@@ -11882,6 +11883,8 @@ CSSParserImpl::ParsePropertyByFunction(nsCSSPropertyID aPropID)
     return ParseInitialLetter();
   case eCSSProperty_justify_items:
     return ParseJustifyItems();
+  case eCSSProperty_inset:
+    return ParseInset();
   case eCSSProperty_list_style:
     return ParseListStyle();
   case eCSSProperty_margin:
@@ -15366,6 +15369,19 @@ CSSParserImpl::ParseListStyle()
     AppendValue(listStyleIDs[index], values[index]);
   }
   return true;
+}
+
+bool
+CSSParserImpl::ParseInset()
+{
+  static const nsCSSPropertyID kInsetSideIDs[] = {
+    eCSSProperty_top,
+    eCSSProperty_right,
+    eCSSProperty_bottom,
+    eCSSProperty_left
+  };
+
+  return ParseBoxProperties(kInsetSideIDs);
 }
 
 bool

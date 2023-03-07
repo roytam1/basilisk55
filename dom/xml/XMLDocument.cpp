@@ -157,6 +157,8 @@ NS_NewDOMDocument(nsIDOMDocument** aInstancePtrResult,
     nsCOMPtr<nsINode> doctypeAsNode = do_QueryInterface(aDoctype);
     ErrorResult result;
     d->AppendChild(*doctypeAsNode, result);
+    // TODO: if we choose to land bug 1318479, make sure to call
+    // result.WouldReportJSException() before stealing the NSResult.
     if (NS_WARN_IF(result.Failed())) {
       return result.StealNSResult();
     }
@@ -174,6 +176,8 @@ NS_NewDOMDocument(nsIDOMDocument** aInstancePtrResult,
     }
 
     d->AppendChild(*root, result);
+    // TODO: if we choose to land bug 1318479, make sure to call
+    // result.WouldReportJSException() before stealing the NSResult.
     if (NS_WARN_IF(result.Failed())) {
       return result.StealNSResult();
     }

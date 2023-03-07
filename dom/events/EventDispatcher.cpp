@@ -876,6 +876,7 @@ EventDispatcher::Dispatch(nsISupports* aTarget,
         preVisitor.mTargetInKnownToBeHandledScope = preVisitor.mEvent->mTarget;
         topEtci = parentEtci;
       } else {
+        bool ignoreBecauseOfShadowDOM = preVisitor.mIgnoreBecauseOfShadowDOM;
         nsCOMPtr<nsINode> disabledTarget = do_QueryInterface(parentTarget);
         parentEtci = MayRetargetToChromeIfCanNotHandleEvent(chain,
                                                             preVisitor,
@@ -886,7 +887,11 @@ EventDispatcher::Dispatch(nsISupports* aTarget,
           preVisitor.mTargetInKnownToBeHandledScope = preVisitor.mEvent->mTarget;
           EventTargetChainItem* item =
             EventTargetChainItem::GetFirstCanHandleEventTarget(chain);
-          item->SetNewTarget(parentTarget);
+          if (!ignoreBecauseOfShadowDOM) {
+            // If we ignored the target because of Shadow DOM retargeting, we
+            // shouldn't treat the target to be in the event path at all.
+            item->SetNewTarget(parentTarget);
+          }
           topEtci = parentEtci;
           continue;
         }

@@ -115,12 +115,9 @@ ContentEventHandler::InitBasic()
 {
   NS_ENSURE_TRUE(mPresShell, NS_ERROR_NOT_AVAILABLE);
 
-  // If text frame which has overflowing selection underline is dirty,
-  // we need to flush the pending reflow here.
-  mPresShell->FlushPendingNotifications(FlushType::Layout);
-
-  // Flushing notifications can cause mPresShell to be destroyed (bug 577963).
-  NS_ENSURE_TRUE(!mPresShell->IsDestroying(), NS_ERROR_FAILURE);
+  if (nsIDocument* doc = mPresShell->GetDocument()) {
+    doc->FlushPendingNotifications(FlushType::Layout);
+  }
 
   return NS_OK;
 }

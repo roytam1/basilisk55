@@ -1961,6 +1961,17 @@ static bool SelectorMatches(Element* aElement,
       }
       break;
 
+      case CSSPseudoClassType::mozAnyPrivate:
+        {
+          if (!SelectorListMatches(aElement,
+                                   pseudoClass,
+                                   aNodeMatchContext,
+                                   aTreeMatchContext)) {
+            return false;
+          }
+        }
+        break;
+
       case CSSPseudoClassType::host:
         {
           // In order to match :host, the element must be a shadow root host,

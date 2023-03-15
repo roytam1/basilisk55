@@ -122,7 +122,6 @@ class RegExpShared : public gc::TenuredCell
         uint8_t* byteCode;
 
         RegExpCompilation() : byteCode(nullptr) {}
-        ~RegExpCompilation() { js_free(byteCode); }
 
         bool compiled(ForceByteCodeEnum force = DontForceByteCode) const {
             return byteCode || (force == DontForceByteCode && jitCode);
@@ -150,7 +149,8 @@ class RegExpShared : public gc::TenuredCell
     }
 
     // Tables referenced by JIT code.
-    Vector<uint8_t*, 0, SystemAllocPolicy> tables;
+    using JitCodeTables = Vector<uint8_t*, 0, SystemAllocPolicy>;
+    JitCodeTables tables;
 
     /* Internal functions. */
     RegExpShared(JSAtom* source, RegExpFlag flags);
@@ -173,7 +173,7 @@ class RegExpShared : public gc::TenuredCell
     }
 
   public:
-    ~RegExpShared();
+    ~RegExpShared() = delete;
 
     // Execute this RegExp on input starting from searchIndex, filling in
     // matches if specified and otherwise only determining if there is a match.
@@ -223,6 +223,7 @@ class RegExpShared : public gc::TenuredCell
 
     void traceChildren(JSTracer* trc);
     void discardJitCode();
+    void finalize(FreeOp* fop);
 
     static size_t offsetOfSource() {
         return offsetof(RegExpShared, source);

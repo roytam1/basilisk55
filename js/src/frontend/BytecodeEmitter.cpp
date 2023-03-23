@@ -28,7 +28,9 @@
 #include "jstypes.h"
 #include "jsutil.h"
 
+#include "frontend/IfEmitter.h"
 #include "frontend/Parser.h"
+#include "frontend/TDZCheckCache.h"
 #include "frontend/TokenStream.h"
 #include "vm/Debugger.h"
 #include "vm/GeneratorObject.h"
@@ -67,28 +69,6 @@ ParseNodeRequiresSpecialLineNumberNotes(ParseNode* pn)
 {
     return pn->getKind() == PNK_WHILE || pn->getKind() == PNK_FOR;
 }
-
-// A cache that tracks superfluous TDZ checks.
-//
-// Each basic block should have a TDZCheckCache in scope. Some NestableControl
-// subclasses contain a TDZCheckCache.
-class BytecodeEmitter::TDZCheckCache : public Nestable<BytecodeEmitter::TDZCheckCache>
-{
-    PooledMapPtr<CheckTDZMap> cache_;
-
-    MOZ_MUST_USE bool ensureCache(BytecodeEmitter* bce) {
-        return cache_ || cache_.acquire(bce->cx);
-    }
-
-  public:
-    explicit TDZCheckCache(BytecodeEmitter* bce)
-      : Nestable<TDZCheckCache>(&bce->innermostTDZCheckCache),
-        cache_(bce->cx->frontendCollectionPool())
-    { }
-
-    Maybe<MaybeCheckTDZ> needsTDZCheck(BytecodeEmitter* bce, JSAtom* name);
-    MOZ_MUST_USE bool noteTDZCheck(BytecodeEmitter* bce, JSAtom* name, MaybeCheckTDZ check);
-};
 
 class BytecodeEmitter::NestableControl : public Nestable<BytecodeEmitter::NestableControl>
 {
@@ -213,7 +193,7 @@ class LoopControl : public BreakableControl
 {
     // Loops' children are emitted in dominance order, so they can always
     // have a TDZCheckCache.
-    BytecodeEmitter::TDZCheckCache tdzCache_;
+    TDZCheckCache tdzCache_;
 
     // Stack depth when this loop was pushed on the control stack.
     int32_t stackDepth_;
@@ -1468,53 +1448,6 @@ BytecodeEmitter::EmitterScope::leave(BytecodeEmitter* bce, bool nonLocal)
     return true;
 }
 
-Maybe<MaybeCheckTDZ>
-BytecodeEmitter::TDZCheckCache::needsTDZCheck(BytecodeEmitter* bce, JSAtom* name)
-{
-    if (!ensureCache(bce))
-        return Nothing();
-
-    CheckTDZMap::AddPtr p = cache_->lookupForAdd(name);
-    if (p)
-        return Some(p->value().wrapped);
-
-    MaybeCheckTDZ rv = CheckTDZ;
-    for (TDZCheckCache* it = enclosing(); it; it = it->enclosing()) {
-        if (it->cache_) {
-            if (CheckTDZMap::Ptr p2 = it->cache_->lookup(name)) {
-                rv = p2->value();
-                break;
-            }
-        }
-    }
-
-    if (!cache_->add(p, name, rv)) {
-        ReportOutOfMemory(bce->cx);
-        return Nothing();
-    }
-
-    return Some(rv);
-}
-
-bool
-BytecodeEmitter::TDZCheckCache::noteTDZCheck(BytecodeEmitter* bce, JSAtom* name,
-                                             MaybeCheckTDZ check)
-{
-    if (!ensureCache(bce))
-        return false;
-
-    CheckTDZMap::AddPtr p = cache_->lookupForAdd(name);
-    if (p) {
-        MOZ_ASSERT(!check, "TDZ only needs to be checked once per binding per basic block.");
-        p->value() = check;
-    } else {
-        if (!cache_->add(p, name, check))
-            return false;
-    }
-
-    return true;
-}
-
 class MOZ_STACK_CLASS TryEmitter
 {
   public:
@@ -1843,156 +1776,6 @@ class MOZ_STACK_CLASS TryEmitter
     }
 };
 
-class MOZ_STACK_CLASS IfThenElseEmitter
-{
-    BytecodeEmitter* bce_;
-    JumpList jumpAroundThen_;
-    JumpList jumpsAroundElse_;
-    unsigned noteIndex_;
-    int32_t thenDepth_;
-#ifdef DEBUG
-    int32_t pushed_;
-    bool calculatedPushed_;
-#endif
-    enum State {
-        Start,
-        If,
-        Cond,
-        IfElse,
-        Else,
-        End
-    };
-    State state_;
-
-  public:
-    explicit IfThenElseEmitter(BytecodeEmitter* bce)
-      : bce_(bce),
-        noteIndex_(-1),
-        thenDepth_(0),
-#ifdef DEBUG
-        pushed_(0),
-        calculatedPushed_(false),
-#endif
-        state_(Start)
-    {}
-
-    ~IfThenElseEmitter()
-    {}
-
-  private:
-    bool emitIf(State nextState) {
-        MOZ_ASSERT(state_ == Start || state_ == Else);
-        MOZ_ASSERT(nextState == If || nextState == IfElse || nextState == Cond);
-
-        // Clear jumpAroundThen_ offset that points previous JSOP_IFEQ.
-        if (state_ == Else)
-            jumpAroundThen_ = JumpList();
-
-        // Emit an annotated branch-if-false around the then part.
-        SrcNoteType type = nextState == If ? SRC_IF : nextState == IfElse ? SRC_IF_ELSE : SRC_COND;
-        if (!bce_->newSrcNote(type, &noteIndex_))
-            return false;
-        if (!bce_->emitJump(JSOP_IFEQ, &jumpAroundThen_))
-            return false;
-
-        // To restore stack depth in else part, save depth of the then part.
-#ifdef DEBUG
-        // If DEBUG, this is also necessary to calculate |pushed_|.
-        thenDepth_ = bce_->stackDepth;
-#else
-        if (nextState == IfElse || nextState == Cond)
-            thenDepth_ = bce_->stackDepth;
-#endif
-        state_ = nextState;
-        return true;
-    }
-
-  public:
-    bool emitIf() {
-        return emitIf(If);
-    }
-
-    bool emitCond() {
-        return emitIf(Cond);
-    }
-
-    bool emitIfElse() {
-        return emitIf(IfElse);
-    }
-
-    bool emitElse() {
-        MOZ_ASSERT(state_ == IfElse || state_ == Cond);
-
-        calculateOrCheckPushed();
-
-        // Emit a jump from the end of our then part around the else part. The
-        // patchJumpsToTarget call at the bottom of this function will fix up
-        // the offset with jumpsAroundElse value.
-        if (!bce_->emitJump(JSOP_GOTO, &jumpsAroundElse_))
-            return false;
-
-        // Ensure the branch-if-false comes here, then emit the else.
-        if (!bce_->emitJumpTargetAndPatch(jumpAroundThen_))
-            return false;
-
-        // Annotate SRC_IF_ELSE or SRC_COND with the offset from branch to
-        // jump, for IonMonkey's benefit.  We can't just "back up" from the pc
-        // of the else clause, because we don't know whether an extended
-        // jump was required to leap from the end of the then clause over
-        // the else clause.
-        if (!bce_->setSrcNoteOffset(noteIndex_, 0,
-                                    jumpsAroundElse_.offset - jumpAroundThen_.offset))
-        {
-            return false;
-        }
-
-        // Restore stack depth of the then part.
-        bce_->stackDepth = thenDepth_;
-        state_ = Else;
-        return true;
-    }
-
-    bool emitEnd() {
-        MOZ_ASSERT(state_ == If || state_ == Else);
-
-        calculateOrCheckPushed();
-
-        if (state_ == If) {
-            // No else part, fixup the branch-if-false to come here.
-            if (!bce_->emitJumpTargetAndPatch(jumpAroundThen_))
-                return false;
-        }
-
-        // Patch all the jumps around else parts.
-        if (!bce_->emitJumpTargetAndPatch(jumpsAroundElse_))
-            return false;
-
-        state_ = End;
-        return true;
-    }
-
-    void calculateOrCheckPushed() {
-#ifdef DEBUG
-        if (!calculatedPushed_) {
-            pushed_ = bce_->stackDepth - thenDepth_;
-            calculatedPushed_ = true;
-        } else {
-            MOZ_ASSERT(pushed_ == bce_->stackDepth - thenDepth_);
-        }
-#endif
-    }
-
-#ifdef DEBUG
-    int32_t pushed() const {
-        return pushed_;
-    }
-
-    int32_t popped() const {
-        return -pushed_;
-    }
-#endif
-};
-
 // Class for emitting bytecode for optional expressions.
 class MOZ_RAII OptionalEmitter
 {
@@ -2007,7 +1790,7 @@ class MOZ_RAII OptionalEmitter
  private:
   BytecodeEmitter* bce_;
 
-  BytecodeEmitter::TDZCheckCache tdzCache_;
+  TDZCheckCache tdzCache_;
 
   // jumpTarget for the fake label over the optional chaining code
   JumpList top_;
@@ -2162,8 +1945,8 @@ class ForOfLoopControl : public LoopControl
         if (!bce->emit1(JSOP_STRICTNE))           // ITER ... EXCEPTION NE
             return false;
 
-        IfThenElseEmitter ifIteratorIsNotClosed(bce);
-        if (!ifIteratorIsNotClosed.emitIf())      // ITER ... EXCEPTION
+        InternalIfEmitter ifIteratorIsNotClosed(bce);
+        if (!ifIteratorIsNotClosed.emitThen())    // ITER ... EXCEPTION
             return false;
 
         MOZ_ASSERT(slotFromTop == unsigned(bce->stackDepth - iterDepth_));
@@ -2186,10 +1969,10 @@ class ForOfLoopControl : public LoopControl
             if (!tryCatch_->emitFinally())
                 return false;
 
-            IfThenElseEmitter ifGeneratorClosing(bce);
+            InternalIfEmitter ifGeneratorClosing(bce);
             if (!bce->emit1(JSOP_ISGENCLOSING))   // ITER ... FTYPE FVALUE CLOSING
                 return false;
-            if (!ifGeneratorClosing.emitIf())     // ITER ... FTYPE FVALUE
+            if (!ifGeneratorClosing.emitThen())   // ITER ... FTYPE FVALUE
                 return false;
             if (!bce->emitDupAt(slotFromTop + 1)) // ITER ... FTYPE FVALUE ITER
                 return false;
@@ -2508,27 +2291,6 @@ BytecodeEmitter::emitJumpTarget(JumpTarget* target)
     if (!emit1(JSOP_JUMPTARGET))
         return false;
     return true;
-}
-
-void
-JumpList::push(jsbytecode* code, ptrdiff_t jumpOffset)
-{
-    SET_JUMP_OFFSET(&code[jumpOffset], offset - jumpOffset);
-    offset = jumpOffset;
-}
-
-void
-JumpList::patchAll(jsbytecode* code, JumpTarget target)
-{
-    ptrdiff_t delta;
-    for (ptrdiff_t jumpOffset = offset; jumpOffset != -1; jumpOffset += delta) {
-        jsbytecode* pc = &code[jumpOffset];
-        MOZ_ASSERT(IsJumpOpcode(JSOp(*pc)) || JSOp(*pc) == JSOP_LABEL);
-        delta = GET_JUMP_OFFSET(pc);
-        MOZ_ASSERT(delta < 0);
-        ptrdiff_t span = target.offset - jumpOffset;
-        SET_JUMP_OFFSET(pc, span);
-    }
 }
 
 bool
@@ -5479,14 +5241,14 @@ BytecodeEmitter::emitIteratorCloseInScope(EmitterScope& currentScope,
     // Step 4.
     //
     // Do nothing if "return" is null or undefined.
-    IfThenElseEmitter ifReturnMethodIsDefined(this);
+    InternalIfEmitter ifReturnMethodIsDefined(this);
     if (!emit1(JSOP_DUP))                                 // ... ITER RET RET
         return false;
     if (!emit1(JSOP_UNDEFINED))                           // ... ITER RET RET UNDEFINED
         return false;
     if (!emit1(JSOP_NE))                                  // ... ITER RET ?NEQL
         return false;
-    if (!ifReturnMethodIsDefined.emitIfElse())
+    if (!ifReturnMethodIsDefined.emitThenElse())
         return false;
 
     if (completionKind == CompletionKind::Throw) {
@@ -5859,12 +5621,12 @@ BytecodeEmitter::emitDestructuringOpsArray(ParseNode* pattern, DestructuringFlav
         }
 
         if (member->isKind(PNK_SPREAD)) {
-            IfThenElseEmitter ifThenElse(this);
+            InternalIfEmitter ifThenElse(this);
             if (!isFirst) {
                 // If spread is not the first element of the pattern,
                 // iterator can already be completed.
                                                                   // ... OBJ ITER *LREF DONE
-                if (!ifThenElse.emitIfElse())                     // ... OBJ ITER *LREF
+                if (!ifThenElse.emitThenElse())                   // ... OBJ ITER *LREF
                     return false;
 
                 if (!emitUint32Operand(JSOP_NEWARRAY, 0))         // ... OBJ ITER *LREF ARRAY
@@ -5914,10 +5676,10 @@ BytecodeEmitter::emitDestructuringOpsArray(ParseNode* pattern, DestructuringFlav
 
         MOZ_ASSERT(!member->isKind(PNK_SPREAD));
 
-        IfThenElseEmitter ifAlreadyDone(this);
+        InternalIfEmitter ifAlreadyDone(this);
         if (!isFirst) {
                                                                   // ... OBJ ITER *LREF DONE
-            if (!ifAlreadyDone.emitIfElse())                      // ... OBJ ITER *LREF
+            if (!ifAlreadyDone.emitThenElse())                    // ... OBJ ITER *LREF
                 return false;
 
             if (!emit1(JSOP_UNDEFINED))                           // ... OBJ ITER *LREF UNDEF
@@ -5954,8 +5716,8 @@ BytecodeEmitter::emitDestructuringOpsArray(ParseNode* pattern, DestructuringFlav
         if (!emit2(JSOP_UNPICK, emitted + 2))                     // ... OBJ ITER DONE *LREF RESULT DONE
             return false;
 
-        IfThenElseEmitter ifDone(this);
-        if (!ifDone.emitIfElse())                                 // ... OBJ ITER DONE *LREF RESULT
+        InternalIfEmitter ifDone(this);
+        if (!ifDone.emitThenElse())                               // ... OBJ ITER DONE *LREF RESULT
             return false;
 
         if (!emit1(JSOP_POP))                                     // ... OBJ ITER DONE *LREF
@@ -6006,8 +5768,8 @@ BytecodeEmitter::emitDestructuringOpsArray(ParseNode* pattern, DestructuringFlav
     // The last DONE value is on top of the stack. If not DONE, call
     // IteratorClose.
                                                                   // ... OBJ ITER DONE
-    IfThenElseEmitter ifDone(this);
-    if (!ifDone.emitIfElse())                                     // ... OBJ ITER
+    InternalIfEmitter ifDone(this);
+    if (!ifDone.emitThenElse())                                   // ... OBJ ITER
         return false;
     if (!emit1(JSOP_POP))                                         // ... OBJ
         return false;
@@ -6943,7 +6705,7 @@ BytecodeEmitter::emitTry(ParseNode* pn)
 bool
 BytecodeEmitter::emitIf(ParseNode* pn)
 {
-    IfThenElseEmitter ifThenElse(this);
+    IfEmitter ifThenElse(this);
 
   if_again:
     /* Emit code for the condition before pushing stmtInfo. */
@@ -6952,10 +6714,10 @@ BytecodeEmitter::emitIf(ParseNode* pn)
 
     ParseNode* elseNode = pn->pn_kid3;
     if (elseNode) {
-        if (!ifThenElse.emitIfElse())
+        if (!ifThenElse.emitThenElse())
             return false;
     } else {
-        if (!ifThenElse.emitIf())
+        if (!ifThenElse.emitThen())
             return false;
     }
 
@@ -6964,13 +6726,17 @@ BytecodeEmitter::emitIf(ParseNode* pn)
         return false;
 
     if (elseNode) {
-        if (!ifThenElse.emitElse())
-            return false;
-
         if (elseNode->isKind(PNK_IF)) {
             pn = elseNode;
+
+            if (!ifThenElse.emitElseIf())
+                return false;
+
             goto if_again;
         }
+
+        if (!ifThenElse.emitElse())
+            return false;
 
         /* Emit code for the else part. */
         if (!emitTreeInBranch(elseNode))
@@ -7210,14 +6976,14 @@ BytecodeEmitter::emitAsyncIterator()
     if (!emitElemOpBase(JSOP_CALLELEM))                           // OBJ ITERFN
         return false;
 
-    IfThenElseEmitter ifAsyncIterIsUndefined(this);
+    InternalIfEmitter ifAsyncIterIsUndefined(this);
     if (!emit1(JSOP_DUP))                                         // OBJ ITERFN ITERFN
         return false;
     if (!emit1(JSOP_UNDEFINED))                                   // OBJ ITERFN ITERFN UNDEF
         return false;
     if (!emit1(JSOP_EQ))                                          // OBJ ITERFN EQ
         return false;
-    if (!ifAsyncIterIsUndefined.emitIfElse())                     // OBJ ITERFN
+    if (!ifAsyncIterIsUndefined.emitThenElse())                   // OBJ ITERFN
         return false;
 
     if (!emit1(JSOP_POP))                                         // OBJ
@@ -8995,8 +8761,8 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
     if (!emit1(JSOP_EQ))                                  // ITER RESULT EXCEPTION ITER THROW ?EQL
         return false;
 
-    IfThenElseEmitter ifThrowMethodIsNotDefined(this);
-    if (!ifThrowMethodIsNotDefined.emitIf())              // ITER RESULT EXCEPTION ITER THROW
+    InternalIfEmitter ifThrowMethodIsNotDefined(this);
+    if (!ifThrowMethodIsNotDefined.emitThen())            // ITER RESULT EXCEPTION ITER THROW
         return false;
     savedDepthTemp = stackDepth;
     if (!emit1(JSOP_POP))                                 // ITER RESULT EXCEPTION ITER
@@ -9051,10 +8817,10 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
     // Call iterator.return() for receiving a "forced return" completion from
     // the generator.
 
-    IfThenElseEmitter ifGeneratorClosing(this);
+    InternalIfEmitter ifGeneratorClosing(this);
     if (!emit1(JSOP_ISGENCLOSING))                        // ITER RESULT FTYPE FVALUE CLOSING
         return false;
-    if (!ifGeneratorClosing.emitIf())                     // ITER RESULT FTYPE FVALUE
+    if (!ifGeneratorClosing.emitThen())                   // ITER RESULT FTYPE FVALUE
         return false;
 
     // Step ii.
@@ -9070,7 +8836,7 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
     // Step iii.
     //
     // Do nothing if "return" is undefined.
-    IfThenElseEmitter ifReturnMethodIsDefined(this);
+    InternalIfEmitter ifReturnMethodIsDefined(this);
     if (!emit1(JSOP_DUP))                                 // ITER RESULT FTYPE FVALUE ITER RET RET
         return false;
     if (!emit1(JSOP_UNDEFINED))                           // ITER RESULT FTYPE FVALUE ITER RET RET UNDEFINED
@@ -9082,7 +8848,7 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
     //
     // Call "return" with the argument passed to Generator.prototype.return,
     // which is currently in rval.value.
-    if (!ifReturnMethodIsDefined.emitIfElse())            // ITER OLDRESULT FTYPE FVALUE ITER RET
+    if (!ifReturnMethodIsDefined.emitThenElse())          // ITER OLDRESULT FTYPE FVALUE ITER RET
         return false;
     if (!emit1(JSOP_SWAP))                                // ITER OLDRESULT FTYPE FVALUE RET ITER
         return false;
@@ -9107,12 +8873,12 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
     //
     // Check if the returned object from iterator.return() is done. If not,
     // continuing yielding.
-    IfThenElseEmitter ifReturnDone(this);
+    InternalIfEmitter ifReturnDone(this);
     if (!emit1(JSOP_DUP))                                 // ITER OLDRESULT FTYPE FVALUE RESULT RESULT
         return false;
     if (!emitAtomOp(cx->names().done, JSOP_GETPROP))      // ITER OLDRESULT FTYPE FVALUE RESULT DONE
         return false;
-    if (!ifReturnDone.emitIfElse())                       // ITER OLDRESULT FTYPE FVALUE RESULT
+    if (!ifReturnDone.emitThenElse())                     // ITER OLDRESULT FTYPE FVALUE RESULT
         return false;
     if (!emitAtomOp(cx->names().value, JSOP_GETPROP))     // ITER OLDRESULT FTYPE FVALUE VALUE
         return false;
@@ -10304,7 +10070,7 @@ BytecodeEmitter::emitConditionalExpression(ConditionalExpression& conditional,
     if (!emitTree(&conditional.condition()))
         return false;
 
-    IfThenElseEmitter ifThenElse(this);
+    IfEmitter ifThenElse(this);
     if (!ifThenElse.emitCond())
         return false;
 
@@ -12189,7 +11955,7 @@ OptionalEmitter::emitJumpShortCircuit() {
                state_ == State::ShortCircuitForCall);
     MOZ_ASSERT(initialDepth_ + 1 == bce_->stackDepth);
 
-    IfThenElseEmitter ifEmitter(bce_);
+    InternalIfEmitter ifEmitter(bce_);
     if (!bce_->emitPushNotUndefinedOrNull()) {
         //              [stack] OBJ NOT-UNDEFINED-OR-NULL
         return false;
@@ -12200,7 +11966,7 @@ OptionalEmitter::emitJumpShortCircuit() {
         return false;
     }
 
-    if (!ifEmitter.emitIf() /* emitThen() */) {
+    if (!ifEmitter.emitThen()) {
         return false;
     }
 
@@ -12249,7 +12015,7 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
         return false;
     }
 
-    IfThenElseEmitter ifEmitter(bce_);
+    InternalIfEmitter ifEmitter(bce_);
     if (!bce_->emitPushNotUndefinedOrNull()) {
         //              [stack] THIS CALLEE NOT-UNDEFINED-OR-NULL
         return false;
@@ -12260,7 +12026,7 @@ OptionalEmitter::emitJumpShortCircuitForCall() {
         return false;
     }
 
-    if (!ifEmitter.emitIf() /* emitThen() */) {
+    if (!ifEmitter.emitThen()) {
         return false;
     }
 

@@ -164,6 +164,7 @@ ShadowRoot::AddSlot(HTMLSlotElement* aSlot)
 
       oldSlot->RemoveAssignedNode(assignedNode);
       currentSlot->AppendAssignedNode(assignedNode);
+
       Element* restyleElement;
       if (assignedNode->IsElement()) {
         restyleElement = assignedNode->AsElement();
@@ -171,8 +172,10 @@ ShadowRoot::AddSlot(HTMLSlotElement* aSlot)
         // This is likely a text node. Use the host instead.
         restyleElement = GetHost();
       }
-      nsLayoutUtils::PostRestyleEvent(
-        restyleElement, eRestyle_Subtree, nsChangeHint(0));
+      if (restyleElement) {
+        nsLayoutUtils::PostRestyleEvent(
+          restyleElement, eRestyle_Subtree, nsChangeHint(0));
+      }
 
       doEnqueueSlotChange = true;
     }

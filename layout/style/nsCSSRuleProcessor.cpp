@@ -1374,8 +1374,9 @@ enum class SelectorMatchesFlags : uint8_t {
   // pseudo-element.
   IS_PSEUDO_CLASS_ARGUMENT = 1 << 2,
   
-  // The selector should be blocked from matching the :host pseudo-class.
-  IS_HOST_INACCESSIBLE = 1 << 3
+  // The selector should be blocked from matching because it is called
+  // from outside the shadow tree.
+  IS_OUTSIDE_SHADOW_TREE = 1 << 3
 };
 MOZ_MAKE_ENUM_CLASS_BITWISE_OPERATORS(SelectorMatchesFlags)
 
@@ -1394,7 +1395,7 @@ static inline bool ActiveHoverQuirkMatches(nsCSSSelector* aSelector,
       aSelectorFlags & (SelectorMatchesFlags::UNKNOWN |
                         SelectorMatchesFlags::HAS_PSEUDO_ELEMENT |
                         SelectorMatchesFlags::IS_PSEUDO_CLASS_ARGUMENT |
-                        SelectorMatchesFlags::IS_HOST_INACCESSIBLE)) {
+                        SelectorMatchesFlags::IS_OUTSIDE_SHADOW_TREE)) {
     return false;
   }
 
@@ -1792,6 +1793,8 @@ static bool SelectorMatches(Element* aElement,
     }
   }
 
+  const bool isOutsideShadowTree =
+    !!(aSelectorFlags & SelectorMatchesFlags::IS_OUTSIDE_SHADOW_TREE);
   const bool isNegated = (aDependence != nullptr);
   // The selectors for which we set node bits are, unfortunately, early
   // in this function (because they're pseudo-classes, which are
@@ -1975,6 +1978,11 @@ static bool SelectorMatches(Element* aElement,
 
       case CSSPseudoClassType::slotted:
         {
+          // Slottables cannot be matched from the outer tree.
+          if (isOutsideShadowTree) {
+            return false;
+          }
+          
           // Slot elements cannot be matched.
           if (aElement->IsHTMLElement(nsGkAtoms::slot)) {
             return false;
@@ -2006,7 +2014,7 @@ static bool SelectorMatches(Element* aElement,
           // style). 
           if (!shadow ||
               aSelector->HasFeatureSelectors() ||
-              aSelectorFlags & SelectorMatchesFlags::IS_HOST_INACCESSIBLE) {
+              isOutsideShadowTree) {
             return false;
           }
 
@@ -4202,7 +4210,7 @@ nsCSSRuleProcessor::RestrictedSelectorListMatches(Element* aElement,
   NodeMatchContext nodeContext(EventStates(), false);
   SelectorMatchesFlags flags = aElement->IsInShadowTree() ?
                                SelectorMatchesFlags::NONE :
-                               SelectorMatchesFlags::IS_HOST_INACCESSIBLE;
+                               SelectorMatchesFlags::IS_OUTSIDE_SHADOW_TREE;
   return SelectorListMatches(aElement,
                              aSelectorList,
                              nodeContext,

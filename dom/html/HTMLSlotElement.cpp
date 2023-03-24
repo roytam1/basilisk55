@@ -111,6 +111,13 @@ HTMLSlotElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
     }
   }
 
+  if (nsIContent* parent = GetParent()) {
+    if (parent->IsElement()) {
+      nsLayoutUtils::PostRestyleEvent(
+        parent->AsElement(), eRestyle_Subtree, nsChangeHint(0));
+    }
+  }
+
   return nsGenericHTMLElement::AfterSetAttr(aNameSpaceID, aName, aValue,
                                             aOldValue, aNotify);
 }

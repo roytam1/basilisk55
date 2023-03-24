@@ -781,7 +781,7 @@ protected:
   // aFlags is not set.
   nsSelectorParsingStatus ParsePseudoSelector(int32_t&              aDataMask,
                                               nsCSSSelector&        aSelector,
-                                              SelectorParsingFlags  aFlags,
+                                              SelectorParsingFlags& aFlags,
                                               nsIAtom**             aPseudoElement,
                                               nsAtomList**          aPseudoElementArgs,
                                               CSSPseudoElementType* aPseudoElementType);
@@ -789,9 +789,9 @@ protected:
   nsSelectorParsingStatus ParseAttributeSelector(int32_t&       aDataMask,
                                                  nsCSSSelector& aSelector);
 
-  nsSelectorParsingStatus ParseTypeOrUniversalSelector(int32_t&             aDataMask,
-                                                       nsCSSSelector&       aSelector,
-                                                       SelectorParsingFlags aFlags);
+  nsSelectorParsingStatus ParseTypeOrUniversalSelector(int32_t&              aDataMask,
+                                                       nsCSSSelector&        aSelector,
+                                                       SelectorParsingFlags& aFlags);
 
   nsSelectorParsingStatus ParsePseudoClassWithIdentArg(nsCSSSelector& aSelector,
                                                        CSSPseudoClassType aType);
@@ -801,22 +801,22 @@ protected:
 
   nsSelectorParsingStatus ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
                                                               CSSPseudoClassType aType,
-                                                              SelectorParsingFlags aFlags);
+                                                              SelectorParsingFlags& aFlags);
 
-  nsSelectorParsingStatus ParseNegatedSimpleSelector(int32_t&             aDataMask,
-                                                     nsCSSSelector&       aSelector,
-                                                     SelectorParsingFlags aFlags);
+  nsSelectorParsingStatus ParseNegatedSimpleSelector(int32_t&              aDataMask,
+                                                     nsCSSSelector&        aSelector,
+                                                     SelectorParsingFlags& aFlags);
 
   // If aStopChar is non-zero, the selector list is done when we hit
   // aStopChar.  Otherwise, it's done when we hit EOF.
   bool ParseSelectorList(nsCSSSelectorList*& aListHead,
                          char16_t aStopChar,
-                         SelectorParsingFlags aFlags = SelectorParsingFlags::eNone);
+                         SelectorParsingFlags& aFlags);
   bool ParseSelectorGroup(nsCSSSelectorList*& aListHead,
-                          SelectorParsingFlags aFlags);
+                          SelectorParsingFlags& aFlags);
   bool ParseSelector(nsCSSSelectorList* aList,
                      char16_t aPrevCombinator,
-                     SelectorParsingFlags aFlags);
+                     SelectorParsingFlags& aFlags);
 
   enum {
     eParseDeclaration_InBraces           = 1 << 0,
@@ -2340,7 +2340,8 @@ CSSParserImpl::ParseSelectorString(const nsSubstring& aSelectorString,
   css::ErrorReporter reporter(scanner, mSheet, mChildLoader, aURI);
   InitScanner(scanner, reporter, aURI, aURI, nullptr);
 
-  bool success = ParseSelectorList(*aSelectorList, char16_t(0));
+  SelectorParsingFlags flags = SelectorParsingFlags::eNone;
+  bool success = ParseSelectorList(*aSelectorList, char16_t(0), flags);
 
   // We deliberately do not call OUTPUT_ERROR here, because all our
   // callers map a failure return to a JS exception, and if that JS
@@ -5483,9 +5484,10 @@ CSSParserImpl::ParseRuleSet(RuleAppendFunc aAppendFunc, void* aData,
 {
   // First get the list of selectors for the rule
   nsCSSSelectorList* slist = nullptr;
+  SelectorParsingFlags flags = SelectorParsingFlags::eNone;
   uint32_t linenum, colnum;
   if (!GetNextTokenLocation(true, &linenum, &colnum) ||
-      !ParseSelectorList(slist, char16_t('{'))) {
+      !ParseSelectorList(slist, char16_t('{'), flags)) {
     REPORT_UNEXPECTED(PEBadSelectorRSIgnored);
     OUTPUT_ERROR();
     SkipRuleSet(aInsideBraces);
@@ -5522,7 +5524,7 @@ CSSParserImpl::ParseRuleSet(RuleAppendFunc aAppendFunc, void* aData,
 bool
 CSSParserImpl::ParseSelectorList(nsCSSSelectorList*& aListHead,
                                  char16_t aStopChar,
-                                 SelectorParsingFlags aFlags)
+                                 SelectorParsingFlags& aFlags)
 {
   nsCSSSelectorList* list = nullptr;
   if (! ParseSelectorGroup(list, aFlags)) {
@@ -5606,7 +5608,7 @@ static bool IsUniversalSelector(const nsCSSSelector& aSelector)
 
 bool
 CSSParserImpl::ParseSelectorGroup(nsCSSSelectorList*& aList,
-                                  SelectorParsingFlags aFlags)
+                                  SelectorParsingFlags& aFlags)
 {
   char16_t combinator = 0;
   nsAutoPtr<nsCSSSelectorList> list(new nsCSSSelectorList());
@@ -5707,9 +5709,9 @@ CSSParserImpl::ParseClassSelector(int32_t&       aDataMask,
 // namespace|type or namespace|* or *|* or *
 //
 CSSParserImpl::nsSelectorParsingStatus
-CSSParserImpl::ParseTypeOrUniversalSelector(int32_t&             aDataMask,
-                                            nsCSSSelector&       aSelector,
-                                            SelectorParsingFlags aFlags)
+CSSParserImpl::ParseTypeOrUniversalSelector(int32_t&              aDataMask,
+                                            nsCSSSelector&        aSelector,
+                                            SelectorParsingFlags& aFlags)
 {
   nsAutoString buffer;
   if (mToken.IsSymbol('*')) {  // universal element selector, or universal namespace
@@ -6074,7 +6076,7 @@ CSSParserImpl::ParseAttributeSelector(int32_t&       aDataMask,
 CSSParserImpl::nsSelectorParsingStatus
 CSSParserImpl::ParsePseudoSelector(int32_t&              aDataMask,
                                    nsCSSSelector&        aSelector,
-                                   SelectorParsingFlags  aFlags,
+                                   SelectorParsingFlags& aFlags,
                                    nsIAtom**             aPseudoElement,
                                    nsAtomList**          aPseudoElementArgs,
                                    CSSPseudoElementType* aPseudoElementType)
@@ -6362,9 +6364,9 @@ CSSParserImpl::ParsePseudoSelector(int32_t&              aDataMask,
 // Parse the argument of a negation pseudo-class :not()
 //
 CSSParserImpl::nsSelectorParsingStatus
-CSSParserImpl::ParseNegatedSimpleSelector(int32_t&             aDataMask,
-                                          nsCSSSelector&       aSelector,
-                                          SelectorParsingFlags aFlags)
+CSSParserImpl::ParseNegatedSimpleSelector(int32_t&              aDataMask,
+                                          nsCSSSelector&        aSelector,
+                                          SelectorParsingFlags& aFlags)
 {
   aFlags |= SelectorParsingFlags::eIsNegated;
 
@@ -6641,7 +6643,7 @@ CSSParserImpl::ParsePseudoClassWithNthPairArg(nsCSSSelector& aSelector,
 CSSParserImpl::nsSelectorParsingStatus
 CSSParserImpl::ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
                                                    CSSPseudoClassType aType,
-                                                   SelectorParsingFlags aFlags)
+                                                   SelectorParsingFlags& aFlags)
 {
   bool isSingleSelector =
     nsCSSPseudoClasses::HasSingleSelectorArg(aType);
@@ -6709,7 +6711,7 @@ CSSParserImpl::ParsePseudoClassWithSelectorListArg(nsCSSSelector& aSelector,
 bool
 CSSParserImpl::ParseSelector(nsCSSSelectorList* aList,
                              char16_t aPrevCombinator,
-                             SelectorParsingFlags aFlags)
+                             SelectorParsingFlags& aFlags)
 {
   if (! GetToken(true)) {
     REPORT_UNEXPECTED_EOF(PESelectorEOF);

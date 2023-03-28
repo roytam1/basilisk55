@@ -278,6 +278,14 @@ class MOZ_NON_MEMMOVABLE Heap : public js::HeapBase<T, Heap<T>>
 
     T* unsafeGet() { return &ptr; }
 
+    void unsafeSet(const T& newPtr) { ptr = newPtr; }
+
+    void set(const T& newPtr) {
+        T tmp = ptr;
+        ptr = newPtr;
+        post(tmp, ptr);
+    }
+
     explicit operator bool() const {
         return bool(js::BarrierMethods<T>::asGCThingOrNull(ptr));
     }
@@ -289,12 +297,6 @@ class MOZ_NON_MEMMOVABLE Heap : public js::HeapBase<T, Heap<T>>
     void init(const T& newPtr) {
         ptr = newPtr;
         post(GCPolicy<T>::initial(), ptr);
-    }
-
-    void set(const T& newPtr) {
-        T tmp = ptr;
-        ptr = newPtr;
-        post(tmp, ptr);
     }
 
     void post(const T& prev, const T& next) {

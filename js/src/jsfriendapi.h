@@ -2876,7 +2876,7 @@ ToWindowIfWindowProxy(JSObject* obj);
 // Create and add the Intl.PluralRules constructor function to the provided
 // object.  This function throws if called more than once per realm/global
 // object.
-extern bool
+extern JS_FRIEND_API(bool)
 AddPluralRulesConstructor(JSContext* cx, JS::Handle<JSObject*> intl);
 
 class MOZ_STACK_CLASS JS_FRIEND_API(AutoAssertNoContentJS)

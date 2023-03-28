@@ -223,7 +223,7 @@ js::GlobalObject::addPluralRulesConstructor(JSContext* cx, HandleObject intl)
     return true;
 }
 
-bool
+JS_FRIEND_API(bool)
 js::AddPluralRulesConstructor(JSContext* cx, JS::Handle<JSObject*> intl)
 {
     return GlobalObject::addPluralRulesConstructor(cx, intl);

@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "export.h"
 //
 // This is the platform independent interface between an OGL driver
 // and the shading language compiler.

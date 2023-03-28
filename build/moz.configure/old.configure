@@ -226,6 +226,7 @@ def old_configure_options(*options):
     '--enable-replace-malloc',
     '--enable-safe-browsing',
     '--enable-sandbox',
+    '--enable-shared-media',
     '--enable-signmar',
     '--enable-simulator',
     '--enable-small-chunk-size',

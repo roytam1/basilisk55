@@ -134,6 +134,12 @@ pref("security.ssl.errorReporting.automatic", false);
 // https://tools.ietf.org/html/rfc7469#section-4.1
 pref("security.cert_pinning.max_max_age_seconds", 5184000);
 
+// Enable TLS 1.3 compatmode version for bad middleware boxes?
+// This is a holdover from the later draft specs and SHOULD NOT be enabled by
+// default. ONLY use this when you explicitly need it. You have been warned!
+// Restart required.
+pref("security.ssl.enable_tls13_compat_mode", false);
+
 // HSTS Priming
 // If a request is mixed-content, send an HSTS priming request to attempt to
 // see if it is available over HTTPS.

@@ -390,8 +390,7 @@ NextNode(ParseNode* pn)
 static inline ParseNode*
 UnaryKid(ParseNode* pn)
 {
-    MOZ_ASSERT(pn->isArity(PN_UNARY));
-    return pn->pn_kid;
+    return pn->as<UnaryNode>().kid();
 }
 
 static inline ParseNode*

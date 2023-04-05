@@ -4311,7 +4311,7 @@ Parser<ParseHandler>::PossibleError::transferErrorsTo(PossibleError* other)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::bindingInitializer(Node lhs, DeclarationKind kind,
                                          YieldHandling yieldHandling)
 {
@@ -4326,12 +4326,17 @@ Parser<ParseHandler>::bindingInitializer(Node lhs, DeclarationKind kind,
 
     handler.checkAndSetIsDirectRHSAnonFunction(rhs);
 
-    Node assign = handler.newAssignment(PNK_ASSIGN, lhs, rhs, JSOP_NOP);
+    BinaryNodeType assign = handler.newAssignment(PNK_ASSIGN, lhs, rhs, JSOP_NOP);
     if (!assign)
         return null();
 
-    if (foldConstants && !FoldConstants(context, &assign, this))
-        return null();
+    if (foldConstants) {
+        Node node = assign;
+        if (!FoldConstants(context, &node, this)) {
+            return null();
+        }
+        assign = handler.asBinary(node);
+    }
 
     return assign;
 }
@@ -4458,7 +4463,7 @@ Parser<ParseHandler>::objectBindingPattern(DeclarationKind kind, YieldHandling y
 
                 tokenStream.consumeKnownToken(TOK_ASSIGN);
 
-                Node bindingExpr = bindingInitializer(binding, kind, yieldHandling);
+                BinaryNodeType bindingExpr = bindingInitializer(binding, kind, yieldHandling);
                 if (!bindingExpr)
                     return null();
 
@@ -5034,7 +5039,7 @@ Parser<FullParseHandler>::namedImportsOrNamespaceImport(TokenKind tt, ListNodeTy
             if (!importNameNode)
                 return false;
 
-            Node importSpec = handler.newBinary(PNK_IMPORT_SPEC, importNameNode, bindingName);
+            BinaryNodeType importSpec = handler.newBinary(PNK_IMPORT_SPEC, importNameNode, bindingName);
             if (!importSpec)
                 return false;
 
@@ -5080,7 +5085,7 @@ Parser<FullParseHandler>::namedImportsOrNamespaceImport(TokenKind tt, ListNodeTy
         // environment.
         pc->varScope().lookupDeclaredName(bindingName)->value()->setClosedOver();
 
-        Node importSpec = handler.newBinary(PNK_IMPORT_SPEC, importName, bindingNameNode);
+        BinaryNodeType importSpec = handler.newBinary(PNK_IMPORT_SPEC, importName, bindingNameNode);
         if (!importSpec)
             return false;
 
@@ -5091,7 +5096,7 @@ Parser<FullParseHandler>::namedImportsOrNamespaceImport(TokenKind tt, ListNodeTy
 }
 
 template<>
-ParseNode*
+BinaryNode*
 Parser<FullParseHandler>::importDeclaration()
 {
     MOZ_ASSERT(tokenStream.currentToken().type == TOK_IMPORT);
@@ -5138,7 +5143,7 @@ Parser<FullParseHandler>::importDeclaration()
             if (!noteDeclaredName(bindingAtom, DeclarationKind::Import, pos()))
                 return null();
 
-            Node importSpec = handler.newBinary(PNK_IMPORT_SPEC, importName, bindingName);
+            BinaryNodeType importSpec = handler.newBinary(PNK_IMPORT_SPEC, importName, bindingName);
             if (!importSpec)
                 return null();
 
@@ -5177,7 +5182,7 @@ Parser<FullParseHandler>::importDeclaration()
     if (!matchOrInsertSemicolonAfterNonExpression())
         return null();
 
-    ParseNode* node =
+    BinaryNode* node =
         handler.newImportDeclaration(importSpecSet, moduleSpec, TokenPos(begin, pos().end));
     if (!node || !pc->sc()->asModuleContext()->builder.processImport(node))
         return null();
@@ -5186,7 +5191,7 @@ Parser<FullParseHandler>::importDeclaration()
 }
 
 template<>
-SyntaxParseHandler::Node
+SyntaxParseHandler::BinaryNodeType
 Parser<SyntaxParseHandler>::importDeclaration()
 {
     JS_ALWAYS_FALSE(abortIfSyntaxParser());
@@ -5230,7 +5235,7 @@ Parser<FullParseHandler>::checkExportedNamesForArrayBinding(ListNode* array)
         if (node->isKind(PNK_SPREAD))
             binding = node->pn_kid;
         else if (node->isKind(PNK_ASSIGN))
-            binding = node->pn_left;
+            binding = node->as<AssignmentNode>().left();
         else
             binding = node;
 
@@ -5268,10 +5273,10 @@ Parser<FullParseHandler>::checkExportedNamesForObjectBinding(ListNode* obj)
             if (node->isKind(PNK_MUTATEPROTO))
                 target = node->pn_kid;
             else
-                target = node->pn_right;
+                target = node->as<BinaryNode>().right();
 
             if (target->isKind(PNK_ASSIGN))
-                target = target->pn_left;
+                target = target->as<AssignmentNode>().left();
         }
 
         if (!checkExportedNamesForDeclaration(target))
@@ -5322,7 +5327,7 @@ Parser<FullParseHandler>::checkExportedNamesForDeclarationList(ListNode* node)
 {
     for (ParseNode* binding : node->contents()) {
         if (binding->isKind(PNK_ASSIGN))
-            binding = binding->pn_left;
+            binding = binding->as<AssignmentNode>().left();
         else
             MOZ_ASSERT(binding->isKind(PNK_NAME));
 
@@ -5404,21 +5409,21 @@ Parser<SyntaxParseHandler>::processExport(Node node)
 
 template<>
 bool
-Parser<FullParseHandler>::processExportFrom(ParseNode* node)
+Parser<FullParseHandler>::processExportFrom(BinaryNodeType node)
 {
     return pc->sc()->asModuleContext()->builder.processExportFrom(node);
 }
 
 template<>
 bool
-Parser<SyntaxParseHandler>::processExportFrom(Node node)
+Parser<SyntaxParseHandler>::processExportFrom(BinaryNodeType node)
 {
     MOZ_ALWAYS_FALSE(abortIfSyntaxParser());
     return false;
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportFrom(uint32_t begin, Node specList)
 {
     if (!abortIfSyntaxParser())
@@ -5438,7 +5443,7 @@ Parser<ParseHandler>::exportFrom(uint32_t begin, Node specList)
     if (!matchOrInsertSemicolonAfterNonExpression())
         return null();
 
-    Node node = handler.newExportFromDeclaration(begin, specList, moduleSpec);
+    BinaryNodeType node = handler.newExportFromDeclaration(begin, specList, moduleSpec);
     if (!node)
         return null();
 
@@ -5449,7 +5454,7 @@ Parser<ParseHandler>::exportFrom(uint32_t begin, Node specList)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportBatch(uint32_t begin)
 {
     if (!abortIfSyntaxParser())
@@ -5480,7 +5485,7 @@ Parser<FullParseHandler>::checkLocalExportNames(ListNode* node)
 {
     // ES 2017 draft 15.2.3.1.
     for (ParseNode* next : node->contents()) {
-        ParseNode* name = next->pn_left;
+        ParseNode* name = next->as<BinaryNode>().left();
         MOZ_ASSERT(name->isKind(PNK_NAME));
 
         RootedPropertyName ident(context, name->pn_atom->asPropertyName());
@@ -5544,7 +5549,7 @@ Parser<ParseHandler>::exportClause(uint32_t begin)
         if (!checkExportedNameForClause(exportName))
             return null();
 
-        Node exportSpec = handler.newBinary(PNK_EXPORT_SPEC, bindingName, exportName);
+        BinaryNodeType exportSpec = handler.newBinary(PNK_EXPORT_SPEC, bindingName, exportName);
         if (!exportSpec)
             return null();
 
@@ -5706,7 +5711,7 @@ Parser<ParseHandler>::exportLexicalDeclaration(uint32_t begin, DeclarationKind k
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportDefaultFunctionDeclaration(uint32_t begin,
                                                            FunctionAsyncKind asyncKind
                                                            /* = SyncFunction */)
@@ -5720,7 +5725,7 @@ Parser<ParseHandler>::exportDefaultFunctionDeclaration(uint32_t begin,
     if (!kid)
         return null();
 
-    Node node = handler.newExportDefaultDeclaration(kid, null(), TokenPos(begin, pos().end));
+    BinaryNodeType node = handler.newExportDefaultDeclaration(kid, null(), TokenPos(begin, pos().end));
     if (!node)
         return null();
 
@@ -5731,7 +5736,7 @@ Parser<ParseHandler>::exportDefaultFunctionDeclaration(uint32_t begin,
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportDefaultClassDeclaration(uint32_t begin)
 {
     if (!abortIfSyntaxParser())
@@ -5743,7 +5748,7 @@ Parser<ParseHandler>::exportDefaultClassDeclaration(uint32_t begin)
     if (!kid)
         return null();
 
-    Node node = handler.newExportDefaultDeclaration(kid, null(), TokenPos(begin, pos().end));
+    BinaryNodeType node = handler.newExportDefaultDeclaration(kid, null(), TokenPos(begin, pos().end));
     if (!node)
         return null();
 
@@ -5754,7 +5759,7 @@ Parser<ParseHandler>::exportDefaultClassDeclaration(uint32_t begin)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportDefaultAssignExpr(uint32_t begin)
 {
     if (!abortIfSyntaxParser())
@@ -5773,7 +5778,7 @@ Parser<ParseHandler>::exportDefaultAssignExpr(uint32_t begin)
     if (!matchOrInsertSemicolonAfterExpression())
         return null();
 
-    Node node = handler.newExportDefaultDeclaration(kid, nameNode, TokenPos(begin, pos().end));
+    BinaryNodeType node = handler.newExportDefaultDeclaration(kid, nameNode, TokenPos(begin, pos().end));
     if (!node)
         return null();
 
@@ -5784,7 +5789,7 @@ Parser<ParseHandler>::exportDefaultAssignExpr(uint32_t begin)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::exportDefault(uint32_t begin)
 {
     if (!abortIfSyntaxParser())
@@ -6031,7 +6036,7 @@ Parser<ParseHandler>::ifStatement(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::doWhileStatement(YieldHandling yieldHandling)
 {
     uint32_t begin = pos().begin;
@@ -6057,7 +6062,7 @@ Parser<ParseHandler>::doWhileStatement(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::whileStatement(YieldHandling yieldHandling)
 {
     uint32_t begin = pos().begin;
@@ -6419,7 +6424,7 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
     if (!body)
         return null();
 
-    Node forLoop = handler.newForStatement(begin, forHead, body, iflags);
+    BinaryNodeType forLoop = handler.newForStatement(begin, forHead, body, iflags);
     if (!forLoop)
         return null();
 
@@ -6430,7 +6435,7 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::SwitchStatementType
 Parser<ParseHandler>::switchStatement(YieldHandling yieldHandling)
 {
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_SWITCH));
@@ -6521,10 +6526,10 @@ Parser<ParseHandler>::switchStatement(YieldHandling yieldHandling)
             handler.addStatementToList(body, stmt);
         }
 
-        Node casepn = handler.newCaseOrDefault(caseBegin, caseExpr, body);
-        if (!casepn)
+        CaseClauseType caseClause = handler.newCaseOrDefault(caseBegin, caseExpr, body);
+        if (!caseClause)
             return null();
-        handler.addCaseStatementToList(caseList, casepn);
+        handler.addCaseStatementToList(caseList, caseClause);
     }
 
     Node lexicalForCaseList = finishLexicalScope(scope, caseList);
@@ -6824,7 +6829,7 @@ Parser<ParseHandler>::yieldExpression(InHandling inHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::BinaryNodeType
 Parser<ParseHandler>::withStatement(YieldHandling yieldHandling)
 {
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_WITH));
@@ -9187,8 +9192,8 @@ Parser<ParseHandler>::memberExpr(YieldHandling yieldHandling, TripledotHandling 
     if (tt == TOK_NEW) {
         uint32_t newBegin = pos().begin;
         // Make sure this wasn't a |new.target| in disguise.
-        Node newTarget;
-        if (!tryNewTarget(newTarget))
+        BinaryNodeType newTarget;
+        if (!tryNewTarget(&newTarget))
             return null();
         if (newTarget) {
             lhs = newTarget;
@@ -10252,7 +10257,7 @@ Parser<ParseHandler>::objectLiteral(YieldHandling yieldHandling, PossibleError* 
 
                 handler.checkAndSetIsDirectRHSAnonFunction(rhs);
 
-                Node propExpr = handler.newAssignment(PNK_ASSIGN, lhs, rhs, JSOP_NOP);
+                BinaryNodeType propExpr = handler.newAssignment(PNK_ASSIGN, lhs, rhs, JSOP_NOP);
                 if (!propExpr)
                     return null();
 
@@ -10367,11 +10372,11 @@ Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType prop
 
 template <typename ParseHandler>
 bool
-Parser<ParseHandler>::tryNewTarget(Node &newTarget)
+Parser<ParseHandler>::tryNewTarget(BinaryNodeType* newTarget)
 {
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_NEW));
 
-    newTarget = null();
+    *newTarget = null();
 
     Node newHolder = handler.newPosHolder(pos());
     if (!newHolder)
@@ -10405,8 +10410,8 @@ Parser<ParseHandler>::tryNewTarget(Node &newTarget)
     if (!targetHolder)
         return false;
 
-    newTarget = handler.newNewTarget(newHolder, targetHolder);
-    return !!newTarget;
+    *newTarget = handler.newNewTarget(newHolder, targetHolder);
+    return !!*newTarget;
 }
 
 template <typename ParseHandler>

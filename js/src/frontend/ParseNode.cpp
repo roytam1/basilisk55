@@ -266,6 +266,8 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       case PNK_WHILE:
       case PNK_SWITCH:
       case PNK_NEW:
+      case PNK_OPTDOT:
+      case PNK_DOT:
       case PNK_OPTCALL:
       case PNK_CALL:
       case PNK_SUPERCALL:
@@ -490,9 +492,8 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       }
 
       case PNK_LABEL:
-      case PNK_OPTDOT:
-      case PNK_DOT:
       case PNK_NAME:
+      case PNK_PROPERTYNAME:
         return PushNameNodeChildren(pn, stack);
 
       case PNK_LEXICALSCOPE:
@@ -732,6 +733,21 @@ UnaryNode::dump(int indent)
 void
 BinaryNode::dump(int indent)
 {
+    if (isKind(PNK_DOT)) {
+        fprintf(stderr, "(.");
+
+        DumpParseTree(pn_right, indent + 2);
+
+        fprintf(stderr, " ");
+        if (as<PropertyAccess>().isSuper())
+            fprintf(stderr, "super");
+        else
+            DumpParseTree(pn_left, indent + 2);
+
+        fprintf(stderr, ")");
+        return;
+    }
+
     const char* name = parseNodeNames[getKind()];
     fprintf(stderr, "(%s ", name);
     indent += strlen(name) + 2;
@@ -804,10 +820,7 @@ DumpName(const CharT* s, size_t len)
 void
 NameNode::dump(int indent)
 {
-    if (isKind(PNK_NAME) || isKind(PNK_DOT)) {
-        if (isKind(PNK_DOT))
-            fprintf(stderr, "(.");
-
+    if (isKind(PNK_NAME) || isKind(PNK_PROPERTYNAME)) {
         if (!pn_atom) {
             fprintf(stderr, "#<null name>");
         } else if (getOp() == JSOP_GETARG && pn_atom->length() == 0) {
@@ -821,15 +834,6 @@ NameNode::dump(int indent)
                 DumpName(pn_atom->latin1Chars(nogc), pn_atom->length());
             else
                 DumpName(pn_atom->twoByteChars(nogc), pn_atom->length());
-        }
-
-        if (isKind(PNK_DOT)) {
-            fputc(' ', stderr);
-            if (as<PropertyAccess>().isSuper())
-                fprintf(stderr, "super");
-            else
-                DumpParseTree(expr(), indent + 2);
-            fputc(')', stderr);
         }
         return;
     }

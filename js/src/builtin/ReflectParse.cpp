@@ -1839,7 +1839,7 @@ class ASTSerializer
 
     bool expression(ParseNode* pn, MutableHandleValue dst);
 
-    bool propertyName(ParseNode* pn, MutableHandleValue dst);
+    bool propertyName(ParseNode* key, MutableHandleValue dst);
     bool property(ParseNode* pn, MutableHandleValue dst);
 
     bool classMethod(ClassMethod* classMethod, MutableHandleValue dst);
@@ -1853,7 +1853,7 @@ class ASTSerializer
     }
 
     bool identifier(HandleAtom atom, TokenPos* pos, MutableHandleValue dst);
-    bool identifier(ParseNode* pn, MutableHandleValue dst);
+    bool identifier(NameNode* id, MutableHandleValue dst);
     bool literal(ParseNode* pn, MutableHandleValue dst);
 
     bool optPattern(ParseNode* pn, MutableHandleValue dst) {
@@ -1868,7 +1868,7 @@ class ASTSerializer
     bool arrayPattern(ListNode* array, MutableHandleValue dst);
     bool objectPattern(ListNode* obj, MutableHandleValue dst);
 
-    bool function(ParseNode* pn, ASTType type, MutableHandleValue dst);
+    bool function(CodeNode* funNode, ASTType type, MutableHandleValue dst);
     bool functionArgsAndBody(ParseNode* pn, NodeVector& args, NodeVector& defaults,
                              bool isAsync, bool isExpression,
                              MutableHandleValue body, MutableHandleValue rest);
@@ -2096,7 +2096,7 @@ ASTSerializer::declaration(ParseNode* pn, MutableHandleValue dst)
 
     switch (pn->getKind()) {
       case PNK_FUNCTION:
-        return function(pn, AST_FUNC_DECL, dst);
+        return function(&pn->as<CodeNode>(), AST_FUNC_DECL, dst);
 
       case PNK_VAR:
         return variableDeclaration(&pn->as<ListNode>(), false, dst);
@@ -2141,7 +2141,7 @@ ASTSerializer::variableDeclarator(ParseNode* pn, MutableHandleValue dst)
 
     if (pn->isKind(PNK_NAME)) {
         patternNode = pn;
-        initNode = pn->pn_expr;
+        initNode = pn->as<NameNode>().initializer();
         MOZ_ASSERT_IF(initNode, pn->pn_pos.encloses(initNode->pn_pos));
     } else if (pn->isKind(PNK_ASSIGN)) {
         AssignmentNode* assignNode = &pn->as<AssignmentNode>();
@@ -2193,11 +2193,13 @@ bool
 ASTSerializer::importSpecifier(BinaryNode* importSpec, MutableHandleValue dst)
 {
     MOZ_ASSERT(importSpec->isKind(PNK_IMPORT_SPEC));
+    NameNode* importNameNode = &importSpec->left()->as<NameNode>();
+    NameNode* bindingNameNode = &importSpec->right()->as<NameNode>();
 
     RootedValue importName(cx);
     RootedValue bindingName(cx);
-    return identifier(importSpec->left(), &importName) &&
-           identifier(importSpec->right(), &bindingName) &&
+    return identifier(importNameNode, &importName) &&
+           identifier(bindingNameNode, &bindingName) &&
            builder.importSpecifier(importName, bindingName, &importSpec->pn_pos, dst);
 }
 
@@ -2238,7 +2240,7 @@ ASTSerializer::exportDeclaration(ParseNode* exportNode, MutableHandleValue dst)
       }
 
       case PNK_FUNCTION:
-        if (!function(kid, AST_FUNC_DECL, &decl))
+        if (!function(&kid->as<CodeNode>(), AST_FUNC_DECL, &decl))
             return false;
         break;
 
@@ -2278,11 +2280,13 @@ bool
 ASTSerializer::exportSpecifier(BinaryNode* exportSpec, MutableHandleValue dst)
 {
     MOZ_ASSERT(exportSpec->isKind(PNK_EXPORT_SPEC));
+    NameNode* bindingNameNode = &exportSpec->left()->as<NameNode>();
+    NameNode* exportNameNode = &exportSpec->right()->as<NameNode>();
 
     RootedValue bindingName(cx);
     RootedValue exportName(cx);
-    return identifier(exportSpec->left(), &bindingName) &&
-           identifier(exportSpec->right(), &exportName) &&
+    return identifier(bindingNameNode, &bindingName) &&
+           identifier(exportNameNode, &exportName) &&
            builder.exportSpecifier(bindingName, exportName, &exportSpec->pn_pos, dst);
 }
 
@@ -2477,7 +2481,7 @@ ASTSerializer::statement(ParseNode* pn, MutableHandleValue dst)
         return builder.emptyStatement(&pn->pn_pos, dst);
 
       case PNK_LEXICALSCOPE:
-        pn = pn->pn_expr;
+        pn = pn->scopeBody();
         if (!pn->isKind(PNK_STATEMENTLIST))
             return statement(pn, dst);
         MOZ_FALLTHROUGH;
@@ -2609,23 +2613,26 @@ ASTSerializer::statement(ParseNode* pn, MutableHandleValue dst)
       case PNK_BREAK:
       case PNK_CONTINUE:
       {
+        LoopControlStatement* node = &pn->as<LoopControlStatement>();
         RootedValue label(cx);
-        RootedAtom pnAtom(cx, pn->pn_atom);
+        RootedAtom pnAtom(cx, node->label());
         return optIdentifier(pnAtom, nullptr, &label) &&
-               (pn->isKind(PNK_BREAK)
-                ? builder.breakStatement(label, &pn->pn_pos, dst)
-                : builder.continueStatement(label, &pn->pn_pos, dst));
+               (node->isKind(PNK_BREAK)
+                ? builder.breakStatement(label, &node->pn_pos, dst)
+                : builder.continueStatement(label, &node->pn_pos, dst));
       }
 
       case PNK_LABEL:
       {
-        MOZ_ASSERT(pn->pn_pos.encloses(pn->pn_expr->pn_pos));
+        LabeledStatement* labelNode = &pn->as<LabeledStatement>();
+        ParseNode* stmtNode = labelNode->statement();
+        MOZ_ASSERT(labelNode->pn_pos.encloses(stmtNode->pn_pos));
 
         RootedValue label(cx), stmt(cx);
-        RootedAtom pnAtom(cx, pn->as<LabeledStatement>().label());
+        RootedAtom pnAtom(cx, labelNode->label());
         return identifier(pnAtom, nullptr, &label) &&
-               statement(pn->pn_expr, &stmt) &&
-               builder.labeledStatement(label, stmt, &pn->pn_pos, dst);
+               statement(stmtNode, &stmt) &&
+               builder.labeledStatement(label, stmt, &labelNode->pn_pos, dst);
       }
 
       case PNK_THROW:
@@ -2805,7 +2812,7 @@ ASTSerializer::comprehensionBlock(ForNode* forNode, MutableHandleValue dst)
 
     ListNode* decl;
     if (in->kid1()->isKind(PNK_LEXICALSCOPE))
-        decl = &in->kid1()->pn_expr->as<ListNode>();
+        decl = &in->kid1()->scopeBody()->as<ListNode>();
     else
         decl = &in->kid1()->as<ListNode>();
     MOZ_ASSERT(decl->count() == 1);
@@ -2835,7 +2842,7 @@ ASTSerializer::comprehension(ParseNode* pn, MutableHandleValue dst)
     // 2. The kind that was in ES6 for a while: [for (x of y) z]
     // They have slightly different parse trees and scoping.
     bool isLegacy = pn->isKind(PNK_LEXICALSCOPE);
-    ParseNode* next = isLegacy ? pn->pn_expr : pn;
+    ParseNode* next = isLegacy ? pn->scopeBody() : pn;
     LOCAL_ASSERT(next->isKind(PNK_COMPREHENSIONFOR));
 
     NodeVector blocks(cx);
@@ -2881,7 +2888,7 @@ ASTSerializer::generatorExpression(ParseNode* pn, MutableHandleValue dst)
     // ASTSerializer::comprehension), there are legacy and modern generator
     // expression.
     bool isLegacy = pn->isKind(PNK_LEXICALSCOPE);
-    ParseNode* next = isLegacy ? pn->pn_expr : pn;
+    ParseNode* next = isLegacy ? pn->scopeBody() : pn;
     LOCAL_ASSERT(next->isKind(PNK_COMPREHENSIONFOR));
 
     NodeVector blocks(cx);
@@ -2930,8 +2937,9 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
     switch (pn->getKind()) {
       case PNK_FUNCTION:
       {
-        ASTType type = pn->pn_funbox->function()->isArrow() ? AST_ARROW_EXPR : AST_FUNC_EXPR;
-        return function(pn, type, dst);
+        CodeNode* funNode = &pn->as<CodeNode>();
+        ASTType type = funNode->funbox()->function()->isArrow() ? AST_ARROW_EXPR : AST_FUNC_EXPR;
+        return function(funNode, type, dst);
       }
 
       case PNK_COMMA:
@@ -3073,7 +3081,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
         ParseNode* callee = pn->as<BinaryNode>().left();
         MOZ_ASSERT(callee->isKind(PNK_FUNCTION));
 
-        ListNode* paramsBody = &callee->pn_body->as<ListNode>();
+        ListNode* paramsBody = callee->as<CodeNode>().body();
         MOZ_ASSERT(paramsBody->isKind(PNK_PARAMSBODY));
 
         ListNode* body = &paramsBody->last()->as<ListNode>();
@@ -3148,7 +3156,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
 
         RootedValue expr(cx);
         RootedValue propname(cx);
-        RootedAtom pnAtom(cx, prop->key().pn_atom);
+        RootedAtom pnAtom(cx, prop->key().atom());
 
         if (prop->isSuper()) {
             if (!builder.super(&prop->expression().pn_pos, &expr))
@@ -3196,11 +3204,12 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
         NodeVector raw(cx);
         if (!raw.reserve(rawNodes->count()))
             return false;
-        for (ParseNode* rawItem : rawNodes->contents()) {
+        for (ParseNode* item : rawNodes->contents()) {
+            NameNode* rawItem = &item->as<NameNode>();
             MOZ_ASSERT(callSiteObj->pn_pos.encloses(rawItem->pn_pos));
 
             RootedValue expr(cx);
-            expr.setString(rawItem->pn_atom);
+            expr.setString(rawItem->atom());
             raw.infallibleAppend(expr);
         }
 
@@ -3208,9 +3217,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
         if (!cooked.reserve(callSiteObj->count() - 1))
             return false;
 
-        for (ParseNode* cookedItem = callSiteObj->head()->pn_next;
-             cookedItem;
-             cookedItem = cookedItem->pn_next) {
+        for (ParseNode* cookedItem : callSiteObj->contentsFrom(rawNodes->pn_next)) {
             MOZ_ASSERT(callSiteObj->pn_pos.encloses(cookedItem->pn_pos));
 
             RootedValue expr(cx);
@@ -3218,7 +3225,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
                 expr.setUndefined();
             } else {
                 MOZ_ASSERT(cookedItem->isKind(PNK_TEMPLATE_STRING));
-                expr.setString(cookedItem->pn_atom);
+                expr.setString(cookedItem->as<NameNode>().atom());
             }
             cooked.infallibleAppend(expr);
         }
@@ -3283,7 +3290,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
       }
 
       case PNK_NAME:
-        return identifier(pn, dst);
+        return identifier(&pn->as<NameNode>(), dst);
 
       case PNK_THIS:
         return builder.thisExpression(&pn->pn_pos, dst);
@@ -3388,16 +3395,16 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
 }
 
 bool
-ASTSerializer::propertyName(ParseNode* pn, MutableHandleValue dst)
+ASTSerializer::propertyName(ParseNode* key, MutableHandleValue dst)
 {
-    if (pn->isKind(PNK_COMPUTED_NAME))
-        return expression(pn, dst);
-    if (pn->isKind(PNK_OBJECT_PROPERTY_NAME))
-        return identifier(pn, dst);
+    if (key->isKind(PNK_COMPUTED_NAME))
+        return expression(key, dst);
+    if (key->isKind(PNK_OBJECT_PROPERTY_NAME))
+        return identifier(&key->as<NameNode>(), dst);
 
-    LOCAL_ASSERT(pn->isKind(PNK_STRING) || pn->isKind(PNK_NUMBER));
+    LOCAL_ASSERT(key->isKind(PNK_STRING) || key->isKind(PNK_NUMBER));
 
-    return literal(pn, dst);
+    return literal(key, dst);
 }
 
 bool
@@ -3436,7 +3443,7 @@ ASTSerializer::property(ParseNode* pn, MutableHandleValue dst)
     bool isShorthand = node->isKind(PNK_SHORTHAND);
     bool isMethod =
         valNode->isKind(PNK_FUNCTION) &&
-        valNode->pn_funbox->function()->kind() == JSFunction::Method;
+        valNode->as<CodeNode>().funbox()->function()->kind() == JSFunction::Method;
     RootedValue key(cx), val(cx);
     return propertyName(keyNode, &key) &&
            expression(valNode, &val) &&
@@ -3450,7 +3457,7 @@ ASTSerializer::literal(ParseNode* pn, MutableHandleValue dst)
     switch (pn->getKind()) {
       case PNK_TEMPLATE_STRING:
       case PNK_STRING:
-        val.setString(pn->pn_atom);
+        val.setString(pn->as<NameNode>().atom());
         break;
 
       case PNK_REGEXP:
@@ -3467,7 +3474,7 @@ ASTSerializer::literal(ParseNode* pn, MutableHandleValue dst)
       }
 
       case PNK_NUMBER:
-        val.setNumber(pn->pn_dval);
+        val.setNumber(pn->as<NumericLiteral>().value());
         break;
 
       case PNK_NULL:
@@ -3598,29 +3605,29 @@ ASTSerializer::identifier(HandleAtom atom, TokenPos* pos, MutableHandleValue dst
 }
 
 bool
-ASTSerializer::identifier(ParseNode* pn, MutableHandleValue dst)
+ASTSerializer::identifier(NameNode* id, MutableHandleValue dst)
 {
-    LOCAL_ASSERT(pn->isArity(PN_NAME) || pn->isArity(PN_NULLARY));
-    LOCAL_ASSERT(pn->pn_atom);
+    LOCAL_ASSERT(id->atom());
 
-    RootedAtom pnAtom(cx, pn->pn_atom);
-    return identifier(pnAtom, &pn->pn_pos, dst);
+    RootedAtom pnAtom(cx, id->atom());
+    return identifier(pnAtom, &id->pn_pos, dst);
 }
 
 bool
-ASTSerializer::function(ParseNode* pn, ASTType type, MutableHandleValue dst)
+ASTSerializer::function(CodeNode* funNode, ASTType type, MutableHandleValue dst)
 {
-    RootedFunction func(cx, pn->pn_funbox->function());
+    FunctionBox* funbox = funNode->funbox();
+    RootedFunction func(cx, funbox->function());
 
     GeneratorStyle generatorStyle =
-        pn->pn_funbox->isStarGenerator()
+        funbox->isStarGenerator()
         ? GeneratorStyle::ES6
-        : pn->pn_funbox->isLegacyGenerator()
+        : funbox->isLegacyGenerator()
         ? GeneratorStyle::Legacy
         : GeneratorStyle::None;
 
-    bool isAsync = pn->pn_funbox->isAsync();
-    bool isExpression = pn->pn_funbox->isExprBody();
+    bool isAsync = funbox->isAsync();
+    bool isExpression = funbox->isExprBody();
 
     RootedValue id(cx);
     RootedAtom funcAtom(cx, func->explicitName());
@@ -3631,12 +3638,13 @@ ASTSerializer::function(ParseNode* pn, ASTType type, MutableHandleValue dst)
     NodeVector defaults(cx);
 
     RootedValue body(cx), rest(cx);
-    if (pn->pn_funbox->hasRest())
+    if (funbox->hasRest())
         rest.setUndefined();
     else
         rest.setNull();
-    return functionArgsAndBody(pn->pn_body, args, defaults, isAsync, isExpression, &body, &rest) &&
-           builder.function(type, &pn->pn_pos, id, args, defaults, body,
+    return functionArgsAndBody(funNode->body(), args, defaults, isAsync, isExpression,
+                               &body, &rest) &&
+           builder.function(type, &funNode->pn_pos, id, args, defaults, body,
                             rest, generatorStyle, isAsync, isExpression, dst);
 }
 
@@ -3931,7 +3939,7 @@ reflect_parse(JSContext* cx, uint32_t argc, Value* vp)
             return false;
 
         MOZ_ASSERT(pn->getKind() == PNK_MODULE);
-        pn = pn->pn_body;
+        pn = pn->as<CodeNode>().body();
     }
 
     RootedValue val(cx);

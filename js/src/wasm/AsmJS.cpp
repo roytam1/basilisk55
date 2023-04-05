@@ -439,15 +439,13 @@ TernaryKid3(ParseNode* pn)
 static inline ParseNode*
 ListHead(ParseNode* pn)
 {
-    MOZ_ASSERT(pn->isArity(PN_LIST));
-    return pn->pn_head;
+    return pn->as<ListNode>().head();
 }
 
 static inline unsigned
 ListLength(ParseNode* pn)
 {
-    MOZ_ASSERT(pn->isArity(PN_LIST));
-    return pn->pn_count;
+    return pn->as<ListNode>().count();
 }
 
 static inline ParseNode*
@@ -500,8 +498,7 @@ static inline ParseNode*
 BinaryOpLeft(ParseNode* pn)
 {
     MOZ_ASSERT(pn->isBinaryOperation());
-    MOZ_ASSERT(pn->isArity(PN_LIST));
-    MOZ_ASSERT(pn->pn_count == 2);
+    MOZ_ASSERT(pn->as<ListNode>().count() == 2);
     return ListHead(pn);
 }
 
@@ -509,8 +506,7 @@ static inline ParseNode*
 BinaryOpRight(ParseNode* pn)
 {
     MOZ_ASSERT(pn->isBinaryOperation());
-    MOZ_ASSERT(pn->isArity(PN_LIST));
-    MOZ_ASSERT(pn->pn_count == 2);
+    MOZ_ASSERT(pn->as<ListNode>().count() == 2);
     return NextNode(ListHead(pn));
 }
 
@@ -677,7 +673,7 @@ static inline ParseNode*
 FunctionStatementList(ParseNode* fn)
 {
     MOZ_ASSERT(fn->pn_body->isKind(PNK_PARAMSBODY));
-    ParseNode* last = fn->pn_body->last();
+    ParseNode* last = fn->pn_body->as<ListNode>().last();
     MOZ_ASSERT(last->isKind(PNK_LEXICALSCOPE));
     MOZ_ASSERT(last->isEmptyScope());
     ParseNode* body = last->scopeBody();

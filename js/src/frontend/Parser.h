@@ -906,6 +906,11 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
   private:
     using Node = typename ParseHandler::Node;
 
+#define DECLARE_TYPE(typeName, longTypeName, asMethodName) \
+    using longTypeName = typename ParseHandler::longTypeName;
+FOR_EACH_PARSENODE_SUBCLASS(DECLARE_TYPE)
+#undef DECLARE_TYPE
+
     /*
      * A class for temporarily stashing errors while parsing continues.
      *
@@ -1076,7 +1081,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     /*
      * Parse a top-level JS script.
      */
-    Node parse();
+    ListNodeType parse();
 
     /*
      * Allocate a new parsed object or function container from
@@ -1106,10 +1111,10 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node stringLiteral();
     Node noSubstitutionTaggedTemplate();
     Node noSubstitutionUntaggedTemplate();
-    Node templateLiteral(YieldHandling yieldHandling);
-    bool taggedTemplate(YieldHandling yieldHandling, Node nodeList, TokenKind tt);
-    bool appendToCallSiteObj(Node callSiteObj);
-    bool addExprAndGetNextTemplStrToken(YieldHandling yieldHandling, Node nodeList,
+    ListNodeType templateLiteral(YieldHandling yieldHandling);
+    bool taggedTemplate(YieldHandling yieldHandling, ListNodeType tagArgsList, TokenKind tt);
+    bool appendToCallSiteObj(CallSiteNodeType callSiteObj);
+    bool addExprAndGetNextTemplStrToken(YieldHandling yieldHandling, ListNodeType nodeList,
                                         TokenKind* ttp);
     bool checkStatementsEOF();
 
@@ -1123,7 +1128,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node statement(YieldHandling yieldHandling);
     Node statementListItem(YieldHandling yieldHandling, bool canHaveDirectives = false);
 
-    bool maybeParseDirective(Node list, Node pn, bool* cont);
+    bool maybeParseDirective(ListNodeType list, Node pn, bool* cont);
 
     // Parse the body of an eval.
     //
@@ -1133,7 +1138,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node evalBody(EvalSharedContext* evalsc);
 
     // Parse the body of a global script.
-    Node globalBody(GlobalSharedContext* globalsc);
+    ListNodeType globalBody(GlobalSharedContext* globalsc);
 
     // Parse a module.
     Node moduleBody(ModuleSharedContext* modulesc);
@@ -1192,7 +1197,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node functionExpr(uint32_t toStringStart, InvokedPrediction invoked = PredictUninvoked,
                       FunctionAsyncKind asyncKind = SyncFunction);
 
-    Node statementList(YieldHandling yieldHandling);
+    ListNodeType statementList(YieldHandling yieldHandling);
 
     Node blockStatement(YieldHandling yieldHandling,
                         unsigned errorNumber = JSMSG_CURLY_IN_COMPOUND);
@@ -1231,7 +1236,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     // continues a LexicalDeclaration.
     bool nextTokenContinuesLetDeclaration(TokenKind next, YieldHandling yieldHandling);
 
-    Node lexicalDeclaration(YieldHandling yieldHandling, DeclarationKind kind);
+    ListNodeType lexicalDeclaration(YieldHandling yieldHandling, DeclarationKind kind);
 
     Node importDeclaration();
 
@@ -1240,7 +1245,7 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
 
     Node exportFrom(uint32_t begin, Node specList);
     Node exportBatch(uint32_t begin);
-    bool checkLocalExportNames(Node node);
+    bool checkLocalExportNames(ListNodeType node);
     Node exportClause(uint32_t begin);
     Node exportFunctionDeclaration(uint32_t begin);
     Node exportVariableStatement(uint32_t begin);
@@ -1276,10 +1281,10 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     // Otherwise, for for-in/of loops, the next token is the ')' ending the
     // loop-head.  Additionally, the expression that the loop iterates over was
     // parsed into |*forInOrOfExpression|.
-    Node declarationList(YieldHandling yieldHandling,
-                         ParseNodeKind kind,
-                         ParseNodeKind* forHeadKind = nullptr,
-                         Node* forInOrOfExpression = nullptr);
+    ListNodeType declarationList(YieldHandling yieldHandling,
+                                 ParseNodeKind kind,
+                                 ParseNodeKind* forHeadKind = nullptr,
+                                 Node* forInOrOfExpression = nullptr);
 
     // The items in a declaration list are either patterns or names, with or
     // without initializers.  These two methods parse a single pattern/name and
@@ -1373,22 +1378,22 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node comprehensionIf(GeneratorKind comprehensionKind);
     Node comprehensionTail(GeneratorKind comprehensionKind);
     Node comprehension(GeneratorKind comprehensionKind);
-    Node arrayComprehension(uint32_t begin);
+    ListNodeType arrayComprehension(uint32_t begin);
     Node generatorComprehension(uint32_t begin);
 
-    Node argumentList(YieldHandling yieldHandling, bool* isSpread,
-                      PossibleError* possibleError = nullptr);
+    ListNodeType argumentList(YieldHandling yieldHandling, bool* isSpread,
+                              PossibleError* possibleError = nullptr);
     Node destructuringDeclaration(DeclarationKind kind, YieldHandling yieldHandling,
                                   TokenKind tt);
     Node destructuringDeclarationWithoutYieldOrAwait(DeclarationKind kind, YieldHandling yieldHandling,
                                                      TokenKind tt);
 
-    bool namedImportsOrNamespaceImport(TokenKind tt, Node importSpecSet);
+    bool namedImportsOrNamespaceImport(TokenKind tt, ListNodeType importSpecSet);
     bool checkExportedName(JSAtom* exportName);
-    bool checkExportedNamesForArrayBinding(Node node);
-    bool checkExportedNamesForObjectBinding(Node node);
+    bool checkExportedNamesForArrayBinding(ListNodeType array);
+    bool checkExportedNamesForObjectBinding(ListNodeType obj);
     bool checkExportedNamesForDeclaration(Node node);
-    bool checkExportedNamesForDeclarationList(Node node);
+    bool checkExportedNamesForDeclarationList(ListNodeType node);
 
     bool checkExportedNameForClause(Node node);
     bool checkExportedNameForFunction(Node node);
@@ -1512,21 +1517,21 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
     Node finishLexicalScope(ParseContext::Scope& scope, Node body);
 
     Node propertyName(YieldHandling yieldHandling,
-                      const mozilla::Maybe<DeclarationKind>& maybeDecl, Node propList,
+                      const mozilla::Maybe<DeclarationKind>& maybeDecl, ListNodeType propList,
                       PropertyType* propType, MutableHandleAtom propAtom);
     Node computedPropertyName(YieldHandling yieldHandling,
-                              const mozilla::Maybe<DeclarationKind>& maybeDecl, Node literal);
-    Node arrayInitializer(YieldHandling yieldHandling, PossibleError* possibleError);
+                              const mozilla::Maybe<DeclarationKind>& maybeDecl, ListNodeType literal);
+    ListNodeType arrayInitializer(YieldHandling yieldHandling, PossibleError* possibleError);
     Node newRegExp();
 
-    Node objectLiteral(YieldHandling yieldHandling, PossibleError* possibleError);
+    ListNodeType objectLiteral(YieldHandling yieldHandling, PossibleError* possibleError);
 
     Node bindingInitializer(Node lhs, DeclarationKind kind, YieldHandling yieldHandling);
     Node bindingIdentifier(DeclarationKind kind, YieldHandling yieldHandling);
     Node bindingIdentifierOrPattern(DeclarationKind kind, YieldHandling yieldHandling,
                                     TokenKind tt);
-    Node objectBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
-    Node arrayBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
+    ListNodeType objectBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
+    ListNodeType arrayBindingPattern(DeclarationKind kind, YieldHandling yieldHandling);
 
     void checkDestructuringAssignmentTarget(Node expr, TokenPos exprPos,
                                             PossibleError* possibleError);
@@ -1537,11 +1542,11 @@ class Parser final : public ParserBase, private JS::AutoGCRooter
         return handler.newNumber(tok.number(), tok.decimalPoint(), tok.pos);
     }
 
-    static Node null() { return ParseHandler::null(); }
+    static typename ParseHandler::NullNode null() { return ParseHandler::null(); }
 
     JSAtom* prefixAccessorName(PropertyType propType, HandleAtom propAtom);
 
-    bool asmJS(Node list);
+    bool asmJS(ListNodeType list);
 
     enum class OptionalKind {
       NonOptional = 0,

@@ -1066,7 +1066,7 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
       case PNK_RAW_UNDEFINED:
       case PNK_ELISION:
       case PNK_GENERATOR:
-        MOZ_ASSERT(pn->isArity(PN_NULLARY));
+        MOZ_ASSERT(pn->is<NullaryNode>());
         *answer = false;
         return true;
 
@@ -1102,9 +1102,17 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
         return true;
 
       case PNK_BREAK:
+        MOZ_ASSERT(pn->is<BreakStatement>());
+        *answer = true;
+        return true;
+
       case PNK_CONTINUE:
+        MOZ_ASSERT(pn->is<ContinueStatement>());
+        *answer = true;
+        return true;
+
       case PNK_DEBUGGER:
-        MOZ_ASSERT(pn->isArity(PN_NULLARY));
+        MOZ_ASSERT(pn->is<DebuggerStatement>());
         *answer = true;
         return true;
 

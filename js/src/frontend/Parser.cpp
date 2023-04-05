@@ -5373,16 +5373,15 @@ Parser<SyntaxParseHandler>::checkExportedNameForFunction(Node node)
 
 template<>
 bool
-Parser<FullParseHandler>::checkExportedNameForClass(ParseNode* node)
+Parser<FullParseHandler>::checkExportedNameForClass(ClassNode* classNode)
 {
-    const ClassNode& cls = node->as<ClassNode>();
-    MOZ_ASSERT(cls.names());
-    return checkExportedName(cls.names()->innerBinding()->pn_atom);
+    MOZ_ASSERT(classNode->names());
+    return checkExportedName(classNode->names()->innerBinding()->pn_atom);
 }
 
 template<>
 bool
-Parser<SyntaxParseHandler>::checkExportedNameForClass(Node node)
+Parser<SyntaxParseHandler>::checkExportedNameForClass(ClassNodeType classNode)
 {
     MOZ_ALWAYS_FALSE(abortIfSyntaxParser());
     return false;
@@ -5662,7 +5661,7 @@ Parser<ParseHandler>::exportClassDeclaration(uint32_t begin)
 
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_CLASS));
 
-    Node kid = classDefinition(YieldIsKeyword, ClassStatement, NameRequired);
+    ClassNodeType kid = classDefinition(YieldIsName, ClassStatement, NameRequired);
     if (!kid)
         return null();
 
@@ -5740,7 +5739,7 @@ Parser<ParseHandler>::exportDefaultClassDeclaration(uint32_t begin)
 
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_CLASS));
 
-    Node kid = classDefinition(YieldIsKeyword, ClassStatement, AllowDefaultName);
+    ClassNodeType kid = classDefinition(YieldIsName, ClassStatement, AllowDefaultName);
     if (!kid)
         return null();
 
@@ -5970,7 +5969,7 @@ Parser<ParseHandler>::consequentOrAlternative(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::TernaryNodeType
 Parser<ParseHandler>::ifStatement(YieldHandling yieldHandling)
 {
     Vector<Node, 4> condList(context), thenList(context);
@@ -6019,13 +6018,16 @@ Parser<ParseHandler>::ifStatement(YieldHandling yieldHandling)
         break;
     }
 
+    TernaryNodeType ifNode;
     for (int i = condList.length() - 1; i >= 0; i--) {
-        elseBranch = handler.newIfStatement(posList[i], condList[i], thenList[i], elseBranch);
-        if (!elseBranch)
+        ifNode = handler.newIfStatement(posList[i], condList[i], thenList[i], elseBranch);
+        if (!ifNode) {
             return null();
+        }
+        elseBranch = ifNode;
     }
 
-    return elseBranch;
+    return ifNode;
 }
 
 template <typename ParseHandler>
@@ -6330,7 +6332,7 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
 
     MOZ_ASSERT(headKind == PNK_FORIN || headKind == PNK_FOROF || headKind == PNK_FORHEAD);
 
-    Node forHead;
+    TernaryNodeType forHead;
     if (headKind == PNK_FORHEAD) {
         Node init = startNode;
 
@@ -6953,7 +6955,7 @@ Parser<ParseHandler>::throwStatement(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::TernaryNodeType
 Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
 {
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_TRY));
@@ -7225,7 +7227,7 @@ JSOpFromPropertyType(PropertyType propType)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::Node
+typename ParseHandler::ClassNodeType
 Parser<ParseHandler>::classDefinition(YieldHandling yieldHandling,
                                       ClassContext classContext,
                                       DefaultHandling defaultHandling)
@@ -8935,7 +8937,7 @@ Parser<ParseHandler>::comprehensionFor(GeneratorKind comprehensionKind)
     if (!lexicalScope)
         return null();
 
-    Node head = handler.newForInOrOfHead(PNK_FOROF, lexicalScope, rhs, headPos);
+    TernaryNodeType head = handler.newForInOrOfHead(PNK_FOROF, lexicalScope, rhs, headPos);
     if (!head)
         return null();
 

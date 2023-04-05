@@ -1328,18 +1328,20 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
 
       case PNK_IF:
       case PNK_CONDITIONAL:
-        MOZ_ASSERT(pn->isArity(PN_TERNARY));
-        if (!checkSideEffects(pn->pn_kid1, answer))
+      {
+        TernaryNode* node = &pn->as<TernaryNode>();
+        if (!checkSideEffects(node->kid1(), answer))
             return false;
         if (*answer)
             return true;
-        if (!checkSideEffects(pn->pn_kid2, answer))
+        if (!checkSideEffects(node->kid2(), answer))
             return false;
         if (*answer)
             return true;
-        if ((pn = pn->pn_kid3))
+        if ((pn = node->kid3()))
             goto restart;
         return true;
+      }
 
       // Function calls can invoke non-local code.
       case PNK_NEW:
@@ -1368,7 +1370,7 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
       // the heritage and/or class body (through computed property names)
       // usually have effects.
       case PNK_CLASS:
-        MOZ_ASSERT(pn->isArity(PN_TERNARY));
+        MOZ_ASSERT(pn->is<ClassNode>());
         *answer = true;
         return true;
 
@@ -1421,39 +1423,43 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
         return true;
 
       case PNK_TRY:
-        MOZ_ASSERT(pn->isArity(PN_TERNARY));
-        if (!checkSideEffects(pn->pn_kid1, answer))
+      {
+        TernaryNode* tryNode = &pn->as<TernaryNode>();
+        if (!checkSideEffects(tryNode->kid1(), answer))
             return false;
         if (*answer)
             return true;
-        if (ParseNode* catchList = pn->pn_kid2) {
+        if (ParseNode* catchList = tryNode->kid2()) {
             MOZ_ASSERT(catchList->isKind(PNK_CATCHLIST));
             if (!checkSideEffects(catchList, answer))
                 return false;
             if (*answer)
                 return true;
         }
-        if (ParseNode* finallyBlock = pn->pn_kid3) {
+        if (ParseNode* finallyBlock = tryNode->kid3()) {
             if (!checkSideEffects(finallyBlock, answer))
                 return false;
         }
         return true;
+      }
 
       case PNK_CATCH:
-        MOZ_ASSERT(pn->isArity(PN_TERNARY));
-        if (ParseNode* name = pn->pn_kid1) {
-            if (!checkSideEffects(name, answer))
+      {
+        TernaryNode* catchNode = &pn->as<TernaryNode>();
+        if (ParseNode* binding = catchNode->kid1()) {
+            if (!checkSideEffects(binding, answer))
                 return false;
             if (*answer)
                 return true;
         }
-        if (ParseNode* cond = pn->pn_kid2) {
+        if (ParseNode* cond = catchNode->kid2()) {
             if (!checkSideEffects(cond, answer))
                 return false;
             if (*answer)
                 return true;
         }
-        return checkSideEffects(pn->pn_kid3, answer);
+        return checkSideEffects(catchNode->kid3(), answer);
+      }
 
       case PNK_SWITCH:
         MOZ_ASSERT(pn->isArity(PN_BINARY));
@@ -4093,7 +4099,7 @@ class EmitLevelManager
 } /* anonymous namespace */
 
 bool
-BytecodeEmitter::emitCatch(ParseNode* pn)
+BytecodeEmitter::emitCatch(TernaryNode* catchNode)
 {
     // We must be nested under a try-finally statement.
     TryFinallyControl& controlInfo = innermostNestableControl->as<TryFinallyControl>();
@@ -4106,10 +4112,10 @@ BytecodeEmitter::emitCatch(ParseNode* pn)
      * Dup the exception object if there is a guard for rethrowing to use
      * it later when rethrowing or in other catches.
      */
-    if (pn->pn_kid2 && !emit1(JSOP_DUP))
+    if (catchNode->kid2() && !emit1(JSOP_DUP))
         return false;
 
-    ParseNode* pn2 = pn->pn_kid1;
+    ParseNode* pn2 = catchNode->kid1();
     if (!pn2) {
       // See ES2019 13.15.7 Runtime Semantics: CatchClauseEvaluation
       // Catch variable was omitted: discard the exception.
@@ -4139,8 +4145,8 @@ BytecodeEmitter::emitCatch(ParseNode* pn)
 
     // If there is a guard expression, emit it and arrange to jump to the next
     // catch block if the guard expression is false.
-    if (pn->pn_kid2) {
-        if (!emitTree(pn->pn_kid2))
+    if (catchNode->kid2()) {
+        if (!emitTree(catchNode->kid2()))
             return false;
 
         // If the guard expression is false, fall through, pop the block scope,
@@ -4177,16 +4183,16 @@ BytecodeEmitter::emitCatch(ParseNode* pn)
     }
 
     /* Emit the catch body. */
-    return emitTree(pn->pn_kid3);
+    return emitTree(catchNode->kid3());
 }
 
 // Using MOZ_NEVER_INLINE in here is a workaround for llvm.org/pr14047. See the
 // comment on EmitSwitch.
 MOZ_NEVER_INLINE bool
-BytecodeEmitter::emitTry(ParseNode* pn)
+BytecodeEmitter::emitTry(TernaryNode* tryNode)
 {
-    ParseNode* catchList = pn->pn_kid2;
-    ParseNode* finallyNode = pn->pn_kid3;
+    ParseNode* catchList = tryNode->kid2();
+    ParseNode* finallyNode = tryNode->kid3();
 
     TryEmitter::Kind kind;
     if (catchList) {
@@ -4203,7 +4209,7 @@ BytecodeEmitter::emitTry(ParseNode* pn)
     if (!tryCatch.emitTry())
         return false;
 
-    if (!emitTree(pn->pn_kid1))
+    if (!emitTree(tryNode->kid1()))
         return false;
 
     // If this try has a catch block, emit it.
@@ -4262,16 +4268,16 @@ BytecodeEmitter::emitTry(ParseNode* pn)
 }
 
 bool
-BytecodeEmitter::emitIf(ParseNode* pn)
+BytecodeEmitter::emitIf(TernaryNode* ifNode)
 {
     IfEmitter ifThenElse(this);
 
   if_again:
     /* Emit code for the condition before pushing stmtInfo. */
-    if (!emitTreeInBranch(pn->pn_kid1))
+    if (!emitTreeInBranch(ifNode->kid1()))
         return false;
 
-    ParseNode* elseNode = pn->pn_kid3;
+    ParseNode* elseNode = ifNode->kid3();
     if (elseNode) {
         if (!ifThenElse.emitThenElse())
             return false;
@@ -4281,12 +4287,12 @@ BytecodeEmitter::emitIf(ParseNode* pn)
     }
 
     /* Emit code for the then part. */
-    if (!emitTreeInBranch(pn->pn_kid2))
+    if (!emitTreeInBranch(ifNode->kid2()))
         return false;
 
     if (elseNode) {
         if (elseNode->isKind(PNK_IF)) {
-            pn = elseNode;
+            ifNode = &elseNode->as<TernaryNode>();
 
             if (!ifThenElse.emitElseIf())
                 return false;
@@ -4386,11 +4392,12 @@ BytecodeEmitter::emitLexicalScope(ParseNode* pn)
 
     EmitterScope emitterScope(this);
     ScopeKind kind;
-    if (body->isKind(PNK_CATCH))
-        kind = (!body->pn_kid1 || body->pn_kid1->isKind(PNK_NAME)) ?
+    if (body->isKind(PNK_CATCH)) {
+        TernaryNode* catchNode = &body->as<TernaryNode>();
+        kind = (!catchNode->kid1() || catchNode->kid1()->isKind(PNK_NAME)) ?
                ScopeKind::SimpleCatch :
                ScopeKind::Catch;
-    else
+    } else
         kind = ScopeKind::Lexical;
 
     if (!emitterScope.enterLexical(this, kind, pn->scopeBindings()))
@@ -4670,16 +4677,15 @@ BytecodeEmitter::emitSpread(bool allowSelfHosted)
 }
 
 bool
-BytecodeEmitter::emitInitializeForInOrOfTarget(ParseNode* forHead)
+BytecodeEmitter::emitInitializeForInOrOfTarget(TernaryNode* forHead)
 {
     MOZ_ASSERT(forHead->isKind(PNK_FORIN) || forHead->isKind(PNK_FOROF));
-    MOZ_ASSERT(forHead->isArity(PN_TERNARY));
 
     MOZ_ASSERT(this->stackDepth >= 1,
                "must have a per-iteration value for initializing");
 
-    ParseNode* target = forHead->pn_kid1;
-    MOZ_ASSERT(!forHead->pn_kid2);
+    ParseNode* target = forHead->kid1();
+    MOZ_ASSERT(!forHead->kid2());
 
     // If the for-in/of loop didn't have a variable declaration, per-loop
     // initialization is just assigning the iteration value to a target
@@ -4739,9 +4745,8 @@ BytecodeEmitter::emitForOf(ParseNode* forOfLoop, EmitterScope* headLexicalEmitte
     MOZ_ASSERT(forOfLoop->isKind(PNK_FOR));
     MOZ_ASSERT(forOfLoop->isArity(PN_BINARY));
 
-    ParseNode* forOfHead = forOfLoop->pn_left;
+    TernaryNode* forOfHead = &forOfLoop->pn_left->as<TernaryNode>();
     MOZ_ASSERT(forOfHead->isKind(PNK_FOROF));
-    MOZ_ASSERT(forOfHead->isArity(PN_TERNARY));
 
     unsigned iflags = forOfLoop->pn_iflags;
     IteratorKind iterKind = (iflags & JSITER_FORAWAITOF)
@@ -4750,7 +4755,7 @@ BytecodeEmitter::emitForOf(ParseNode* forOfLoop, EmitterScope* headLexicalEmitte
     MOZ_ASSERT_IF(iterKind == IteratorKind::Async, sc->asFunctionBox());
     MOZ_ASSERT_IF(iterKind == IteratorKind::Async, sc->asFunctionBox()->isAsync());
 
-    ParseNode* forHeadExpr = forOfHead->pn_kid3;
+    ParseNode* forHeadExpr = forOfHead->kid3();
 
     // Certain builtins (e.g. Array.from) are implemented in self-hosting
     // as for-of loops.
@@ -4805,7 +4810,7 @@ BytecodeEmitter::emitForOf(ParseNode* forOfLoop, EmitterScope* headLexicalEmitte
         // recreation each iteration. If a lexical scope exists for the head,
         // it must be the innermost one. If that scope has closed-over
         // bindings inducing an environment, recreate the current environment.
-        DebugOnly<ParseNode*> forOfTarget = forOfHead->pn_kid1;
+        DebugOnly<ParseNode*> forOfTarget = forOfHead->kid1();
         MOZ_ASSERT(forOfTarget->isKind(PNK_LET) || forOfTarget->isKind(PNK_CONST));
         MOZ_ASSERT(headLexicalEmitterScope == innermostEmitterScope());
         MOZ_ASSERT(headLexicalEmitterScope->scope(this)->kind() == ScopeKind::Lexical);
@@ -4915,13 +4920,12 @@ BytecodeEmitter::emitForIn(ParseNode* forInLoop, EmitterScope* headLexicalEmitte
     MOZ_ASSERT(forInLoop->isArity(PN_BINARY));
     MOZ_ASSERT(forInLoop->isOp(JSOP_ITER));
 
-    ParseNode* forInHead = forInLoop->pn_left;
+    TernaryNode* forInHead = &forInLoop->pn_left->as<TernaryNode>();
     MOZ_ASSERT(forInHead->isKind(PNK_FORIN));
-    MOZ_ASSERT(forInHead->isArity(PN_TERNARY));
 
     // Annex B: Evaluate the var-initializer expression if present.
     // |for (var i = initializer in expr) { ... }|
-    ParseNode* forInTarget = forInHead->pn_kid1;
+    ParseNode* forInTarget = forInHead->kid1();
     if (parser->handler.isDeclarationList(forInTarget)) {
         ParseNode* decl = parser->handler.singleBindingFromDeclaration(&forInTarget->as<ListNode>());
         if (decl->isKind(PNK_NAME)) {
@@ -4951,7 +4955,7 @@ BytecodeEmitter::emitForIn(ParseNode* forInLoop, EmitterScope* headLexicalEmitte
     }
 
     // Evaluate the expression being iterated.
-    ParseNode* expr = forInHead->pn_kid3;
+    ParseNode* expr = forInHead->kid3();
     if (!emitTree(expr))                                  // EXPR
         return false;
 
@@ -5064,7 +5068,7 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
 {
     LoopControl loopInfo(this, StatementKind::ForLoop);
 
-    ParseNode* forHead = pn->pn_left;
+    TernaryNode* forHead = &pn->pn_left->as<TernaryNode>();
     ParseNode* forBody = pn->pn_right;
 
     // If the head of this for-loop declared any lexical variables, the parser
@@ -5091,7 +5095,7 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
     // can't reassign consts. This is observable through the Debugger API. (The
     // ES6 spec also skips cloning the environment in this case.)
     bool forLoopRequiresFreshening = false;
-    if (ParseNode* init = forHead->pn_kid1) {
+    if (ParseNode* init = forHead->kid1()) {
         // Emit the `init` clause, whether it's an expression or a variable
         // declaration. (The loop variables were hoisted into an enclosing
         // scope, but we still need to emit code for the initializers.)
@@ -5146,7 +5150,7 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
     ptrdiff_t tmp = offset();
 
     JumpList jmp;
-    if (forHead->pn_kid2) {
+    if (forHead->kid2()) {
         /* Goto the loop condition, which branches back to iterate. */
         if (!emitJump(JSOP_GOTO, &jmp))
             return false;
@@ -5181,7 +5185,7 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
 
     // Check for update code to do before the condition (if any).
     // The update code may not be executed at all; it needs its own TDZ cache.
-    if (ParseNode* update = forHead->pn_kid3) {
+    if (ParseNode* update = forHead->kid3()) {
         TDZCheckCache tdzCache(this);
 
         if (!updateSourceCoordNotes(update->pn_pos.begin))
@@ -5203,15 +5207,15 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
 
     ptrdiff_t tmp3 = offset();
 
-    if (forHead->pn_kid2) {
+    if (forHead->kid2()) {
         /* Fix up the goto from top to target the loop condition. */
         MOZ_ASSERT(jmp.offset >= 0);
-        if (!emitLoopEntry(forHead->pn_kid2, jmp))
+        if (!emitLoopEntry(forHead->kid2(), jmp))
             return false;
 
-        if (!emitTree(forHead->pn_kid2))
+        if (!emitTree(forHead->kid2()))
             return false;
-    } else if (!forHead->pn_kid3) {
+    } else if (!forHead->kid3()) {
         // If there is no condition clause and no update clause, mark
         // the loop-ending "goto" with the location of the "for".
         // This ensures that the debugger will stop on each loop
@@ -5229,7 +5233,7 @@ BytecodeEmitter::emitCStyleFor(ParseNode* pn, EmitterScope* headLexicalEmitterSc
     /* If no loop condition, just emit a loop-closing jump. */
     JumpList beq;
     JumpTarget breakTarget{ -1 };
-    if (!emitBackwardJump(forHead->pn_kid2 ? JSOP_IFNE : JSOP_GOTO, top, &beq, &breakTarget))
+    if (!emitBackwardJump(forHead->kid2() ? JSOP_IFNE : JSOP_GOTO, top, &beq, &breakTarget))
         return false;
 
     /* The third note offset helps us find the loop-closing jump. */
@@ -5298,13 +5302,13 @@ BytecodeEmitter::emitComprehensionForOf(ParseNode* pn)
 {
     MOZ_ASSERT(pn->isKind(PNK_COMPREHENSIONFOR));
 
-    ParseNode* forHead = pn->pn_left;
+    TernaryNode* forHead = &pn->pn_left->as<TernaryNode>();
     MOZ_ASSERT(forHead->isKind(PNK_FOROF));
 
-    ParseNode* forHeadExpr = forHead->pn_kid3;
+    ParseNode* forHeadExpr = forHead->kid3();
     ParseNode* forBody = pn->pn_right;
 
-    ParseNode* loopDecl = forHead->pn_kid1;
+    ParseNode* loopDecl = forHead->kid1();
     bool lexicalScope = false;
     if (!emitComprehensionForInOrOfVariables(loopDecl, &lexicalScope))
         return false;
@@ -5442,18 +5446,18 @@ BytecodeEmitter::emitComprehensionForIn(ParseNode* pn)
 {
     MOZ_ASSERT(pn->isKind(PNK_COMPREHENSIONFOR));
 
-    ParseNode* forHead = pn->pn_left;
+    TernaryNode* forHead = &pn->pn_left->as<TernaryNode>();
     MOZ_ASSERT(forHead->isKind(PNK_FORIN));
 
     ParseNode* forBody = pn->pn_right;
 
-    ParseNode* loopDecl = forHead->pn_kid1;
+    ParseNode* loopDecl = forHead->kid1();
     bool lexicalScope = false;
     if (loopDecl && !emitComprehensionForInOrOfVariables(loopDecl, &lexicalScope))
         return false;
 
     // Evaluate the expression to the right of 'in'.
-    if (!emitTree(forHead->pn_kid3))
+    if (!emitTree(forHead->kid3()))
         return false;
 
     /*
@@ -5506,7 +5510,7 @@ BytecodeEmitter::emitComprehensionForIn(ParseNode* pn)
 
     // Emit code to assign the enumeration value to the left hand side, but
     // also leave it on the stack.
-    if (!emitAssignment(forHead->pn_kid2, JSOP_NOP, nullptr))
+    if (!emitAssignment(forHead->kid2(), JSOP_NOP, nullptr))
         return false;
 
     /* The stack should be balanced around the assignment opcode sequence. */
@@ -8468,15 +8472,12 @@ BytecodeEmitter::emitLexicalInitialization(ParseNode* pn)
 // This follows ES6 14.5.14 (ClassDefinitionEvaluation) and ES6 14.5.15
 // (BindingClassDeclarationEvaluation).
 bool
-BytecodeEmitter::emitClass(ParseNode* pn)
+BytecodeEmitter::emitClass(ClassNode* classNode)
 {
-    ClassNode& classNode = pn->as<ClassNode>();
+    ClassNames* names = classNode->names();
+    ParseNode* heritageExpression = classNode->heritage();
+    ListNode* classMethods = classNode->methodList();
 
-    ClassNames* names = classNode.names();
-
-    ParseNode* heritageExpression = classNode.heritage();
-
-    ListNode* classMethods = classNode.methodList();
     ParseNode* constructor = nullptr;
     for (ParseNode* mn : classMethods->contents()) {
         ClassMethod& method = mn->as<ClassMethod>();
@@ -8497,7 +8498,7 @@ BytecodeEmitter::emitClass(ParseNode* pn)
     if (names) {
         tdzCache.emplace(this);
         emitterScope.emplace(this);
-        if (!emitterScope->enterLexical(this, ScopeKind::Lexical, classNode.scopeBindings()))
+        if (!emitterScope->enterLexical(this, ScopeKind::Lexical, classNode->scopeBindings()))
             return false;
     }
 
@@ -8535,7 +8536,9 @@ BytecodeEmitter::emitClass(ParseNode* pn)
         // offsets in the source buffer as source notes so that when we
         // actually make the constructor during execution, we can give it the
         // correct toString output.
-        if (!newSrcNote3(SRC_CLASS_SPAN, ptrdiff_t(pn->pn_pos.begin), ptrdiff_t(pn->pn_pos.end)))
+        ptrdiff_t classStart = ptrdiff_t(classNode->pn_pos.begin);
+        ptrdiff_t classEnd = ptrdiff_t(classNode->pn_pos.end);
+        if (!newSrcNote3(SRC_CLASS_SPAN, classStart, classEnd))
             return false;
 
         JSAtom *name = names ? names->innerBinding()->pn_atom : cx->names().empty;
@@ -8619,7 +8622,7 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         break;
 
       case PNK_IF:
-        if (!emitIf(pn))
+        if (!emitIf(&pn->as<TernaryNode>()))
             return false;
         break;
 
@@ -8664,12 +8667,12 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         break;
 
       case PNK_TRY:
-        if (!emitTry(pn))
+        if (!emitTry(&pn->as<TernaryNode>()))
             return false;
         break;
 
       case PNK_CATCH:
-        if (!emitCatch(pn))
+        if (!emitCatch(&pn->as<TernaryNode>()))
             return false;
         break;
 
@@ -9027,7 +9030,7 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         break;
 
       case PNK_CLASS:
-        if (!emitClass(pn))
+        if (!emitClass(&pn->as<ClassNode>()))
             return false;
         break;
 

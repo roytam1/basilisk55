@@ -565,6 +565,8 @@ enum ParseNodeArity
     macro(ForNode, ForNodeType, asFor) \
     macro(PropertyAccess, PropertyAccessType, asPropertyAccess) \
     macro(PropertyByValue, PropertyByValueType, asPropertyByValue) \
+    macro(OptionalPropertyAccess, OptionalPropertyAccessType, asOptionalPropertyAccess) \
+    macro(OptionalPropertyByValue, OptionalPropertyByValueType, asOptionalPropertyByValue) \
     macro(SwitchStatement, SwitchStatementType, asSwitchStatement) \
     \
     macro(CodeNode, CodeNodeType, asCode) \

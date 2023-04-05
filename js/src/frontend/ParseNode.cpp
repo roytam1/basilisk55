@@ -97,8 +97,6 @@ enum class PushResult { Recyclable, CleanUpLater };
 static PushResult
 PushCodeNodeChildren(CodeNode* node, NodeStack* stack)
 {
-    MOZ_ASSERT(node->isArity(PN_CODE));
-
     /*
      * Function nodes are linked into the function box tree, and may appear
      * on method lists. Both of those lists are singly-linked, so trying to
@@ -134,10 +132,8 @@ PushNameNodeChildren(NameNode* node, NodeStack* stack)
 }
 
 static PushResult
-PushScopeNodeChildren(ParseNode* node, NodeStack* stack)
+PushScopeNodeChildren(LexicalScopeNode* node, NodeStack* stack)
 {
-    MOZ_ASSERT(node->isArity(PN_SCOPE));
-
     if (node->scopeBody())
         stack->push(node->scopeBody());
     node->setScopeBody(nullptr);
@@ -147,7 +143,6 @@ PushScopeNodeChildren(ParseNode* node, NodeStack* stack)
 static PushResult
 PushListNodeChildren(ListNode* node, NodeStack* stack)
 {
-    MOZ_ASSERT(node->isArity(PN_LIST));
     node->checkConsistency();
 
     stack->pushList(node);
@@ -509,7 +504,7 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
         return PushNameNodeChildren(&pn->as<NameNode>(), stack);
 
       case PNK_LEXICALSCOPE:
-        return PushScopeNodeChildren(pn, stack);
+        return PushScopeNodeChildren(&pn->as<LexicalScopeNode>(), stack);
 
       case PNK_FUNCTION:
       case PNK_MODULE:
@@ -702,7 +697,7 @@ ParseNode::dump(int indent)
         as<LoopControlStatement>().dump(indent);
         return;
       case PN_SCOPE:
-        ((LexicalScopeNode*) this)->dump(indent);
+        as<LexicalScopeNode>().dump(indent);
         return;
     }
     fprintf(stderr, "#<BAD NODE %p, kind=%u, arity=%u>",

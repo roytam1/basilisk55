@@ -908,7 +908,7 @@ Parser<ParseHandler>::newObjectBox(JSObject* obj)
 
 template <typename ParseHandler>
 FunctionBox*
-Parser<ParseHandler>::newFunctionBox(CodeNodeType funNode, JSFunction* fun, uint32_t toStringStart,
+Parser<ParseHandler>::newFunctionBox(FunctionNodeType funNode, JSFunction* fun, uint32_t toStringStart,
                                      Directives inheritedDirectives,
                                      GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
                                      bool tryAnnexB)
@@ -1125,7 +1125,7 @@ Parser<ParseHandler>::reportRedeclaration(HandlePropertyName name, DeclarationKi
 // forbid duplicates.)
 template <typename ParseHandler>
 bool
-Parser<ParseHandler>::notePositionalFormalParameter(CodeNodeType funNode, HandlePropertyName name,
+Parser<ParseHandler>::notePositionalFormalParameter(FunctionNodeType funNode, HandlePropertyName name,
                                                     uint32_t beginPos,
                                                     bool disallowDuplicateParams,
                                                     bool* duplicatedParam)
@@ -1170,7 +1170,7 @@ Parser<ParseHandler>::notePositionalFormalParameter(CodeNodeType funNode, Handle
 
 template <typename ParseHandler>
 bool
-Parser<ParseHandler>::noteDestructuredPositionalFormalParameter(CodeNodeType funNode, Node destruct)
+Parser<ParseHandler>::noteDestructuredPositionalFormalParameter(FunctionNodeType funNode, Node destruct)
 {
     // Append an empty name to the positional formals vector to keep track of
     // argument slots when making FunctionScope::Data.
@@ -2223,7 +2223,7 @@ Parser<FullParseHandler>::globalBody(GlobalSharedContext* globalsc)
 }
 
 template <>
-CodeNode*
+ModuleNode*
 Parser<FullParseHandler>::moduleBody(ModuleSharedContext* modulesc)
 {
     MOZ_ASSERT(checkOptionsCalled);
@@ -2236,7 +2236,7 @@ Parser<FullParseHandler>::moduleBody(ModuleSharedContext* modulesc)
     if (!varScope.init(pc))
         return nullptr;
 
-    CodeNodeType moduleNode = handler.newModule();
+    ModuleNodeType moduleNode = handler.newModule();
     if (!moduleNode)
         return null();
 
@@ -2297,7 +2297,7 @@ Parser<FullParseHandler>::moduleBody(ModuleSharedContext* modulesc)
 }
 
 template <>
-SyntaxParseHandler::CodeNodeType
+SyntaxParseHandler::ModuleNodeType
 Parser<SyntaxParseHandler>::moduleBody(ModuleSharedContext* modulesc)
 {
     MOZ_ALWAYS_FALSE(abortIfSyntaxParser());
@@ -2513,7 +2513,7 @@ GetYieldHandling(GeneratorKind generatorKind)
 }
 
 template <>
-CodeNode*
+FunctionNode*
 Parser<FullParseHandler>::standaloneFunction(HandleFunction fun,
                                              HandleScope enclosingScope,
                                              Maybe<uint32_t> parameterListEnd,
@@ -2550,7 +2550,7 @@ Parser<FullParseHandler>::standaloneFunction(HandleFunction fun,
         tokenStream.ungetToken();
     }
 
-    CodeNodeType funNode = handler.newFunctionStatement();
+    FunctionNodeType funNode = handler.newFunctionStatement();
     if (!funNode)
         return null();
 
@@ -2588,7 +2588,7 @@ Parser<FullParseHandler>::standaloneFunction(HandleFunction fun,
     ParseNode* node = funNode;
     if (!FoldConstants(context, &node, this))
         return null();
-    funNode = &node->as<CodeNode>();
+    funNode = &node->as<FunctionNode>();
 
     return funNode;
 }
@@ -2963,7 +2963,7 @@ Parser<ParseHandler>::prefixAccessorName(PropertyType propType, HandleAtom propA
 template <typename ParseHandler>
 bool
 Parser<ParseHandler>::functionArguments(YieldHandling yieldHandling, FunctionSyntaxKind kind,
-                                        CodeNodeType funNode)
+                                        FunctionNodeType funNode)
 {
     FunctionBox* funbox = pc->functionBox();
 
@@ -3224,7 +3224,7 @@ Parser<ParseHandler>::functionArguments(YieldHandling yieldHandling, FunctionSyn
 
 template <>
 bool
-Parser<FullParseHandler>::skipLazyInnerFunction(CodeNode* funNode, uint32_t toStringStart,
+Parser<FullParseHandler>::skipLazyInnerFunction(FunctionNode* funNode, uint32_t toStringStart,
                                                 FunctionSyntaxKind kind, bool tryAnnexB)
 {
     // When a lazily-parsed function is called, we only fully parse (and emit)
@@ -3271,7 +3271,7 @@ Parser<FullParseHandler>::skipLazyInnerFunction(CodeNode* funNode, uint32_t toSt
 
 template <>
 bool
-Parser<SyntaxParseHandler>::skipLazyInnerFunction(CodeNodeType funNode, uint32_t toStringStart,
+Parser<SyntaxParseHandler>::skipLazyInnerFunction(FunctionNodeType funNode, uint32_t toStringStart,
                                                   FunctionSyntaxKind kind, bool tryAnnexB)
 {
     MOZ_CRASH("Cannot skip lazy inner functions when syntax parsing");
@@ -3347,8 +3347,8 @@ Parser<ParseHandler>::templateLiteral(YieldHandling yieldHandling)
 }
 
 template <typename ParseHandler>
-typename ParseHandler::CodeNodeType
-Parser<ParseHandler>::functionDefinition(uint32_t toStringStart, CodeNodeType funNode, InHandling inHandling,
+typename ParseHandler::FunctionNodeType
+Parser<ParseHandler>::functionDefinition(uint32_t toStringStart, FunctionNodeType funNode, InHandling inHandling,
                                          YieldHandling yieldHandling, HandleAtom funName,
                                          FunctionSyntaxKind kind,
                                          GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
@@ -3422,7 +3422,7 @@ Parser<ParseHandler>::functionDefinition(uint32_t toStringStart, CodeNodeType fu
 
 template <>
 bool
-Parser<FullParseHandler>::trySyntaxParseInnerFunction(CodeNode* funNode, HandleFunction fun,
+Parser<FullParseHandler>::trySyntaxParseInnerFunction(FunctionNode* funNode, HandleFunction fun,
                                                       uint32_t toStringStart,
                                                       InHandling inHandling,
                                                       YieldHandling yieldHandling,
@@ -3497,7 +3497,7 @@ Parser<FullParseHandler>::trySyntaxParseInnerFunction(CodeNode* funNode, HandleF
 
 template <>
 bool
-Parser<SyntaxParseHandler>::trySyntaxParseInnerFunction(CodeNodeType funNode, HandleFunction fun,
+Parser<SyntaxParseHandler>::trySyntaxParseInnerFunction(FunctionNodeType funNode, HandleFunction fun,
                                                         uint32_t toStringStart,
                                                         InHandling inHandling,
                                                         YieldHandling yieldHandling,
@@ -3515,7 +3515,7 @@ Parser<SyntaxParseHandler>::trySyntaxParseInnerFunction(CodeNodeType funNode, Ha
 
 template <typename ParseHandler>
 bool
-Parser<ParseHandler>::innerFunction(CodeNodeType funNode, ParseContext* outerpc, FunctionBox* funbox,
+Parser<ParseHandler>::innerFunction(FunctionNodeType funNode, ParseContext* outerpc, FunctionBox* funbox,
                                     uint32_t toStringStart,
                                     InHandling inHandling, YieldHandling yieldHandling,
                                     FunctionSyntaxKind kind, Directives inheritedDirectives,
@@ -3539,7 +3539,7 @@ Parser<ParseHandler>::innerFunction(CodeNodeType funNode, ParseContext* outerpc,
 
 template <typename ParseHandler>
 bool
-Parser<ParseHandler>::innerFunction(CodeNodeType funNode, ParseContext* outerpc, HandleFunction fun,
+Parser<ParseHandler>::innerFunction(FunctionNodeType funNode, ParseContext* outerpc, HandleFunction fun,
                                     uint32_t toStringStart,
                                     InHandling inHandling, YieldHandling yieldHandling,
                                     FunctionSyntaxKind kind,
@@ -3582,14 +3582,14 @@ Parser<ParseHandler>::appendToCallSiteObj(CallSiteNodeType callSiteObj)
 }
 
 template <>
-CodeNode*
+FunctionNode*
 Parser<FullParseHandler>::standaloneLazyFunction(HandleFunction fun, bool strict,
                                                  GeneratorKind generatorKind,
                                                  FunctionAsyncKind asyncKind)
 {
     MOZ_ASSERT(checkOptionsCalled);
 
-    CodeNodeType funNode = handler.newFunctionStatement();
+    FunctionNodeType funNode = handler.newFunctionStatement();
     if (!funNode)
         return null();
 
@@ -3636,7 +3636,7 @@ Parser<FullParseHandler>::standaloneLazyFunction(HandleFunction fun, bool strict
     ParseNode* node = funNode;
     if (!FoldConstants(context, &node, this))
         return null();
-    funNode = &node->as<CodeNode>();
+    funNode = &node->as<FunctionNode>();
 
     return funNode;
 }
@@ -3645,7 +3645,7 @@ template <typename ParseHandler>
 bool
 Parser<ParseHandler>::functionFormalParametersAndBody(InHandling inHandling,
                                                       YieldHandling yieldHandling,
-                                                      CodeNodeType funNode, FunctionSyntaxKind kind,
+                                                      FunctionNodeType funNode, FunctionSyntaxKind kind,
                                                       Maybe<uint32_t> parameterListEnd /* = Nothing() */,
                                                       bool isStandaloneFunction /* = false */)
 {
@@ -3792,7 +3792,7 @@ Parser<ParseHandler>::functionFormalParametersAndBody(InHandling inHandling,
 }
 
 template <typename ParseHandler>
-typename ParseHandler::CodeNodeType
+typename ParseHandler::FunctionNodeType
 Parser<ParseHandler>::functionStmt(uint32_t toStringStart, YieldHandling yieldHandling,
                                    DefaultHandling defaultHandling, FunctionAsyncKind asyncKind)
 {
@@ -3868,7 +3868,7 @@ Parser<ParseHandler>::functionStmt(uint32_t toStringStart, YieldHandling yieldHa
             return null();
     }
 
-    CodeNodeType funNode = handler.newFunctionStatement();
+    FunctionNodeType funNode = handler.newFunctionStatement();
     if (!funNode)
         return null();
 
@@ -3878,7 +3878,7 @@ Parser<ParseHandler>::functionStmt(uint32_t toStringStart, YieldHandling yieldHa
 }
 
 template <typename ParseHandler>
-typename ParseHandler::CodeNodeType
+typename ParseHandler::FunctionNodeType
 Parser<ParseHandler>::functionExpr(uint32_t toStringStart, InvokedPrediction invoked,
                                    FunctionAsyncKind asyncKind)
 {
@@ -3907,7 +3907,7 @@ Parser<ParseHandler>::functionExpr(uint32_t toStringStart, InvokedPrediction inv
         tokenStream.ungetToken();
     }
 
-    CodeNodeType funNode = handler.newFunctionExpression();
+    FunctionNodeType funNode = handler.newFunctionExpression();
     if (!funNode)
         return null();
 
@@ -5373,14 +5373,14 @@ Parser<SyntaxParseHandler>::checkExportedNameForClause(NameNodeType nameNode)
 
 template<>
 bool
-Parser<FullParseHandler>::checkExportedNameForFunction(CodeNodeType funNode)
+Parser<FullParseHandler>::checkExportedNameForFunction(FunctionNodeType funNode)
 {
     return checkExportedName(funNode->funbox()->function()->explicitName());
 }
 
 template<>
 bool
-Parser<SyntaxParseHandler>::checkExportedNameForFunction(CodeNodeType funNode)
+Parser<SyntaxParseHandler>::checkExportedNameForFunction(FunctionNodeType funNode)
 {
     MOZ_ALWAYS_FALSE(abortIfSyntaxParser());
     return false;
@@ -5654,7 +5654,7 @@ Parser<ParseHandler>::exportFunctionDeclaration(uint32_t begin)
     if (!kid)
         return null();
 
-    if (!checkExportedNameForFunction(handler.asCode(kid)))
+    if (!checkExportedNameForFunction(handler.asFunction(kid)))
         return null();
 
     UnaryNodeType node = handler.newExportDeclaration(kid, TokenPos(begin, pos().end));
@@ -7404,8 +7404,8 @@ Parser<ParseHandler>::classDefinition(YieldHandling yieldHandling,
         // Calling toString on constructors need to return the source text for
         // the entire class. The end offset is unknown at this point in
         // parsing and will be amended when class parsing finishes below.
-        CodeNodeType funNode = methodDefinition(isConstructor ? classStartOffset : nameOffset,
-                                                propType, funName);
+        FunctionNodeType funNode = methodDefinition(isConstructor ? classStartOffset : nameOffset,
+                                                    propType, funName);
         if (!funNode)
             return null();
 
@@ -8401,7 +8401,7 @@ Parser<ParseHandler>::assignExpr(InHandling inHandling, YieldHandling yieldHandl
             }
         }
 
-        CodeNodeType funNode = handler.newArrowFunction();
+        FunctionNodeType funNode = handler.newArrowFunction();
         if (!funNode)
             return null();
 
@@ -8798,7 +8798,7 @@ template <typename ParseHandler>
 typename ParseHandler::Node
 Parser<ParseHandler>::generatorComprehensionLambda(unsigned begin)
 {
-    CodeNodeType genfn = handler.newFunctionExpression();
+    FunctionNodeType genfn = handler.newFunctionExpression();
     if (!genfn)
         return null();
 
@@ -10283,7 +10283,7 @@ Parser<ParseHandler>::objectLiteral(YieldHandling yieldHandling, PossibleError* 
                     }
                 }
 
-                CodeNodeType funNode = methodDefinition(namePos.begin, propType, funName);
+                FunctionNodeType funNode = methodDefinition(namePos.begin, propType, funName);
                 if (!funNode)
                     return null();
 
@@ -10318,7 +10318,7 @@ Parser<ParseHandler>::objectLiteral(YieldHandling yieldHandling, PossibleError* 
 }
 
 template <typename ParseHandler>
-typename ParseHandler::CodeNodeType
+typename ParseHandler::FunctionNodeType
 Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType propType,
                                        HandleAtom funName)
 {
@@ -10371,7 +10371,7 @@ Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType prop
 
     YieldHandling yieldHandling = GetYieldHandling(generatorKind);
 
-    CodeNodeType funNode = handler.newFunctionExpression();
+    FunctionNodeType funNode = handler.newFunctionExpression();
     if (!funNode)
         return null();
 

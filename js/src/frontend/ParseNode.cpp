@@ -95,7 +95,7 @@ class NodeStack {
 enum class PushResult { Recyclable, CleanUpLater };
 
 static PushResult
-PushCodeNodeChildren(CodeNode* node, NodeStack* stack)
+PushFunctionNodeChildren(FunctionNode* node, NodeStack* stack)
 {
     /*
      * Function nodes are linked into the function box tree, and may appear
@@ -117,6 +117,15 @@ PushCodeNodeChildren(CodeNode* node, NodeStack* stack)
     node->setFunbox(nullptr);
     if (node->body())
         stack->push(node->body());
+    node->setBody(nullptr);
+
+    return PushResult::CleanUpLater;
+}
+
+static PushResult
+PushModuleNodeChildren(ModuleNode* node, NodeStack* stack)
+{
+    stack->push(node->body());
     node->setBody(nullptr);
 
     return PushResult::CleanUpLater;
@@ -507,8 +516,9 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
         return PushScopeNodeChildren(&pn->as<LexicalScopeNode>(), stack);
 
       case PNK_FUNCTION:
+        return PushFunctionNodeChildren(&pn->as<FunctionNode>(), stack);
       case PNK_MODULE:
-        return PushCodeNodeChildren(&pn->as<CodeNode>(), stack);
+        return PushModuleNodeChildren(&pn->as<ModuleNode>(), stack);
 
       case PNK_LIMIT: // invalid sentinel value
         MOZ_CRASH("invalid node kind");
@@ -678,9 +688,11 @@ ParseNode::dump(int indent)
       case PN_TERNARY:
         as<TernaryNode>().dump(indent);
         return;
-      case PN_CODE:
-        as<CodeNode>().dump(indent);
+      case PN_FUNCTION:
+        as<FunctionNode>().dump(indent);
         return;
+      case PN_MODULE:
+        as<ModuleNode>().dump(indent);
       case PN_LIST:
         as<ListNode>().dump(indent);
         return;
@@ -803,7 +815,17 @@ TernaryNode::dump(int indent)
 }
 
 void
-CodeNode::dump(int indent)
+FunctionNode::dump(int indent)
+{
+    const char* name = parseNodeNames[getKind()];
+    fprintf(stderr, "(%s ", name);
+    indent += strlen(name) + 2;
+    DumpParseTree(body(), indent);
+    fprintf(stderr, ")");
+}
+
+void
+ModuleNode::dump(int indent)
 {
     const char* name = parseNodeNames[getKind()];
     fprintf(stderr, "(%s ", name);
@@ -980,8 +1002,8 @@ js::frontend::IsAnonymousFunctionDefinition(ParseNode* pn)
     // 14.1.12 (FunctionExpression).
     // 14.4.8 (GeneratorExpression).
     // 14.6.8 (AsyncFunctionExpression)
-    if (pn->isKind(PNK_FUNCTION) &&
-        !pn->as<CodeNode>().funbox()->function()->explicitName())
+    if (pn->is<FunctionNode>() &&
+        !pn->as<FunctionNode>().funbox()->function()->explicitName())
         return true;
 
     // 14.5.8 (ClassExpression)

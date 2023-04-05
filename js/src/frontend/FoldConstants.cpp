@@ -92,7 +92,6 @@ ContainsHoistedDeclaration(ExclusiveContext* cx, ParseNode* node, bool* result)
       // that we preserve an unreachable function declaration node against
       // dead-code removal.
       case PNK_FUNCTION:
-        MOZ_ASSERT(node->is<CodeNode>());
         *result = false;
         return true;
 
@@ -290,7 +289,7 @@ ContainsHoistedDeclaration(ExclusiveContext* cx, ParseNode* node, bool* result)
         LexicalScopeNode* scope = &node->as<LexicalScopeNode>();
         ParseNode* expr = scope->scopeBody();
 
-        if (expr->isKind(PNK_FOR) || expr->isKind(PNK_FUNCTION))
+        if (expr->isKind(PNK_FOR) || expr->is<FunctionNode>())
             return ContainsHoistedDeclaration(cx, expr, result);
 
         MOZ_ASSERT(expr->isKind(PNK_STATEMENTLIST));
@@ -589,7 +588,7 @@ FoldTypeOfExpr(ExclusiveContext* cx, UnaryNode* node, Parser<FullParseHandler>& 
         result = cx->names().object;
     else if (expr->isKind(PNK_TRUE) || expr->isKind(PNK_FALSE))
         result = cx->names().boolean;
-    else if (expr->isKind(PNK_FUNCTION))
+    else if (expr->is<FunctionNode>())
         result = cx->names().function;
 
     if (result) {
@@ -1019,11 +1018,9 @@ FoldIf(ExclusiveContext* cx, ParseNode** nodePtr, Parser<FullParseHandler>& pars
 }
 
 static bool
-FoldFunction(ExclusiveContext* cx, CodeNode* node, Parser<FullParseHandler>& parser,
+FoldFunction(ExclusiveContext* cx, FunctionNode* node, Parser<FullParseHandler>& parser,
              bool inGenexpLambda)
 {
-    MOZ_ASSERT(node->isKind(PNK_FUNCTION));
-
     // Don't constant-fold inside "use asm" code, as this could create a parse
     // tree that doesn't type-check as asm.js.
     if (node->funbox()->useAsmOrInsideUseAsm())
@@ -1081,9 +1078,8 @@ ComputeBinary(ParseNodeKind kind, double left, double right)
 }
 
 static bool
-FoldModule(ExclusiveContext* cx, CodeNode* node, Parser<FullParseHandler>& parser)
+FoldModule(ExclusiveContext* cx, ModuleNode* node, Parser<FullParseHandler>& parser)
 {
-    MOZ_ASSERT(node->isKind(PNK_MODULE));
     MOZ_ASSERT(node->body());
     return Fold(cx, node->unsafeBodyReference(), parser, false);
 }
@@ -1772,10 +1768,10 @@ Fold(ExclusiveContext* cx, ParseNode** pnp, Parser<FullParseHandler>& parser, bo
         return FoldLogical(cx, pnp, parser, inGenexpLambda);
 
       case PNK_FUNCTION:
-        return FoldFunction(cx, &pn->as<CodeNode>(), parser, inGenexpLambda);
+        return FoldFunction(cx, &pn->as<FunctionNode>(), parser, inGenexpLambda);
 
       case PNK_MODULE:
-        return FoldModule(cx, &pn->as<CodeNode>(), parser);
+        return FoldModule(cx, &pn->as<ModuleNode>(), parser);
 
       case PNK_SUB:
       case PNK_STAR:

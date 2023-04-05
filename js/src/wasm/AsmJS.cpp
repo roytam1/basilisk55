@@ -7033,7 +7033,8 @@ ParseFunction(ModuleValidator& m, FunctionNode** funNodeOut, unsigned* line)
     if (!name)
         return false;
 
-    FunctionNode* funNode = m.parser().handler.newFunctionStatement();
+    FunctionSyntaxKind syntaxKind = FunctionSyntaxKind::Statement;
+    FunctionNode* funNode = m.parser().handler.newFunction(syntaxKind);
     if (!funNode)
         return false;
 
@@ -7047,14 +7048,14 @@ ParseFunction(ModuleValidator& m, FunctionNode** funNodeOut, unsigned* line)
                                                     SyncFunction, /* tryAnnexB = */ false);
     if (!funbox)
         return false;
-    funbox->initWithEnclosingParseContext(outerpc, frontend::Statement);
+    funbox->initWithEnclosingParseContext(outerpc, syntaxKind);
 
     Directives newDirectives = directives;
     ParseContext funpc(&m.parser(), funbox, &newDirectives);
     if (!funpc.init())
         return false;
 
-    if (!m.parser().functionFormalParametersAndBody(InAllowed, YieldIsName, funNode, Statement)) {
+    if (!m.parser().functionFormalParametersAndBody(InAllowed, YieldIsName, funNode, syntaxKind)) {
         if (tokenStream.hadError() || directives == newDirectives)
             return false;
 

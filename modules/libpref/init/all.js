@@ -1307,11 +1307,8 @@ pref("dom.event.highrestimestamp.enabled",  true);
 pref("dom.event.highrestimestamp.enabled",  false);
 #endif
 
-// TODO: merge these two prefs!
 // Enable Google WebComponents?
 pref("dom.webcomponents.enabled",           true);
-// Whether WC getRootNode is available
-pref("dom.getRootNode.enabled",             true);
 
 pref("javascript.enabled",                  true);
 // Enable Array.prototype.values

@@ -733,6 +733,9 @@ public:
     return mUserData.Get(key);
   }
 
+  virtual cairo_scaled_font_t* GetCairoScaledFont() { return nullptr; }
+  virtual void SetCairoScaledFont(cairo_scaled_font_t* font) {}
+
 protected:
   ScaledFont() {}
 

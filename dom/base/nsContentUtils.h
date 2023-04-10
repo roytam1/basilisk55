@@ -2839,6 +2839,11 @@ public:
   static bool
   IsCustomElementsEnabled() { return sIsCustomElementsEnabled; }
 
+  static nsresult
+  CreateJSValueFromSequenceOfObject(JSContext* aCx,
+                                    const mozilla::dom::Sequence<JSObject*>& aTransfer,
+                                    JS::MutableHandle<JS::Value> aValue);
+
   /**
    * Detect whether a string is a (CSS) local-url.
    * https://drafts.csswg.org/css-values/#local-urls

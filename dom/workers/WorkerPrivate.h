@@ -288,7 +288,7 @@ private:
 
   void
   PostMessageInternal(JSContext* aCx, JS::Handle<JS::Value> aMessage,
-                      const Sequence<JS::Value>& aTransferable,
+                      const Sequence<JSObject*>& aTransferable,
                       ErrorResult& aRv);
 
   nsresult
@@ -399,7 +399,7 @@ public:
 
   void
   PostMessage(JSContext* aCx, JS::Handle<JS::Value> aMessage,
-              const Sequence<JS::Value>& aTransferable,
+              const Sequence<JSObject*>& aTransferable,
               ErrorResult& aRv);
 
   void
@@ -1160,18 +1160,17 @@ public:
   void
   PostMessageToParent(JSContext* aCx,
                       JS::Handle<JS::Value> aMessage,
-                      const Sequence<JS::Value>& aTransferable,
+                      const Sequence<JSObject*>& aTransferable,
                       ErrorResult& aRv)
   {
     PostMessageToParentInternal(aCx, aMessage, aTransferable, aRv);
   }
 
   void
-  PostMessageToParentMessagePort(
-                             JSContext* aCx,
-                             JS::Handle<JS::Value> aMessage,
-                             const Sequence<JS::Value>& aTransferable,
-                             ErrorResult& aRv);
+  PostMessageToParentMessagePort(JSContext* aCx,
+                                 JS::Handle<JS::Value> aMessage,
+                                 const Sequence<JSObject*>& aTransferable,
+                                 ErrorResult& aRv);
 
   void
   EnterDebuggerEventLoop();
@@ -1486,7 +1485,7 @@ private:
   void
   PostMessageToParentInternal(JSContext* aCx,
                               JS::Handle<JS::Value> aMessage,
-                              const Sequence<JS::Value>& aTransferable,
+                              const Sequence<JSObject*>& aTransferable,
                               ErrorResult& aRv);
 
   void

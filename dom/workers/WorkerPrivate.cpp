@@ -2964,11 +2964,10 @@ WorkerPrivateParent<Derived>::ForgetMainThreadObjects(
 
 template <class Derived>
 void
-WorkerPrivateParent<Derived>::PostMessageInternal(
-                                            JSContext* aCx,
-                                            JS::Handle<JS::Value> aMessage,
-                                            const Sequence<JS::Value>& aTransferable,
-                                            ErrorResult& aRv)
+WorkerPrivateParent<Derived>::PostMessageInternal(JSContext* aCx,
+                                                  JS::Handle<JS::Value> aMessage,
+                                                  const Sequence<JSObject*>& aTransferable,
+                                                  ErrorResult& aRv)
 {
   AssertIsOnParentThread();
 
@@ -2980,20 +2979,11 @@ WorkerPrivateParent<Derived>::PostMessageInternal(
   }
 
   JS::Rooted<JS::Value> transferable(aCx, JS::UndefinedValue());
-  if (!aTransferable.IsEmpty()) {
-    // The input sequence only comes from the generated bindings code, which
-    // ensures it is rooted.
-    JS::HandleValueArray elements =
-      JS::HandleValueArray::fromMarkedLocation(aTransferable.Length(),
-                                               aTransferable.Elements());
-
-    JSObject* array =
-      JS_NewArrayObject(aCx, elements);
-    if (!array) {
-      aRv.Throw(NS_ERROR_OUT_OF_MEMORY);
-      return;
-    }
-    transferable.setObject(*array);
+  aRv = nsContentUtils::CreateJSValueFromSequenceOfObject(aCx,
+                                                          aTransferable,
+                                                          &transferable);
+  if (NS_WARN_IF(aRv.Failed())) {
+    return;
   }
 
   RefPtr<MessageEventRunnable> runnable =
@@ -3037,7 +3027,7 @@ void
 WorkerPrivateParent<Derived>::PostMessage(
                              JSContext* aCx,
                              JS::Handle<JS::Value> aMessage,
-                             const Sequence<JS::Value>& aTransferable,
+                             const Sequence<JSObject*>& aTransferable,
                              ErrorResult& aRv)
 {
   PostMessageInternal(aCx, aMessage, aTransferable, aRv);
@@ -5617,25 +5607,17 @@ void
 WorkerPrivate::PostMessageToParentInternal(
                             JSContext* aCx,
                             JS::Handle<JS::Value> aMessage,
-                            const Sequence<JS::Value>& aTransferable,
+                            const Sequence<JSObject*>& aTransferable,
                             ErrorResult& aRv)
 {
   AssertIsOnWorkerThread();
 
   JS::Rooted<JS::Value> transferable(aCx, JS::UndefinedValue());
-  if (!aTransferable.IsEmpty()) {
-    // The input sequence only comes from the generated bindings code, which
-    // ensures it is rooted.
-    JS::HandleValueArray elements =
-      JS::HandleValueArray::fromMarkedLocation(aTransferable.Length(),
-                                               aTransferable.Elements());
-
-    JSObject* array = JS_NewArrayObject(aCx, elements);
-    if (!array) {
-      aRv = NS_ERROR_OUT_OF_MEMORY;
-      return;
-    }
-    transferable.setObject(*array);
+  aRv = nsContentUtils::CreateJSValueFromSequenceOfObject(aCx,
+                                                          aTransferable,
+                                                          &transferable);
+  if (NS_WARN_IF(aRv.Failed())) {
+    return;
   }
 
   RefPtr<MessageEventRunnable> runnable =

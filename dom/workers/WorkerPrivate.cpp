@@ -3035,6 +3035,17 @@ WorkerPrivateParent<Derived>::PostMessage(
 
 template <class Derived>
 void
+WorkerPrivateParent<Derived>::PostMessage(
+                             JSContext* aCx,
+                             JS::Handle<JS::Value> aMessage,
+                             const StructuredSerializeOptions& aOptions,
+                             ErrorResult& aRv)
+{
+  PostMessageInternal(aCx, aMessage, aOptions.mTransfer, aRv);
+}
+
+template <class Derived>
+void
 WorkerPrivateParent<Derived>::UpdateContextOptions(
                                     const JS::ContextOptions& aContextOptions)
 {

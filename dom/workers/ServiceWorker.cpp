@@ -15,6 +15,7 @@
 
 #include "mozilla/Preferences.h"
 #include "mozilla/dom/Promise.h"
+#include "mozilla/dom/MessagePortBinding.h"
 #include "mozilla/dom/ServiceWorkerGlobalScopeBinding.h"
 
 #ifdef XP_WIN
@@ -96,6 +97,15 @@ ServiceWorker::PostMessage(JSContext* aCx, JS::Handle<JS::Value> aMessage,
   UniquePtr<ServiceWorkerClientInfo> clientInfo(new ServiceWorkerClientInfo(window->GetExtantDoc()));
   ServiceWorkerPrivate* workerPrivate = mInfo->WorkerPrivate();
   aRv = workerPrivate->SendMessageEvent(aCx, aMessage, aTransferable, Move(clientInfo));
+}
+
+void
+ServiceWorker::PostMessage(JSContext* aCx,
+                           JS::Handle<JS::Value> aMessage,
+                           const StructuredSerializeOptions& aOptions,
+                           ErrorResult& aRv)
+{
+  PostMessage(aCx, aMessage, aOptions.mTransfer, aRv);
 }
 
 } // namespace workers

@@ -12,6 +12,7 @@
 #include "mozilla/dom/Navigator.h"
 #include "mozilla/dom/ServiceWorkerMessageEvent.h"
 #include "mozilla/dom/ServiceWorkerMessageEventBinding.h"
+#include "mozilla/dom/MessagePortBinding.h"
 #include "nsGlobalWindow.h"
 #include "nsIBrowserDOMWindow.h"
 #include "nsIDocument.h"
@@ -221,3 +222,11 @@ ServiceWorkerClient::PostMessage(JSContext* aCx, JS::Handle<JS::Value> aMessage,
   }
 }
 
+void
+ServiceWorkerClient::PostMessage(JSContext* aCx,
+                                 JS::Handle<JS::Value> aMessage,
+                                 const StructuredSerializeOptions& aOptions,
+                                 ErrorResult& aRv)
+{
+  PostMessage(aCx, aMessage, aOptions.mTransfer, aRv);
+}

@@ -266,6 +266,16 @@ public:
     return mFlags.mRootOfClosedTree;
   }
 
+  void SetItemInShadowTree(bool aSet)
+  {
+    mFlags.mItemInShadowTree = aSet;
+  }
+
+  bool IsItemInShadowTree()
+  {
+    return mFlags.mItemInShadowTree;
+  }
+
   void SetIsSlotInClosedTree(bool aSet)
   {
     mFlags.mIsSlotInClosedTree = aSet;
@@ -353,7 +363,8 @@ public:
       mManager->HandleEvent(aVisitor.mPresContext, aVisitor.mEvent,
                             &aVisitor.mDOMEvent,
                             CurrentTarget(),
-                            &aVisitor.mEventStatus);
+                            &aVisitor.mEventStatus,
+                            IsItemInShadowTree());
       NS_ASSERTION(aVisitor.mEvent->mCurrentTarget == nullptr,
                    "CurrentTarget should be null!");
     }
@@ -386,6 +397,7 @@ private:
     bool mWantsPreHandleEvent : 1;
     bool mPreHandleEventOnly : 1;
     bool mRootOfClosedTree : 1;
+    bool mItemInShadowTree : 1;
     bool mIsSlotInClosedTree : 1;
     bool mIsChromeHandler : 1;
   private:
@@ -435,6 +447,7 @@ EventTargetChainItem::GetEventTargetParent(EventChainPreVisitor& aVisitor)
   SetWantsPreHandleEvent(aVisitor.mWantsPreHandleEvent);
   SetPreHandleEventOnly(aVisitor.mWantsPreHandleEvent && !aVisitor.mCanHandle);
   SetRootOfClosedTree(aVisitor.mRootOfClosedTree);
+  SetItemInShadowTree(aVisitor.mItemInShadowTree);
   SetRetargetedRelatedTarget(aVisitor.mRetargetedRelatedTarget);
   mItemFlags = aVisitor.mItemFlags;
   mItemData = aVisitor.mItemData;

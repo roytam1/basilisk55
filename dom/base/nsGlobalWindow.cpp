@@ -899,7 +899,8 @@ nsPIDOMWindow<T>::nsPIDOMWindow(nsPIDOMWindowOuter *aOuterWindow)
   // Make sure no actual window ends up with mWindowID == 0
   mWindowID(NextWindowID()), mHasNotifiedGlobalCreated(false),
   mMarkedCCGeneration(0), mServiceWorkersTestingEnabled(false),
-  mLargeAllocStatus(LargeAllocStatus::NONE)
+  mLargeAllocStatus(LargeAllocStatus::NONE),
+  mEvent(nullptr)
 {
   if (aOuterWindow) {
     mTimeoutManager =
@@ -5210,6 +5211,16 @@ nsGlobalWindow::SetOpener(JSContext* aCx, JS::Handle<JS::Value> aOpener,
   }
 
   SetOpenerWindow(outer, false);
+}
+
+void
+nsGlobalWindow::GetEvent(JSContext* aCx, JS::MutableHandle<JS::Value> aRetval)
+{
+  if (mEvent) {
+    Unused << nsContentUtils::WrapNative(aCx, mEvent, aRetval);
+  } else {
+    aRetval.setUndefined();
+  }
 }
 
 void

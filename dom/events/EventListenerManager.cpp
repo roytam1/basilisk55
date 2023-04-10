@@ -1161,6 +1161,38 @@ EventListenerManager::GetLegacyEventMessage(EventMessage aEventMessage) const
   }
 }
 
+already_AddRefed<nsPIDOMWindowInner>
+EventListenerManager::WindowFromListener(Listener* aListener,
+                                         bool aItemInShadowTree)
+{
+  nsCOMPtr<nsPIDOMWindowInner> innerWindow;
+  if (!aItemInShadowTree) {
+    if (aListener->mListener.HasWebIDLCallback()) {
+      CallbackObject* callback = aListener->mListener.GetWebIDLCallback();
+      nsGlobalWindow* win;
+      if (callback) {
+        // Find the real underlying callback.
+        JSObject* realCallback =
+          js::UncheckedUnwrap(callback->CallbackPreserveColor());
+        // Get the global for this callback.
+        win = mIsMainThreadELM ?
+              xpc::WindowGlobalOrNull(realCallback) :
+              nullptr;
+      }
+      if (win && win->IsInnerWindow()) {
+        innerWindow = win->AsInner(); // Can be nullptr
+      }
+    } else {
+      // Can't get the global from
+      // listener->mListener.GetXPCOMCallback().
+      // In most cases, it would be the same as for
+      // the target, so let's do that.
+      innerWindow = GetInnerWindowForTarget(); // Can be nullptr
+    }
+  }
+  return innerWindow.forget();
+}
+
 /**
 * Causes a check for event listeners and processing by them if they exist.
 * @param an event listener
@@ -1171,7 +1203,8 @@ EventListenerManager::HandleEventInternal(nsPresContext* aPresContext,
                                           WidgetEvent* aEvent,
                                           nsIDOMEvent** aDOMEvent,
                                           EventTarget* aCurrentTarget,
-                                          nsEventStatus* aEventStatus)
+                                          nsEventStatus* aEventStatus,
+                                          bool aItemInShadowTree)
 {
   //Set the value of the internal PreventDefault flag properly based on aEventStatus
   if (!aEvent->DefaultPrevented() &&
@@ -1263,6 +1296,12 @@ EventListenerManager::HandleEventInternal(nsPresContext* aPresContext,
               listener = listenerHolder.ptr();
               hasRemovedListener = true;
             }
+            nsCOMPtr<nsPIDOMWindowInner> innerWindow =
+              WindowFromListener(listener, aItemInShadowTree);
+            nsIDOMEvent* oldWindowEvent = nullptr;
+            if (innerWindow) {
+              oldWindowEvent = innerWindow->SetEvent(*aDOMEvent);
+            }
 
             nsresult rv = NS_OK;
             if (profiler_is_active()) {
@@ -1297,6 +1336,9 @@ EventListenerManager::HandleEventInternal(nsPresContext* aPresContext,
 
             if (NS_FAILED(rv)) {
               aEvent->mFlags.mExceptionWasRaised = true;
+            }
+            if (innerWindow) {
+              Unused << innerWindow->SetEvent(oldWindowEvent);
             }
             aEvent->mFlags.mInPassiveListener = false;
 

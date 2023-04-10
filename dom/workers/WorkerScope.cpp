@@ -8,6 +8,7 @@
 
 #include "jsapi.h"
 #include "mozilla/EventListenerManager.h"
+#include "mozilla/Unused.h"
 #include "mozilla/dom/BindingDeclarations.h"
 #include "mozilla/dom/Console.h"
 #include "mozilla/dom/DedicatedWorkerGlobalScopeBinding.h"
@@ -498,6 +499,15 @@ WorkerGlobalScope::CreateImageBitmap(const ImageBitmapSource& aImage,
     aRv.Throw(NS_ERROR_TYPE_ERR);
     return nullptr;
   }
+}
+
+// https://html.spec.whatwg.org/#structured-cloning
+void WorkerGlobalScope::StructuredClone(JSContext* aCx,
+                                        JS::Handle<JS::Value> aValue,
+                                        const StructuredSerializeOptions& aOptions,
+                                        JS::MutableHandle<JS::Value> aRv,
+                                        ErrorResult& aError) {
+  nsContentUtils::StructuredClone(aCx, this, aValue, aOptions, aRv, aError);
 }
 
 DedicatedWorkerGlobalScope::DedicatedWorkerGlobalScope(WorkerPrivate* aWorkerPrivate)

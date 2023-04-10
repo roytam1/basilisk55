@@ -14377,6 +14377,17 @@ nsGlobalWindow::CreateImageBitmap(const ImageBitmapSource& aImage,
   }
 }
 
+// https://html.spec.whatwg.org/#structured-cloning
+void
+nsGlobalWindow::StructuredClone(JSContext* aCx,
+                                JS::Handle<JS::Value> aValue,
+                                const StructuredSerializeOptions& aOptions,
+                                JS::MutableHandle<JS::Value> aRv,
+                                ErrorResult& aError)
+{
+  nsContentUtils::StructuredClone(aCx, this, aValue, aOptions, aRv, aError);
+}
+
 // Helper called by methods that move/resize the window,
 // to ensure the presContext (if any) is aware of resolution
 // change that may happen in multi-monitor configuration.

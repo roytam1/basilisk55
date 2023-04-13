@@ -158,6 +158,11 @@ public:
 
   Performance* GetPerformance();
 
+  Performance* GetPerformanceIfExists() const
+  {
+    return mPerformance;
+  }
+
   already_AddRefed<Promise>
   Fetch(const RequestOrUSVString& aInput, const RequestInit& aInit, ErrorResult& aRv);
 

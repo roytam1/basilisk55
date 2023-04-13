@@ -301,6 +301,8 @@ int32_t gTimeoutCnt                                    = 0;
 
 #define DOM_TOUCH_LISTENER_ADDED "dom-touch-listener-added"
 
+#define MEMORY_PRESSURE_OBSERVER_TOPIC "memory-pressure"
+
 // The interval at which we execute idle callbacks
 static uint32_t gThrottledIdlePeriodLength;
 
@@ -1502,6 +1504,8 @@ nsGlobalWindow::nsGlobalWindow(nsGlobalWindow *aOuterWindow)
         // can fire storage events. Use a strong reference.
         os->AddObserver(mObserver, "dom-storage2-changed", false);
         os->AddObserver(mObserver, "dom-private-storage2-changed", false);
+
+        os->AddObserver(mObserver, MEMORY_PRESSURE_OBSERVER_TOPIC, false);
       }
 
       Preferences::AddStrongObserver(mObserver, "intl.accept_languages");
@@ -1798,6 +1802,7 @@ nsGlobalWindow::CleanUp()
       os->RemoveObserver(mObserver, NS_IOSERVICE_OFFLINE_STATUS_TOPIC);
       os->RemoveObserver(mObserver, "dom-storage2-changed");
       os->RemoveObserver(mObserver, "dom-private-storage2-changed");
+      os->RemoveObserver(mObserver, MEMORY_PRESSURE_OBSERVER_TOPIC);
     }
 
     if (mIdleService) {
@@ -11857,6 +11862,13 @@ nsGlobalWindow::Observe(nsISupports* aSubject, const char* aTopic,
     if (!IsFrozen()) {
         // Fires an offline status event if the offline status has changed
         FireOfflineStatusEventIfChanged();
+    }
+    return NS_OK;
+  }
+
+  if (!nsCRT::strcmp(aTopic, MEMORY_PRESSURE_OBSERVER_TOPIC)) {
+    if (mPerformance) {
+      mPerformance->MemoryPressure();
     }
     return NS_OK;
   }

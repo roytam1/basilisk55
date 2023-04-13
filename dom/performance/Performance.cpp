@@ -547,7 +547,7 @@ Performance::Measure(JSContext* aCx,
   }
 
   RefPtr<PerformanceMeasure> performanceMeasure = new PerformanceMeasure(
-      GetAsISupports(), aName, startTime, endTime, detail);
+      GetParentObject(), aName, startTime, endTime, detail);
   InsertUserEntry(performanceMeasure);
 
   return performanceMeasure.forget();

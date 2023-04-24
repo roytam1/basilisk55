@@ -6777,7 +6777,11 @@ PresShell::RecordMouseLocation(WidgetGUIEvent* aEvent)
 
 nsIFrame* GetNearestFrameContainingPresShell(nsIPresShell* aPresShell)
 {
-  nsView* view = aPresShell->GetViewManager()->GetRootView();
+  nsViewManager* vm = aPresShell->GetViewManager();
+  if (!vm) {
+    return nullptr;
+  }
+  nsView* view = vm->GetRootView();
   while (view && !view->GetFrame()) {
     view = view->GetParent();
   }

@@ -66,46 +66,6 @@ using AddDeclaredNamePtr = ParseContext::Scope::AddDeclaredNamePtr;
 using BindingIter = ParseContext::Scope::BindingIter;
 using UsedNamePtr = UsedNameTracker::UsedNameMap::Ptr;
 
-// Read a token. Report an error and return null() if that token doesn't match
-// to the condition.  Do not use MUST_MATCH_TOKEN_INTERNAL directly.
-#define MUST_MATCH_TOKEN_INTERNAL(cond, modifier, errorReport, failureValue)                \
-    JS_BEGIN_MACRO                                                                          \
-        TokenKind token;                                                                    \
-        if (!tokenStream.getToken(&token, modifier))                                        \
-            return failureValue;                                                            \
-        if (!(cond)) {                                                                      \
-            errorReport;                                                                    \
-            return failureValue;                                                            \
-        }                                                                                   \
-    JS_END_MACRO
-
-#define MUST_MATCH_TOKEN_MOD_OR(tt, modifier, errorNumber, failureValue) \
-    MUST_MATCH_TOKEN_INTERNAL(token == tt, modifier, error(errorNumber), failureValue)
-
-#define MUST_MATCH_TOKEN_MOD(tt, modifier, errorNumber) \
-    MUST_MATCH_TOKEN_MOD_OR(tt, modifier, errorNumber, null())
-
-#define MUST_MATCH_TOKEN_OR(tt, errorNumber, failureValue) \
-    MUST_MATCH_TOKEN_MOD_OR(tt, TokenStream::None, errorNumber, failureValue)
-
-#define MUST_MATCH_TOKEN(tt, errorNumber) \
-    MUST_MATCH_TOKEN_OR(tt, errorNumber, null())
-
-#define MUST_MATCH_TOKEN_FUNC_MOD_OR(func, modifier, errorNumber, failureValue) \
-    MUST_MATCH_TOKEN_INTERNAL((func)(token), modifier, error(errorNumber), failureValue)
-
-#define MUST_MATCH_TOKEN_FUNC_OR(func, errorNumber, failureValue) \
-    MUST_MATCH_TOKEN_FUNC_MOD_OR(func, TokenStream::None, errorNumber, failureValue)
-
-#define MUST_MATCH_TOKEN_FUNC(func, errorNumber) \
-    MUST_MATCH_TOKEN_FUNC_OR(func, errorNumber, null())
-
-#define MUST_MATCH_TOKEN_MOD_WITH_REPORT_OR(tt, modifier, errorReport, failureValue) \
-    MUST_MATCH_TOKEN_INTERNAL(token == tt, modifier, errorReport, failureValue)
-
-#define MUST_MATCH_TOKEN_MOD_WITH_REPORT(tt, modifier, errorReport) \
-    MUST_MATCH_TOKEN_MOD_WITH_REPORT_OR(tt, modifier, errorReport, null())
-
 template <class T, class U>
 static inline void
 PropagateTransitiveParseFlags(const T* inner, U* outer)
@@ -610,6 +570,23 @@ FunctionBox::initWithEnclosingScope(Scope* enclosingScope)
     }
 
     computeInWith(enclosingScope);
+}
+
+template <typename ParseHandler>
+template <typename ConditionT, typename ErrorReportT>
+bool
+Parser<ParseHandler>::mustMatchTokenInternal(ConditionT condition, Modifier modifier,
+                                             ErrorReportT errorReport)
+{
+    TokenKind actual;
+    if (!tokenStream.getToken(&actual, modifier)) {
+        return false;
+    }
+    if (!condition(actual)) {
+        errorReport(actual);
+        return false;
+    }
+    return true;
 }
 
 void
@@ -3773,10 +3750,14 @@ Parser<ParseHandler>::functionFormalParametersAndBody(InHandling inHandling,
     }
 
     if (bodyType == StatementListBody) {
-        MUST_MATCH_TOKEN_MOD_WITH_REPORT_OR(TOK_RC, TokenStream::Operand,
-                                            reportMissingClosing(JSMSG_CURLY_AFTER_BODY,
-                                                                 JSMSG_CURLY_OPENED, openedPos),
-                                            false);
+        if (!mustMatchToken(TOK_RC, TokenStream::Operand,
+                            [this, openedPos](TokenKind actual) {
+                                this->reportMissingClosing(JSMSG_CURLY_AFTER_BODY,
+                                                           JSMSG_CURLY_OPENED, openedPos);
+                            }))
+        {
+            return false;
+        }
         funbox->setEnd(pos().end);
     } else {
 #if !JS_HAS_EXPR_CLOSURES
@@ -4144,11 +4125,16 @@ template <typename ParseHandler>
 typename ParseHandler::Node
 Parser<ParseHandler>::condition(InHandling inHandling, YieldHandling yieldHandling)
 {
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_BEFORE_COND);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_BEFORE_COND)) {
+        return null();
+    }
+
     Node pn = exprInParens(inHandling, yieldHandling, TripledotProhibited);
     if (!pn)
         return null();
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_COND);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_COND)) {
+        return null();
+    }
 
     /* Check for (a = b) and warn about possible (a == b) mistype. */
     if (handler.isUnparenthesizedAssignment(pn)) {
@@ -4509,9 +4495,14 @@ Parser<ParseHandler>::objectBindingPattern(DeclarationKind kind, YieldHandling y
         }
     }
 
-    MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::None,
-                                     reportMissingClosing(JSMSG_CURLY_AFTER_LIST,
-                                                          JSMSG_CURLY_OPENED, begin));
+    if (!mustMatchToken(TOK_RC, TokenStream::None,
+                        [this, begin](TokenKind actual) {
+                            this->reportMissingClosing(JSMSG_CURLY_AFTER_LIST,
+                                                       JSMSG_CURLY_OPENED, begin);
+                        }))
+    {
+        return null();
+    }
 
     handler.setEndPosition(literal, pos().end);
     return literal;
@@ -4597,9 +4588,14 @@ Parser<ParseHandler>::arrayBindingPattern(DeclarationKind kind, YieldHandling yi
          }
      }
 
-     MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RB, modifier,
-                                      reportMissingClosing(JSMSG_BRACKET_AFTER_LIST,
-                                                           JSMSG_BRACKET_OPENED, begin));
+     if (!mustMatchToken(TOK_RB, modifier,
+                         [this, begin](TokenKind actual) {
+                             this->reportMissingClosing(JSMSG_BRACKET_AFTER_LIST,
+                                                        JSMSG_BRACKET_OPENED, begin);
+                         }))
+     {
+         return null();
+     }
 
     handler.setEndPosition(literal, pos().end);
     return literal;
@@ -4656,9 +4652,13 @@ Parser<ParseHandler>::blockStatement(YieldHandling yieldHandling, unsigned error
     if (!list)
         return null();
 
-    MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::Operand,
-                                     reportMissingClosing(errorNumber, JSMSG_CURLY_OPENED,
-                                                          openedPos));
+    if (!mustMatchToken(TOK_RC, TokenStream::Operand,
+                        [this, errorNumber, openedPos](TokenKind actual) {
+                            this->reportMissingClosing(errorNumber, JSMSG_CURLY_OPENED, openedPos);
+                        }))
+    {
+        return null();
+    }
 
     return finishLexicalScope(scope, list);
 }
@@ -4714,7 +4714,9 @@ Parser<ParseHandler>::declarationPattern(Node decl, DeclarationKind declKind, To
         }
     }
 
-    MUST_MATCH_TOKEN(TOK_ASSIGN, JSMSG_BAD_DESTRUCT_DECL);
+    if (!mustMatchToken(TOK_ASSIGN, JSMSG_BAD_DESTRUCT_DECL)) {
+        return null();
+    }
 
     Node init = assignExpr(forHeadKind ? InProhibited : InAllowed,
                            yieldHandling, TripledotProhibited);
@@ -5082,9 +5084,13 @@ Parser<FullParseHandler>::namedImportsOrNamespaceImport(TokenKind tt, ListNodeTy
     } else {
         MOZ_ASSERT(tt == TOK_MUL);
 
-        MUST_MATCH_TOKEN_OR(TOK_AS, JSMSG_AS_AFTER_IMPORT_STAR, false);
+        if (!mustMatchToken(TOK_AS, JSMSG_AS_AFTER_IMPORT_STAR)) {
+            return false;
+        }
 
-        MUST_MATCH_TOKEN_FUNC_OR(TokenKindIsPossibleIdentifierName, JSMSG_NO_BINDING_NAME, false);
+        if (!mustMatchToken(TokenKindIsPossibleIdentifierName, JSMSG_NO_BINDING_NAME)) {
+            return false;
+        }
 
         NameNodeType importName = newName(context->names().star);
         if (!importName)
@@ -5192,9 +5198,13 @@ Parser<FullParseHandler>::importDeclaration()
             return null();
         }
 
-        MUST_MATCH_TOKEN(TOK_FROM, JSMSG_FROM_AFTER_IMPORT_CLAUSE);
+        if (!mustMatchToken(TOK_FROM, JSMSG_FROM_AFTER_IMPORT_CLAUSE)) {
+            return null();
+        }
 
-        MUST_MATCH_TOKEN(TOK_STRING, JSMSG_MODULE_SPEC_AFTER_FROM);
+        if (!mustMatchToken(TOK_STRING, JSMSG_MODULE_SPEC_AFTER_FROM)) {
+            return null();
+        }
     }
 
     NameNodeType moduleSpec = stringLiteral();
@@ -5499,7 +5509,9 @@ Parser<ParseHandler>::exportFrom(uint32_t begin, Node specList)
     if (!abortIfSyntaxParser())
         return null();
 
-    MUST_MATCH_TOKEN(TOK_STRING, JSMSG_MODULE_SPEC_AFTER_FROM);
+    if (!mustMatchToken(TOK_STRING, JSMSG_MODULE_SPEC_AFTER_FROM)) {
+        return null();
+    }
 
     NameNodeType moduleSpec = stringLiteral();
     if (!moduleSpec)
@@ -5539,7 +5551,9 @@ Parser<ParseHandler>::exportBatch(uint32_t begin)
 
     handler.addList(kid, exportSpec);
 
-    MUST_MATCH_TOKEN(TOK_FROM, JSMSG_FROM_AFTER_EXPORT_STAR);
+    if (!mustMatchToken(TOK_FROM, JSMSG_FROM_AFTER_EXPORT_STAR)) {
+        return null();
+    }
 
     return exportFrom(begin, kid);
 }
@@ -5604,8 +5618,11 @@ Parser<ParseHandler>::exportClause(uint32_t begin)
         bool foundAs;
         if (!tokenStream.matchToken(&foundAs, TOK_AS))
             return null();
-        if (foundAs)
-            MUST_MATCH_TOKEN_FUNC(TokenKindIsPossibleIdentifierName, JSMSG_NO_EXPORT_NAME);
+        if (foundAs) {
+            if (!mustMatchToken(TokenKindIsPossibleIdentifierName, JSMSG_NO_EXPORT_NAME)) {
+                return null();
+            }
+        }
 
         NameNodeType exportName = newName(tokenStream.currentName());
         if (!exportName)
@@ -6109,7 +6126,9 @@ Parser<ParseHandler>::doWhileStatement(YieldHandling yieldHandling)
     Node body = statement(yieldHandling);
     if (!body)
         return null();
-    MUST_MATCH_TOKEN_MOD(TOK_WHILE, TokenStream::Operand, JSMSG_WHILE_AFTER_DO);
+    if (!mustMatchToken(TOK_WHILE, TokenStream::Operand, JSMSG_WHILE_AFTER_DO)) {
+        return null();
+    }
     Node cond = condition(InAllowed, yieldHandling);
     if (!cond)
         return null();
@@ -6357,7 +6376,9 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
         }
     }
 
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_AFTER_FOR);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_AFTER_FOR)) {
+        return null();
+    }
 
     // PNK_FORHEAD, PNK_FORIN, or PNK_FOROF depending on the loop type.
     ParseNodeKind headKind;
@@ -6413,7 +6434,9 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
 
         // Look for an operand: |for (;| means we might have already examined
         // this semicolon with that modifier.
-        MUST_MATCH_TOKEN_MOD(TOK_SEMI, TokenStream::Operand, JSMSG_SEMI_AFTER_FOR_INIT);
+        if (!mustMatchToken(TOK_SEMI, TokenStream::Operand, JSMSG_SEMI_AFTER_FOR_INIT)) {
+            return null();
+        }
 
         TokenKind tt;
         if (!tokenStream.peekToken(&tt, TokenStream::Operand))
@@ -6431,7 +6454,9 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
             mod = TokenStream::None;
         }
 
-        MUST_MATCH_TOKEN_MOD(TOK_SEMI, mod, JSMSG_SEMI_AFTER_FOR_COND);
+        if (!mustMatchToken(TOK_SEMI, mod, JSMSG_SEMI_AFTER_FOR_COND)) {
+            return null();
+        }
 
         if (!tokenStream.peekToken(&tt, TokenStream::Operand))
             return null();
@@ -6447,7 +6472,9 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
             mod = TokenStream::None;
         }
 
-        MUST_MATCH_TOKEN_MOD(TOK_RP, mod, JSMSG_PAREN_AFTER_FOR_CTRL);
+        if (!mustMatchToken(TOK_RP, mod, JSMSG_PAREN_AFTER_FOR_CTRL)) {
+            return null();
+        }
 
         TokenPos headPos(begin, pos().end);
         forHead = handler.newForHead(init, test, update, headPos);
@@ -6477,7 +6504,9 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
         // Parser::declaration consumed everything up to the closing ')'.  That
         // token follows an {Assignment,}Expression, so the next token must be
         // consumed as if an operator continued the expression, i.e. as None.
-        MUST_MATCH_TOKEN_MOD(TOK_RP, TokenStream::None, JSMSG_PAREN_AFTER_FOR_CTRL);
+        if (!mustMatchToken(TOK_RP, TokenStream::None, JSMSG_PAREN_AFTER_FOR_CTRL)) {
+            return null();
+        }
 
         TokenPos headPos(begin, pos().end);
         forHead = handler.newForInOrOfHead(headKind, target, iteratedExpr, headPos);
@@ -6506,14 +6535,20 @@ Parser<ParseHandler>::switchStatement(YieldHandling yieldHandling)
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_SWITCH));
     uint32_t begin = pos().begin;
 
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_BEFORE_SWITCH);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_BEFORE_SWITCH)) {
+        return null();
+    }
 
     Node discriminant = exprInParens(InAllowed, yieldHandling, TripledotProhibited);
     if (!discriminant)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_SWITCH);
-    MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_SWITCH);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_SWITCH)) {
+        return null();
+    }
+    if (!mustMatchToken(TOK_LC, JSMSG_CURLY_BEFORE_SWITCH)) {
+        return null();
+    }
 
     ParseContext::Statement stmt(pc, StatementKind::Switch);
     ParseContext::Scope scope(this);
@@ -6555,7 +6590,9 @@ Parser<ParseHandler>::switchStatement(YieldHandling yieldHandling)
             return null();
         }
 
-        MUST_MATCH_TOKEN(TOK_COLON, JSMSG_COLON_AFTER_CASE);
+        if (!mustMatchToken(TOK_COLON, JSMSG_COLON_AFTER_CASE)) {
+            return null();
+        }
 
         ListNodeType body = handler.newStatementList(pos());
         if (!body)
@@ -6910,11 +6947,15 @@ Parser<ParseHandler>::withStatement(YieldHandling yieldHandling)
             return null();
     }
 
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_BEFORE_WITH);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_BEFORE_WITH)) {
+        return null();
+    }
     Node objectExpr = exprInParens(InAllowed, yieldHandling, TripledotProhibited);
     if (!objectExpr)
         return null();
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_WITH);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_WITH)) {
+        return null();
+    }
 
     Node innerBlock;
     {
@@ -7051,7 +7092,9 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
 
     LexicalScopeNodeType innerBlock;
     {
-        MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_TRY);
+        if (!mustMatchToken(TOK_LC, JSMSG_CURLY_BEFORE_TRY)) {
+            return null();
+        }
 
         uint32_t openedPos = pos().begin;
 
@@ -7068,9 +7111,14 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
         if (!innerBlock)
             return null();
 
-        MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::Operand,
-                                         reportMissingClosing(JSMSG_CURLY_AFTER_TRY,
-                                                              JSMSG_CURLY_OPENED, openedPos));
+        if (!mustMatchToken(TOK_RC, TokenStream::Operand,
+                            [this, openedPos](TokenKind actual) {
+                                this->reportMissingClosing(JSMSG_CURLY_AFTER_TRY, 
+                                                           JSMSG_CURLY_OPENED, openedPos);
+                            }))
+        {
+            return null();
+        }
     }
 
     bool hasUnconditionalCatch = false;
@@ -7117,7 +7165,9 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
             if (omittedBinding) {
                 catchName = null();
             } else {
-                MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_BEFORE_CATCH);
+                if (!mustMatchToken(TOK_LP, JSMSG_PAREN_BEFORE_CATCH)) {
+                    return null();
+                }
 
                 if (!tokenStream.getToken(&tt))
                     return null();
@@ -7159,9 +7209,13 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
                         return null();
                 }
 #endif
-                MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_CATCH);
+                if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_CATCH)) {
+                    return null();
+                }
 
-                MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_CATCH);
+                if (!mustMatchToken(TOK_LC, JSMSG_CURLY_BEFORE_CATCH)) {
+                    return null();
+                }
             }
 
             LexicalScopeNodeType catchBody = catchBlockStatement(yieldHandling, scope);
@@ -7188,7 +7242,9 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
     LexicalScopeNodeType finallyBlock = null();
 
     if (tt == TOK_FINALLY) {
-        MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_FINALLY);
+        if (!mustMatchToken(TOK_LC, JSMSG_CURLY_BEFORE_FINALLY)) {
+            return null();
+        }
 
         uint32_t openedPos = pos().begin;
 
@@ -7205,9 +7261,15 @@ Parser<ParseHandler>::tryStatement(YieldHandling yieldHandling)
         if (!finallyBlock)
             return null();
 
-        MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::Operand,
-                                         reportMissingClosing(JSMSG_CURLY_AFTER_FINALLY,
-                                                              JSMSG_CURLY_OPENED, openedPos));
+        if (!mustMatchToken(TOK_RC, TokenStream::Operand,
+                            [this, openedPos](TokenKind actual) {
+                                this->reportMissingClosing(JSMSG_CURLY_AFTER_FINALLY,
+                                                           JSMSG_CURLY_OPENED, openedPos);
+                            }))
+        {
+            return null();
+        }
+                                                            
     } else {
         tokenStream.ungetToken();
     }
@@ -7245,9 +7307,14 @@ Parser<ParseHandler>::catchBlockStatement(YieldHandling yieldHandling,
     if (!list)
         return null();
 
-    MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::Operand,
-                                     reportMissingClosing(JSMSG_CURLY_AFTER_CATCH,
-                                                          JSMSG_CURLY_OPENED, openedPos));
+    if (!mustMatchToken(TOK_RC, TokenStream::Operand,
+                        [this, openedPos](TokenKind actual) {
+                            this->reportMissingClosing(JSMSG_CURLY_AFTER_CATCH,
+                                                       JSMSG_CURLY_OPENED, openedPos);
+                        }))
+    {
+        return null();
+    }
 
     // The catch parameter names are not bound in the body scope, so remove
     // them before generating bindings.
@@ -7362,7 +7429,9 @@ Parser<ParseHandler>::classDefinition(YieldHandling yieldHandling,
             return null();
     }
 
-    MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_CLASS);
+    if (!mustMatchToken(TOK_LC, JSMSG_CURLY_BEFORE_CLASS)) {
+        return null();
+    }
 
     ListNodeType classMethods = handler.newClassMethodList(pos().begin);
     if (!classMethods)
@@ -8276,7 +8345,9 @@ Parser<ParseHandler>::condExpr1(InHandling inHandling, YieldHandling yieldHandli
     if (!thenExpr)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_COLON, JSMSG_COLON_IN_COND);
+    if (!mustMatchToken(TOK_COLON, JSMSG_COLON_IN_COND)) {
+        return null();
+    }
 
     Node elseExpr = assignExpr(inHandling, yieldHandling, TripledotProhibited);
     if (!elseExpr)
@@ -8906,7 +8977,9 @@ Parser<ParseHandler>::generatorComprehensionLambda(unsigned begin)
     if (!comp)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_IN_PAREN);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_IN_PAREN)) {
+        return null();
+    }
 
     uint32_t end = pos().end;
     handler.setBeginPosition(comp, begin);
@@ -8947,11 +9020,15 @@ Parser<ParseHandler>::comprehensionFor(GeneratorKind comprehensionKind)
 
     uint32_t begin = pos().begin;
 
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_AFTER_FOR);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_AFTER_FOR)) {
+        return null();
+    }
 
     // FIXME: Destructuring binding (bug 980828).
 
-    MUST_MATCH_TOKEN_FUNC(TokenKindIsPossibleIdentifier, JSMSG_NO_VARIABLE_NAME);
+    if (!mustMatchToken(TokenKindIsPossibleIdentifier, JSMSG_NO_VARIABLE_NAME)) {
+        return null();
+    }
     RootedPropertyName name(context, bindingIdentifier(YieldIsKeyword));
     if (!name)
         return null();
@@ -8975,7 +9052,9 @@ Parser<ParseHandler>::comprehensionFor(GeneratorKind comprehensionKind)
     if (!rhs)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_FOR_OF_ITERABLE);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_FOR_OF_ITERABLE)) {
+        return null();
+    }
 
     TokenPos headPos(begin, pos().end);
 
@@ -9020,11 +9099,15 @@ Parser<ParseHandler>::comprehensionIf(GeneratorKind comprehensionKind)
 
     uint32_t begin = pos().begin;
 
-    MUST_MATCH_TOKEN(TOK_LP, JSMSG_PAREN_BEFORE_COND);
+    if (!mustMatchToken(TOK_LP, JSMSG_PAREN_BEFORE_COND)) {
+        return null();
+    }
     Node cond = assignExpr(InAllowed, YieldIsKeyword, TripledotProhibited);
     if (!cond)
         return null();
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_COND);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_COND)) {
+        return null();
+    }
 
     /* Check for (a = b) and warn about possible (a == b) mistype. */
     if (handler.isUnparenthesizedAssignment(cond)) {
@@ -9104,7 +9187,9 @@ Parser<ParseHandler>::arrayComprehension(uint32_t begin)
     if (!inner)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_RB, JSMSG_BRACKET_AFTER_ARRAY_COMPREHENSION);
+    if (!mustMatchToken(TOK_RB, JSMSG_BRACKET_AFTER_ARRAY_COMPREHENSION)) {
+        return null();
+    }
 
     ListNodeType comp = handler.newList(PNK_ARRAYCOMP, inner);
     if (!comp)
@@ -9222,7 +9307,9 @@ Parser<ParseHandler>::argumentList(YieldHandling yieldHandling, bool* isSpread,
         }
     }
 
-    MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_AFTER_ARGS);
+    if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_ARGS)) {
+        return null();
+    }
 
     handler.setEndPosition(argsList, pos().end);
     return argsList;
@@ -9455,7 +9542,9 @@ Parser<ParseHandler>::memberElemAccess(
         return null();
     }
 
-    MUST_MATCH_TOKEN(TOK_RB, JSMSG_BRACKET_IN_INDEX);
+    if (!mustMatchToken(TOK_RB, JSMSG_BRACKET_IN_INDEX)) {
+        return null();
+    }
 
     if (handler.isSuperBase(lhs) && !checkAndMarkSuperScope()) {
         error(JSMSG_BAD_SUPERPROP, "member");
@@ -9929,9 +10018,14 @@ Parser<ParseHandler>::arrayInitializer(YieldHandling yieldHandling, PossibleErro
             }
         }
 
-        MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RB, modifier,
-                                         reportMissingClosing(JSMSG_BRACKET_AFTER_LIST,
-                                                              JSMSG_BRACKET_OPENED, begin));
+        if (!mustMatchToken(TOK_RB, modifier,
+                            [this, begin](TokenKind actual) {
+                                this->reportMissingClosing(JSMSG_BRACKET_AFTER_LIST,
+                                                           JSMSG_BRACKET_OPENED, begin);
+                            }))
+        {
+            return null();
+        }
     }
     handler.setEndPosition(literal, pos().end);
     return literal;
@@ -10156,7 +10250,9 @@ Parser<ParseHandler>::computedPropertyName(YieldHandling yieldHandling,
     if (!assignNode)
         return null();
 
-    MUST_MATCH_TOKEN(TOK_RB, JSMSG_COMP_PROP_UNTERM_EXPR);
+    if (!mustMatchToken(TOK_RB, JSMSG_COMP_PROP_UNTERM_EXPR)) {
+        return null();
+    }
     return handler.newComputedName(assignNode, begin, pos().end);
 }
 
@@ -10368,9 +10464,14 @@ Parser<ParseHandler>::objectLiteral(YieldHandling yieldHandling, PossibleError* 
             possibleError->setPendingDestructuringErrorAt(pos(), JSMSG_REST_WITH_COMMA);
     }
 
-    MUST_MATCH_TOKEN_MOD_WITH_REPORT(TOK_RC, TokenStream::None,
-                                     reportMissingClosing(JSMSG_CURLY_AFTER_LIST,
-                                                          JSMSG_CURLY_OPENED, openedPos));
+    if (!mustMatchToken(TOK_RC, TokenStream::None,
+                        [this, openedPos](TokenKind actual) {
+                            this->reportMissingClosing(JSMSG_CURLY_AFTER_LIST,
+                                                       JSMSG_CURLY_OPENED, openedPos);
+                        }))
+    {
+        return null();
+    }
 
     handler.setEndPosition(literal, pos().end);
     return literal;
@@ -10519,7 +10620,9 @@ Parser<ParseHandler>::importExpr(YieldHandling yieldHandling)
         if (!arg)
             return null();
 
-        MUST_MATCH_TOKEN_MOD(TOK_RP, TokenStream::Operand, JSMSG_PAREN_AFTER_ARGS);
+        if (!mustMatchToken(TOK_RP, JSMSG_PAREN_AFTER_ARGS)) {
+            return null();
+        }
 
         if (!context->compartment()->runtimeFromAnyThread()->moduleDynamicImportHook && !abortIfSyntaxParser()) {
             return null();
@@ -10587,7 +10690,9 @@ Parser<ParseHandler>::primaryExpr(YieldHandling yieldHandling, TripledotHandling
         Node expr = exprInParens(InAllowed, yieldHandling, TripledotAllowed, possibleError);
         if (!expr)
             return null();
-        MUST_MATCH_TOKEN(TOK_RP, JSMSG_PAREN_IN_PAREN);
+        if (!mustMatchToken(TOK_RP, JSMSG_PAREN_IN_PAREN)) {
+            return null();
+        }
         return handler.parenthesize(expr);
       }
 

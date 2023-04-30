@@ -75,6 +75,31 @@ ImplCycleCollectionTraverse(nsCycleCollectionTraversalCallback& aCallback,
                             uint32_t aFlags = 0);
 
 //////////////////////////////////////////////////////////////
+// ScriptFetchOptions
+//////////////////////////////////////////////////////////////
+
+NS_IMPL_CYCLE_COLLECTION(ScriptFetchOptions,
+                         mElement,
+                         mTriggeringPrincipal)
+
+NS_IMPL_CYCLE_COLLECTION_ROOT_NATIVE(ScriptFetchOptions, AddRef)
+NS_IMPL_CYCLE_COLLECTION_UNROOT_NATIVE(ScriptFetchOptions, Release)
+
+ScriptFetchOptions::ScriptFetchOptions(mozilla::CORSMode aCORSMode,
+                                       mozilla::net::ReferrerPolicy aReferrerPolicy,
+                                       nsIScriptElement* aElement,
+                                       nsIPrincipal* aTriggeringPrincipal)
+  : mCORSMode(aCORSMode)
+  , mReferrerPolicy(aReferrerPolicy)
+  , mElement(aElement)
+  , mTriggeringPrincipal(aTriggeringPrincipal)
+{
+}
+
+ScriptFetchOptions::~ScriptFetchOptions()
+{}
+
+//////////////////////////////////////////////////////////////
 // ScriptLoadRequest
 //////////////////////////////////////////////////////////////
 
@@ -87,11 +112,12 @@ NS_IMPL_CYCLE_COLLECTING_RELEASE(ScriptLoadRequest)
 NS_IMPL_CYCLE_COLLECTION_CLASS(ScriptLoadRequest)
 
 NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN(ScriptLoadRequest)
-  NS_IMPL_CYCLE_COLLECTION_UNLINK(mElement)
+  NS_IMPL_CYCLE_COLLECTION_UNLINK(mFetchOptions)
+  tmp->mScript = nullptr;
 NS_IMPL_CYCLE_COLLECTION_UNLINK_END
 
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN(ScriptLoadRequest)
-  NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mElement)
+  NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mFetchOptions)
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
 
 ScriptLoadRequest::~ScriptLoadRequest()
@@ -104,6 +130,8 @@ ScriptLoadRequest::~ScriptLoadRequest()
   // But play it safe in release builds and try to clean them up here
   // as a fail safe.
   MaybeCancelOffThreadScript();
+
+  DropJSObjects(this);
 }
 
 void
@@ -151,6 +179,12 @@ ScriptLoadRequest::SetScriptMode(bool aDeferAttr, bool aAsyncAttr)
   } else {
     mScriptMode = ScriptMode::eBlocking;
   }
+}
+
+void ScriptLoadRequest::SetScript(JSScript* aScript) {
+  MOZ_ASSERT(!mScript);
+  mScript = aScript;
+  HoldJSObjects(this);
 }
 
 //////////////////////////////////////////////////////////////
@@ -239,11 +273,12 @@ NS_IMPL_CYCLE_COLLECTION(ScriptLoader,
                          mNonAsyncExternalScriptInsertedRequests,
                          mLoadingAsyncRequests,
                          mLoadedAsyncRequests,
-                         mDeferRequests,
-                         mXSLTRequests,
-                         mParserBlockingRequest,
-                         mPreloads,
-                         mPendingChildLoaders,
+                         mDeferRequests, 
+                         mXSLTRequests, 
+                         mDynamicImportRequests,
+                         mParserBlockingRequest, 
+                         mPreloads, 
+                         mPendingChildLoaders, 
                          mFetchedModules)
 
 NS_IMPL_CYCLE_COLLECTING_ADDREF(ScriptLoader)
@@ -260,6 +295,7 @@ ScriptLoader::ScriptLoader(nsIDocument *aDocument)
     mBlockingDOMContentLoaded(false),
     mReporter(new ConsoleReportCollector())
 {
+    EnsureModuleHooksInitialized();
 }
 
 ScriptLoader::~ScriptLoader()
@@ -288,6 +324,11 @@ ScriptLoader::~ScriptLoader()
   for (ScriptLoadRequest* req = mLoadedAsyncRequests.getFirst(); req;
        req = req->getNext()) {
     req->FireScriptAvailable(NS_ERROR_ABORT);
+  }
+
+  for (ScriptLoadRequest* req = mDynamicImportRequests.getFirst(); req;
+       req = req->getNext()) {
+    FinishDynamicImport(req->AsModuleRequest(), NS_ERROR_ABORT);
   }
 
   for(ScriptLoadRequest* req = mNonAsyncExternalScriptInsertedRequests.getFirst();
@@ -543,7 +584,7 @@ ScriptLoader::CreateModuleScript(ModuleLoadRequest* aRequest)
     nsCOMPtr<nsIDocument> master = mDocument->MasterDocument();
     if (master != mDocument) {
       masterScriptUpdater.emplace(master->ScriptLoader(),
-                                  aRequest->mElement);
+                                  aRequest->Element());
     }
 
     JSContext* cx = aes.cx();
@@ -568,7 +609,8 @@ ScriptLoader::CreateModuleScript(ModuleLoadRequest* aRequest)
 
     MOZ_ASSERT(NS_SUCCEEDED(rv) == (module != nullptr));
 
-    RefPtr<ModuleScript> moduleScript = new ModuleScript(this, aRequest->mBaseURL);
+    RefPtr<ModuleScript> moduleScript =
+        new ModuleScript(this, aRequest->mFetchOptions, aRequest->mBaseURL);
     aRequest->mModuleScript = moduleScript;
 
     if (!module) {
@@ -782,7 +824,8 @@ ScriptLoader::StartFetchingModuleAndDependencies(ModuleLoadRequest* aParent,
 {
   MOZ_ASSERT(aURI);
 
-  RefPtr<ModuleLoadRequest> childRequest = new ModuleLoadRequest(aURI, aParent);
+  RefPtr<ModuleLoadRequest> childRequest =
+      ModuleLoadRequest::CreateStaticImport(aURI, aParent);
 
   aParent->mImports.AppendElement(childRequest);
 
@@ -805,6 +848,12 @@ HostResolveImportedModule(JSContext* aCx,
                           JS::Handle<JSString*> aSpecifier)
 {
   // Let referencing module script be referencingModule.[[HostDefined]].
+  if (aReferencingPrivate.isUndefined()) {
+    JS_ReportErrorNumberUC(aCx, js::GetErrorMessage, nullptr,
+                           JSMSG_IMPORT_SCRIPT_NOT_FOUND);
+    return nullptr;
+  }
+
   auto script = static_cast<ModuleScript*>(aReferencingPrivate.toPrivate());
   MOZ_ASSERT(JS::GetModulePrivate(script->ModuleRecord()) == aReferencingPrivate);
 
@@ -869,16 +918,108 @@ HostPopulateImportMeta(JSContext* aCx, JS::Handle<JSObject*> aModule,
   return JS_DefineProperty(aCx, aMetaObject, "url", urlString, JSPROP_ENUMERATE);
 }
 
-static void
-EnsureModuleResolveHook(JSContext* aCx)
-{
-  JSRuntime* rt = JS_GetRuntime(aCx);
+bool HostImportModuleDynamically(JSContext* aCx,
+                                 JS::Handle<JS::Value> aReferencingPrivate,
+                                 JS::Handle<JSString*> aSpecifier,
+                                 JS::Handle<JSObject*> aPromise) {
+  if (aReferencingPrivate.isUndefined()) {
+    JS_ReportErrorNumberUC(aCx, js::GetErrorMessage, nullptr,
+                           JSMSG_IMPORT_SCRIPT_NOT_FOUND);
+    return false;
+  }
+
+  auto script = static_cast<ModuleScript*>(aReferencingPrivate.toPrivate());
+  MOZ_ASSERT(JS::GetModulePrivate(script->ModuleRecord()) ==
+             aReferencingPrivate);
+
+  // Attempt to resolve the module specifier.
+  nsAutoJSString string;
+  if (!string.init(aCx, aSpecifier)) {
+    return false;
+  }
+
+  nsCOMPtr<nsIURI> uri = ResolveModuleSpecifier(script, string);
+  if (!uri) {
+    JS_ReportErrorNumberUC(aCx, js::GetErrorMessage, nullptr,
+                           JSMSG_BAD_MODULE_SPECIFIER, string.get());
+    return false;
+  }
+
+  // Create a new top-level load request.
+  RefPtr<ModuleLoadRequest> request = ModuleLoadRequest::CreateDynamicImport(
+      uri, script, aReferencingPrivate, aSpecifier, aPromise);
+
+  script->Loader()->StartDynamicImport(request);
+  return true;
+}
+
+void ScriptLoader::StartDynamicImport(ModuleLoadRequest* aRequest) {
+  mDynamicImportRequests.AppendElement(aRequest);
+
+  nsresult rv = StartLoad(aRequest, NS_LITERAL_STRING("script"), false);
+  if (NS_FAILED(rv)) {
+    FinishDynamicImport(aRequest, rv);
+  }
+}
+
+void ScriptLoader::FinishDynamicImport(ModuleLoadRequest* aRequest,
+                                       nsresult aResult) {
+  AutoJSAPI jsapi;
+  MOZ_ALWAYS_TRUE(jsapi.Init(aRequest->mDynamicPromise));
+  FinishDynamicImport(jsapi.cx(), aRequest, aResult);
+}
+
+void ScriptLoader::FinishDynamicImport(JSContext* aCx,
+                                       ModuleLoadRequest* aRequest,
+                                       nsresult aResult) {
+  // Complete the dynamic import, report failures indicated by aResult or as a
+  // pending exception on the context.
+
+  if (NS_FAILED(aResult)) {
+    MOZ_ASSERT(!JS_IsExceptionPending(aCx));
+    JS_ReportErrorNumberUC(aCx, js::GetErrorMessage, nullptr,
+                           JSMSG_IMPORT_SCRIPT_NOT_FOUND);
+  }
+
+  JS::Rooted<JS::Value> referencingScript(aCx,
+                                          aRequest->mDynamicReferencingPrivate);
+  JS::Rooted<JSString*> specifier(aCx, aRequest->mDynamicSpecifier);
+  JS::Rooted<JSObject*> promise(aCx, aRequest->mDynamicPromise);
+
+  JS::FinishDynamicModuleImport(aCx, referencingScript, specifier, promise);
+
+  // FinishDynamicModuleImport clears any pending exception.
+  MOZ_ASSERT(!JS_IsExceptionPending(aCx));
+
+  aRequest->ClearDynamicImport();
+}
+
+static void DynamicImportPrefChangedCallback(const char* aPrefName,
+                                             void* aClosure) {
+  bool enabled = Preferences::GetBool(aPrefName);
+  JS::ModuleDynamicImportHook hook =
+      enabled ? HostImportModuleDynamically : nullptr;
+
+  AutoJSAPI jsapi;
+  jsapi.Init();
+  JS::SetModuleDynamicImportHook(jsapi.cx(), hook);
+}
+
+void ScriptLoader::EnsureModuleHooksInitialized() {
+  AutoJSAPI jsapi;
+  jsapi.Init();
+  JSRuntime* rt = JS_GetRuntime(jsapi.cx());
   if (JS::GetModuleResolveHook(rt)) {
     return;
   }
 
   JS::SetModuleResolveHook(rt, HostResolveImportedModule);
-  JS::SetModuleMetadataHook(aCx, HostPopulateImportMeta);
+  JS::SetModuleMetadataHook(jsapi.cx(), HostPopulateImportMeta);
+  JS::SetScriptPrivateFinalizeHook(jsapi.cx(), HostFinalizeTopLevelScript);
+ 
+  Preferences::RegisterCallbackAndCall(DynamicImportPrefChangedCallback,
+                                       "javascript.options.dynamicImport",
+                                       (void*)nullptr);
 }
 
 void
@@ -910,11 +1051,21 @@ public:
     : mLoader(aLoader)
     , mRequest(aRequest)
   {}
-  NS_IMETHOD Run() override
-  {
+  NS_IMETHOD Run() override {
+    if (mRequest->IsModuleRequest() &&
+        mRequest->AsModuleRequest()->IsDynamicImport()) {
+      mLoader->ProcessDynamicImport(mRequest->AsModuleRequest());
+      return NS_OK;
+    }
+
     return mLoader->ProcessRequest(mRequest);
   }
 };
+
+void ScriptLoader::RunScriptWhenSafe(ScriptLoadRequest* aRequest) {
+  auto runnable = new ScriptRequestProcessor(this, aRequest);
+  nsContentUtils::AddScriptRunner(runnable);
+}
 
 void
 ScriptLoader::ProcessLoadedModuleTree(ModuleLoadRequest* aRequest)
@@ -927,12 +1078,13 @@ ScriptLoader::ProcessLoadedModuleTree(ModuleLoadRequest* aRequest)
       }
     }
 
-    if (aRequest->mIsInline &&
-        aRequest->mElement->GetParserCreated() == NOT_FROM_PARSER)
-    {
-      MOZ_ASSERT(!aRequest->isInList());
-      nsContentUtils::AddScriptRunner(
-        new ScriptRequestProcessor(this, aRequest));
+    if (aRequest->IsDynamicImport()) {
+      MOZ_ASSERT(aRequest->isInList());
+      RefPtr<ScriptLoadRequest> req = mDynamicImportRequests.Steal(aRequest);
+      RunScriptWhenSafe(req);
+    } else if (aRequest->mIsInline &&
+               aRequest->Element()->GetParserCreated() == NOT_FROM_PARSER) {
+        RunScriptWhenSafe(aRequest);
     } else {
       MaybeMoveToLoadedList(aRequest);
       ProcessPendingRequests();
@@ -992,8 +1144,6 @@ ScriptLoader::InstantiateModuleTree(ModuleLoadRequest* aRequest)
     return false;
   }
 
-  EnsureModuleResolveHook(jsapi.cx());
-
   JS::Rooted<JSObject*> module(jsapi.cx(), moduleScript->ModuleRecord());
   bool ok = NS_SUCCEEDED(nsJSUtils::ModuleInstantiate(jsapi.cx(), module));
 
@@ -1039,8 +1189,8 @@ ScriptLoader::StartLoad(ScriptLoadRequest *aRequest, const nsAString &aType,
                                           ? nsIContentPolicy::TYPE_INTERNAL_SCRIPT_PRELOAD
                                           : nsIContentPolicy::TYPE_INTERNAL_SCRIPT;
   nsCOMPtr<nsINode> context;
-  if (aRequest->mElement) {
-    context = do_QueryInterface(aRequest->mElement);
+  if (aRequest->Element()) {
+    context = do_QueryInterface(aRequest->Element());
   }
   else {
     context = mDocument;
@@ -1057,21 +1207,21 @@ ScriptLoader::StartLoad(ScriptLoadRequest *aRequest, const nsAString &aType,
     // According to the spec, module scripts have different behaviour to classic
     // scripts and always use CORS.
     securityFlags = nsILoadInfo::SEC_REQUIRE_CORS_DATA_INHERITS;
-    if (aRequest->mCORSMode == CORS_NONE) {
+    if (aRequest->CORSMode() == CORS_NONE) {
       securityFlags |= nsILoadInfo::SEC_COOKIES_OMIT;
-    } else if (aRequest->mCORSMode == CORS_ANONYMOUS) {
+    } else if (aRequest->CORSMode() == CORS_ANONYMOUS) {
       securityFlags |= nsILoadInfo::SEC_COOKIES_SAME_ORIGIN;
     } else {
-      MOZ_ASSERT(aRequest->mCORSMode == CORS_USE_CREDENTIALS);
+      MOZ_ASSERT(aRequest->CORSMode() == CORS_USE_CREDENTIALS);
       securityFlags |= nsILoadInfo::SEC_COOKIES_INCLUDE;
     }
   } else {
-    securityFlags = aRequest->mCORSMode == CORS_NONE
+    securityFlags = aRequest->CORSMode() == CORS_NONE
       ? nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL
       : nsILoadInfo::SEC_REQUIRE_CORS_DATA_INHERITS;
-    if (aRequest->mCORSMode == CORS_ANONYMOUS) {
+    if (aRequest->CORSMode() == CORS_ANONYMOUS) {
       securityFlags |= nsILoadInfo::SEC_COOKIES_SAME_ORIGIN;
-    } else if (aRequest->mCORSMode == CORS_USE_CREDENTIALS) {
+    } else if (aRequest->CORSMode() == CORS_USE_CREDENTIALS) {
       securityFlags |= nsILoadInfo::SEC_COOKIES_INCLUDE;
     }
   }
@@ -1110,7 +1260,7 @@ ScriptLoader::StartLoad(ScriptLoadRequest *aRequest, const nsAString &aType,
                                   NS_LITERAL_CSTRING("*/*"),
                                   false);
     httpChannel->SetReferrerWithPolicy(aRequest->mReferrer,
-                                       aRequest->mReferrerPolicy);
+                                       aRequest->ReferrerPolicy());
 
     nsCOMPtr<nsIHttpChannelInternal> internalChannel(do_QueryInterface(httpChannel));
     if (internalChannel) {
@@ -1232,22 +1382,21 @@ ScriptLoadRequest*
 ScriptLoader::CreateLoadRequest(ScriptKind aKind,
                                 nsIURI* aURI,
                                 nsIScriptElement* aElement,
-                                uint32_t aVersion, CORSMode aCORSMode,
+                                nsIPrincipal* aTriggeringPrincipal,
+                                CORSMode aCORSMode,
                                 const SRIMetadata& aIntegrity,
                                 mozilla::net::ReferrerPolicy aReferrerPolicy)
 {
   nsIURI* referrer = mDocument->GetDocumentURI();
+  ScriptFetchOptions* fetchOptions =
+    new ScriptFetchOptions(aCORSMode, aReferrerPolicy, aElement, aTriggeringPrincipal);
 
   if (aKind == ScriptKind::Classic) {
-    return new ScriptLoadRequest(aKind, aURI, aElement,
-                                 aVersion, aCORSMode,
-                                 aIntegrity,
-                                 referrer, aReferrerPolicy);
+    return new ScriptLoadRequest(aKind, aURI, fetchOptions, aIntegrity, referrer);
   }
 
   MOZ_ASSERT(aKind == ScriptKind::Module);
-  return new ModuleLoadRequest(aURI, aElement, aVersion, aCORSMode,
-                               aIntegrity, referrer, aReferrerPolicy, this);
+  return ModuleLoadRequest::CreateTopLevel(aURI, fetchOptions, aIntegrity, referrer, this);
 }
 
 bool
@@ -1334,7 +1483,7 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
       // preloaded
       // note that a script-inserted script can steal a preload!
       request = mPreloads[i].mRequest;
-      request->mElement = aElement;
+      request->SetElement(aElement);
       nsString preloadCharset(mPreloads[i].mCharset);
       mPreloads.RemoveElementAt(i);
 
@@ -1343,8 +1492,8 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
       nsAutoString elementCharset;
       aElement->GetScriptCharset(elementCharset);
       if (elementCharset.Equals(preloadCharset) &&
-          ourCORSMode == request->mCORSMode &&
-          ourRefPolicy == request->mReferrerPolicy &&
+          ourCORSMode == request->CORSMode() &&
+          ourRefPolicy == request->ReferrerPolicy() &&
           scriptKind == request->mKind) {
         rv = CheckContentPolicy(mDocument, aElement, request->mURI, type, false);
         if (NS_FAILED(rv)) {
@@ -1387,9 +1536,10 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
         }
       }
 
-      request = CreateLoadRequest(scriptKind, scriptURI, aElement,
-                                  version, ourCORSMode, sriMetadata,
-                                  ourRefPolicy);
+      nsCOMPtr<nsIPrincipal> principal = scriptContent->NodePrincipal();
+
+      request = CreateLoadRequest(scriptKind, scriptURI, aElement, principal,
+                                  ourCORSMode, sriMetadata, ourRefPolicy);
       request->mIsInline = false;
       request->SetScriptMode(aElement->GetScriptDeferred(),
                              aElement->GetScriptAsync());
@@ -1409,8 +1559,6 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
     // Should still be in loading stage of script unless we're loading a module.
     NS_ASSERTION(!request->InCompilingStage() || request->IsModuleRequest(),
                  "Request should not yet be in compiling stage.");
-
-    request->mJSVersion = version;
 
     if (request->IsAsyncScript()) {
       AddAsyncRequest(request);
@@ -1509,10 +1657,10 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
 
   // Inline scripts ignore their CORS mode and are always CORS_NONE.
   request = CreateLoadRequest(scriptKind, mDocument->GetDocumentURI(), aElement,
-                              version, CORS_NONE,
+                              mDocument->NodePrincipal(),
+                              CORS_NONE,
                               SRIMetadata(), // SRI doesn't apply
                               ourRefPolicy);
-  request->mJSVersion = version;
   request->mIsInline = true;
   request->mLineNo = aElement->GetScriptLineNumber();
 
@@ -1774,7 +1922,7 @@ ScriptLoader::GetScriptSource(ScriptLoadRequest* aRequest, nsAutoString& inlineD
   if (aRequest->mIsInline) {
     // XXX This is inefficient - GetText makes multiple
     // copies.
-    aRequest->mElement->GetScriptText(inlineData);
+    aRequest->Element()->GetScriptText(inlineData);
     return SourceBufferHolder(inlineData.get(),
                               inlineData.Length(),
                               SourceBufferHolder::NoOwnership);
@@ -1795,15 +1943,22 @@ ScriptLoader::ProcessRequest(ScriptLoadRequest* aRequest)
 
   NS_ENSURE_ARG(aRequest);
 
-  if (aRequest->IsModuleRequest() &&
-      !aRequest->AsModuleRequest()->mModuleScript)
-  {
-    // There was an error fetching a module script.  Nothing to do here.
-    FireScriptAvailable(NS_ERROR_FAILURE, aRequest);
-    return NS_OK;
+  if (aRequest->IsModuleRequest()) {
+    ModuleLoadRequest* request = aRequest->AsModuleRequest();
+    if (request->mModuleScript) {
+      if (!InstantiateModuleTree(request)) {
+        request->mModuleScript = nullptr;
+      }
+    }
+
+    if (!request->mModuleScript) {
+      // There was an error fetching a module script.  Nothing to do here.
+      FireScriptAvailable(NS_ERROR_FAILURE, aRequest);
+      return NS_OK;
+    }
   }
 
-  nsCOMPtr<nsINode> scriptElem = do_QueryInterface(aRequest->mElement);
+  nsCOMPtr<nsINode> scriptElem = do_QueryInterface(aRequest->Element());
 
   nsCOMPtr<nsIDocument> doc;
   if (!aRequest->mIsInline) {
@@ -1811,13 +1966,13 @@ ScriptLoader::ProcessRequest(ScriptLoadRequest* aRequest)
   }
 
   nsCOMPtr<nsIScriptElement> oldParserInsertedScript;
-  uint32_t parserCreated = aRequest->mElement->GetParserCreated();
+  uint32_t parserCreated = aRequest->Element()->GetParserCreated();
   if (parserCreated) {
     oldParserInsertedScript = mCurrentParserInsertedScript;
-    mCurrentParserInsertedScript = aRequest->mElement;
+    mCurrentParserInsertedScript = aRequest->Element();
   }
 
-  aRequest->mElement->BeginEvaluating();
+  aRequest->Element()->BeginEvaluating();
 
   FireScriptAvailable(NS_OK, aRequest);
 
@@ -1862,7 +2017,7 @@ ScriptLoader::ProcessRequest(ScriptLoadRequest* aRequest)
 
   FireScriptEvaluated(rv, aRequest);
 
-  aRequest->mElement->EndEvaluating();
+  aRequest->Element()->EndEvaluating();
 
   if (parserCreated) {
     mCurrentParserInsertedScript = oldParserInsertedScript;
@@ -1885,13 +2040,32 @@ ScriptLoader::ProcessRequest(ScriptLoadRequest* aRequest)
   return rv;
 }
 
+void ScriptLoader::ProcessDynamicImport(ModuleLoadRequest* aRequest) {
+  if (aRequest->mModuleScript) {
+    if (!InstantiateModuleTree(aRequest)) {
+      aRequest->mModuleScript = nullptr;
+    }
+  }
+
+  nsresult rv = NS_ERROR_FAILURE;
+  if (aRequest->mModuleScript) {
+    rv = EvaluateScript(aRequest);
+  }
+
+  if (NS_FAILED(rv)) {
+    FinishDynamicImport(aRequest, rv);
+  }
+
+  return;
+}
+
 void
 ScriptLoader::FireScriptAvailable(nsresult aResult,
                                   ScriptLoadRequest* aRequest)
 {
   for (int32_t i = 0; i < mObservers.Count(); i++) {
     nsCOMPtr<nsIScriptLoaderObserver> obs = mObservers[i];
-    obs->ScriptAvailable(aResult, aRequest->mElement,
+    obs->ScriptAvailable(aResult, aRequest->Element(),
                          aRequest->mIsInline, aRequest->mURI,
                          aRequest->mLineNo);
   }
@@ -1905,7 +2079,7 @@ ScriptLoader::FireScriptEvaluated(nsresult aResult,
 {
   for (int32_t i = 0; i < mObservers.Count(); i++) {
     nsCOMPtr<nsIScriptLoaderObserver> obs = mObservers[i];
-    obs->ScriptEvaluated(aResult, aRequest->mElement,
+    obs->ScriptEvaluated(aResult, aRequest->Element(),
                          aRequest->mIsInline);
   }
 
@@ -1934,10 +2108,9 @@ ScriptLoader::GetScriptGlobalObject()
 }
 
 nsresult
-ScriptLoader::FillCompileOptionsForRequest(const AutoJSAPI&jsapi,
-                                           ScriptLoadRequest* aRequest,
-                                           JS::Handle<JSObject*> aScopeChain,
-                                           JS::CompileOptions* aOptions)
+ScriptLoader::FillCompileOptionsForRequest(
+    const mozilla::dom::AutoJSAPI& jsapi, ScriptLoadRequest* aRequest,
+    JS::Handle<JSObject*> aScopeChain, JS::CompileOptions* aOptions)
 {
   // It's very important to use aRequest->mURI, not the final URI of the channel
   // aRequest ended up getting script data from, as the script filename.
@@ -1957,7 +2130,6 @@ ScriptLoader::FillCompileOptionsForRequest(const AutoJSAPI&jsapi,
   aOptions->setIntroductionType(isScriptElement ? "scriptElement"
                                                 : "importedModule");
   aOptions->setFileAndLine(aRequest->mURL.get(), aRequest->mLineNo);
-  aOptions->setVersion(JSVersion(aRequest->mJSVersion));
   aOptions->setIsRunOnce(true);
   // We only need the setNoScriptRval bit when compiling off-thread here, since
   // otherwise nsJSUtils::EvaluateString will set it up for us.
@@ -1975,8 +2147,8 @@ ScriptLoader::FillCompileOptionsForRequest(const AutoJSAPI&jsapi,
     // Only do this for classic scripts.
     JSContext* cx = jsapi.cx();
     JS::Rooted<JS::Value> elementVal(cx);
-    MOZ_ASSERT(aRequest->mElement);
-    if (NS_SUCCEEDED(nsContentUtils::WrapNative(cx, aRequest->mElement,
+    MOZ_ASSERT(aRequest->Element());
+    if (NS_SUCCEEDED(nsContentUtils::WrapNative(cx, aRequest->Element(),
                                                 &elementVal,
                                                 /* aAllowWrapping = */ true))) {
       MOZ_ASSERT(elementVal.isObject());
@@ -1987,6 +2159,19 @@ ScriptLoader::FillCompileOptionsForRequest(const AutoJSAPI&jsapi,
   return NS_OK;
 }
 
+class MOZ_RAII AutoSetProcessingScriptTag {
+  nsCOMPtr<nsIScriptContext> mContext;
+  bool mOldTag;
+
+ public:
+  explicit AutoSetProcessingScriptTag(nsIScriptContext* aContext)
+      : mContext(aContext), mOldTag(mContext->GetProcessingScriptTag()) {
+    mContext->SetProcessingScriptTag(true);
+  }
+
+  ~AutoSetProcessingScriptTag() { mContext->SetProcessingScriptTag(mOldTag); }
+};
+
 nsresult
 ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
 {
@@ -1995,7 +2180,7 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
     return NS_ERROR_FAILURE;
   }
 
-  nsCOMPtr<nsIContent> scriptContent(do_QueryInterface(aRequest->mElement));
+  nsCOMPtr<nsIContent> scriptContent(do_QueryInterface(aRequest->Element()));
   nsIDocument* ownerDoc = scriptContent->OwnerDoc();
   if (ownerDoc != mDocument) {
     // Willful violation of HTML5 as of 2010-12-01
@@ -2018,11 +2203,6 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
     return NS_ERROR_FAILURE;
   }
 
-  JSVersion version = JSVersion(aRequest->mJSVersion);
-  if (version == JSVERSION_UNKNOWN) {
-    return NS_OK;
-  }
-
   // New script entry point required, due to the "Create a script" sub-step of
   // http://www.whatwg.org/specs/web-apps/current-work/#execute-the-script-block
   nsAutoMicroTask mt;
@@ -2030,8 +2210,7 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
   JSContext* cx = aes.cx();
   JS::Rooted<JSObject*> global(cx, globalObject->GetGlobalJSObject());
 
-  bool oldProcessingScriptTag = context->GetProcessingScriptTag();
-  context->SetProcessingScriptTag(true);
+  AutoSetProcessingScriptTag setProcessingScriptTag(context);
   nsresult rv;
   {
     Maybe<AutoCurrentScriptUpdater> masterScriptUpdater;
@@ -2043,14 +2222,12 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
       // script. So let's update the mCurrentScript of the ScriptLoader
       // of the master document too.
       masterScriptUpdater.emplace(master->ScriptLoader(),
-                                  aRequest->mElement);
+                                  aRequest->Element());
     }
 
     if (aRequest->IsModuleRequest()) {
       // For modules, currentScript is set to null.
       AutoCurrentScriptUpdater scriptUpdater(this, nullptr);
-
-      EnsureModuleResolveHook(cx);
 
       ModuleLoadRequest* request = aRequest->AsModuleRequest();
       MOZ_ASSERT(request->mModuleScript);
@@ -2061,7 +2238,13 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
         // Module has an error status to be rethrown
         JS::Rooted<JS::Value> error(cx, moduleScript->ErrorToRethrow());
         JS_SetPendingException(cx, error);
-        return NS_OK; // An error is reported by AutoEntryScript.
+
+        // For a dynamic import, the promise is rejected.  Otherwise an error is
+        // either reported by AutoEntryScript.
+        if (request->IsDynamicImport()) {
+          FinishDynamicImport(cx, request, NS_OK);
+        }
+        return NS_OK;
       }
 
       JS::Rooted<JSObject*> module(cx, moduleScript->ModuleRecord());
@@ -2070,12 +2253,17 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
       rv = nsJSUtils::ModuleEvaluate(cx, module);
       MOZ_ASSERT(NS_FAILED(rv) == aes.HasException());
       if (NS_FAILED(rv)) {
-        // Evaluation failed
-        rv = NS_OK; // An error is reported by AutoEntryScript.
+        // For a dynamic import, the promise is rejected.  Otherwise an error is
+        // either reported by AutoEntryScript.
+        rv = NS_OK;
+      }
+
+      if (request->IsDynamicImport()) {
+        FinishDynamicImport(cx, request, rv);
       }
     } else {
       // Update our current script.
-      AutoCurrentScriptUpdater scriptUpdater(this, aRequest->mElement);
+      AutoCurrentScriptUpdater scriptUpdater(this, aRequest->Element());
 
       JS::CompileOptions options(cx);
       rv = FillCompileOptionsForRequest(aes, aRequest, global, &options);
@@ -2089,7 +2277,6 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
     }
   }
 
-  context->SetProcessingScriptTag(oldProcessingScriptTag);
   return rv;
 }
 
@@ -2101,6 +2288,7 @@ ScriptLoader::ProcessPendingRequestsAsync()
       !mLoadedAsyncRequests.isEmpty() ||
       !mNonAsyncExternalScriptInsertedRequests.isEmpty() ||
       !mDeferRequests.isEmpty() ||
+      !mDynamicImportRequests.isEmpty() ||
       !mPendingChildLoaders.IsEmpty()) {
     nsCOMPtr<nsIRunnable> task = NewRunnableMethod(this,
                                                    &ScriptLoader::ProcessPendingRequests);
@@ -2394,7 +2582,7 @@ ScriptLoader::VerifySRI(ScriptLoadRequest* aRequest,
       loadInfo->LoadingPrincipal()->GetCsp(getter_AddRefs(csp));
       nsAutoCString violationURISpec;
       mDocument->GetDocumentURI()->GetAsciiSpec(violationURISpec);
-      uint32_t lineNo = aRequest->mElement ? aRequest->mElement->GetScriptLineNumber() : 0;
+      uint32_t lineNo = aRequest->Element() ? aRequest->Element()->GetScriptLineNumber() : 0;
       csp->LogViolationDetails(
         nsIContentSecurityPolicy::VIOLATION_TYPE_REQUIRE_SRI_FOR_SCRIPT,
         NS_ConvertUTF8toUTF16(violationURISpec),
@@ -2414,7 +2602,7 @@ ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
    * array of blocked tracking nodes under its parent document.
    */
   if (aResult == NS_ERROR_TRACKING_URI) {
-    nsCOMPtr<nsIContent> cont = do_QueryInterface(aRequest->mElement);
+    nsCOMPtr<nsIContent> cont = do_QueryInterface(aRequest->Element());
     mDocument->AddBlockedTrackingNode(cont);
   }
 
@@ -2448,13 +2636,30 @@ ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
       RefPtr<ScriptLoadRequest> req = mXSLTRequests.Steal(aRequest);
       FireScriptAvailable(aResult, req);
     }
-  } else if (aRequest->IsModuleRequest() && !aRequest->IsPreload()) {
+  } else if (aRequest->IsPreload()) {
+    if (aRequest->IsModuleRequest()) {
+      aRequest->Cancel();
+    }
+    if (aRequest->IsTopLevel()) {
+      MOZ_ALWAYS_TRUE(
+          mPreloads.RemoveElement(aRequest, PreloadRequestComparator()));
+    }
+    MOZ_ASSERT(!aRequest->isInList());
+  } else if (aRequest->IsModuleRequest()) {
     ModuleLoadRequest* modReq = aRequest->AsModuleRequest();
-    MOZ_ASSERT(!modReq->IsTopLevel());
-    MOZ_ASSERT(!modReq->isInList());
-    modReq->Cancel();
-    // A single error is fired for the top level module, so don't use
-    // FireScriptAvailable here.
+    if (modReq->IsDynamicImport()) {
+      MOZ_ASSERT(modReq->IsTopLevel());
+      if (aRequest->isInList()) {
+        RefPtr<ScriptLoadRequest> req = mDynamicImportRequests.Steal(aRequest);
+        modReq->Cancel();
+        FinishDynamicImport(modReq, aResult);
+      }
+    } else {
+      MOZ_ASSERT(!modReq->IsTopLevel());
+      MOZ_ASSERT(!modReq->isInList());
+      modReq->Cancel();
+      // The error is handled for the top level module.
+    }
   } else if (mParserBlockingRequest == aRequest) {
     MOZ_ASSERT(!aRequest->isInList());
     mParserBlockingRequest = nullptr;
@@ -2462,22 +2667,13 @@ ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
 
     // Ensure that we treat request->mElement as our current parser-inserted
     // script while firing onerror on it.
-    MOZ_ASSERT(aRequest->mElement->GetParserCreated());
+    MOZ_ASSERT(aRequest->Element()->GetParserCreated());
     nsCOMPtr<nsIScriptElement> oldParserInsertedScript =
       mCurrentParserInsertedScript;
-    mCurrentParserInsertedScript = aRequest->mElement;
+    mCurrentParserInsertedScript = aRequest->Element();
     FireScriptAvailable(aResult, aRequest);
     ContinueParserAsync(aRequest);
     mCurrentParserInsertedScript = oldParserInsertedScript;
-  } else if (aRequest->IsPreload()) {
-    if (aRequest->IsModuleRequest()) {
-      // If there is an error preloading modules, cancel the load request.
-      aRequest->Cancel();
-    }
-    if (aRequest->IsTopLevel()) {
-      MOZ_ALWAYS_TRUE(mPreloads.RemoveElement(aRequest, PreloadRequestComparator()));
-    }
-    MOZ_ASSERT(!aRequest->isInList());
   } else {
     // This happens for blocking requests cancelled by ParsingComplete().
     MOZ_ASSERT(aRequest->IsCanceled());
@@ -2489,13 +2685,13 @@ ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
 void
 ScriptLoader::UnblockParser(ScriptLoadRequest* aParserBlockingRequest)
 {
-  aParserBlockingRequest->mElement->UnblockParser();
+  aParserBlockingRequest->Element()->UnblockParser();
 }
 
 void
 ScriptLoader::ContinueParserAsync(ScriptLoadRequest* aParserBlockingRequest)
 {
-  aParserBlockingRequest->mElement->ContinueParserAsync();
+  aParserBlockingRequest->Element()->ContinueParserAsync();
 }
 
 uint32_t
@@ -2575,7 +2771,7 @@ ScriptLoader::PrepareLoadedRequest(ScriptLoadRequest* aRequest,
   // If this load was subject to a CORS check, don't flag it with a separate
   // origin principal, so that it will treat our document's principal as the
   // origin principal.  Module loads always use CORS.
-  if (!aRequest->IsModuleRequest() && aRequest->mCORSMode == CORS_NONE) {
+  if (!aRequest->IsModuleRequest() && aRequest->CORSMode() == CORS_NONE) {
     rv = nsContentUtils::GetSecurityManager()->
       GetChannelResultPrincipal(channel, getter_AddRefs(aRequest->mOriginPrincipal));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2594,11 +2790,12 @@ ScriptLoader::PrepareLoadedRequest(ScriptLoadRequest* aRequest,
                mLoadingAsyncRequests.Contains(aRequest) ||
                mNonAsyncExternalScriptInsertedRequests.Contains(aRequest) ||
                mXSLTRequests.Contains(aRequest)  ||
+               mDynamicImportRequests.Contains(aRequest) ||
                (aRequest->IsModuleRequest() &&
                 !aRequest->AsModuleRequest()->IsTopLevel() &&
                 !aRequest->isInList()) ||
                mPreloads.Contains(aRequest, PreloadRequestComparator()) ||
-               mParserBlockingRequest,
+               mParserBlockingRequest == aRequest,
                "aRequest should be pending!");
 
   if (aRequest->IsModuleRequest()) {
@@ -2676,6 +2873,13 @@ ScriptLoader::ParsingComplete(bool aTerminated)
     mLoadedAsyncRequests.Clear();
     mNonAsyncExternalScriptInsertedRequests.Clear();
     mXSLTRequests.Clear();
+
+    for (ScriptLoadRequest* req = mDynamicImportRequests.getFirst(); req;
+         req = req->getNext()) {
+      req->Cancel();
+      FinishDynamicImport(req->AsModuleRequest(), NS_ERROR_ABORT);
+    }
+
     if (mParserBlockingRequest) {
       mParserBlockingRequest->Cancel();
       mParserBlockingRequest = nullptr;
@@ -2743,7 +2947,8 @@ ScriptLoader::PreloadURI(nsIURI *aURI,
   }
 
   RefPtr<ScriptLoadRequest> request =
-    CreateLoadRequest(scriptKind, aURI, nullptr, 0,
+    CreateLoadRequest(scriptKind, aURI, nullptr,
+                      mDocument->NodePrincipal(),
                       Element::StringToCORSMode(aCrossOrigin), sriMetadata,
                       aReferrerPolicy);
   request->mIsInline = false;

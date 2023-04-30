@@ -1915,7 +1915,6 @@ Fold(ExclusiveContext* cx, ParseNode** pnp, Parser<FullParseHandler>& parser, bo
 
       case PNK_CALL_IMPORT: {
         BinaryNode* node = &pn->as<BinaryNode>();
-        MOZ_ASSERT(pn->isArity(PN_BINARY));
         MOZ_ASSERT(node->left()->isKind(PNK_POSHOLDER));
         return Fold(cx, node->unsafeRightReference(), parser, inGenexpLambda);
       }

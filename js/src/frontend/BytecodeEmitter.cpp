@@ -9093,7 +9093,8 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         break;
 
       case PNK_IMPORT_META:
-        MOZ_CRASH("NYI");
+        if (!emit1(JSOP_IMPORTMETA))
+            return false;
         break;
 
       case PNK_CALL_IMPORT:

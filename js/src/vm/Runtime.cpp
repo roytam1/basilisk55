@@ -248,7 +248,8 @@ JSRuntime::JSRuntime(JSRuntime* parentRuntime)
     stackFormat_(parentRuntime ?
                  js::StackFormat::Default :
                  js::StackFormat::SpiderMonkey),
-    moduleResolveHook()
+    moduleResolveHook(),
+    moduleMetadataHook()
 {
     setGCStoreBufferPtr(&gc.storeBuffer);
 

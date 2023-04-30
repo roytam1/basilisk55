@@ -1324,6 +1324,10 @@ struct JSRuntime : public JS::shadow::Runtime,
 
     // The implementation-defined abstract operation HostResolveImportedModule.
     JS::ModuleResolveHook moduleResolveHook;
+
+    // A hook that implements the abstract operations
+    // HostGetImportMetaProperties and HostFinalizeImportMeta.
+    JS::ModuleMetadataHook moduleMetadataHook;
 };
 
 namespace js {

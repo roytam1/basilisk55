@@ -294,6 +294,8 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       case PNK_SETTHIS:
       case PNK_FOR:
       case PNK_COMPREHENSIONFOR:
+      case PNK_IMPORT_META:
+      case PNK_CALL_IMPORT:
       case PNK_WITH: {
         BinaryNode* bn = &pn->as<BinaryNode>();
         stack->push(bn->left());
@@ -494,8 +496,6 @@ PushNodeChildren(ParseNode* pn, NodeStack* stack)
       case PNK_EXPORT_SPEC_LIST:
       case PNK_PARAMSBODY:
       case PNK_CLASSMETHODLIST:
-      case PNK_IMPORT_META:
-      case PNK_CALL_IMPORT:
         return PushListNodeChildren(&pn->as<ListNode>(), stack);
 
       // Array comprehension nodes are lists with a single child:

@@ -133,6 +133,7 @@ ModuleScript::UnlinkModuleRecord()
                this);
     JS::SetModulePrivate(mModuleRecord, JS::UndefinedValue());
     mModuleRecord = nullptr;
+    Release();
   }
 }
 
@@ -157,6 +158,7 @@ ModuleScript::SetModuleRecord(JS::Handle<JSObject*> aModuleRecord)
   MOZ_ASSERT(JS::GetModulePrivate(mModuleRecord).isUndefined());
   JS::SetModulePrivate(mModuleRecord, JS::PrivateValue(this));
   HoldJSObjects(this);
+  AddRef();
 }
 
 void
@@ -169,7 +171,6 @@ ModuleScript::SetParseError(const JS::Value& aError)
   UnlinkModuleRecord();
   mParseError = aError;
   HoldJSObjects(this);
-  AddRef();
 }
 
 void

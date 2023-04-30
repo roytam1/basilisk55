@@ -249,6 +249,7 @@ class AbstractFramePtr
     inline Value calleev() const;
     inline Value& thisArgument() const;
 
+    inline bool isConstructing() const;
     inline Value newTarget() const;
 
     inline bool debuggerNeedsCheckPrimitiveReturn() const;

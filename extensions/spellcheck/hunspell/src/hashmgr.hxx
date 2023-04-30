@@ -74,6 +74,8 @@
 #ifndef HASHMGR_HXX_
 #define HASHMGR_HXX_
 
+#include "hunvisapi.h"
+
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -84,7 +86,7 @@
 
 enum flag { FLAG_CHAR, FLAG_LONG, FLAG_NUM, FLAG_UNI };
 
-class HashMgr {
+class LIBHUNSPELL_DLL_EXPORTED HashMgr {
   int tablesize;
   struct hentry** tableptr;
   flag flag_mode;

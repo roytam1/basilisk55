@@ -41,9 +41,10 @@
 #ifndef BASEAFF_HXX_
 #define BASEAFF_HXX_
 
+#include "hunvisapi.h"
 #include <string>
 
-class AffEntry {
+class LIBHUNSPELL_DLL_EXPORTED AffEntry {
  private:
   AffEntry(const AffEntry&);
   AffEntry& operator=(const AffEntry&);

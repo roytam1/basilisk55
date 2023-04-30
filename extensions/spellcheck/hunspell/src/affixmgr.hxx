@@ -74,6 +74,8 @@
 #ifndef AFFIXMGR_HXX_
 #define AFFIXMGR_HXX_
 
+#include "hunvisapi.h"
+
 #include <stdio.h>
 
 #include <string>
@@ -89,10 +91,10 @@
 #define dupSFX (1 << 0)
 #define dupPFX (1 << 1)
 
-class PfxEntry;
-class SfxEntry;
+class LIBHUNSPELL_DLL_EXPORTED PfxEntry;
+class LIBHUNSPELL_DLL_EXPORTED SfxEntry;
 
-class AffixMgr {
+class LIBHUNSPELL_DLL_EXPORTED AffixMgr {
   PfxEntry* pStart[SETSIZE];
   SfxEntry* sStart[SETSIZE];
   PfxEntry* pFlag[SETSIZE];

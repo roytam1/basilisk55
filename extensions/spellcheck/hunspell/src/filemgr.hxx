@@ -75,12 +75,14 @@
 #ifndef FILEMGR_HXX_
 #define FILEMGR_HXX_
 
+#include "hunvisapi.h"
+
 #include "hunzip.hxx"
 #include <stdio.h>
 #include <string>
 #include <fstream>
 
-class FileMgr {
+class LIBHUNSPELL_DLL_EXPORTED FileMgr {
  private:
   FileMgr(const FileMgr&);
   FileMgr& operator=(const FileMgr&);

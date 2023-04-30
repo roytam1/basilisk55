@@ -75,12 +75,14 @@
 #ifndef REPLIST_HXX_
 #define REPLIST_HXX_
 
+#include "hunvisapi.h"
+
 #include "w_char.hxx"
 
 #include <string>
 #include <vector>
 
-class RepList {
+class LIBHUNSPELL_DLL_EXPORTED RepList {
  private:
   RepList(const RepList&);
   RepList& operator=(const RepList&);

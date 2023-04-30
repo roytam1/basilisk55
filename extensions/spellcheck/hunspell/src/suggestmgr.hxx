@@ -91,6 +91,8 @@
 #define NGRAM_LOWERING (1 << 2)
 #define NGRAM_WEIGHTED (1 << 3)
 
+#include "hunvisapi.h"
+
 #include "atypes.hxx"
 #include "affixmgr.hxx"
 #include "hashmgr.hxx"
@@ -99,7 +101,7 @@
 
 enum { LCS_UP, LCS_LEFT, LCS_UPLEFT };
 
-class SuggestMgr {
+class LIBHUNSPELL_DLL_EXPORTED SuggestMgr {
  private:
   SuggestMgr(const SuggestMgr&);
   SuggestMgr& operator=(const SuggestMgr&);

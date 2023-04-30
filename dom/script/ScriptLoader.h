@@ -92,28 +92,7 @@ public:
                     nsIURI* aURI,
                     ScriptFetchOptions* aFetchOptions,
                     const SRIMetadata& aIntegrity,
-                    nsIURI* aReferrer)
-    : mKind(aKind),
-      mScriptMode(ScriptMode::eBlocking),
-      mProgress(Progress::Loading),
-      mIsInline(true),
-      mHasSourceMapURL(false),
-      mInDeferList(false),
-      mInAsyncList(false),
-      mIsNonAsyncScriptInserted(false),
-      mIsXSLT(false),
-      mIsCanceled(false),
-      mWasCompiledOMT(false),
-      mIsTracking(false),
-      mOffThreadToken(nullptr),
-      mScriptTextBuf(nullptr),
-      mScriptTextLength(0),
-      mURI(aURI),
-      mLineNo(1),
-      mIntegrity(aIntegrity),
-      mReferrer(aReferrer)
-  {
-  }
+                    nsIURI* aReferrer);
 
   NS_DECL_CYCLE_COLLECTING_ISUPPORTS
   NS_DECL_CYCLE_COLLECTION_CLASS(ScriptLoadRequest)

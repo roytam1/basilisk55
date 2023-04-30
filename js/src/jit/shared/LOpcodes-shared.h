@@ -403,6 +403,7 @@
     _(GlobalNameConflictsCheck)     \
     _(Debugger)                     \
     _(NewTarget)                    \
+    _(DynamicImport)                \
     _(ArrowNewTarget)               \
     _(CheckReturn)                  \
     _(CheckIsObj)                   \

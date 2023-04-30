@@ -285,6 +285,7 @@ namespace jit {
     _(GlobalNameConflictsCheck)                                             \
     _(Debugger)                                                             \
     _(NewTarget)                                                            \
+    _(DynamicImport)                                                        \
     _(ArrowNewTarget)                                                       \
     _(CheckReturn)                                                          \
     _(CheckIsObj)                                                           \

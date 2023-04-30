@@ -91,6 +91,7 @@ ScriptFetchOptions::ScriptFetchOptions(mozilla::CORSMode aCORSMode,
                                        nsIPrincipal* aTriggeringPrincipal)
   : mCORSMode(aCORSMode)
   , mReferrerPolicy(aReferrerPolicy)
+  , mIsPreload(false)
   , mElement(aElement)
   , mTriggeringPrincipal(aTriggeringPrincipal)
 {
@@ -1113,7 +1114,7 @@ ScriptLoader::ProcessLoadedModuleTree(ModuleLoadRequest* aRequest)
       RefPtr<ScriptLoadRequest> req = mDynamicImportRequests.Steal(aRequest);
       RunScriptWhenSafe(req);
     } else if (aRequest->mIsInline &&
-               aRequest->Element()->GetParserCreated() == NOT_FROM_PARSER) {
+               aRequest->GetParserCreated() == NOT_FROM_PARSER) {
         RunScriptWhenSafe(aRequest);
     } else {
       MaybeMoveToLoadedList(aRequest);
@@ -1513,7 +1514,7 @@ ScriptLoader::ProcessScriptElement(nsIScriptElement *aElement)
       // preloaded
       // note that a script-inserted script can steal a preload!
       request = mPreloads[i].mRequest;
-      request->SetElement(aElement);
+      request->SetIsLoadRequest(aElement);
       nsString preloadCharset(mPreloads[i].mCharset);
       mPreloads.RemoveElementAt(i);
 
@@ -1996,7 +1997,7 @@ ScriptLoader::ProcessRequest(ScriptLoadRequest* aRequest)
   }
 
   nsCOMPtr<nsIScriptElement> oldParserInsertedScript;
-  uint32_t parserCreated = aRequest->Element()->GetParserCreated();
+  uint32_t parserCreated = aRequest->GetParserCreated();
   if (parserCreated) {
     oldParserInsertedScript = mCurrentParserInsertedScript;
     mCurrentParserInsertedScript = aRequest->Element();
@@ -2211,14 +2212,14 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
   }
 
   nsCOMPtr<nsIContent> scriptContent(do_QueryInterface(aRequest->Element()));
-  nsIDocument* ownerDoc = scriptContent->OwnerDoc();
-  if (ownerDoc != mDocument) {
-    // Willful violation of HTML5 as of 2010-12-01
-    return NS_ERROR_FAILURE;
+  MOZ_ASSERT_IF(!scriptContent, aRequest->AsModuleRequest()->IsDynamicImport());
+  if (scriptContent) {
+    nsIDocument* ownerDoc = scriptContent->OwnerDoc();
+    if (ownerDoc != mDocument) {
+      // Willful violation of HTML5 as of 2010-12-01
+      return NS_ERROR_FAILURE;
+    }
   }
-
-  // Get the script-type to be used by this element.
-  NS_ASSERTION(scriptContent, "no content - what is default script-type?");
 
   nsCOMPtr<nsIScriptGlobalObject> globalObject = GetScriptGlobalObject();
   if (!globalObject) {
@@ -2983,6 +2984,7 @@ ScriptLoader::PreloadURI(nsIURI *aURI,
                       aReferrerPolicy);
   request->mIsInline = false;
   request->SetScriptMode(aDefer, aAsync);
+  request->SetIsPreloadRequest();
 
   nsresult rv = StartLoad(request, aType, aScriptFromHead);
   if (NS_FAILED(rv)) {

@@ -196,6 +196,7 @@ def old_configure_options(*options):
     '--enable-ios-target',
     '--enable-jemalloc',
     '--enable-jitspew',
+    '--enable-js-lto',
     '--enable-libjpeg-turbo',
     '--enable-libproxy',
     '--enable-llvm-hacks',

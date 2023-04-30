@@ -126,6 +126,7 @@
     macro(FROM,         "'from'") \
     macro(GET,          "'get'") \
     macro(LET,          "'let'") \
+    macro(META,         "'meta'") \
     macro(OF,           "'of'") \
     macro(SET,          "'set'") \
     macro(STATIC,       "'static'") \

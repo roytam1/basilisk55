@@ -1096,6 +1096,7 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
 
       // Trivial binary nodes with more token pos holders.
       case PNK_NEWTARGET:
+      case PNK_IMPORT_META:
         MOZ_ASSERT(pn->as<BinaryNode>().left()->isKind(PNK_POSHOLDER));
         MOZ_ASSERT(pn->as<BinaryNode>().right()->isKind(PNK_POSHOLDER));
         *answer = false;
@@ -1322,6 +1323,11 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
       // Likewise.
       case PNK_EXPORT:
         MOZ_ASSERT(pn->is<UnaryNode>());
+        *answer = true;
+        return true;
+
+      case PNK_CALL_IMPORT:
+        MOZ_ASSERT(pn->isArity(PN_BINARY));
         *answer = true;
         return true;
 
@@ -9085,6 +9091,14 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
         if (!emit1(JSOP_NEWTARGET))
             return false;
         break;
+
+      case PNK_IMPORT_META:
+        MOZ_CRASH("NYI");
+        break;
+
+      case PNK_CALL_IMPORT:
+        reportError(nullptr, JSMSG_NO_DYNAMIC_IMPORT);
+        return false;
 
       case PNK_SETTHIS:
         if (!emitSetThis(&pn->as<BinaryNode>()))

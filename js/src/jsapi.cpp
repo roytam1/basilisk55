@@ -3907,7 +3907,6 @@ JS::TransitiveCompileOptions::copyPODTransitiveOptions(const TransitiveCompileOp
     forceAsync = rhs.forceAsync;
     installedFile = rhs.installedFile;
     sourceIsLazy = rhs.sourceIsLazy;
-    fieldsEnabledOption = rhs.fieldsEnabledOption;
     introductionType = rhs.introductionType;
     introductionLineno = rhs.introductionLineno;
     introductionOffset = rhs.introductionOffset;

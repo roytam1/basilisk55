@@ -125,6 +125,7 @@ class CallOrNewEmitter;
 class ElemOpEmitter;
 class EmitterScope;
 class NestableControl;
+class PropertyEmitter;
 class PropOpEmitter;
 class TDZCheckCache;
 
@@ -522,7 +523,7 @@ struct MOZ_STACK_CLASS BytecodeEmitter
 
     MOZ_MUST_USE bool emitHoistedFunctionsInList(ListNode* stmtList);
 
-    MOZ_MUST_USE bool emitPropertyList(ListNode* obj, MutableHandlePlainObject objp,
+    MOZ_MUST_USE bool emitPropertyList(ListNode* obj, PropertyEmitter& pe,
                                        PropListType type);
 
     FieldInitializers setupFieldInitializers(ListNode* classMembers);
@@ -696,11 +697,11 @@ struct MOZ_STACK_CLASS BytecodeEmitter
     // is called at compile time.
     MOZ_MUST_USE bool emitDefault(ParseNode* defaultExpr, ParseNode* pattern);
 
-    MOZ_MUST_USE bool setOrEmitSetFunName(ParseNode* maybeFun, HandleAtom name,
-                                          FunctionPrefixKind prefixKind = FunctionPrefixKind::None);
+    MOZ_MUST_USE bool setOrEmitSetFunName(ParseNode* maybeFun, HandleAtom name);
+    MOZ_MUST_USE bool setFunName(JSFunction* fun, JSAtom* name);
+    MOZ_MUST_USE bool emitSetClassConstructorName(JSAtom* name);
 
     MOZ_MUST_USE bool emitInitializer(ParseNode* initializer, ParseNode* pattern);
-    MOZ_MUST_USE bool emitInitializerInBranch(ParseNode* initializer, ParseNode* pattern);
 
     MOZ_MUST_USE bool emitCallSiteObject(CallSiteNode* callSiteObj);
     MOZ_MUST_USE bool emitTemplateString(ListNode* templateString);
@@ -784,10 +785,10 @@ struct MOZ_STACK_CLASS BytecodeEmitter
     MOZ_MUST_USE bool emitDo(BinaryNode* doNode);
     MOZ_MUST_USE bool emitWhile(BinaryNode* whileNode);
 
-    MOZ_MUST_USE bool emitFor(ForNode* forNode, EmitterScope* headLexicalEmitterScope = nullptr);
-    MOZ_MUST_USE bool emitCStyleFor(ForNode* forNode, EmitterScope* headLexicalEmitterScope);
-    MOZ_MUST_USE bool emitForIn(ForNode* forNode, EmitterScope* headLexicalEmitterScope);
-    MOZ_MUST_USE bool emitForOf(ForNode* forNode, EmitterScope* headLexicalEmitterScope);
+    MOZ_MUST_USE bool emitFor(ForNode* forNode, const EmitterScope* headLexicalEmitterScope = nullptr);
+    MOZ_MUST_USE bool emitCStyleFor(ForNode* forNode, const EmitterScope* headLexicalEmitterScope);
+    MOZ_MUST_USE bool emitForIn(ForNode* forNode, const EmitterScope* headLexicalEmitterScope);
+    MOZ_MUST_USE bool emitForOf(ForNode* forNode, const EmitterScope* headLexicalEmitterScope);
 
     MOZ_MUST_USE bool emitInitializeForInOrOfTarget(TernaryNode* forHead);
 
@@ -798,7 +799,8 @@ struct MOZ_STACK_CLASS BytecodeEmitter
     MOZ_MUST_USE bool emitFunctionFormalParameters(ListNode* paramsBody);
     MOZ_MUST_USE bool emitInitializeFunctionSpecialNames();
     MOZ_MUST_USE bool emitFunctionBody(ParseNode* pn);
-    MOZ_MUST_USE bool emitLexicalInitialization(ParseNode* pn);
+    MOZ_MUST_USE bool emitLexicalInitialization(NameNode* pn);
+    MOZ_MUST_USE bool emitLexicalInitialization(JSAtom* name);
 
     // Emit bytecode for the spread operator.
     //

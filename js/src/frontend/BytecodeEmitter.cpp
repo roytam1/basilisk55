@@ -7625,11 +7625,43 @@ BytecodeEmitter::emitPropertyList(ListNode* obj, PropertyEmitter& pe, PropListTy
 {
     //                [stack] CTOR? OBJ
 
+    size_t curFieldKeyIndex = 0;
     for (ParseNode* propdef : obj->contents()) {
         if (propdef->is<ClassField>()) {
-            // Skip over class fields and emit them at the end.  This is needed
-            // because they're all emitted into a single array, which is then stored
-            // into a local variable
+            MOZ_ASSERT(type == ClassBody);
+            // Only handle computing field keys here: the .initializers lambda array
+            // is created elsewhere.
+            ClassField* field = &propdef->as<ClassField>();
+            if (field->name().getKind() == PNK_COMPUTED_NAME) {
+                if (!emitGetName(cx->names().dotFieldKeys)) {
+                    //        [stack] CTOR? OBJ ARRAY
+                    return false;
+                }
+
+                ParseNode* nameExpr = field->name().as<UnaryNode>().kid();
+
+                if (!emitTree(nameExpr)) {
+                    //        [stack] ARRAY KEY
+                    return false;
+                }
+
+                if (!emit1(JSOP_TOID)) {
+                    //        [stack] ARRAY KEY
+                    return false;
+                }
+
+                if (!emitUint32Operand(JSOP_INITELEM_ARRAY, curFieldKeyIndex)) {
+                    //        [stack] ARRAY
+                    return false;
+                }
+
+                if (!emit1(JSOP_POP)) {
+                    //        [stack] CTOR? OBJ
+                    return false;
+                }
+
+                curFieldKeyIndex++;
+            }
             continue;
         }
 
@@ -7913,7 +7945,8 @@ BytecodeEmitter::setupFieldInitializers(ListNode* classMembers)
 //   }
 // }
 //
-// BytecodeEmitter::emitCreateFieldKeys does `let .fieldKeys = [keyExpr, ...];`
+// BytecodeEmitter::emitCreateFieldKeys does `let .fieldKeys = [...];`
+// BytecodeEmitter::emitPropertyList fills in the elements of the array.
 // See Parser::fieldInitializer for the `this[.fieldKeys[0]]` part.
 bool
 BytecodeEmitter::emitCreateFieldKeys(ListNode* obj)
@@ -7940,34 +7973,6 @@ BytecodeEmitter::emitCreateFieldKeys(ListNode* obj)
         //            [stack] ARRAY
         return false;
     }
-
-    size_t curFieldKeyIndex = 0;
-    for (ParseNode* propdef : obj->contents()) {
-        if (propdef->is<ClassField>()) {
-            ClassField* field = &propdef->as<ClassField>();
-            if (field->name().getKind() == PNK_COMPUTED_NAME) {
-                ParseNode* nameExpr = field->name().as<UnaryNode>().kid();
-
-                if (!emitTree(nameExpr)) {
-                    //        [stack] ARRAY KEY
-                    return false;
-                }
-
-                if (!emit1(JSOP_TOID)) {
-                    //        [stack] ARRAY KEY
-                    return false;
-                }
-
-                if (!emitUint32Operand(JSOP_INITELEM_ARRAY, curFieldKeyIndex)) {
-                    //        [stack] ARRAY
-                    return false;
-                }
-
-                curFieldKeyIndex++;
-            }
-        }
-    }
-    MOZ_ASSERT(curFieldKeyIndex == numFieldKeys);
 
     if (!noe.emitAssignment()) {
         //            [stack] ARRAY
@@ -8700,13 +8705,14 @@ BytecodeEmitter::emitClass(ClassNode* classNode)
             return false;
         }
     }
+
+    if (!emitCreateFieldKeys(classMembers))
+        return false;
+
     if (!emitPropertyList(classMembers, ce, ClassBody)) {
         //            [stack] CTOR HOMEOBJ
         return false;
     }
-
-    if (!emitCreateFieldKeys(classMembers))
-        return false;
 
     if (!ce.emitEnd(kind)) {
         //            [stack] # class declaration

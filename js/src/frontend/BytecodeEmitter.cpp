@@ -251,7 +251,7 @@ BytecodeEmitter::locationOfNameBoundInFunctionScope(JSAtom* name, EmitterScope* 
 }
 
 bool
-BytecodeEmitter::emitCheck(ptrdiff_t delta, ptrdiff_t* offset)
+BytecodeEmitter::emitCheck(JSOp op, ptrdiff_t delta, ptrdiff_t* offset)
 {
     size_t oldLength = code().length();
     *offset = ptrdiff_t(oldLength);
@@ -265,6 +265,13 @@ BytecodeEmitter::emitCheck(ptrdiff_t delta, ptrdiff_t* offset)
     if (!code().growBy(delta)) {
         ReportOutOfMemory(cx);
         return false;
+    }
+
+    // If op is JOF_TYPESET (see the type barriers comment in TypeInference.h),
+    // reserve a type set to store its result.
+    if (CodeSpec[op].format & JOF_TYPESET) {
+        if (typesetCount < UINT16_MAX)
+            typesetCount++;
     }
     return true;
 }
@@ -303,7 +310,7 @@ BytecodeEmitter::emit1(JSOp op)
     MOZ_ASSERT(checkStrictOrSloppy(op));
 
     ptrdiff_t offset;
-    if (!emitCheck(1, &offset))
+    if (!emitCheck(op, 1, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
@@ -318,7 +325,7 @@ BytecodeEmitter::emit2(JSOp op, uint8_t op1)
     MOZ_ASSERT(checkStrictOrSloppy(op));
 
     ptrdiff_t offset;
-    if (!emitCheck(2, &offset))
+    if (!emitCheck(op, 2, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
@@ -338,7 +345,7 @@ BytecodeEmitter::emit3(JSOp op, jsbytecode op1, jsbytecode op2)
     MOZ_ASSERT(!IsLocalOp(op));
 
     ptrdiff_t offset;
-    if (!emitCheck(3, &offset))
+    if (!emitCheck(op, 3, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
@@ -356,7 +363,7 @@ BytecodeEmitter::emitN(JSOp op, size_t extra, ptrdiff_t* offset)
     ptrdiff_t length = 1 + ptrdiff_t(extra);
 
     ptrdiff_t off;
-    if (!emitCheck(length, &off))
+    if (!emitCheck(op, length, &off))
         return false;
 
     jsbytecode* code = this->code(off);
@@ -397,7 +404,7 @@ bool
 BytecodeEmitter::emitJumpNoFallthrough(JSOp op, JumpList* jump)
 {
     ptrdiff_t offset;
-    if (!emitCheck(5, &offset))
+    if (!emitCheck(op, 5, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
@@ -640,22 +647,12 @@ BytecodeEmitter::emitLoopEntry(ParseNode* nextpn, JumpList entryJump)
     return emit2(JSOP_LOOPENTRY, loopDepthAndFlags);
 }
 
-void
-BytecodeEmitter::checkTypeSet(JSOp op)
-{
-    if (CodeSpec[op].format & JOF_TYPESET) {
-        if (typesetCount < UINT16_MAX)
-            typesetCount++;
-    }
-}
-
 bool
 BytecodeEmitter::emitUint16Operand(JSOp op, uint32_t operand)
 {
     MOZ_ASSERT(operand <= UINT16_MAX);
     if (!emit3(op, UINT16_HI(operand), UINT16_LO(operand)))
         return false;
-    checkTypeSet(op);
     return true;
 }
 
@@ -666,7 +663,6 @@ BytecodeEmitter::emitUint32Operand(JSOp op, uint32_t operand)
     if (!emitN(op, 4, &off))
         return false;
     SET_UINT32(code(off), operand);
-    checkTypeSet(op);
     return true;
 }
 
@@ -887,13 +883,12 @@ BytecodeEmitter::emitIndex32(JSOp op, uint32_t index)
     MOZ_ASSERT(len == size_t(CodeSpec[op].length));
 
     ptrdiff_t offset;
-    if (!emitCheck(len, &offset))
+    if (!emitCheck(op, len, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
     code[0] = jsbytecode(op);
     SET_UINT32_INDEX(code, index);
-    checkTypeSet(op);
     updateDepth(offset);
     return true;
 }
@@ -907,13 +902,12 @@ BytecodeEmitter::emitIndexOp(JSOp op, uint32_t index)
     MOZ_ASSERT(len >= 1 + UINT32_INDEX_LEN);
 
     ptrdiff_t offset;
-    if (!emitCheck(len, &offset))
+    if (!emitCheck(op, len, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
     code[0] = jsbytecode(op);
     SET_UINT32_INDEX(code, index);
-    checkTypeSet(op);
     updateDepth(offset);
     return true;
 }
@@ -1029,7 +1023,6 @@ BytecodeEmitter::emitEnvCoordOp(JSOp op, EnvironmentCoordinate ec)
     pc += ENVCOORD_HOPS_LEN;
     SET_ENVCOORD_SLOT(pc, ec.slot());
     pc += ENVCOORD_SLOT_LEN;
-    checkTypeSet(op);
     return true;
 }
 
@@ -1719,7 +1712,7 @@ BytecodeEmitter::emitNewInit(JSProtoKey key)
 {
     const size_t len = 1 + UINT32_INDEX_LEN;
     ptrdiff_t offset;
-    if (!emitCheck(len, &offset))
+    if (!emitCheck(JSOP_NEWINIT, len, &offset))
         return false;
 
     jsbytecode* code = this->code(offset);
@@ -1728,7 +1721,6 @@ BytecodeEmitter::emitNewInit(JSProtoKey key)
     code[2] = 0;
     code[3] = 0;
     code[4] = 0;
-    checkTypeSet(JSOP_NEWINIT);
     updateDepth(offset);
     return true;
 }
@@ -1959,7 +1951,6 @@ BytecodeEmitter::emitElemOpBase(JSOp op)
     if (!emit1(op))
         return false;
 
-    checkTypeSet(op);
     return true;
 }
 
@@ -2776,7 +2767,6 @@ BytecodeEmitter::emitIteratorNext(ParseNode* pn, IteratorKind iterKind /* = Iter
 
     if (!emitCheckIsObj(CheckIsObjectKind::IteratorNext)) // ... RESULT
         return false;
-    checkTypeSet(JSOP_CALL);
     return true;
 }
 
@@ -2866,7 +2856,6 @@ BytecodeEmitter::emitIteratorCloseInScope(EmitterScope& currentScope,
 
     if (!emitCall(JSOP_CALL, 0))                          // ... ... RESULT
         return false;
-    checkTypeSet(JSOP_CALL);
 
     if (iterKind == IteratorKind::Async) {
         if (completionKind != CompletionKind::Throw) {
@@ -4502,7 +4491,6 @@ BytecodeEmitter::emitRequireObjectCoercible()
         return false;
     if (!emitCall(JSOP_CALL_IGNORES_RV, 1))// VAL IGNORED
         return false;
-    checkTypeSet(JSOP_CALL_IGNORES_RV);
 
     if (!emit1(JSOP_POP))                  // VAL
         return false;
@@ -4549,7 +4537,6 @@ BytecodeEmitter::emitCopyDataProperties(CopyOption option)
     }
     if (!emitCall(JSOP_CALL_IGNORES_RV, argc)) // IGNORED
         return false;
-    checkTypeSet(JSOP_CALL_IGNORES_RV);
 
     if (!emit1(JSOP_POP))                      // -
         return false;
@@ -4572,7 +4559,6 @@ BytecodeEmitter::emitIterator()
         return false;
     if (!emitCall(JSOP_CALLITER, 0))                              // ITER
         return false;
-    checkTypeSet(JSOP_CALLITER);
     if (!emitCheckIsObj(CheckIsObjectKind::GetIterator))          // ITER
         return false;
     return true;
@@ -4611,7 +4597,6 @@ BytecodeEmitter::emitAsyncIterator()
         return false;
     if (!emitCall(JSOP_CALLITER, 0))                              // ITER
         return false;
-    checkTypeSet(JSOP_CALLITER);
     if (!emitCheckIsObj(CheckIsObjectKind::GetIterator))          // ITER
         return false;
 
@@ -4625,7 +4610,6 @@ BytecodeEmitter::emitAsyncIterator()
         return false;
     if (!emitCall(JSOP_CALLITER, 0))                              // ITER
         return false;
-    checkTypeSet(JSOP_CALLITER);
     if (!emitCheckIsObj(CheckIsObjectKind::GetIterator))          // ITER
         return false;
 
@@ -6431,7 +6415,6 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
         return false;
     if (!emitCall(JSOP_CALL, 1, iter))                    // ITER OLDRESULT RESULT
         return false;
-    checkTypeSet(JSOP_CALL);
 
     if (isAsyncGenerator) {
         if (!emitAwaitInInnermostScope())                 // NEXT ITER OLDRESULT RESULT
@@ -6502,7 +6485,6 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
         return false;
     if (!emitCall(JSOP_CALL, 1))                          // ITER OLDRESULT FTYPE FVALUE RESULT
         return false;
-    checkTypeSet(JSOP_CALL);
 
     if (iterKind == IteratorKind::Async) {
         if (!emitAwaitInInnermostScope())                 // ... FTYPE FVALUE RESULT
@@ -6583,7 +6565,6 @@ BytecodeEmitter::emitYieldStar(ParseNode* iter)
         return false;
     if (!emitCall(JSOP_CALL, 1, iter))                           // ITER RESULT
         return false;
-    checkTypeSet(JSOP_CALL);
 
     if (isAsyncGenerator) {
         if (!emitAwaitInInnermostScope())                        // NEXT ITER RESULT RESULT
@@ -7049,7 +7030,6 @@ BytecodeEmitter::emitSelfHostedCallFunction(BinaryNode* callNode)
     if (!emitCall(callOp, argc))
         return false;
 
-    checkTypeSet(callOp);
     return true;
 }
 
@@ -8339,7 +8319,6 @@ BytecodeEmitter::emitFunctionFormalParameters(ListNode* paramsBody)
         } else if (isRest) {
             if (!emit1(JSOP_REST))
                 return false;
-            checkTypeSet(JSOP_REST);
         }
 
         // Initialize the parameter name.

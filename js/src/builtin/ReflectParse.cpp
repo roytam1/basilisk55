@@ -545,6 +545,7 @@ class NodeBuilder
                                   TokenPos* pos, MutableHandleValue dst);
     MOZ_MUST_USE bool classField(HandleValue name, HandleValue initializer,
                                  TokenPos* pos, MutableHandleValue dst);
+    MOZ_MUST_USE bool staticClassBlock(HandleValue body, TokenPos* pos, MutableHandleValue dst);
 
     /*
      * expressions
@@ -1738,6 +1739,18 @@ NodeBuilder::classField(HandleValue name, HandleValue initializer,
 }
 
 bool
+NodeBuilder::staticClassBlock(HandleValue body, TokenPos* pos, MutableHandleValue dst)
+{
+    RootedValue cb(cx, callbacks[AST_STATIC_CLASS_BLOCK]);
+    if (!cb.isNull())
+        return callback(cb, body, pos, dst);
+
+    return newNode(AST_STATIC_CLASS_BLOCK, pos,
+                   "body", body,
+                   dst);
+}
+
+bool
 NodeBuilder::classMembers(NodeVector& members, MutableHandleValue dst)
 {
     return newArray(members, dst);
@@ -1871,6 +1884,7 @@ class ASTSerializer
 
     bool classMethod(ClassMethod* classMethod, MutableHandleValue dst);
     bool classField(ClassField* classField, MutableHandleValue dst);
+    bool staticClassBlock(StaticClassBlock* staticClassBlock, MutableHandleValue dst);
 
     bool optIdentifier(HandleAtom atom, TokenPos* pos, MutableHandleValue dst) {
         if (!atom) {
@@ -2710,7 +2724,14 @@ ASTSerializer::statement(ParseNode* pn, MutableHandleValue dst)
 
                 RootedValue prop(cx);
                 if (!classField(field, &prop))
-                  return false;
+                    return false;
+                members.infallibleAppend(prop);
+            } else if (item->is<StaticClassBlock>()) {
+                StaticClassBlock* scb = &item->as<StaticClassBlock>();
+                MOZ_ASSERT(memberList->pn_pos.encloses(scb->pn_pos));
+                RootedValue prop(cx);
+                if (!staticClassBlock(scb, &prop))
+                    return false;
                 members.infallibleAppend(prop);
             } else {
                 ClassMethod* method = &item->as<ClassMethod>();
@@ -2786,6 +2807,21 @@ ASTSerializer::classField(ClassField* classField, MutableHandleValue dst)
     }
     return propertyName(&classField->name(), &key) &&
            builder.classField(key, val, &classField->pn_pos, dst);
+}
+
+bool
+ASTSerializer::staticClassBlock(StaticClassBlock* staticClassBlock, MutableHandleValue dst)
+{
+    FunctionNode* fun = staticClassBlock->function();
+
+    NodeVector args(cx);
+    NodeVector defaults(cx);
+
+    RootedValue body(cx), rest(cx);
+    rest.setNull();
+    return functionArgsAndBody(fun->body(), args, defaults, false, false,
+                               &body, &rest) &&
+           builder.staticClassBlock(body, &staticClassBlock->pn_pos, dst);
 }
 
 bool

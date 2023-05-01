@@ -915,8 +915,6 @@ class ParserBase : public StrictModeGetter
 
     bool isValidStrictBinding(PropertyName* name);
 
-    void addTelemetry(JSCompartment::DeprecatedLanguageExtension e);
-
     bool warnOnceAboutExprClosure();
     bool warnOnceAboutForEach();
 

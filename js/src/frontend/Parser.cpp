@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * vim: set ts=8 sts=4 et sw=4 tw=99:
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -3372,8 +3371,8 @@ Parser<ParseHandler>::templateLiteral(YieldHandling yieldHandling)
 template <typename ParseHandler>
 typename ParseHandler::FunctionNodeType
 Parser<ParseHandler>::functionDefinition(uint32_t toStringStart, FunctionNodeType funNode, InHandling inHandling,
-                                         YieldHandling yieldHandling, HandleAtom funName,
-                                         FunctionSyntaxKind kind,
+                                         YieldHandling yieldHandling,
+                                         HandleAtom funName, FunctionSyntaxKind kind,
                                          GeneratorKind generatorKind, FunctionAsyncKind asyncKind,
                                          bool tryAnnexB /* = false */)
 {
@@ -3752,7 +3751,6 @@ Parser<ParseHandler>::functionFormalParametersAndBody(InHandling inHandling,
 
         if (kind != FunctionSyntaxKind::Arrow) {
 #if JS_HAS_EXPR_CLOSURES
-            addTelemetry(JSCompartment::DeprecatedExpressionClosure);
             if (!warnOnceAboutExprClosure())
                 return false;
 #else
@@ -3863,8 +3861,8 @@ Parser<ParseHandler>::functionStmt(uint32_t toStringStart, YieldHandling yieldHa
         MOZ_ASSERT(!pc->sc()->strict(),
                    "labeled functions shouldn't be parsed in strict mode");
 
-        // Find the innermost non-label statement.  Report an error if it's
-        // unbraced: functions can't appear in it.  Otherwise the statement
+        // Find the innermost non-label statement. Report an error if it's
+        // unbraced: functions can't appear in it. Otherwise the statement
         // (or its absence) determines the scope the function's bound in.
         while (declaredInStmt && declaredInStmt->kind() == StatementKind::Label)
             declaredInStmt = declaredInStmt->enclosing();
@@ -6064,7 +6062,7 @@ Parser<ParseHandler>::consequentOrAlternative(YieldHandling yieldHandling)
         // Peek only on the same line: ExpressionStatement's lookahead
         // restriction is phrased as
         //
-        //   [lookahead ??{ {, function, async [no LineTerminator here] function, class, let [ }]
+        //   [lookahead âˆ‰ { {, function, async [no LineTerminator here] function, class, let [ }]
         //
         // meaning that code like this is valid:
         //
@@ -6358,7 +6356,7 @@ Parser<ParseHandler>::forHeadStart(YieldHandling yieldHandling,
     MOZ_ASSERT(isForIn != isForOf);
 
     // In a for-of loop, 'let' that starts the loop head is a |let| keyword,
-    // per the [lookahead ??let] restriction on the LeftHandSideExpression
+    // per the [lookahead â‰  let] restriction on the LeftHandSideExpression
     // variant of such loops.  Expressions that start with |let| can't be used
     // here.
     //
@@ -6426,7 +6424,6 @@ Parser<ParseHandler>::forStatement(YieldHandling yieldHandling)
         if (matched) {
             iflags = JSITER_FOREACH;
             isForEach = true;
-            addTelemetry(JSCompartment::DeprecatedForEach);
             if (!warnOnceAboutForEach())
                 return null();
         }
@@ -6949,12 +6946,11 @@ Parser<ParseHandler>::yieldExpression(InHandling inHandling)
             )
         {
             /* As in Python (see PEP-255), disallow return v; in generators. */
-            errorAt(begin, JSMSG_BAD_FUNCTION_YIELD);
+            errorAt(begin, JSMSG_BAD_GENERATOR_RETURN);
             return null();
         }
 
         pc->functionBox()->setGeneratorKind(LegacyGenerator);
-        addTelemetry(JSCompartment::DeprecatedLegacyGenerator);
 
         MOZ_FALLTHROUGH;
 
@@ -8433,7 +8429,7 @@ Parser<ParseHandler>::statement(YieldHandling yieldHandling)
         }
 
         // NOTE: It's unfortunately allowed to have a label named 'let' in
-        //       non-strict code.  ?’¯
+        //       non-strict code.  ðŸ’¯
         if (next == TOK_COLON)
             return labeledStatement(yieldHandling);
 
@@ -11250,7 +11246,7 @@ Parser<ParseHandler>::methodDefinition(uint32_t toStringStart, PropertyType prop
         break;
 
       default:
-        MOZ_CRASH("unexpected property type");
+        MOZ_CRASH("Parser: methodDefinition: unexpected property type");
     }
 
     GeneratorKind generatorKind = (propType == PropertyType::GeneratorMethod ||
@@ -11557,19 +11553,12 @@ Parser<ParseHandler>::exprInParens(InHandling inHandling, YieldHandling yieldHan
     return expr(inHandling, yieldHandling, tripledotHandling, possibleError, PredictInvoked);
 }
 
-void
-ParserBase::addTelemetry(JSCompartment::DeprecatedLanguageExtension e)
-{
-    JSContext* cx = context->maybeJSContext();
-    if (!cx)
-        return;
-    cx->compartment()->addTelemetry(getFilename(), e);
-}
-
 bool
 ParserBase::warnOnceAboutExprClosure()
 {
-#ifndef RELEASE_OR_BETA
+    // We extensively use expression closures.
+    // Disabling spew; see Issue #3061
+#if 0
     JSContext* cx = context->maybeJSContext();
     if (!cx)
         return true;
@@ -11591,8 +11580,9 @@ ParserBase::warnOnceAboutForEach()
         return true;
 
     if (!cx->compartment()->warnedAboutForEach) {
-        if (!warning(JSMSG_DEPRECATED_FOR_EACH))
-            return false;
+        // Disabled warning spew.
+        // if (!warning(JSMSG_DEPRECATED_FOR_EACH))
+        //    return false;
         cx->compartment()->warnedAboutForEach = true;
     }
     return true;

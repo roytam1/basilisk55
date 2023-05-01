@@ -54,6 +54,8 @@ enum AssignmentOperator {
     AOP_LSH, AOP_RSH, AOP_URSH,
     /* binary */
     AOP_BITOR, AOP_BITXOR, AOP_BITAND,
+    /* short-circuit */
+    AOP_COALESCE, AOP_OR, AOP_AND,
 
     AOP_LIMIT
 };
@@ -123,6 +125,9 @@ static const char* const aopNames[] = {
     "|=",   /* AOP_BITOR */
     "^=",   /* AOP_BITXOR */
     "&="    /* AOP_BITAND */
+    "\?\?=", /* AOP_COALESCE */
+    "||=",  /* AOP_OR */
+    "&&=",  /* AOP_AND */
 };
 
 static const char* const binopNames[] = {
@@ -1975,6 +1980,12 @@ ASTSerializer::aop(JSOp op)
         return AOP_BITXOR;
       case JSOP_BITAND:
         return AOP_BITAND;
+      case JSOP_COALESCE:
+        return AOP_COALESCE;
+      case JSOP_OR:
+        return AOP_OR;
+      case JSOP_AND:
+        return AOP_AND;
       default:
         return AOP_ERR;
     }
@@ -3104,6 +3115,9 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
       case PNK_ASSIGN:
       case PNK_ADDASSIGN:
       case PNK_SUBASSIGN:
+      case PNK_COALESCEASSIGN:
+      case PNK_ORASSIGN:
+      case PNK_ANDASSIGN:
       case PNK_BITORASSIGN:
       case PNK_BITXORASSIGN:
       case PNK_BITANDASSIGN:

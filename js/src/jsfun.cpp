@@ -1287,6 +1287,19 @@ JSFunction::isDerivedClassConstructor()
     return derived;
 }
 
+bool
+JSFunction::isFieldInitializer() const
+{
+    bool init;
+    if (isInterpretedLazy()) {
+        init = lazyScript()->isFieldInitializer();
+    } else {
+        init = nonLazyScript()->isFieldInitializer();
+    }
+    MOZ_ASSERT_IF(init, isMethod());
+    return init;
+}
+
 /* static */ bool
 JSFunction::getLength(JSContext* cx, HandleFunction fun, uint16_t* length)
 {

@@ -351,6 +351,7 @@ js::XDRScript(XDRState<mode>* xdr, HandleScope scriptEnclosingScope,
         NeedsHomeObject,
         IsDerivedClassConstructor,
         IsDefaultClassConstructor,
+        IsFieldInitializer,
     };
 
     uint32_t length, lineno, column, nfixed, nslots;
@@ -475,6 +476,8 @@ js::XDRScript(XDRState<mode>* xdr, HandleScope scriptEnclosingScope,
             scriptBits |= (1 << IsDerivedClassConstructor);
         if (script->isDefaultClassConstructor())
             scriptBits |= (1 << IsDefaultClassConstructor);
+        if (script->isFieldInitializer())
+            scriptBits |= (1 << IsFieldInitializer);
     }
 
     if (!xdr->codeUint32(&prologueLength))
@@ -621,6 +624,8 @@ js::XDRScript(XDRState<mode>* xdr, HandleScope scriptEnclosingScope,
             script->isDerivedClassConstructor_ = true;
         if (scriptBits & (1 << IsDefaultClassConstructor))
             script->isDefaultClassConstructor_ = true;
+        if (scriptBits & (1 << IsFieldInitializer))
+            script->isFieldInitializer_ = true;
 
         if (scriptBits & (1 << IsLegacyGenerator)) {
             MOZ_ASSERT(!(scriptBits & (1 << IsStarGenerator)));
@@ -2811,6 +2816,7 @@ JSScript::initFromFunctionBox(ExclusiveContext* cx, HandleScript script,
     script->funHasExtensibleScope_ = funbox->hasExtensibleScope();
     script->needsHomeObject_       = funbox->needsHomeObject();
     script->isDerivedClassConstructor_ = funbox->isDerivedClassConstructor();
+    script->isFieldInitializer_    = funbox->isFieldInitializer();
 
     if (funbox->argumentsHasLocalBinding()) {
         script->setArgumentsHasVarBinding();
@@ -3489,6 +3495,7 @@ js::detail::CopyScript(JSContext* cx, HandleScript src, HandleScript dst,
     dst->isGeneratorExp_ = src->isGeneratorExp();
     dst->setGeneratorKind(src->generatorKind());
     dst->isDerivedClassConstructor_ = src->isDerivedClassConstructor();
+    dst->isFieldInitializer_ = src->isFieldInitializer();
     dst->needsHomeObject_ = src->needsHomeObject();
     dst->isDefaultClassConstructor_ = src->isDefaultClassConstructor();
     dst->isAsync_ = src->asyncKind() == AsyncFunction;

@@ -1121,6 +1121,8 @@ class JSScript : public js::gc::TenuredCell
     bool isDerivedClassConstructor_:1;
     bool isDefaultClassConstructor_:1;
 
+    bool isFieldInitializer_:1;
+
     bool isAsync_:1;
 
     bool hasRest_:1;
@@ -1457,6 +1459,10 @@ class JSScript : public js::gc::TenuredCell
 
     bool isDerivedClassConstructor() const {
         return isDerivedClassConstructor_;
+    }
+
+    bool isFieldInitializer() const {
+        return isFieldInitializer_;
     }
 
     /*
@@ -2098,6 +2104,7 @@ class LazyScript : public gc::TenuredCell
         uint32_t hasBeenCloned : 1;
         uint32_t treatAsRunOnce : 1;
         uint32_t isDerivedClassConstructor : 1;
+        uint32_t isFieldInitializer : 1;
         uint32_t needsHomeObject : 1;
         uint32_t hasRest : 1;
         uint32_t parseGoal : 1;
@@ -2312,6 +2319,13 @@ class LazyScript : public gc::TenuredCell
     }
     void setIsDerivedClassConstructor() {
         p_.isDerivedClassConstructor = true;
+    }
+
+    bool isFieldInitializer() const {
+        return p_.isFieldInitializer;
+    }
+    void setIsFieldInitializer() {
+        p_.isFieldInitializer = true;
     }
 
     bool needsHomeObject() const {

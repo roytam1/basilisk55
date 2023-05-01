@@ -304,9 +304,10 @@ ControlFlowGenerator::snoopControlFlow(JSOp op)
             return processWhileOrForInLoop(sn);
 
           case SRC_OPTCHAIN:
-            // XXX Instead of aborting early, breaking at this point works.
-            // However, I'm not sure if we still need to further process
-            // optional chains under IonBuilder.
+          case SRC_LOGICASSIGN:
+            // These notes exist only for the benefit of CFG (ie. this function) and
+            // don't need any special handling. The associated GOTOs are all simple 
+            // unconditional near jumps, not loops etc.
             break;
 
           default:

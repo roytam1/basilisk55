@@ -93,6 +93,8 @@ enum class InvalidEscapeType {
     Octal
 };
 
+enum class NameVisibility { Public, Private };
+
 class TokenStream;
 
 struct Token
@@ -186,7 +188,7 @@ struct Token
     // Mutators
 
     void setName(PropertyName* name) {
-        MOZ_ASSERT(type == TOK_NAME);
+        MOZ_ASSERT(type == TOK_NAME || type == TOK_PRIVATE_NAME);
         u.name = name;
     }
 
@@ -212,7 +214,7 @@ struct Token
     // Type-safe accessors
 
     PropertyName* name() const {
-        MOZ_ASSERT(type == TOK_NAME);
+        MOZ_ASSERT(type == TOK_NAME || type == TOK_PRIVATE_NAME);
         return u.name->JSAtom::asPropertyName(); // poor-man's type verification
     }
 
@@ -345,7 +347,7 @@ class MOZ_STACK_CLASS TokenStream
 
   public:
     PropertyName* currentName() const {
-        if (isCurrentTokenType(TOK_NAME)) {
+        if (isCurrentTokenType(TOK_NAME) || isCurrentTokenType(TOK_PRIVATE_NAME)) {
             return currentToken().name();
         }
 
@@ -354,7 +356,7 @@ class MOZ_STACK_CLASS TokenStream
     }
 
     bool currentNameHasEscapes() const {
-        if (isCurrentTokenType(TOK_NAME)) {
+        if (isCurrentTokenType(TOK_NAME) || isCurrentTokenType(TOK_PRIVATE_NAME)) {
             TokenPos pos = currentToken().pos;
             return (pos.end - pos.begin) != currentToken().name()->length();
         }

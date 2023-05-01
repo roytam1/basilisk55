@@ -1891,6 +1891,7 @@
     macro(JSOP_UNPICK,        183,"unpick",     NULL,     2,  0,  0,  JOF_UINT8) \
     /*
      * Pops the top of stack value, pushes property of it onto the stack.
+     * Requires the value under 'obj' to be the receiver of the following call.
      *
      * Like JSOP_GETPROP but for call context.
      *   Category: Literals
@@ -1975,7 +1976,8 @@
     \
     /*
      * Pops the top two values on the stack as 'propval' and 'obj', pushes
-     * 'propval' property of 'obj' onto the stack.
+     * 'propval' property of 'obj' onto the stack. Requires the value under
+     * 'obj' to be the receiver of the following call.
      *
      * Like JSOP_GETELEM but for call context.
      *   Category: Literals

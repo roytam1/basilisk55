@@ -239,6 +239,7 @@ XDRRelazificationInfo(XDRState<mode>* xdr, HandleFunction fun, HandleScript scri
         uint32_t toStringEnd = script->toStringEnd();
         uint32_t lineno = script->lineno();
         uint32_t column = script->column();
+        uint32_t numFieldInitializers;
 
         if (mode == XDR_ENCODE) {
             packedFields = lazy->packedFields();
@@ -252,9 +253,16 @@ XDRRelazificationInfo(XDRState<mode>* xdr, HandleFunction fun, HandleScript scri
             // relazify scripts with inner functions.  See
             // JSFunction::createScriptForLazilyInterpretedFunction.
             MOZ_ASSERT(lazy->numInnerFunctions() == 0);
+            if (fun->kind() == JSFunction::FunctionKind::ClassConstructor) {
+                numFieldInitializers = (uint32_t)lazy->getFieldInitializers().numFieldInitializers;
+            } else {
+                numFieldInitializers = UINT32_MAX;
+            }
         }
 
         if (!xdr->codeUint64(&packedFields))
+            return false;
+        if (!xdr->codeUint32(&numFieldInitializers))
             return false;
 
         if (mode == XDR_DECODE) {
@@ -266,6 +274,9 @@ XDRRelazificationInfo(XDRState<mode>* xdr, HandleFunction fun, HandleScript scri
                 return false;
 
             lazy->setToStringEnd(toStringEnd);
+            if (numFieldInitializers != UINT32_MAX) {
+                lazy->setFieldInitializers(FieldInitializers((size_t)numFieldInitializers));
+            }
 
             // As opposed to XDRLazyScript, we need to restore the runtime bits
             // of the script, as we are trying to match the fact this function
@@ -979,6 +990,7 @@ js::XDRLazyScript(XDRState<mode>* xdr, HandleScope enclosingScope,
         uint32_t lineno;
         uint32_t column;
         uint64_t packedFields;
+        uint32_t numFieldInitializers;
 
         if (mode == XDR_ENCODE) {
             // Note: it's possible the LazyScript has a non-null script_ pointer
@@ -994,13 +1006,19 @@ js::XDRLazyScript(XDRState<mode>* xdr, HandleScope enclosingScope,
             lineno = lazy->lineno();
             column = lazy->column();
             packedFields = lazy->packedFields();
+            if (fun->kind() == JSFunction::FunctionKind::ClassConstructor) {
+                numFieldInitializers = (uint32_t)lazy->getFieldInitializers().numFieldInitializers;
+            } else {
+                numFieldInitializers = UINT32_MAX;
+            }
         }
 
         if (!xdr->codeUint32(&begin) || !xdr->codeUint32(&end) ||
             !xdr->codeUint32(&toStringStart) ||
             !xdr->codeUint32(&toStringEnd) ||
             !xdr->codeUint32(&lineno) || !xdr->codeUint32(&column) ||
-            !xdr->codeUint64(&packedFields))
+            !xdr->codeUint64(&packedFields) ||
+            !xdr->codeUint32(&numFieldInitializers))
         {
             return false;
         }
@@ -1011,6 +1029,9 @@ js::XDRLazyScript(XDRState<mode>* xdr, HandleScope enclosingScope,
             if (!lazy)
                 return false;
             lazy->setToStringEnd(toStringEnd);
+            if (numFieldInitializers != UINT32_MAX) {
+                lazy->setFieldInitializers(FieldInitializers((size_t)numFieldInitializers));
+            }
             fun->initLazyScript(lazy);
         }
     }
@@ -4114,6 +4135,7 @@ LazyScript::LazyScript(JSFunction* fun, void* table, uint64_t packedFields,
     sourceObject_(nullptr),
     table_(table),
     packedFields_(packedFields),
+    fieldInitializers_(FieldInitializers::Invalid()),
     begin_(begin),
     end_(end),
     toStringStart_(toStringStart),

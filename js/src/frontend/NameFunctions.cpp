@@ -84,6 +84,7 @@ class NameResolver
           }
 
           case PNK_NAME:
+          case PNK_PRIVATE_NAME:
             *foundName = true;
             return buf->append(n->as<NameNode>().atom());
 
@@ -137,6 +138,7 @@ class NameResolver
                 return cur;
 
             switch (cur->getKind()) {
+              case PNK_PRIVATE_NAME:
               case PNK_NAME:     return cur;  /* found the initialized declaration */
               case PNK_THIS:     return cur;  /* Setting a property of 'this'. */
               case PNK_FUNCTION: return nullptr; /* won't find an assignment or declaration */
@@ -405,6 +407,7 @@ class NameResolver
             break;
 
           case PNK_OBJECT_PROPERTY_NAME:
+          case PNK_PRIVATE_NAME:
           case PNK_STRING:
           case PNK_TEMPLATE_STRING:
             MOZ_ASSERT(cur->is<NameNode>());
@@ -495,6 +498,19 @@ class NameResolver
             }
             if (!resolve(node->right(), prefix)) {
                 return false;
+            }
+            break;
+          }
+
+          case PNK_CLASSFIELD: {
+            ClassField* node = &cur->as<ClassField>();
+            if (!resolve(&node->name(), prefix)) {
+                return false;
+            }
+            if (ParseNode* init = node->initializer()) {
+                if (!resolve(init, prefix)) {
+                    return false;
+                }
             }
             break;
           }
@@ -644,7 +660,7 @@ class NameResolver
                 if (!resolve(heritage, prefix))
                     return false;
             }
-            if (!resolve(classNode->methodList(), prefix))
+            if (!resolve(classNode->memberList(), prefix))
                 return false;
             break;
           }
@@ -758,7 +774,7 @@ class NameResolver
           }
 
           case PNK_OBJECT:
-          case PNK_CLASSMETHODLIST:
+          case PNK_CLASSMEMBERLIST:
             for (ParseNode* element : cur->as<ListNode>().contents()) {
                 if (!resolve(element, prefix))
                     return false;

@@ -244,6 +244,7 @@ class SharedContext
     bool allowNewTarget_;
     bool allowSuperProperty_;
     bool allowSuperCall_;
+    bool allowArguments_;
     bool inWith_;
     bool needsThisTDZChecks_;
 
@@ -263,6 +264,7 @@ class SharedContext
         allowNewTarget_(false),
         allowSuperProperty_(false),
         allowSuperCall_(false),
+        allowArguments_(true),
         inWith_(false),
         needsThisTDZChecks_(false)
     { }
@@ -287,6 +289,7 @@ class SharedContext
     bool allowNewTarget()              const { return allowNewTarget_; }
     bool allowSuperProperty()          const { return allowSuperProperty_; }
     bool allowSuperCall()              const { return allowSuperCall_; }
+    bool allowArguments()              const { return allowArguments_; }
     bool inWith()                      const { return inWith_; }
     bool needsThisTDZChecks()          const { return needsThisTDZChecks_; }
 
@@ -453,6 +456,7 @@ class FunctionBox : public ObjectBox, public SharedContext
     void initFromLazyFunction();
     void initStandaloneFunction(Scope* enclosingScope);
     void initWithEnclosingParseContext(ParseContext* enclosing, FunctionSyntaxKind kind);
+    void initFieldInitializer(ParseContext* enclosing, bool hasHeritage);  
 
     ObjectBox* toObjectBox() override { return this; }
     JSFunction* function() const { return &object->as<JSFunction>(); }
@@ -564,7 +568,11 @@ class FunctionBox : public ObjectBox, public SharedContext
     }
 
     void setStart(const TokenStream& tokenStream) {
-        bufStart = tokenStream.currentToken().pos.begin;
+        setStart(tokenStream, tokenStream.currentToken().pos);
+    }
+
+    void setStart(const TokenStream& tokenStream, const TokenPos& tokenPos) {
+        bufStart = tokenPos.begin;
         tokenStream.srcCoords.lineNumAndColumnIndex(bufStart, &startLine, &startColumn);
     }
 

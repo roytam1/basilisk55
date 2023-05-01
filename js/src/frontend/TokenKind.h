@@ -72,6 +72,7 @@
     macro(LP,           "'('") \
     macro(RP,           "')'") \
     macro(NAME,         "identifier") \
+    macro(PRIVATE_NAME, "private identifier") \
     macro(NUMBER,       "numeric literal") \
     macro(STRING,       "string literal") \
     \
@@ -323,6 +324,7 @@ inline MOZ_MUST_USE bool
 TokenKindIsPossibleIdentifier(TokenKind tt)
 {
     return tt == TOK_NAME ||
+           tt == TOK_PRIVATE_NAME ||
            TokenKindIsContextualKeyword(tt) ||
            TokenKindIsStrictReservedWord(tt);
 }

@@ -2362,6 +2362,9 @@ ScriptLoader::EvaluateScript(ScriptLoadRequest* aRequest)
         FinishDynamicImport(cx, request, rv);
       }
     } else {
+      // Update our current script.
+      AutoCurrentScriptUpdater scriptUpdater(this, aRequest->Element());
+
       JS::CompileOptions options(cx);
       rv = FillCompileOptionsForRequest(aes, aRequest, global, &options);
 

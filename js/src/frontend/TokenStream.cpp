@@ -168,7 +168,7 @@ IsIdentifier(const Latin1Char* chars, size_t length)
     return ::IsIdentifier(chars, length);
 }
 
-static bool
+bool
 IsIdentifierNameOrPrivateName(const Latin1Char* chars, size_t length)
 {
     if (length == 0)
@@ -190,7 +190,7 @@ IsIdentifier(const char16_t* chars, size_t length)
     return ::IsIdentifier(chars, length);
 }
 
-static bool
+bool
 IsIdentifierMaybeNonBMP(const char16_t* chars, size_t length)
 {
     if (length == 0)
@@ -220,7 +220,7 @@ IsIdentifierMaybeNonBMP(const char16_t* chars, size_t length)
     return true;
 }
 
-static bool
+bool
 IsIdentifierNameOrPrivateNameMaybeNonBMP(const char16_t* chars, size_t length)
 {
     if (length == 0)

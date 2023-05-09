@@ -303,11 +303,14 @@ ControlFlowGenerator::snoopControlFlow(JSOp op)
             return processWhileOrForInLoop(sn);
 
           case SRC_OPTCHAIN:
-          case SRC_LOGICASSIGN:
             // These notes exist only for the benefit of CFG (ie. this function) and
             // don't need any special handling. The associated GOTOs are all simple 
             // unconditional near jumps, not loops etc.
             break;
+
+          case SRC_LOGICASSIGN:
+            // Not implemented yet.
+            return ControlStatus::Abort;
 
           default:
             // Hard assert for now - make an error later.

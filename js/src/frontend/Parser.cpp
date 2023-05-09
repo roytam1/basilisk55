@@ -5780,14 +5780,15 @@ Parser<ParseHandler>::exportVariableStatement(uint32_t begin)
 
 template <typename ParseHandler>
 typename ParseHandler::UnaryNodeType
-Parser<ParseHandler>::exportFunctionDeclaration(uint32_t begin)
+Parser<ParseHandler>::exportFunctionDeclaration(uint32_t begin,
+                                                FunctionAsyncKind asyncKind /* = SyncFunction */)
 {
     if (!abortIfSyntaxParser())
         return null();
 
     MOZ_ASSERT(tokenStream.isCurrentTokenType(TOK_FUNCTION));
 
-    Node kid = functionStmt(pos().begin, YieldIsKeyword, NameRequired);
+    Node kid = functionStmt(pos().begin, YieldIsKeyword, NameRequired, asyncKind);
     if (!kid)
         return null();
 
@@ -6009,6 +6010,20 @@ Parser<ParseHandler>::exportDeclaration()
 
       case TOK_FUNCTION:
         return exportFunctionDeclaration(begin);
+
+      case TOK_ASYNC: {
+        TokenKind nextSameLine = TOK_EOF;
+        if (!tokenStream.peekTokenSameLine(&nextSameLine))
+            return null();
+
+        if (nextSameLine == TOK_FUNCTION) {
+            tokenStream.consumeKnownToken(TOK_FUNCTION);
+            return exportFunctionDeclaration(begin, AsyncFunction);
+        }
+
+        error(JSMSG_DECLARATION_AFTER_EXPORT);
+        return null();
+      }
 
       case TOK_CLASS:
         return exportClassDeclaration(begin);

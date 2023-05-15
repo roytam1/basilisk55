@@ -24,6 +24,8 @@ class DOMRectReadOnly;
 class DOMPoint;
 struct DOMQuadJSON;
 struct DOMPointInit;
+struct DOMQuadInit;
+struct DOMRectInit;
 
 class DOMQuad final : public nsWrapperCache
 {
@@ -38,6 +40,12 @@ public:
 
   nsISupports* GetParentObject() const { return mParent; }
   virtual JSObject* WrapObject(JSContext* aCx, JS::Handle<JSObject*> aGivenProto) override;
+
+  static already_AddRefed<DOMQuad>
+  FromRect(const GlobalObject& aGlobal, const DOMRectInit& aInit);
+
+  static already_AddRefed<DOMQuad>
+  FromQuad(const GlobalObject& aGlobal, const DOMQuadInit& aInit);
 
   static already_AddRefed<DOMQuad>
   Constructor(const GlobalObject& aGlobal,

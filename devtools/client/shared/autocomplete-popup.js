@@ -286,7 +286,7 @@ AutocompletePopup.prototype = {
       return;
     }
 
-    let {top, height} = quads[0].bounds;
+    let {top, height} = quads[0].getBounds();
     let containerHeight = this._tooltip.panel.getBoundingClientRect().height;
     if (top < 0) {
       // Element is above container.

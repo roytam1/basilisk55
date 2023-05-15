@@ -7,6 +7,7 @@
 #ifndef MOZILLA_DOMRECT_H_
 #define MOZILLA_DOMRECT_H_
 
+#include "js/StructuredClone.h"
 #include "nsIDOMClientRect.h"
 #include "nsIDOMClientRectList.h"
 #include "nsTArray.h"
@@ -91,6 +92,10 @@ public:
     double y = Y(), h = Height();
     return std::max(y, y + h);
   }
+
+  bool WriteStructuredClone(JSStructuredCloneWriter* aWriter) const;
+
+  bool ReadStructuredClone(JSStructuredCloneReader* aReader);
 
 protected:
   nsCOMPtr<nsISupports> mParent;

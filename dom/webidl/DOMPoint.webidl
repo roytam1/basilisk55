@@ -4,15 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * The origin of this IDL file is
- * http://dev.w3.org/fxtf/geometry/
+ * https://drafts.fxtf.org/geometry/
  *
  * Copyright © 2012 W3C® (MIT, ERCIM, Keio), All Rights Reserved. W3C
  * liability, trademark and document use rules apply.
  */
 
-[Pref="layout.css.DOMPoint.enabled",
- Constructor(optional unrestricted double x = 0, optional unrestricted double y = 0,
-             optional unrestricted double z = 0, optional unrestricted double w = 1)]
+[Constructor(optional unrestricted double x = 0, optional unrestricted double y = 0,
+             optional unrestricted double z = 0, optional unrestricted double w = 1),
+ Exposed=(Window,Worker)]
 interface DOMPointReadOnly {
     [NewObject] static DOMPointReadOnly fromPoint(optional DOMPointInit other);
 
@@ -22,9 +22,9 @@ interface DOMPointReadOnly {
     readonly attribute unrestricted double w; 
 };
 
-[Pref="layout.css.DOMPoint.enabled",
- Constructor(optional unrestricted double x = 0, optional unrestricted double y = 0,
-             optional unrestricted double z = 0, optional unrestricted double w = 1)]
+[Constructor(optional unrestricted double x = 0, optional unrestricted double y = 0,
+             optional unrestricted double z = 0, optional unrestricted double w = 1),
+ Exposed=(Window,Worker)]
 interface DOMPoint : DOMPointReadOnly {
     [NewObject] static DOMPoint fromPoint(optional DOMPointInit other);
 

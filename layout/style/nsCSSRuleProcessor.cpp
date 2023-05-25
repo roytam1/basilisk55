@@ -679,7 +679,11 @@ void RuleHash::EnumerateAllRules(Element* aElement, ElementDependentRuleProcesso
       aData->mTreeMatchContext.mAncestorFilter.HasFilter() ?
         &aData->mTreeMatchContext.mAncestorFilter : nullptr;
 #ifdef DEBUG
-    if (filter) {
+    bool isRestricted = (aData->mTreeMatchContext.mShadowHosts.Length() > 0 ||
+      aData->mTreeMatchContext.mRestrictToSlottedPseudo ||
+      aData->mTreeMatchContext.mOnlyMatchHostPseudo ||
+      aData->mTreeMatchContext.mForAssignedSlot);
+    if (filter && !isRestricted) {
       filter->AssertHasAllAncestors(aElement);
     }
 #endif

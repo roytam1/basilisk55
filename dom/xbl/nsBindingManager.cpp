@@ -718,8 +718,9 @@ nsBindingManager::WalkRules(nsIStyleRuleProcessor::EnumFunc aFunc,
       aData->mTreeMatchContext.mIsTopmostScope = (index == 0);
       binding->WalkRules(aFunc, aData);
     }
-    aData->mTreeMatchContext.mForAssignedSlot = false;
 
+    aData->mTreeMatchContext.mForAssignedSlot = false;
+    aData->mTreeMatchContext.mIsTopmostScope = false;
     aData->mTreeMatchContext.mRestrictToSlottedPseudo = false;
   }
 

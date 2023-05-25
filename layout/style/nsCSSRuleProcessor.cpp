@@ -1726,7 +1726,13 @@ static bool SelectorMatches(Element* aElement,
 
   Element* targetElement = aElement;
   if (aTreeMatchContext.mForAssignedSlot) {
-    targetElement = aElement->GetAssignedSlot()->AsElement();
+    HTMLSlotElement* slot = aElement->GetAssignedSlot();
+    // We're likely testing the slottable's ancestors and it might
+    // not have an assigned slot, so return early.
+    if (!slot) {
+      return false;
+    }
+    targetElement = slot->AsElement();
   }
 
   // namespace/tag match

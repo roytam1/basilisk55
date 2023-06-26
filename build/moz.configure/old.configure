@@ -158,6 +158,7 @@ def old_configure_options(*options):
     '--enable-address-sanitizer',
     '--enable-alsa',
     '--enable-android-omx',
+    '--enable-av1',
     '--enable-b2g-bt',
     '--enable-b2g-camera',
     '--enable-b2g-ril',

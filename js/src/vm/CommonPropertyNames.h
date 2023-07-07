@@ -52,6 +52,7 @@
     macro(byteOffset, byteOffset, "byteOffset") \
     macro(bytes, bytes, "bytes") \
     macro(BYTES_PER_ELEMENT, BYTES_PER_ELEMENT, "BYTES_PER_ELEMENT") \
+    macro(calendar, calendar, "calendar") \
     macro(call, call, "call") \
     macro(callContentFunction, callContentFunction, "callContentFunction") \
     macro(callee, callee, "callee") \
@@ -62,6 +63,7 @@
     macro(catch, catch_, "catch") \
     macro(class, class_, "class") \
     macro(close, close, "close") \
+    macro(collation, collation, "collation") \
     macro(Collator, Collator, "Collator") \
     macro(collections, collections, "collections") \
     macro(columnNumber, columnNumber, "columnNumber") \
@@ -176,6 +178,7 @@
     macro(hasOwn, hasOwn, "hasOwn") \
     macro(hasOwnProperty, hasOwnProperty, "hasOwnProperty") \
     macro(hour, hour, "hour") \
+    macro(hourCycle, hourCycle, "hourCycle") \
     macro(if, if_, "if") \
     macro(ignoreCase, ignoreCase, "ignoreCase") \
     macro(ignorePunctuation, ignorePunctuation, "ignorePunctuation") \
@@ -189,6 +192,7 @@
     macro(Infinity, Infinity, "Infinity") \
     macro(InitializeCollator, InitializeCollator, "InitializeCollator") \
     macro(InitializeDateTimeFormat, InitializeDateTimeFormat, "InitializeDateTimeFormat") \
+    macro(InitializeLocale, InitializeLocale, "InitializeLocale") \
     macro(InitializeNumberFormat, InitializeNumberFormat, "InitializeNumberFormat") \
     macro(InitializePluralRules, InitializePluralRules, "InitializePluralRules") \
     macro(InitializeRelativeTimeFormat, InitializeRelativeTimeFormat, "InitializeRelativeTimeFormat") \
@@ -217,6 +221,7 @@
     macro(js, js, "js") \
     macro(keys, keys, "keys") \
     macro(label, label, "label") \
+    macro(language, language, "language") \
     macro(lastIndex, lastIndex, "lastIndex") \
     macro(LegacyGeneratorCloseInternal, LegacyGeneratorCloseInternal, "LegacyGeneratorCloseInternal") \
     macro(length, length, "length") \
@@ -225,6 +230,7 @@
     macro(lineNumber, lineNumber, "lineNumber") \
     macro(literal, literal, "literal") \
     macro(loc, loc, "loc") \
+    macro(Locale, Locale, "Locale") \
     macro(locale, locale, "locale") \
     macro(lookupGetter, lookupGetter, "__lookupGetter__") \
     macro(lookupSetter, lookupSetter, "__lookupSetter__") \
@@ -262,6 +268,7 @@
     macro(noStack, noStack, "noStack") \
     macro(notes, notes, "notes") \
     macro(NumberFormat, NumberFormat, "NumberFormat") \
+    macro(numberingSystem, numberingSystem, "numberingSystem") \
     macro(numeric, numeric, "numeric") \
     macro(objectArguments, objectArguments, "[object Arguments]") \
     macro(objectArray, objectArray, "[object Array]") \
@@ -304,6 +311,7 @@
     macro(reason, reason, "reason") \
     macro(RegExpFlagsGetter, RegExpFlagsGetter, "RegExpFlagsGetter") \
     macro(RegExpStringIterator, RegExpStringIterator, "RegExp String Iterator") \
+    macro(region, region, "region") \
     macro(Reify, Reify, "Reify") \
     macro(reject, reject, "reject") \
     macro(rejected, rejected, "rejected") \

@@ -944,6 +944,9 @@ AddIntlExtras(JSContext* cx, unsigned argc, Value* vp)
     if (!JS_DefineFunctions(cx, intl, funcs))
         return false;
 
+    if (!js::AddMozDateTimeFormatConstructor(cx, intl))
+        return false;
+
     if (!js::AddPluralRulesConstructor(cx, intl))
         return false;
 

@@ -35,6 +35,7 @@ using mozilla::Range;
 using mozilla::RangedPtr;
 
 using js::intl::CallICU;
+using js::intl::DateTimeFormatOptions;
 using js::intl::GetAvailableLocales;
 using js::intl::IcuLocale;
 using js::intl::INITIAL_CHAR_BUFFER_SIZE;
@@ -512,7 +513,7 @@ GlobalObject::initIntlObject(JSContext* cx, Handle<GlobalObject*> global)
     if (!collatorProto)
         return false;
     RootedObject dateTimeFormatProto(cx), dateTimeFormat(cx);
-    dateTimeFormatProto = CreateDateTimeFormatPrototype(cx, intl, global, &dateTimeFormat);
+    dateTimeFormatProto = CreateDateTimeFormatPrototype(cx, intl, global, &dateTimeFormat, DateTimeFormatOptions::Standard);
     if (!dateTimeFormatProto)
         return false;
     RootedObject numberFormatProto(cx), numberFormat(cx);

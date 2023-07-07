@@ -31,6 +31,10 @@ class JSAddonId;
 
 struct jsid;
 
+namespace js {
+class TempAllocPolicy;
+}; // namespace js
+
 namespace JS {
 
 typedef unsigned char Latin1Char;
@@ -41,6 +45,8 @@ template <typename T> class Handle;
 template <typename T> class MutableHandle;
 template <typename T> class Rooted;
 template <typename T> class PersistentRooted;
+template <typename T> class RootedVector;
+template <typename T, typename AllocPolicy = js::TempAllocPolicy> class StackGCVector;
 
 typedef Handle<JSFunction*> HandleFunction;
 typedef Handle<jsid>        HandleId;
@@ -49,6 +55,7 @@ typedef Handle<JSScript*>   HandleScript;
 typedef Handle<JSString*>   HandleString;
 typedef Handle<JS::Symbol*> HandleSymbol;
 typedef Handle<Value>       HandleValue;
+typedef Handle<StackGCVector<Value>> HandleValueVector;
 
 typedef MutableHandle<JSFunction*> MutableHandleFunction;
 typedef MutableHandle<jsid>        MutableHandleId;
@@ -57,6 +64,7 @@ typedef MutableHandle<JSScript*>   MutableHandleScript;
 typedef MutableHandle<JSString*>   MutableHandleString;
 typedef MutableHandle<JS::Symbol*> MutableHandleSymbol;
 typedef MutableHandle<Value>       MutableHandleValue;
+typedef MutableHandle<StackGCVector<Value>> MutableHandleValueVector;
 
 typedef Rooted<JSObject*>       RootedObject;
 typedef Rooted<JSFunction*>     RootedFunction;
@@ -66,6 +74,8 @@ typedef Rooted<JS::Symbol*>     RootedSymbol;
 typedef Rooted<jsid>            RootedId;
 typedef Rooted<JS::Value>       RootedValue;
 
+typedef RootedVector<JS::Value> RootedValueVector;
+
 typedef PersistentRooted<JSFunction*> PersistentRootedFunction;
 typedef PersistentRooted<jsid>        PersistentRootedId;
 typedef PersistentRooted<JSObject*>   PersistentRootedObject;
@@ -74,6 +84,11 @@ typedef PersistentRooted<JSString*>   PersistentRootedString;
 typedef PersistentRooted<JS::Symbol*> PersistentRootedSymbol;
 typedef PersistentRooted<Value>       PersistentRootedValue;
 
+
+template <typename T>
+using HandleVector = Handle<StackGCVector<T>>;
+template <typename T>
+using MutableHandleVector = MutableHandle<StackGCVector<T>>;
 } // namespace JS
 
 #endif /* js_TypeDecls_h */

@@ -1350,7 +1350,7 @@ nsCORSPreflightListener::CheckPreflightRequestApproved(nsIRequest* aRequest)
                           headerVal);
   nsTArray<nsCString> headers;
   nsCCharSeparatedTokenizer headerTokens(headerVal, ',');
-  bool allowAllHeaders = false;
+  bool wildcard = false;
   while(headerTokens.hasMoreTokens()) {
     const nsDependentCSubstring& header = headerTokens.nextToken();
     if (header.IsEmpty()) {
@@ -1362,20 +1362,31 @@ nsCORSPreflightListener::CheckPreflightRequestApproved(nsIRequest* aRequest)
       return NS_ERROR_DOM_BAD_URI;
     }
     if (header.EqualsLiteral("*") && !mWithCredentials) {
-      allowAllHeaders = true;
+      wildcard = true;
     } else {
       headers.AppendElement(header);
     }
   }
-  if (!allowAllHeaders) {
-    const auto& comparator = nsCaseInsensitiveCStringArrayComparator();
-    for (uint32_t i = 0; i < mPreflightHeaders.Length(); ++i) {
-      if (!headers.Contains(mPreflightHeaders[i], comparator)) {
-        LogBlockedRequest(
-            aRequest, "CORSMissingAllowHeaderFromPreflight",
-            NS_ConvertUTF8toUTF16(mPreflightHeaders[i]).get());
-        return NS_ERROR_DOM_BAD_URI;
-      }
+  for (uint32_t i = 0; i < mPreflightHeaders.Length(); ++i) {
+    if (wildcard
+        // Access-Control-Allow-Headers is '*', so we should skip these checks.
+#if 0
+        && !mPreflightHeaders[i].LowerCaseEqualsASCII("authorization")
+        // However, according to the spec, 'Authorization' isn't allowed to be
+        // wildcarded here and must always be explicitly mentioned.
+        // Fixme: Mainstream keeps this disabled because nobody obeys this rule.
+        //        This should be flipped on when either mainstream does or when there's enough
+        //        effort to make websites adhere to the spec, to keep our implementation
+        //        in line with the consensus on the web.
+#endif
+        ) {
+      continue;
+    }
+    if (!headers.Contains(mPreflightHeaders[i],
+                          nsCaseInsensitiveCStringArrayComparator())) {
+      LogBlockedRequest(aRequest, "CORSMissingAllowHeaderFromPreflight",
+                        NS_ConvertUTF8toUTF16(mPreflightHeaders[i]).get());
+      return NS_ERROR_DOM_BAD_URI;
     }
   }
 

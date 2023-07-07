@@ -632,6 +632,18 @@ struct AssertionConditionType
          /* Silence MOZ_MUST_USE. */ \
        } \
      } while (0)
+#  define MOZ_ALWAYS_OK(expr) \
+     do { \
+       if ((expr).isOk()) { \
+         /* Silence MOZ_MUST_USE. */ \
+       } \
+     } while (0)
+#  define MOZ_ALWAYS_ERR(expr) \
+     do { \
+       if ((expr).isErr()) { \
+         /* Silence MOZ_MUST_USE. */ \
+       } \
+     } while (0)
 #endif
 
 #undef MOZ_DUMP_ASSERTION_STACK

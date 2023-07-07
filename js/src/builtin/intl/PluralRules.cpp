@@ -28,7 +28,6 @@ using namespace js;
 using mozilla::AssertedCast;
 
 using js::intl::CallICU;
-using js::intl::GetAvailableLocales;
 using js::intl::IcuLocale;
 using js::intl::INITIAL_CHAR_BUFFER_SIZE;
 using js::intl::StringsAreEqual;
@@ -209,21 +208,6 @@ JS_FRIEND_API(bool)
 js::AddPluralRulesConstructor(JSContext* cx, JS::Handle<JSObject*> intl)
 {
     return GlobalObject::addPluralRulesConstructor(cx, intl);
-}
-
-bool
-js::intl_PluralRules_availableLocales(JSContext* cx, unsigned argc, Value* vp)
-{
-    CallArgs args = CallArgsFromVp(argc, vp);
-    MOZ_ASSERT(args.length() == 0);
-
-    RootedValue result(cx);
-    // We're going to use ULocale availableLocales as per ICU recommendation:
-    // https://ssl.icu-project.org/trac/ticket/12756
-    if (!GetAvailableLocales(cx, uloc_countAvailable, uloc_getAvailable, &result))
-        return false;
-    args.rval().set(result);
-    return true;
 }
 
 /**

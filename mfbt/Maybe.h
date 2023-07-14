@@ -17,6 +17,7 @@
 
 #include <new>  // for placement new
 #include <type_traits>
+#include <utility>
 
 namespace mozilla {
 

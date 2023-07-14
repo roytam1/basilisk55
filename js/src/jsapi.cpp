@@ -6499,7 +6499,7 @@ JSErrorNotes::~JSErrorNotes()
 }
 
 static UniquePtr<JSErrorNotes::Note>
-CreateErrorNoteVA(JSContext* cx,
+CreateErrorNoteVA(ExclusiveContext* cx,
                   const char* filename, unsigned lineno, unsigned column,
                   JSErrorCallback errorCallback, void* userRef,
                   const unsigned errorNumber,
@@ -6530,7 +6530,7 @@ JSErrorNotes::addNoteASCII(ExclusiveContext* cx,
 {
     va_list ap;
     va_start(ap, errorNumber);
-    auto note = CreateErrorNoteVA(cx->asJSContext(), filename, lineno, column, errorCallback, userRef,
+    auto note = CreateErrorNoteVA(cx, filename, lineno, column, errorCallback, userRef,
                                   errorNumber, ArgumentsAreASCII, ap);
     va_end(ap);
 
@@ -6549,7 +6549,7 @@ JSErrorNotes::addNoteLatin1(ExclusiveContext* cx,
 {
     va_list ap;
     va_start(ap, errorNumber);
-    auto note = CreateErrorNoteVA(cx->asJSContext(), filename, lineno, column, errorCallback, userRef,
+    auto note = CreateErrorNoteVA(cx, filename, lineno, column, errorCallback, userRef,
                                   errorNumber, ArgumentsAreLatin1, ap);
     va_end(ap);
 
@@ -6568,7 +6568,7 @@ JSErrorNotes::addNoteUTF8(ExclusiveContext* cx,
 {
     va_list ap;
     va_start(ap, errorNumber);
-    auto note = CreateErrorNoteVA(cx->asJSContext(), filename, lineno, column, errorCallback, userRef,
+    auto note = CreateErrorNoteVA(cx, filename, lineno, column, errorCallback, userRef,
                                   errorNumber, ArgumentsAreUTF8, ap);
     va_end(ap);
 

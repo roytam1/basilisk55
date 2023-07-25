@@ -675,6 +675,9 @@ IonBuilder::analyzeNewLoopTypes(const CFGBlock* loopEntryBlock)
               case JSOP_NEG:
                 type = inspector->expectedResultType(last);
                 break;
+              case JSOP_BIGINT:
+                type = MIRType::BigInt;
+                break;
               default:
                 break;
             }
@@ -1245,6 +1248,7 @@ IonBuilder::addOsrValueTypeBarrier(uint32_t slot, MInstruction** def_,
       case MIRType::Double:
       case MIRType::String:
       case MIRType::Symbol:
+      case MIRType::BigInt:
       case MIRType::Object:
         if (type != def->type()) {
             MUnbox* unbox = MUnbox::New(alloc(), def, type, MUnbox::Fallible);
@@ -3125,8 +3129,10 @@ IonBuilder::bitnotTrySpecialized(bool* emitted, MDefinition* input)
     // Try to emit a specialized bitnot instruction based on the input type
     // of the operand.
 
-    if (input->mightBeType(MIRType::Object) || input->mightBeType(MIRType::Symbol))
+    if (input->mightBeType(MIRType::Object) || input->mightBeType(MIRType::Symbol) ||
+        input->mightBeType(MIRType::BigInt)) {
         return Ok();
+    }
 
     MBitNot* ins = MBitNot::New(alloc(), input);
     ins->setSpecialization(MIRType::Int32);
@@ -5587,6 +5593,7 @@ ObjectOrSimplePrimitive(MDefinition* op)
     // Return true if op is either undefined/null/boolean/int32 or an object.
     return !op->mightBeType(MIRType::String)
         && !op->mightBeType(MIRType::Symbol)
+        && !op->mightBeType(MIRType::BigInt)
         && !op->mightBeType(MIRType::Double)
         && !op->mightBeType(MIRType::Float32)
         && !op->mightBeType(MIRType::MagicOptimizedArguments)
@@ -6804,6 +6811,10 @@ IonBuilder::testSingletonPropertyTypes(MDefinition* obj, jsid id)
 
       case MIRType::Symbol:
         key = JSProto_Symbol;
+        break;
+
+      case MIRType::BigInt:
+        key = JSProto_BigInt;
         break;
 
       case MIRType::Int32:

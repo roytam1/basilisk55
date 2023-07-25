@@ -1161,6 +1161,7 @@ class MacroAssembler : public MacroAssemblerSpecific
     inline void branchTestBoolean(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
     inline void branchTestString(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
     inline void branchTestSymbol(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
+    inline void branchTestBigInt(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
     inline void branchTestNull(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
     inline void branchTestObject(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
     inline void branchTestPrimitive(Condition cond, Register tag, Label* label) PER_SHARED_ARCH;
@@ -1199,6 +1200,10 @@ class MacroAssembler : public MacroAssemblerSpecific
 
     inline void branchTestSymbol(Condition cond, const BaseIndex& address, Label* label) PER_SHARED_ARCH;
     inline void branchTestSymbol(Condition cond, const ValueOperand& value, Label* label)
+        DEFINED_ON(arm, arm64, mips32, mips64, x86_shared);
+
+    inline void branchTestBigInt(Condition cond, const BaseIndex& address, Label* label) PER_SHARED_ARCH;
+    inline void branchTestBigInt(Condition cond, const ValueOperand& value, Label* label)
         DEFINED_ON(arm, arm64, mips32, mips64, x86_shared);
 
     inline void branchTestNull(Condition cond, const Address& address, Label* label) PER_SHARED_ARCH;
@@ -1240,6 +1245,8 @@ class MacroAssembler : public MacroAssemblerSpecific
     inline void branchTestBooleanTruthy(bool truthy, const ValueOperand& value, Label* label) PER_ARCH;
     inline void branchTestStringTruthy(bool truthy, const ValueOperand& value, Label* label)
         DEFINED_ON(arm, arm64, mips32, mips64, x86_shared);
+    inline void branchTestBigIntTruthy(bool truthy, const ValueOperand& value, Label* label)
+        DEFINED_ON(arm, arm64, mips32, mips64, x86_shared);
 
   private:
 
@@ -1278,6 +1285,9 @@ class MacroAssembler : public MacroAssemblerSpecific
         DEFINED_ON(arm, arm64, x86_shared);
     template <typename T>
     inline void branchTestSymbolImpl(Condition cond, const T& t, Label* label)
+        DEFINED_ON(arm, arm64, x86_shared);
+    template <typename T>
+    inline void branchTestBigIntImpl(Condition cond, const T& t, Label* label)
         DEFINED_ON(arm, arm64, x86_shared);
     template <typename T>
     inline void branchTestNullImpl(Condition cond, const T& t, Label* label)

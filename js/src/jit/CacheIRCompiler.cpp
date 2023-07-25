@@ -1181,6 +1181,9 @@ CacheIRCompiler::emitGuardType()
       case JSVAL_TYPE_SYMBOL:
         masm.branchTestSymbol(Assembler::NotEqual, input, failure->label());
         break;
+      case JSVAL_TYPE_BIGINT:
+        masm.branchTestBigInt(Assembler::NotEqual, input, failure->label());
+        break;
       case JSVAL_TYPE_INT32:
         masm.branchTestInt32(Assembler::NotEqual, input, failure->label());
         break;

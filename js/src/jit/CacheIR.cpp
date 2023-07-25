@@ -962,6 +962,9 @@ GetPropIRGenerator::tryAttachPrimitive(ValOperandId valId, HandleId id)
     } else if (val_.isSymbol()) {
         primitiveType = JSVAL_TYPE_SYMBOL;
         proto = MaybeNativeObject(GetBuiltinPrototypePure(cx_->global(), JSProto_Symbol));
+    } else if (val_.isBigInt()) {
+        primitiveType = JSVAL_TYPE_BIGINT;
+        proto = MaybeNativeObject(GetBuiltinPrototypePure(cx_->global(), JSProto_BigInt));
     } else {
         MOZ_ASSERT(val_.isNullOrUndefined() || val_.isMagic());
         return false;

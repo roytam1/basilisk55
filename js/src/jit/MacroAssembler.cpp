@@ -45,12 +45,13 @@ MacroAssembler::guardTypeSet(const Source& address, const TypeSet* types, Barrie
     MOZ_ASSERT(!types->unknown());
 
     Label matched;
-    TypeSet::Type tests[8] = {
+    TypeSet::Type tests[9] = {
         TypeSet::Int32Type(),
         TypeSet::UndefinedType(),
         TypeSet::BooleanType(),
         TypeSet::StringType(),
         TypeSet::SymbolType(),
+        TypeSet::BigIntType(),
         TypeSet::NullType(),
         TypeSet::MagicArgType(),
         TypeSet::AnyObjectType()
@@ -2743,6 +2744,9 @@ MacroAssembler::maybeBranchTestType(MIRType type, MDefinition* maybeDef, Registe
             break;
           case MIRType::Symbol:
             branchTestSymbol(Equal, tag, label);
+            break;
+          case MIRType::BigInt:
+            branchTestBigInt(Equal, tag, label);
             break;
           case MIRType::Object:
             branchTestObject(Equal, tag, label);

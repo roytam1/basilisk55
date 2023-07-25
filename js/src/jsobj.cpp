@@ -36,6 +36,7 @@
 #include "jswin.h"
 #include "jswrapper.h"
 
+#include "builtin/BigInt.h"
 #include "builtin/Eval.h"
 #include "builtin/Object.h"
 #include "builtin/SymbolObject.h"
@@ -3173,8 +3174,7 @@ js::PrimitiveToObject(JSContext* cx, const Value& v)
     }
     MOZ_ASSERT(v.isBigInt());
     RootedBigInt bigInt(cx, v.toBigInt());
-    // Return nullptr because BigIntObject has not been defined yet.
-    return nullptr;
+    return BigIntObject::create(cx, bigInt);
 }
 
 /*

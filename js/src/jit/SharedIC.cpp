@@ -830,7 +830,7 @@ DoBinaryArithFallback(JSContext* cx, void* payload, ICBinaryArith_Fallback* stub
             return false;
         break;
       case JSOP_POW:
-        if (!math_pow_handle(cx, lhsCopy, rhsCopy, ret))
+        if (!PowValues(cx, &lhsCopy, &rhsCopy, ret))
             return false;
         break;
       case JSOP_BITOR: {
@@ -1369,10 +1369,13 @@ DoUnaryArithFallback(JSContext* cx, void* payload, ICUnaryArith_Fallback* stub_,
         res.setInt32(result);
         break;
       }
-      case JSOP_NEG:
-        if (!NegOperation(cx, script, pc, val, res))
+      case JSOP_NEG: {
+        // We copy val here because the original value is needed below.
+        RootedValue valCopy(cx, val);
+        if (!NegOperation(cx, script, pc, &valCopy, res))
             return false;
         break;
+      }
       default:
         MOZ_CRASH("Unexpected op");
     }

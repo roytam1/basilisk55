@@ -12,6 +12,7 @@
 #include "mozilla/Casting.h"
 #include "mozilla/FloatingPoint.h"
 #include "mozilla/TypeTraits.h"
+#include "mozilla/WrappingOperations.h"
 
 #include <math.h>
 

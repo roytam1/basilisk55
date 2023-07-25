@@ -2845,6 +2845,7 @@ MBinaryBitwiseInstruction::infer(BaselineInspector*, jsbytecode*)
         getOperand(1)->mightBeType(MIRType::Object) || getOperand(1)->mightBeType(MIRType::Symbol))
     {
         specialization_ = MIRType::None;
+        setResultType(MIRType::Value);
     } else {
         specializeAs(MIRType::Int32);
     }
@@ -2854,9 +2855,10 @@ void
 MBinaryBitwiseInstruction::specializeAs(MIRType type)
 {
     MOZ_ASSERT(type == MIRType::Int32 || type == MIRType::Int64);
-    MOZ_ASSERT(this->type() == type);
+    MOZ_ASSERT(this->type() == MIRType::Value || this->type() == type);
 
     specialization_ = type;
+    setResultType(type);
 
     if (isBitOr() || isBitAnd() || isBitXor())
         setCommutative();
@@ -2867,9 +2869,13 @@ MShiftInstruction::infer(BaselineInspector*, jsbytecode*)
 {
     if (getOperand(0)->mightBeType(MIRType::Object) || getOperand(1)->mightBeType(MIRType::Object) ||
         getOperand(0)->mightBeType(MIRType::Symbol) || getOperand(1)->mightBeType(MIRType::Symbol))
+    {
         specialization_ = MIRType::None;
-    else
+        setResultType(MIRType::Value);
+    } else {
         specialization_ = MIRType::Int32;
+        setResultType(MIRType::Int32);
+    }
 }
 
 void
@@ -3854,7 +3860,7 @@ MBitNot::NewInt32(TempAllocator& alloc, MDefinition* input)
 {
     MBitNot* ins = new(alloc) MBitNot(input);
     ins->specialization_ = MIRType::Int32;
-    MOZ_ASSERT(ins->type() == MIRType::Int32);
+    ins->setResultType(MIRType::Int32);
     return ins;
 }
 

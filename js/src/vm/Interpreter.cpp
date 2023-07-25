@@ -2184,31 +2184,41 @@ CASE(JSOP_BINDVAR)
 }
 END_CASE(JSOP_BINDVAR)
 
-#define BITWISE_OP(OP)                                                        \
-    JS_BEGIN_MACRO                                                            \
-        int32_t i, j;                                                         \
-        if (!ToInt32(cx, REGS.stackHandleAt(-2), &i))                         \
-            goto error;                                                       \
-        if (!ToInt32(cx, REGS.stackHandleAt(-1), &j))                         \
-            goto error;                                                       \
-        i = i OP j;                                                           \
-        REGS.sp--;                                                            \
-        REGS.sp[-1].setInt32(i);                                              \
-    JS_END_MACRO
-
 CASE(JSOP_BITOR)
-    BITWISE_OP(|);
+{
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-2);
+    if (!BitOr(cx, lhs, rhs, res)) {
+        goto error;
+    }
+    REGS.sp--;
+}
 END_CASE(JSOP_BITOR)
 
 CASE(JSOP_BITXOR)
-    BITWISE_OP(^);
+{
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-2);
+    if (!BitXor(cx, lhs, rhs, res)) {
+        goto error;
+    }
+    REGS.sp--;
+}
 END_CASE(JSOP_BITXOR)
 
 CASE(JSOP_BITAND)
-    BITWISE_OP(&);
+{
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-2);
+    if (!BitAnd(cx, lhs, rhs, res)) {
+        goto error;
+    }
+    REGS.sp--;
+}
 END_CASE(JSOP_BITAND)
-
-#undef BITWISE_OP
 
 CASE(JSOP_EQ)
     if (!LooseEqualityOp<true>(cx, REGS))
@@ -2265,8 +2275,9 @@ CASE(JSOP_LT)
     bool cond;
     MutableHandleValue lval = REGS.stackHandleAt(-2);
     MutableHandleValue rval = REGS.stackHandleAt(-1);
-    if (!LessThanOperation(cx, lval, rval, &cond))
+    if (!LessThanOperation(cx, lval, rval, &cond)) {
         goto error;
+    }
     TRY_BRANCH_AFTER_COND(cond, 2);
     REGS.sp[-2].setBoolean(cond);
     REGS.sp--;
@@ -2278,8 +2289,9 @@ CASE(JSOP_LE)
     bool cond;
     MutableHandleValue lval = REGS.stackHandleAt(-2);
     MutableHandleValue rval = REGS.stackHandleAt(-1);
-    if (!LessThanOrEqualOperation(cx, lval, rval, &cond))
+    if (!LessThanOrEqualOperation(cx, lval, rval, &cond)) {
         goto error;
+    }
     TRY_BRANCH_AFTER_COND(cond, 2);
     REGS.sp[-2].setBoolean(cond);
     REGS.sp--;
@@ -2291,8 +2303,9 @@ CASE(JSOP_GT)
     bool cond;
     MutableHandleValue lval = REGS.stackHandleAt(-2);
     MutableHandleValue rval = REGS.stackHandleAt(-1);
-    if (!GreaterThanOperation(cx, lval, rval, &cond))
+    if (!GreaterThanOperation(cx, lval, rval, &cond)) {
         goto error;
+    }
     TRY_BRANCH_AFTER_COND(cond, 2);
     REGS.sp[-2].setBoolean(cond);
     REGS.sp--;
@@ -2304,43 +2317,47 @@ CASE(JSOP_GE)
     bool cond;
     MutableHandleValue lval = REGS.stackHandleAt(-2);
     MutableHandleValue rval = REGS.stackHandleAt(-1);
-    if (!GreaterThanOrEqualOperation(cx, lval, rval, &cond))
+    if (!GreaterThanOrEqualOperation(cx, lval, rval, &cond)) {
         goto error;
+    }
     TRY_BRANCH_AFTER_COND(cond, 2);
     REGS.sp[-2].setBoolean(cond);
     REGS.sp--;
 }
 END_CASE(JSOP_GE)
 
-#define SIGNED_SHIFT_OP(OP)                                                   \
-    JS_BEGIN_MACRO                                                            \
-        int32_t i, j;                                                         \
-        if (!ToInt32(cx, REGS.stackHandleAt(-2), &i))                         \
-            goto error;                                                       \
-        if (!ToInt32(cx, REGS.stackHandleAt(-1), &j))                         \
-            goto error;                                                       \
-        i = i OP (j & 31);                                                    \
-        REGS.sp--;                                                            \
-        REGS.sp[-1].setInt32(i);                                              \
-    JS_END_MACRO
-
 CASE(JSOP_LSH)
-    SIGNED_SHIFT_OP(<<);
+{
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-2);
+    if (!BitLsh(cx, lhs, rhs, res)) {
+        goto error;
+    }
+    REGS.sp--;
+}
 END_CASE(JSOP_LSH)
 
 CASE(JSOP_RSH)
-    SIGNED_SHIFT_OP(>>);
+{
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-2);
+    if (!BitRsh(cx, lhs, rhs, res)) {
+        goto error;
+    }
+    REGS.sp--;
+}
 END_CASE(JSOP_RSH)
-
-#undef SIGNED_SHIFT_OP
 
 CASE(JSOP_URSH)
 {
-    HandleValue lval = REGS.stackHandleAt(-2);
-    HandleValue rval = REGS.stackHandleAt(-1);
+    MutableHandleValue lhs = REGS.stackHandleAt(-2);
+    MutableHandleValue rhs = REGS.stackHandleAt(-1);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!UrshOperation(cx, lval, rval, res))
+    if (!UrshOperation(cx, lhs, rhs, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_URSH)
@@ -2350,8 +2367,9 @@ CASE(JSOP_ADD)
     MutableHandleValue lval = REGS.stackHandleAt(-2);
     MutableHandleValue rval = REGS.stackHandleAt(-1);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!AddOperation(cx, lval, rval, res))
+    if (!AddOperation(cx, lval, rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_ADD)
@@ -2361,8 +2379,9 @@ CASE(JSOP_SUB)
     ReservedRooted<Value> lval(&rootValue0, REGS.sp[-2]);
     ReservedRooted<Value> rval(&rootValue1, REGS.sp[-1]);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!SubOperation(cx, &lval, &rval, res))
+    if (!SubOperation(cx, &lval, &rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_SUB)
@@ -2372,8 +2391,9 @@ CASE(JSOP_MUL)
     ReservedRooted<Value> lval(&rootValue0, REGS.sp[-2]);
     ReservedRooted<Value> rval(&rootValue1, REGS.sp[-1]);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!MulOperation(cx, &lval, &rval, res))
+    if (!MulOperation(cx, &lval, &rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_MUL)
@@ -2383,8 +2403,9 @@ CASE(JSOP_DIV)
     ReservedRooted<Value> lval(&rootValue0, REGS.sp[-2]);
     ReservedRooted<Value> rval(&rootValue1, REGS.sp[-1]);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!DivOperation(cx, &lval, &rval, res))
+    if (!DivOperation(cx, &lval, &rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_DIV)
@@ -2394,8 +2415,9 @@ CASE(JSOP_MOD)
     ReservedRooted<Value> lval(&rootValue0, REGS.sp[-2]);
     ReservedRooted<Value> rval(&rootValue1, REGS.sp[-1]);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!ModOperation(cx, &lval, &rval, res))
+    if (!ModOperation(cx, &lval, &rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_MOD)
@@ -2405,8 +2427,9 @@ CASE(JSOP_POW)
     ReservedRooted<Value> lval(&rootValue0, REGS.sp[-2]);
     ReservedRooted<Value> rval(&rootValue1, REGS.sp[-1]);
     MutableHandleValue res = REGS.stackHandleAt(-2);
-    if (!PowOperation(cx, &lval, &rval, res))
+    if (!PowOperation(cx, &lval, &rval, res)) {
         goto error;
+    }
     REGS.sp--;
 }
 END_CASE(JSOP_POW)
@@ -2421,11 +2444,11 @@ END_CASE(JSOP_NOT)
 
 CASE(JSOP_BITNOT)
 {
-    int32_t i;
-    HandleValue value = REGS.stackHandleAt(-1);
-    if (!BitNot(cx, value, &i))
+    MutableHandleValue value = REGS.stackHandleAt(-1);
+    MutableHandleValue res = REGS.stackHandleAt(-1);
+    if (!BitNot(cx, value, res)) {
         goto error;
-    REGS.sp[-1].setInt32(i);
+    }
 }
 END_CASE(JSOP_BITNOT)
 

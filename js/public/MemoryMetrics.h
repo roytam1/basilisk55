@@ -581,6 +581,7 @@ struct UnusedGCThingSizes
     macro(Other, GCHeapUnused, objectGroup) \
     macro(Other, GCHeapUnused, string) \
     macro(Other, GCHeapUnused, symbol) \
+    macro(Other, GCHeapUnused, bigInt) \
     macro(Other, GCHeapUnused, jitcode) \
     macro(Other, GCHeapUnused, scope) \
     macro(Other, GCHeapUnused, regExpShared)
@@ -600,6 +601,7 @@ struct UnusedGCThingSizes
           case JS::TraceKind::Object:       object += n;       break;
           case JS::TraceKind::String:       string += n;       break;
           case JS::TraceKind::Symbol:       symbol += n;       break;
+          case JS::TraceKind::BigInt:       bigInt += n;       break;
           case JS::TraceKind::Script:       script += n;       break;
           case JS::TraceKind::Shape:        shape += n;        break;
           case JS::TraceKind::BaseShape:    baseShape += n;    break;
@@ -641,6 +643,8 @@ struct ZoneStats
 {
 #define FOR_EACH_SIZE(macro) \
     macro(Other,   GCHeapUsed,  symbolsGCHeap) \
+    macro(Other,   GCHeapUsed,  bigIntsGCHeap) \
+    macro(Other,   MallocHeap,  bigIntsMallocHeap) \
     macro(Other,   GCHeapAdmin, gcHeapArenaAdmin) \
     macro(Other,   GCHeapUsed,  lazyScriptsGCHeap) \
     macro(Other,   MallocHeap,  lazyScriptsMallocHeap) \

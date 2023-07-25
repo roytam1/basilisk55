@@ -443,6 +443,7 @@ SOURCES += [
     'jsdtoa.cpp',
     'jsmath.cpp',
     'jsutil.cpp',
+    'vm/BigIntType.cpp',
     'vm/Initialization.cpp',
     'vm/Interpreter.cpp',
 ]

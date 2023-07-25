@@ -21,6 +21,7 @@
 #include "threading/ConditionVariable.h"
 #include "threading/Thread.h"
 #include "vm/NativeObject.h"
+#include "vm/BigIntType.h"
 
 namespace js {
 
@@ -120,6 +121,7 @@ IsNurseryAllocable(AllocKind kind)
         false,     /* AllocKind::FAT_INLINE_ATOM */
         false,     /* AllocKind::ATOM */
         false,     /* AllocKind::SYMBOL */
+        false,     /* AllocKind::BIGINT */
         false,     /* AllocKind::JITCODE */
         false,     /* AllocKind::SCOPE */
         false,     /* AllocKind::REGEXP_SHARED */
@@ -159,6 +161,7 @@ IsBackgroundFinalized(AllocKind kind)
         true,      /* AllocKind::FAT_INLINE_ATOM */
         true,      /* AllocKind::ATOM */
         true,      /* AllocKind::SYMBOL */
+        true,      /* AllocKind::BIGINT */
         false,     /* AllocKind::JITCODE */
         true,      /* AllocKind::SCOPE */
         true,      /* AllocKind::REGEXP_SHARED */

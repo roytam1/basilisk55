@@ -1010,7 +1010,6 @@ MaybeWrapValue(JSContext* cx, JS::MutableHandle<JS::Value> rval)
   if (rval.isBigInt()) {
     return JS_WrapValue(cx, rval);
   }
-  MOZ_ASSERT(rval.isSymbol());
   return true;
 }
 

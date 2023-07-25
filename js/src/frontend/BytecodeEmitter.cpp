@@ -1098,6 +1098,11 @@ BytecodeEmitter::checkSideEffects(ParseNode* pn, bool* answer)
         *answer = false;
         return true;
 
+      case PNK_BIGINT:
+        MOZ_ASSERT(pn->is<BigIntLiteral>());
+        *answer = false;
+        return true;
+
       // |this| can throw in derived class constructors, including nested arrow
       // functions or eval.
       case PNK_THIS:
@@ -4230,6 +4235,9 @@ ParseNode::getConstantValue(ExclusiveContext* cx, AllowConstantObjects allowObje
       case PNK_NUMBER:
         vp.setNumber(as<NumericLiteral>().value());
         return true;
+      case PNK_BIGINT:
+        vp.setBigInt(as<BigIntLiteral>().box()->value());
+        return true;
       case PNK_TEMPLATE_STRING:
       case PNK_STRING:
         vp.setString(as<NameNode>().atom());
@@ -4837,6 +4845,15 @@ BytecodeEmitter::emitCopyDataProperties(CopyOption option)
 
     MOZ_ASSERT(depth - int(argc) == this->stackDepth);
     return true;
+}
+
+bool
+BytecodeEmitter::emitBigIntOp(BigInt* bigint)
+{
+    if (!constList.append(BigIntValue(bigint))) {
+        return false;
+    }
+    return emitIndex32(JSOP_BIGINT, constList.length() - 1);
 }
 
 bool
@@ -9588,6 +9605,12 @@ BytecodeEmitter::emitTree(ParseNode* pn, ValueUsage valueUsage /* = ValueUsage::
             return false;
         break;
 
+      case PNK_BIGINT:
+        if (!emitBigIntOp(pn->as<BigIntLiteral>().box()->value())) {
+            return false;
+        }
+        break;
+
       case PNK_REGEXP:
         if (!emitRegExp(objectList.add(pn->as<RegExpLiteral>().objbox())))
             return false;
@@ -10336,7 +10359,7 @@ CGConstList::finish(ConstArray* array)
     MOZ_ASSERT(length() == array->length);
 
     for (unsigned i = 0; i < length(); i++)
-        array->vector[i] = list[i];
+        array->vector[i] = vector[i];
 }
 
 /*
@@ -10350,6 +10373,7 @@ CGConstList::finish(ConstArray* array)
 unsigned
 CGObjectList::add(ObjectBox* objbox)
 {
+    MOZ_ASSERT(objbox->isObjectBox());
     MOZ_ASSERT(!objbox->emitLink);
     objbox->emitLink = lastbox;
     lastbox = objbox;
@@ -10361,7 +10385,7 @@ CGObjectList::indexOf(JSObject* obj)
 {
     MOZ_ASSERT(length > 0);
     unsigned index = length - 1;
-    for (ObjectBox* box = lastbox; box->object != obj; box = box->emitLink)
+    for (ObjectBox* box = lastbox; box->object() != obj; box = box->emitLink)
         index--;
     return index;
 }
@@ -10377,8 +10401,8 @@ CGObjectList::finish(ObjectArray* array)
     do {
         --cursor;
         MOZ_ASSERT(!*cursor);
-        MOZ_ASSERT(objbox->object->isTenured());
-        *cursor = objbox->object;
+        MOZ_ASSERT(objbox->object()->isTenured());
+        *cursor = objbox->object();
     } while ((objbox = objbox->emitLink) != nullptr);
     MOZ_ASSERT(cursor == array->vector);
 }

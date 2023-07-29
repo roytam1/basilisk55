@@ -41704,6 +41704,7 @@ var Debugger =
 
 	// DOM types (grips)
 	const Attribute = __webpack_require__(438);
+	const BigInt = __webpack_require__(501);
 	const DateTime = __webpack_require__(439);
 	const Document = __webpack_require__(440);
 	const Event = __webpack_require__(441);
@@ -41748,6 +41749,7 @@ var Debugger =
 	  Grip,
 	  Undefined,
 	  Null,
+	  BigInt,
 	  StringRep,
 	  Number,
 	  SymbolRep,
@@ -46334,6 +46336,59 @@ var Debugger =
 		"collapsePanes": "Collapse panes",
 		"expandPanes": "Expand panes"
 	};
+
+/***/ },
+/* 501 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* -*- indent-tabs-mode: nil; js-indent-level: 2 -*- */
+	/* vim: set ft=javascript ts=2 et sw=2 tw=80: */
+	/* This Source Code Form is subject to the terms of the Mozilla Public
+	 * License, v. 2.0. If a copy of the MPL was not distributed with this
+	 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+	
+	"use strict";
+	
+	// Make this available to both AMD and CJS environments
+	
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require, exports, module) {
+	  // Dependencies
+	  var React = __webpack_require__(2);
+	
+	  // Shortcuts
+	  var span = React.DOM.span;
+	
+	  /**
+	   * Renders a number
+	   */
+	
+	  var BigInt = React.createClass({
+	    displayName: "BigInt",
+	
+        propTypes: {
+          object: React.PropTypes.object.isRequired
+        },
+	
+	    render: function () {
+          let {object} = this.props;
+          let {text} = object;
+	
+	      return span({ className: "objectBox objectBox-number" }, `${text}n`);
+	    }
+	  });
+	
+	  function supportsObject(object, type) {
+	    return type == "BigInt";
+	  }
+	
+	  // Exports from this module
+	
+	  exports.BigInt = {
+	    rep: BigInt,
+	    supportsObject: supportsObject
+	  };
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
 
 /***/ }
 /******/ ]);

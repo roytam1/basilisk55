@@ -1,6 +1,4 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set sw=2 ts=8 et tw=80 : */
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -143,11 +141,11 @@ GetRequestingPrincipal(const FTPChannelCreationArgs& aArgs)
 
 // Bug 1289001 - If GetValidatedOriginAttributes returns an error string, that
 // usually leads to a content crash with very little info about the cause.
-// We prefer to crash on the parent, so we get the reason in the crash report.
+// We prefer to crash on the parent.
 static MOZ_COLD
 void CrashWithReason(const char * reason)
 {
-#ifndef RELEASE_OR_BETA
+#ifdef DEBUG
   MOZ_CRASH_UNSAFE_OOL(reason);
 #endif
 }

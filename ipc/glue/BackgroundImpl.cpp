@@ -46,11 +46,7 @@
 #include "nsXPCOMPrivate.h"
 #include "prthread.h"
 
-#ifdef RELEASE_OR_BETA
 #define THREADSAFETY_ASSERT MOZ_ASSERT
-#else
-#define THREADSAFETY_ASSERT MOZ_RELEASE_ASSERT
-#endif
 
 #define CRASH_IN_CHILD_PROCESS(_msg)                                           \
   do {                                                                         \
@@ -332,7 +328,7 @@ class ChildImpl final : public BackgroundChildImpl
   // create the background thread after application shutdown has started.
   static bool sShutdownHasStarted;
 
-#if defined(DEBUG) || !defined(RELEASE_OR_BETA)
+#if defined(DEBUG)
   nsIThread* mBoundThread;
 #endif
 
@@ -352,11 +348,7 @@ public:
   {
     THREADSAFETY_ASSERT(mBoundThread);
 
-#ifdef RELEASE_OR_BETA
     DebugOnly<bool> current;
-#else
-    bool current;
-#endif
     THREADSAFETY_ASSERT(
       NS_SUCCEEDED(mBoundThread->IsOnCurrentThread(&current)));
     THREADSAFETY_ASSERT(current);
@@ -369,7 +361,7 @@ public:
   }
 
   ChildImpl()
-#if defined(DEBUG) || !defined(RELEASE_OR_BETA)
+#if defined(DEBUG)
   : mBoundThread(nullptr)
 #endif
 #ifdef DEBUG
@@ -450,7 +442,7 @@ private:
   {
     THREADSAFETY_ASSERT(!mBoundThread);
 
-#if defined(DEBUG) || !defined(RELEASE_OR_BETA)
+#if defined(DEBUG)
     mBoundThread = NS_GetCurrentThread();
 #endif
 

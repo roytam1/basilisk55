@@ -1923,6 +1923,9 @@ BaselineStoreToTypedArray(JSContext* cx, MacroAssembler& masm, Scalar::Type type
         } else {
             masm.jump(failure);
         }
+    } else if (type == Scalar::BigInt64 || type == Scalar::BigUint64) {
+        // FIXME: https://bugzil.la/1536703
+        masm.jump(failure);
     } else {
         Label notInt32;
         masm.branchTestInt32(Assembler::NotEqual, value, &notInt32);

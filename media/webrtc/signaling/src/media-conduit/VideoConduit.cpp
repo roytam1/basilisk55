@@ -239,7 +239,7 @@ WebrtcVideoConduit::~WebrtcVideoConduit()
 
   // Release AudioConduit first by dropping reference on MainThread, where it expects to be
   SyncTo(nullptr);
-  MOZ_ASSERT(!mSendStream && !mRecvStream, "Call DeleteStreams prior to ~WebrtcVideoConduit.");
+  MOZ_ASSERT(!mPtrViEBase, "Call DeleteStreams prior to ~WebrtcVideoConduit.");
 }
 
 void

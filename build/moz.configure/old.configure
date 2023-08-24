@@ -322,6 +322,8 @@ def old_configure_options(*options):
     '--enable-ldap',
     '--enable-mapi',
     '--enable-calendar',
+    '--enable-inspector',
+    '--enable-irc',
     '--enable-incomplete-external-linkage',
 )
 @imports(_from='__builtin__', _import='compile')

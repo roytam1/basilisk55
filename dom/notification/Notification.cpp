@@ -1901,6 +1901,11 @@ Notification::GetPermissionInternal(nsISupports* aGlobal, ErrorResult& aRv)
   }
 
   nsCOMPtr<nsIPrincipal> principal = sop->GetPrincipal();
+  if (!principal) {
+    aRv.Throw(NS_ERROR_UNEXPECTED);
+    return NotificationPermission::Denied;
+  }
+
   return GetPermissionInternal(principal, aRv);
 }
 

@@ -28,7 +28,11 @@ class FilePickerParent : public PFilePickerParent
   , mMode(aMode)
   {}
 
+ private:
   virtual ~FilePickerParent();
+
+ public:
+  NS_INLINE_DECL_REFCOUNTING(FilePickerParent)
 
   void Done(int16_t aResult);
 
@@ -70,7 +74,7 @@ class FilePickerParent : public PFilePickerParent
 
   private:
     virtual ~FilePickerShownCallback() {}
-    FilePickerParent* mFilePickerParent;
+    RefPtr<FilePickerParent> mFilePickerParent;
   };
 
  private:
@@ -79,7 +83,7 @@ class FilePickerParent : public PFilePickerParent
   // This runnable is used to do some I/O operation on a separate thread.
   class IORunnable : public Runnable
   {
-    FilePickerParent* mFilePickerParent;
+    RefPtr<FilePickerParent> mFilePickerParent;
     nsTArray<nsCOMPtr<nsIFile>> mFiles;
     nsTArray<BlobImplOrString> mResults;
     nsCOMPtr<nsIEventTarget> mEventTarget;

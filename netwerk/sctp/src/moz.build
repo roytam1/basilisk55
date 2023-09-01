@@ -1,4 +1,4 @@
-# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
 # vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -73,7 +73,6 @@ else:
 
 if CONFIG['OS_TARGET'] == 'Darwin':
     DEFINES['__APPLE_USE_RFC_2292'] = 1
-    DEFINES['__APPLE__'] = False
 
 if CONFIG['OS_TARGET'] in ('Linux', 'Android'):
     # to make sure that in6_pktinfo gets defined on all distros

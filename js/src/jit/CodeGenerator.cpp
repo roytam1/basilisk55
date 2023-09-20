@@ -2505,6 +2505,8 @@ CodeGenerator::visitUnarySharedStub(LUnarySharedStub* lir)
     switch (jsop) {
       case JSOP_BITNOT:
       case JSOP_NEG:
+      case JSOP_INC:
+      case JSOP_DEC:
         emitSharedStub(ICStub::Kind::UnaryArith_Fallback, lir);
         break;
       case JSOP_CALLPROP:

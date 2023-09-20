@@ -820,6 +820,9 @@ EqualStringsHelper(JSString* str1, JSString* str2);
 MOZ_MUST_USE bool
 CheckIsCallable(JSContext* cx, HandleValue v, CheckIsCallableKind kind);
 
+extern const VMFunction ToNumberInfo;
+extern const VMFunction ToNumericInfo;
+
 } // namespace jit
 } // namespace js
 

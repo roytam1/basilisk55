@@ -502,6 +502,7 @@ class IonBuilder
     AbortReasonOr<Ok> jsop_pow();
     AbortReasonOr<Ok> jsop_pos();
     AbortReasonOr<Ok> jsop_neg();
+    AbortReasonOr<Ok> jsop_tonumeric();
     AbortReasonOr<Ok> jsop_inc_or_dec(JSOp op);
     AbortReasonOr<Ok> jsop_tostring();
     AbortReasonOr<Ok> jsop_setarg(uint32_t arg);

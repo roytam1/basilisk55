@@ -1314,9 +1314,6 @@ class MacroAssembler : public MacroAssemblerSpecific
     inline void canonicalizeFloat(FloatRegister reg);
     inline void canonicalizeFloatIfDeterministic(FloatRegister reg);
 
-    inline void canonicalizeFloat32x4(FloatRegister reg, FloatRegister scratch)
-        DEFINED_ON(x86_shared);
-
   public:
     // ========================================================================
     // Memory access primitives.
@@ -1663,7 +1660,7 @@ class MacroAssembler : public MacroAssemblerSpecific
 
     template<typename T>
     void loadFromTypedArray(Scalar::Type arrayType, const T& src, AnyRegister dest, Register temp, Label* fail,
-                            bool canonicalizeDoubles = true, unsigned numElems = 0);
+                            bool canonicalizeDoubles = true);
 
     template<typename T>
     void loadFromTypedArray(Scalar::Type arrayType, const T& src, const ValueOperand& dest, bool allowDouble,
@@ -1690,10 +1687,8 @@ class MacroAssembler : public MacroAssemblerSpecific
         }
     }
 
-    void storeToTypedFloatArray(Scalar::Type arrayType, FloatRegister value, const BaseIndex& dest,
-                                unsigned numElems = 0);
-    void storeToTypedFloatArray(Scalar::Type arrayType, FloatRegister value, const Address& dest,
-                                unsigned numElems = 0);
+    void storeToTypedFloatArray(Scalar::Type arrayType, FloatRegister value, const BaseIndex& dest);
+    void storeToTypedFloatArray(Scalar::Type arrayType, FloatRegister value, const Address& dest);
 
     // Load a property from an UnboxedPlainObject or UnboxedArrayObject.
     template <typename T>

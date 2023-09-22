@@ -48,9 +48,6 @@
 #include "builtin/Promise.h"
 #include "builtin/RegExp.h"
 #include "builtin/SymbolObject.h"
-#ifdef ENABLE_SIMD
-# include "builtin/SIMD.h"
-#endif
 #ifdef ENABLE_BINARYDATA
 # include "builtin/TypedObject.h"
 #endif

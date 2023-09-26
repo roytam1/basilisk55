@@ -479,6 +479,9 @@ class Assembler : public AssemblerX86Shared
 
     void movsbq(const Operand& src, Register dest) {
         switch (src.kind()) {
+          case Operand::REG:
+            masm.movsbq_rr(src.reg(), dest.encoding());
+            break;
           case Operand::MEM_REG_DISP:
             masm.movsbq_mr(src.disp(), src.base(), dest.encoding());
             break;
@@ -498,6 +501,9 @@ class Assembler : public AssemblerX86Shared
 
     void movswq(const Operand& src, Register dest) {
         switch (src.kind()) {
+          case Operand::REG:
+            masm.movswq_rr(src.reg(), dest.encoding());
+            break;
           case Operand::MEM_REG_DISP:
             masm.movswq_mr(src.disp(), src.base(), dest.encoding());
             break;

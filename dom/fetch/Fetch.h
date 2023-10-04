@@ -8,7 +8,6 @@
 #define mozilla_dom_Fetch_h
 
 #include "nsAutoPtr.h"
-#include "nsIInputStreamPump.h"
 #include "nsIStreamLoader.h"
 
 #include "nsCOMPtr.h"
@@ -65,6 +64,15 @@ ExtractByteStreamFromBody(const ArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUS
 
 template <class Derived> class FetchBodyConsumer;
 
+enum FetchConsumeType
+{
+  CONSUME_ARRAYBUFFER,
+  CONSUME_BLOB,
+  CONSUME_FORMDATA,
+  CONSUME_JSON,
+  CONSUME_TEXT,
+};
+
 /*
  * FetchBody's body consumption uses nsIInputStreamPump to read from the
  * underlying stream to a block of memory, which is then adopted by
@@ -102,6 +110,8 @@ template <class Derived>
 class FetchBody
 {
 public:
+  friend class FetchBodyConsumer<Derived>;
+
   // This is not landed yet: NS_INLINE_DECL_PURE_VIRTUAL_REFCOUNTING
   NS_IMETHOD_(MozExternalRefCountType) AddRef(void) = 0;
   NS_IMETHOD_(MozExternalRefCountType) Release(void) = 0;
@@ -144,19 +154,6 @@ public:
           JS::MutableHandle<JSObject*> aMessage);
 
   // Utility public methods accessed by various runnables.
-  void
-  BeginConsumeBodyMainThread(FetchBodyConsumer<Derived>* aConsumer);
-
-  void
-  ContinueConsumeBody(FetchBodyConsumer<Derived>* aConsumer, nsresult aStatus,
-                      uint32_t aLength, uint8_t* aResult);
-
-  void
-  ContinueConsumeBlobBody(FetchBodyConsumer<Derived>* aConsumer,
-                          BlobImpl* aBlobImpl);
-
-  void
-  CancelPump();
 
   void
   SetBodyUsed()
@@ -164,8 +161,11 @@ public:
     mBodyUsed = true;
   }
 
-  // Always set whenever the FetchBody is created on the worker thread.
-  workers::WorkerPrivate* mWorkerPrivate;
+  const nsCString&
+  MimeType() const
+  {
+    return mMimeType;
+  }
 
   virtual AbortSignal*
   GetSignal() const = 0;
@@ -173,31 +173,22 @@ public:
 protected:
   FetchBody();
 
+  // Always set whenever the FetchBody is created on the worker thread.
+  workers::WorkerPrivate* mWorkerPrivate;
+
   virtual ~FetchBody();
 
   void
   SetMimeType();
 private:
-  enum ConsumeType
-  {
-    CONSUME_ARRAYBUFFER,
-    CONSUME_BLOB,
-    CONSUME_FORMDATA,
-    CONSUME_JSON,
-    CONSUME_TEXT,
-  };
-
   Derived*
   DerivedClass() const
   {
     return static_cast<Derived*>(const_cast<FetchBody*>(this));
   }
 
-  nsresult
-  BeginConsumeBody();
-
   already_AddRefed<Promise>
-  ConsumeBody(ConsumeType aType, ErrorResult& aRv);
+  ConsumeBody(FetchConsumeType aType, ErrorResult& aRv);
 
   bool
   IsOnTargetThread()
@@ -214,14 +205,6 @@ private:
   // Only ever set once, always on target thread.
   bool mBodyUsed;
   nsCString mMimeType;
-
-  // Only touched on target thread.
-  ConsumeType mConsumeType;
-  RefPtr<Promise> mConsumePromise;
-
-  bool mBodyConsumed;
-
-  nsMainThreadPtrHandle<nsIInputStreamPump> mConsumeBodyPump;
 };
 
 } // namespace dom

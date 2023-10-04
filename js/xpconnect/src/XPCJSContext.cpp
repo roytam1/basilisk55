@@ -1507,6 +1507,8 @@ ReloadPrefsCallback(const char* pref, void* data)
 
     bool extraWarnings = Preferences::GetBool(JS_OPTIONS_DOT_STR "strict");
 
+    bool streams = Preferences::GetBool(JS_OPTIONS_DOT_STR "streams");
+
     bool inlining = Preferences::GetBool(JS_OPTIONS_DOT_STR "ion.inlining");
 
     sSharedMemoryEnabled = Preferences::GetBool(JS_OPTIONS_DOT_STR "shared_memory");
@@ -1529,7 +1531,8 @@ ReloadPrefsCallback(const char* pref, void* data)
                              .setDumpStackOnDebuggeeWouldRun(dumpStackOnDebuggeeWouldRun)
                              .setWerror(werror)
                              .setExtraWarnings(extraWarnings)
-                             .setArrayProtoValues(arrayProtoValues);
+                             .setArrayProtoValues(arrayProtoValues)
+                             .setStreams(streams);
 
     JS_SetParallelParsingEnabled(cx, parallelParsing);
     JS_SetOffthreadIonCompilationEnabled(cx, offthreadIonCompilation);

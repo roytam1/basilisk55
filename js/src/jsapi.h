@@ -1184,6 +1184,16 @@ class JS_PUBLIC_API(ContextOptions) {
         return *this;
     }
 
+    bool streams() const { return streams_; }
+    ContextOptions& setStreams(bool flag) {
+        streams_ = flag;
+        return *this;
+    }
+    ContextOptions& toggleStreams() {
+        streams_ = !streams_;
+        return *this;
+    }
+
     bool nativeRegExp() const { return nativeRegExp_; }
     ContextOptions& setNativeRegExp(bool flag) {
         nativeRegExp_ = flag;
@@ -1273,6 +1283,7 @@ class JS_PUBLIC_API(ContextOptions) {
     bool strictMode_ : 1;
     bool extraWarnings_ : 1;
     bool arrayProtoValues_ : 1;
+    bool streams_ : 1;
     bool forEachStatement_: 1;
 };
 

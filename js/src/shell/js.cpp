@@ -319,6 +319,7 @@ static bool enableUnboxedArrays = false;
 static bool enableSharedMemory = SHARED_MEMORY_DEFAULT;
 static bool enableWasmAlwaysBaseline = false;
 static bool enableArrayProtoValues = true;
+static bool enableStreams = false;
 static bool printTiming = false;
 static const char* jsCacheDir = nullptr;
 static const char* jsCacheAsmJSPath = nullptr;
@@ -7592,6 +7593,7 @@ SetContextOptions(JSContext* cx, const OptionParser& op)
     enableUnboxedArrays = op.getBoolOption("unboxed-arrays");
     enableWasmAlwaysBaseline = op.getBoolOption("wasm-always-baseline");
     enableArrayProtoValues = !op.getBoolOption("no-array-proto-values");
+    enableStreams = op.getBoolOption("enable-streams");
 
     JS::ContextOptionsRef(cx).setBaseline(enableBaseline)
                              .setIon(enableIon)
@@ -7601,7 +7603,8 @@ SetContextOptions(JSContext* cx, const OptionParser& op)
                              .setWasmAllowDebugging(true)
                              .setNativeRegExp(enableNativeRegExp)
                              .setUnboxedArrays(enableUnboxedArrays)
-                             .setArrayProtoValues(enableArrayProtoValues);
+                             .setArrayProtoValues(enableArrayProtoValues)
+                             .setStreams(enableStreams);
 
     if (op.getBoolOption("wasm-check-bce"))
         jit::JitOptions.wasmAlwaysCheckBounds = true;
@@ -7874,7 +7877,8 @@ SetWorkerContextOptions(JSContext* cx)
                              .setWasmAllowDebugging(true)
                              .setNativeRegExp(enableNativeRegExp)
                              .setUnboxedArrays(enableUnboxedArrays)
-                             .setArrayProtoValues(enableArrayProtoValues);
+                             .setArrayProtoValues(enableArrayProtoValues)
+                             .setStreams(enableStreams);
     cx->setOffthreadIonCompilationEnabled(offthreadCompilation);
     cx->profilingScripts = enableCodeCoverage || enableDisassemblyDumps;
 
@@ -8048,6 +8052,7 @@ main(int argc, char** argv, char** envp)
         || !op.addBoolOption('\0', "wasm-always-baseline", "Enable wasm baseline compiler when possible")
         || !op.addBoolOption('\0', "wasm-check-bce", "Always generate wasm bounds check, even redundant ones.")
         || !op.addBoolOption('\0', "no-array-proto-values", "Remove Array.prototype.values")
+        || !op.addBoolOption('\0', "enable-streams", "Enable WHATWG Streams")
 #ifdef ENABLE_SHARED_ARRAY_BUFFER
         || !op.addStringOption('\0', "shared-memory", "on/off",
                                "SharedArrayBuffer and Atomics "

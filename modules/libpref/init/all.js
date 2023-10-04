@@ -1401,6 +1401,9 @@ pref("javascript.options.main_thread_stack_quota_cap", 2097152);
 // Dynamic module import.
 pref("javascript.options.dynamicImport", true);
 
+// Streams API
+pref("javascript.options.streams", false);
+
 // advanced prefs
 pref("advanced.mailftp",                    false);
 pref("image.animation_mode",                "normal");

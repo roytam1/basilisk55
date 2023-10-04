@@ -139,6 +139,10 @@ public:
     return ConsumeBody(CONSUME_TEXT, aRv);
   }
 
+  void
+  GetBody(JSContext* aCx,
+          JS::MutableHandle<JSObject*> aMessage);
+
   // Utility public methods accessed by various runnables.
   void
   BeginConsumeBodyMainThread(FetchBodyWrapper<Derived>* aWrapper);

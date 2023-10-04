@@ -63,7 +63,7 @@ ExtractByteStreamFromBody(const ArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUS
                           nsCString& aContentType,
                           uint64_t& aContentLength);
 
-template <class Derived> class FetchBodyWrapper;
+template <class Derived> class FetchBodyConsumer;
 
 /*
  * FetchBody's body consumption uses nsIInputStreamPump to read from the
@@ -145,14 +145,14 @@ public:
 
   // Utility public methods accessed by various runnables.
   void
-  BeginConsumeBodyMainThread(FetchBodyWrapper<Derived>* aWrapper);
+  BeginConsumeBodyMainThread(FetchBodyConsumer<Derived>* aConsumer);
 
   void
-  ContinueConsumeBody(FetchBodyWrapper<Derived>* aWrapper, nsresult aStatus,
+  ContinueConsumeBody(FetchBodyConsumer<Derived>* aConsumer, nsresult aStatus,
                       uint32_t aLength, uint8_t* aResult);
 
   void
-  ContinueConsumeBlobBody(FetchBodyWrapper<Derived>* aWrapper,
+  ContinueConsumeBlobBody(FetchBodyConsumer<Derived>* aConsumer,
                           BlobImpl* aBlobImpl);
 
   void

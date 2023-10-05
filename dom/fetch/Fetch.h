@@ -25,10 +25,12 @@ class nsIGlobalObject;
 namespace mozilla {
 namespace dom {
 
-class ArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUSVStringOrURLSearchParams;
+class BlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrUSVString;
+class BlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrReadableStreamOrUSVString;
 class BlobImpl;
 class InternalRequest;
-class OwningArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUSVStringOrURLSearchParams;
+class OwningBlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrUSVString;
+struct ReadableStream;
 class RequestOrUSVString;
 
 namespace workers {
@@ -42,13 +44,20 @@ FetchRequest(nsIGlobalObject* aGlobal, const RequestOrUSVString& aInput,
 nsresult
 UpdateRequestReferrer(nsIGlobalObject* aGlobal, InternalRequest* aRequest);
 
+/* Deal with unwieldy long webIDL-generated type names */
+namespace fetch {
+  typedef BlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrUSVString BodyInit;
+  typedef BlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrReadableStreamOrUSVString ResponseBodyInit;
+  typedef OwningBlobOrArrayBufferViewOrArrayBufferOrFormDataOrURLSearchParamsOrUSVString OwningBodyInit;
+};
+
 /*
  * Creates an nsIInputStream based on the fetch specifications 'extract a byte
  * stream algorithm' - http://fetch.spec.whatwg.org/#concept-bodyinit-extract.
  * Stores content type in out param aContentType.
  */
 nsresult
-ExtractByteStreamFromBody(const OwningArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUSVStringOrURLSearchParams& aBodyInit,
+ExtractByteStreamFromBody(const fetch::OwningBodyInit& aBodyInit,
                           nsIInputStream** aStream,
                           nsCString& aContentType,
                           uint64_t& aContentLength);
@@ -57,7 +66,17 @@ ExtractByteStreamFromBody(const OwningArrayBufferOrArrayBufferViewOrBlobOrFormDa
  * Non-owning version.
  */
 nsresult
-ExtractByteStreamFromBody(const ArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUSVStringOrURLSearchParams& aBodyInit,
+ExtractByteStreamFromBody(const fetch::BodyInit& aBodyInit,
+                          nsIInputStream** aStream,
+                          nsCString& aContentType,
+                          uint64_t& aContentLength);
+
+/*
+ * Non-owning version. This method should go away when BodyInit will contain
+ * ReadableStream.
+ */
+nsresult
+ExtractByteStreamFromBody(const fetch::ResponseBodyInit& aBodyInit,
                           nsIInputStream** aStream,
                           nsCString& aContentType,
                           uint64_t& aContentLength);
@@ -71,6 +90,15 @@ enum FetchConsumeType
   CONSUME_FORMDATA,
   CONSUME_JSON,
   CONSUME_TEXT,
+};
+
+class FetchStreamHolder
+{
+public:
+  NS_IMETHOD_(MozExternalRefCountType) AddRef(void) = 0;
+  NS_IMETHOD_(MozExternalRefCountType) Release(void) = 0;
+
+  virtual void NullifyStream() = 0;
 };
 
 /*
@@ -107,14 +135,10 @@ enum FetchConsumeType
  * The pump is always released on the main thread.
  */
 template <class Derived>
-class FetchBody
+class FetchBody : public FetchStreamHolder
 {
 public:
   friend class FetchBodyConsumer<Derived>;
-
-  // This is not landed yet: NS_INLINE_DECL_PURE_VIRTUAL_REFCOUNTING
-  NS_IMETHOD_(MozExternalRefCountType) AddRef(void) = 0;
-  NS_IMETHOD_(MozExternalRefCountType) Release(void) = 0;
 
   bool
   BodyUsed() const;
@@ -154,6 +178,13 @@ public:
           JS::MutableHandle<JSObject*> aBodyOut,
           ErrorResult& aRv);
 
+  // If the body contains a ReadableStream body object, this method produces a
+  // tee() of it.
+  void
+  MaybeTeeReadableStreamBody(JSContext* aCx,
+                             JS::MutableHandle<JSObject*> aBodyOut,
+                             ErrorResult& aRv);
+
   // Utility public methods accessed by various runnables.
 
   void
@@ -166,6 +197,12 @@ public:
   MimeType() const
   {
     return mMimeType;
+  }
+
+  void
+  NullifyStream() override
+  {
+    mReadableStreamBody = nullptr;
   }
 
   virtual AbortSignal*
@@ -184,6 +221,10 @@ protected:
 
   void
   SetMimeType();
+
+  void
+  SetReadableStreamBody(JSObject* aBody);
+
 private:
   Derived*
   DerivedClass() const
@@ -193,6 +234,9 @@ private:
 
   already_AddRefed<Promise>
   ConsumeBody(JSContext* aCx, FetchConsumeType aType, ErrorResult& aRv);
+
+  void
+  LockStream(JSContext* aCx, JS::HandleObject aStream, ErrorResult& aRv);
 
   bool
   IsOnTargetThread()

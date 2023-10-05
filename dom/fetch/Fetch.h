@@ -19,6 +19,8 @@
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/dom/FetchStreamReader.h"
+// Fix X11 header brain damage that conflicts with HeadersGuardEnum::None
+#undef None
 #include "mozilla/dom/RequestBinding.h"
 
 class nsIGlobalObject;

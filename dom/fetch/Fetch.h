@@ -18,6 +18,7 @@
 #include "mozilla/DebugOnly.h"
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/Promise.h"
+#include "mozilla/dom/FetchStreamReader.h"
 #include "mozilla/dom/RequestBinding.h"
 
 class nsIGlobalObject;
@@ -184,6 +185,8 @@ public:
   void
   MaybeTeeReadableStreamBody(JSContext* aCx,
                              JS::MutableHandle<JSObject*> aBodyOut,
+                             FetchStreamReader** aStreamReader,
+                             nsIInputStream** aInputStream,
                              ErrorResult& aRv);
 
   // Utility public methods accessed by various runnables.
@@ -200,10 +203,13 @@ public:
     return mMimeType;
   }
 
+  // FetchStreamHolder
   void
   NullifyStream() override
   {
     mReadableStreamBody = nullptr;
+    mReadableStreamReader = nullptr;
+    mFetchStreamReader = nullptr;
   }
 
   virtual AbortSignal*
@@ -219,6 +225,10 @@ protected:
 
   // This is the ReadableStream exposed to content. Its underlying source is a FetchStream object.
   JS::Heap<JSObject*> mReadableStreamBody;
+
+  // This is the Reader used to retrieve data from the body.
+  JS::Heap<JSObject*> mReadableStreamReader;
+  RefPtr<FetchStreamReader> mFetchStreamReader;
 
   virtual ~FetchBody();
 

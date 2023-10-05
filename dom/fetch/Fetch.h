@@ -101,6 +101,8 @@ public:
   NS_IMETHOD_(MozExternalRefCountType) Release(void) = 0;
 
   virtual void NullifyStream() = 0;
+
+  virtual JSObject* ReadableStreamBody() = 0;
 };
 
 /*
@@ -227,6 +229,13 @@ public:
     mReadableStreamBody = nullptr;
     mReadableStreamReader = nullptr;
     mFetchStreamReader = nullptr;
+  }
+
+  JSObject*
+  ReadableStreamBody() override
+  {
+    MOZ_ASSERT(mReadableStreamBody);
+    return mReadableStreamBody;
   }
 
   virtual AbortSignal*

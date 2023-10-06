@@ -1414,7 +1414,7 @@ void vp8_change_config(VP8_COMP *cpi, VP8_CONFIG *oxcf) {
   prev_number_of_layers = cpi->oxcf.number_of_layers;
 
   if (cpi->initial_width) {
-    oxcf->multi_threaded = cpi->oxcf.multi_threaded;
+      oxcf->multi_threaded = cpi->oxcf.multi_threaded;
   }
 
   cpi->oxcf = *oxcf;

@@ -238,26 +238,11 @@ var gAdvancedPane = {
   // DATA CHOICES TAB
 
   /**
-   * Set up or hide the Learn More links for various data collection options
-   */
-  _setupLearnMoreLink(pref, element) {
-    // set up the Learn More link with the correct URL
-    let url = Services.prefs.getCharPref(pref);
-    let el = document.getElementById(element);
-
-    if (url) {
-      el.setAttribute("href", url);
-    } else {
-      el.setAttribute("hidden", "true");
-    }
-  },
-
-  /**
    *
    */
   initSubmitCrashes() {
-    this._setupLearnMoreLink("toolkit.crashreporter.infoURL",
-                             "crashReporterLearnMore");
+    let element = document.getElementById(crashReporterLearnMore);
+    element.setAttribute("hidden", "true");
   },
 
   /**

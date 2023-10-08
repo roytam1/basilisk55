@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyServiceGetter(this, "AlertsService", "@mozilla.org/alerts-s
           AsyncShutdown:false, AutoCompletePopup:false, BookmarkHTMLUtils:false,
           BookmarkJSONUtils:false, BrowserUITelemetry:false, BrowserUsageTelemetry:false,
           ContentClick:false, ContentPrefServiceParent:false, ContentSearch:false,
-          DateTimePickerHelper:false, DirectoryLinksProvider:false, Feeds:false,
+          DateTimePickerHelper:false, Feeds:false,
           FileUtils:false, FormValidationHandler:false, Integration:false,
           LightweightThemeManager:false, LoginHelper:false, LoginManagerParent:false,
           NetUtil:false, NewTabMessages:false, NewTabUtils:false, OS:false,
@@ -54,7 +54,6 @@ XPCOMUtils.defineLazyServiceGetter(this, "AlertsService", "@mozilla.org/alerts-s
   ["ContentPrefServiceParent", "resource://gre/modules/ContentPrefServiceParent.jsm"],
   ["ContentSearch", "resource:///modules/ContentSearch.jsm"],
   ["DateTimePickerHelper", "resource://gre/modules/DateTimePickerHelper.jsm"],
-  ["DirectoryLinksProvider", "resource:///modules/DirectoryLinksProvider.jsm"],
   ["ExtensionsUI", "resource:///modules/ExtensionsUI.jsm"],
   ["Feeds", "resource:///modules/Feeds.jsm"],
   ["FileUtils", "resource://gre/modules/FileUtils.jsm"],
@@ -607,9 +606,7 @@ BrowserGlue.prototype = {
     webrtcUI.init();
     AboutHome.init();
 
-    DirectoryLinksProvider.init();
     NewTabUtils.init();
-    NewTabUtils.links.addProvider(DirectoryLinksProvider);
     AboutNewTab.init();
 
     NewTabMessages.init();

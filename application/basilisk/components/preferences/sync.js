@@ -139,13 +139,6 @@ var gSyncPane = {
       return Services.strings.createBundle("chrome://browser/locale/accounts.properties");
     });
 
-    let url = Services.prefs.getCharPref("identity.mobilepromo.android") + "sync-preferences";
-    document.getElementById("fxaMobilePromo-android").setAttribute("href", url);
-    document.getElementById("fxaMobilePromo-android-hasFxaAccount").setAttribute("href", url);
-    url = Services.prefs.getCharPref("identity.mobilepromo.ios") + "sync-preferences";
-    document.getElementById("fxaMobilePromo-ios").setAttribute("href", url);
-    document.getElementById("fxaMobilePromo-ios-hasFxaAccount").setAttribute("href", url);
-
     document.getElementById("tosPP-small-ToS").setAttribute("href", gSyncUtils.tosURL);
     document.getElementById("tosPP-normal-ToS").setAttribute("href", gSyncUtils.tosURL);
     document.getElementById("tosPP-small-PP").setAttribute("href", gSyncUtils.privacyPolicyURL);

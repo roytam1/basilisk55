@@ -197,17 +197,6 @@
         <image class="fxaSyncIllustration"/>
       </vbox>
     </hbox>
-    <label class="fxaMobilePromo">
-        &mobilePromo3.start;<!-- We put these comments to avoid inserting white spaces
-        --><label id="fxaMobilePromo-android"
-                  class="androidLink text-link"><!--
-        -->&mobilePromo3.androidLink;</label><!--
-        -->&mobilePromo3.iOSBefore;<!--
-        --><label id="fxaMobilePromo-ios"
-                  class="iOSLink text-link"><!--
-        -->&mobilePromo3.iOSLink;</label><!--
-        -->&mobilePromo3.end;
-    </label>
   </vbox>
 
   <vbox id="hasFxaAccount">

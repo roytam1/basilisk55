@@ -1535,23 +1535,7 @@ pref("print.use_simplify_page", true);
 
 // Space separated list of URLS that are allowed to send objects (instead of
 // only strings) through webchannels. This list is duplicated in mobile/android/app/mobile.js
-pref("webchannel.allowObject.urlWhitelist", "https://accounts.firefox.com https://content.cdn.mozilla.net https://input.mozilla.org https://support.mozilla.org https://install.mozilla.org");
-
-// Whether or not the browser should scan for unsubmitted
-// crash reports, and then show a notification for submitting
-// those reports.
-#ifdef EARLY_BETA_OR_EARLIER
-pref("browser.crashReports.unsubmittedCheck.enabled", true);
-#else
-pref("browser.crashReports.unsubmittedCheck.enabled", false);
-#endif
-
-// chancesUntilSuppress is how many times we'll show the unsubmitted
-// crash report notification across different days and shutdown
-// without a user choice before we suppress the notification for
-// some number of days.
-pref("browser.crashReports.unsubmittedCheck.chancesUntilSuppress", 4);
-pref("browser.crashReports.unsubmittedCheck.autoSubmit", false);
+pref("webchannel.allowObject.urlWhitelist", "");
 
 // Preferences for the form autofill system extension
 pref("browser.formautofill.experimental", false);

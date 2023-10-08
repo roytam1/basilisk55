@@ -238,14 +238,6 @@ var gAdvancedPane = {
   // DATA CHOICES TAB
 
   /**
-   *
-   */
-  initSubmitCrashes() {
-    let element = document.getElementById(crashReporterLearnMore);
-    element.setAttribute("hidden", "true");
-  },
-
-  /**
    * The preference/checkbox is configured in XUL.
    *
    * In all cases, set up the Learn More link sanely.

@@ -909,8 +909,7 @@ pref("browser.zoom.updateBackgroundTabs", true);
 pref("breakpad.reportURL", "");
 
 // URL for "Learn More" for Crash Reporter
-pref("toolkit.crashreporter.infoURL",
-     "https://www.mozilla.org/legal/privacy/firefox.html#crash-reporter");
+pref("toolkit.crashreporter.infoURL", "");
 
 // base URL for web-based support pages
 pref("app.support.baseURL", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/");
@@ -1569,12 +1568,6 @@ pref("browser.crashReports.unsubmittedCheck.enabled", false);
 // some number of days.
 pref("browser.crashReports.unsubmittedCheck.chancesUntilSuppress", 4);
 pref("browser.crashReports.unsubmittedCheck.autoSubmit", false);
-
-#ifdef NIGHTLY_BUILD
-// Enable the (fairly costly) client/server validation on nightly only. The other prefs
-// controlling validation are located in /services/sync/services-sync.js
-pref("services.sync.validation.enabled", true);
-#endif
 
 // Preferences for the form autofill system extension
 pref("browser.formautofill.experimental", false);

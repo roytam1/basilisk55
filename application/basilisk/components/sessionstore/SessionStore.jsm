@@ -949,7 +949,6 @@ var SessionStoreInternal = {
         this._crashedBrowsers.delete(browser.permanentKey);
         break;
       case "SessionStore:error":
-        this.reportInternalError(data);
         TabStateFlusher.resolveAll(browser, false, "Received error from the content process");
         break;
       default:
@@ -4649,19 +4648,6 @@ var SessionStoreInternal = {
    */
   resetEpoch(browser) {
     this._browserEpochs.delete(browser.permanentKey);
-  },
-
-  /**
-   * Handle an error report from a content process.
-   */
-  reportInternalError(data) {
-    // For the moment, we only report errors through Telemetry.
-    if (data.telemetry) {
-      for (let key of Object.keys(data.telemetry)) {
-        let histogram = Telemetry.getHistogramById(key);
-        histogram.add(data.telemetry[key]);
-      }
-    }
   },
 
   /**

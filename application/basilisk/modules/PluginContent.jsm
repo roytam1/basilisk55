@@ -662,11 +662,6 @@ PluginContent.prototype = {
       { name, pluginTag });
   },
 
-  submitReport: function submitReport(plugin) {
-    // **STUB**
-    return;
-  },
-
   reloadPage() {
     this.global.content.location.reload();
   },
@@ -1083,7 +1078,6 @@ PluginContent.prototype = {
         .addEventListener("click", (event) => {
           if (event.button != 0 || !event.isTrusted)
             return;
-          this.submitReport(plugin);
         });
 
     let pref = Services.prefs.getBranch("dom.ipc.plugins.reportCrashURL");

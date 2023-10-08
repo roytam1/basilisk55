@@ -153,19 +153,16 @@ this.TabCrashHandler = {
       }
 
       case "closeTab": {
-        this.maybeSendCrashReport(message);
         gBrowser.removeTab(tab, { animate: true });
         break;
       }
 
       case "restoreTab": {
-        this.maybeSendCrashReport(message);
         SessionStore.reviveCrashedTab(tab);
         break;
       }
 
       case "restoreAll": {
-        this.maybeSendCrashReport(message);
         SessionStore.reviveAllCrashedTabs();
         break;
       }
@@ -299,11 +296,6 @@ this.TabCrashHandler = {
     tab.setAttribute("crashed", true);
   },
 
-  maybeSendCrashReport(message) {
-    // **STUB**
-    return;
-  },
-
   removeSubmitCheckboxesForSameCrash(childID) {
     let enumerator = Services.wm.getEnumerator("navigator:browser");
     while (enumerator.hasMoreElements()) {
@@ -351,40 +343,10 @@ this.TabCrashHandler = {
       this.unseenCrashedChildIDs.splice(index, 1);
     }
 
-    let dumpID = this.getDumpID(browser);
-    if (!dumpID) {
-      message.target.sendAsyncMessage("SetCrashReportAvailable", {
-        hasReport: false,
-      });
-      return;
-    }
-
-    let requestAutoSubmit = !UnsubmittedCrashHandler.autoSubmit;
-    let requestEmail = this.prefs.getBoolPref("requestEmail");
-    let sendReport = this.prefs.getBoolPref("sendReport");
-    let includeURL = this.prefs.getBoolPref("includeURL");
-    let emailMe = this.prefs.getBoolPref("emailMe");
-
-    let data = {
-      hasReport: true,
-      sendReport,
-      includeURL,
-      emailMe,
-      requestAutoSubmit,
-      requestEmail,
-    };
-
-    if (emailMe) {
-      data.email = this.prefs.getCharPref("email");
-    }
-
-    // Make sure to only count once even if there are multiple windows
-    // that will all show about:tabcrashed.
-    if (this._crashedTabCount == 1) {
-      Services.telemetry.getHistogramById("FX_CONTENT_CRASH_PRESENTED").add(1);
-    }
-
-    message.target.sendAsyncMessage("SetCrashReportAvailable", data);
+    message.target.sendAsyncMessage("SetCrashReportAvailable", {
+      hasReport: false,
+    });
+    return;
   },
 
   onAboutTabCrashedUnload(message) {
@@ -410,11 +372,6 @@ this.TabCrashHandler = {
     if (this._crashedTabCount == 0 && childID) {
       Services.telemetry.getHistogramById("FX_CONTENT_CRASH_NOT_SUBMITTED").add(1);
     }
-  },
-
-  getDumpID(browser) {
-    // **STUB**
-    return null;
   },
 }
 

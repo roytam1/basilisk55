@@ -14,30 +14,6 @@ const FAVICON_PRIVACY = "chrome://browser/skin/privatebrowsing/favicon.svg";
 var stringBundle = Services.strings.createBundle(
                     "chrome://browser/locale/aboutPrivateBrowsing.properties");
 
-var prefBranch = Services.prefs.getBranch("privacy.trackingprotection.");
-var prefObserver = {
- QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                        Ci.nsISupportsWeakReference]),
- observe: function () {
-   let tpSubHeader = document.getElementById("tpSubHeader");
-   let tpToggle = document.getElementById("tpToggle");
-   let tpButton = document.getElementById("tpButton");
-   let title = document.getElementById("title");
-   let titleTracking = document.getElementById("titleTracking");
-   let globalTrackingEnabled = prefBranch.getBoolPref("enabled");
-   let trackingEnabled = globalTrackingEnabled ||
-                         prefBranch.getBoolPref("pbmode.enabled");
-
-   tpButton.classList.toggle("hide", globalTrackingEnabled);
-   tpToggle.checked = trackingEnabled;
-   title.classList.toggle("hide", trackingEnabled);
-   titleTracking.classList.toggle("hide", !trackingEnabled);
-   tpSubHeader.classList.toggle("tp-off", !trackingEnabled);
- }
-};
-prefBranch.addObserver("pbmode.enabled", prefObserver, true);
-prefBranch.addObserver("enabled", prefObserver, true);
-
 function setFavIcon(url) {
  document.getElementById("favicon").setAttribute("href", url);
 }

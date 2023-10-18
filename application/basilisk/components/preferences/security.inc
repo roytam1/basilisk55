@@ -16,35 +16,9 @@
               name="pref.privacy.disable_button.view_passwords_exceptions"
               type="bool"/>
 
-  <!-- Add-ons, malware, phishing -->
+  <!-- Add-ons -->
   <preference id="xpinstall.whitelist.required"
               name="xpinstall.whitelist.required"
-              type="bool"/>
-
-  <preference id="browser.safebrowsing.malware.enabled"
-              name="browser.safebrowsing.malware.enabled"
-              type="bool"/>
-  <preference id="browser.safebrowsing.phishing.enabled"
-              name="browser.safebrowsing.phishing.enabled"
-              type="bool"/>
-
-  <preference id="browser.safebrowsing.UI.enabled"
-              name="browser.safebrowsing.UI.enabled"
-              type="bool"/>
-
-  <preference id="browser.safebrowsing.downloads.enabled"
-              name="browser.safebrowsing.downloads.enabled"
-              type="bool"/>
-
-  <preference id="urlclassifier.malwareTable"
-              name="urlclassifier.malwareTable"
-              type="string"/>
-
-  <preference id="browser.safebrowsing.downloads.remote.block_potentially_unwanted"
-              name="browser.safebrowsing.downloads.remote.block_potentially_unwanted"
-              type="bool"/>
-  <preference id="browser.safebrowsing.downloads.remote.block_uncommon"
-              name="browser.safebrowsing.downloads.remote.block_uncommon"
               type="bool"/>
 
   <!-- Passwords -->
@@ -77,20 +51,6 @@
             accesskey="&addonExceptions.accesskey;"/>
   </hbox>
 
-  <separator id="safeBrowsingUISep" class="thin"/>
-  <vbox id="safeBrowsingUIGroup" align="start">
-    <checkbox id="enableSafeBrowsing"
-              label="&enableSafeBrowsing.label;"
-              accesskey="&enableSafeBrowsing.accesskey;" />
-    <vbox class="indent">
-      <checkbox id="blockDownloads"
-                label="&blockDownloads.label;"
-                accesskey="&blockDownloads.accesskey;" />
-      <checkbox id="blockUncommonUnwanted"
-                label="&blockUncommonAndUnwanted.label;"
-                accesskey="&blockUncommonAndUnwanted.accesskey;" />
-    </vbox>
-  </vbox>
 </groupbox>
 
 <!-- Passwords -->

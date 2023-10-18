@@ -225,8 +225,6 @@ var AboutPrivateBrowsingListener = {
   init(chromeGlobal) {
     chromeGlobal.addEventListener("AboutPrivateBrowsingOpenWindow", this,
                                   false, true);
-    chromeGlobal.addEventListener("AboutPrivateBrowsingToggleTrackingProtection", this,
-                                  false, true);
     chromeGlobal.addEventListener("AboutPrivateBrowsingDontShowIntroPanelAgain", this,
                                   false, true);
   },
@@ -242,9 +240,6 @@ var AboutPrivateBrowsingListener = {
     switch (aEvent.type) {
       case "AboutPrivateBrowsingOpenWindow":
         sendAsyncMessage("AboutPrivateBrowsing:OpenPrivateWindow");
-        break;
-      case "AboutPrivateBrowsingToggleTrackingProtection":
-        sendAsyncMessage("AboutPrivateBrowsing:ToggleTrackingProtection");
         break;
       case "AboutPrivateBrowsingDontShowIntroPanelAgain":
         sendAsyncMessage("AboutPrivateBrowsing:DontShowIntroPanelAgain");

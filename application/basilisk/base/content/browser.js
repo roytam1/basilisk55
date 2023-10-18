@@ -81,9 +81,6 @@ Cu.import("resource://gre/modules/NotificationDB.jsm");
   ["webrtcUI", "resource:///modules/webrtcUI.jsm"],
 ].forEach(([name, resource]) => XPCOMUtils.defineLazyModuleGetter(this, name, resource));
 
-XPCOMUtils.defineLazyModuleGetter(this, "SafeBrowsing",
-  "resource://gre/modules/SafeBrowsing.jsm");
-
 // lazy service getters
 
 /* global Favicons:false, WindowsUIUtils:false, gAboutNewTabService:false,
@@ -1042,7 +1039,6 @@ var gBrowserInit = {
     FeedHandler.init();
     CompactTheme.init();
     AboutPrivateBrowsingListener.init();
-    TrackingProtection.init();
     RefreshBlocker.init();
     CaptivePortalWatcher.init();
     URLBarZoom.init(window);
@@ -1256,9 +1252,6 @@ var gBrowserInit = {
         loadOneOrMoreURIs(uriToLoad);
       }
     }
-
-    // Bug 778855 - Perf regression if we do this here. To be addressed in bug 779008.
-    setTimeout(function() { SafeBrowsing.init(); }, 2000);
 
     Services.obs.addObserver(gIdentityHandler, "perm-changed", false);
     Services.obs.addObserver(gSessionHistoryObserver, "browser:purge-session-history", false);
@@ -1577,8 +1570,6 @@ var gBrowserInit = {
     FeedHandler.uninit();
 
     CompactTheme.uninit();
-
-    TrackingProtection.uninit();
 
     RefreshBlocker.uninit();
 
@@ -4668,7 +4659,6 @@ var XULBrowserWindow = {
       uri = Services.uriFixup.createExposableURI(uri);
     } catch (e) {}
     gIdentityHandler.updateIdentity(this._state, uri);
-    TrackingProtection.onSecurityChange(this._state, aIsSimulated);
   },
 
   // simulate all change notifications after switching tabs
@@ -8264,12 +8254,6 @@ var AboutPrivateBrowsingListener = {
       "AboutPrivateBrowsing:OpenPrivateWindow",
       msg => {
         OpenBrowserWindow({private: true});
-    });
-    window.messageManager.addMessageListener(
-      "AboutPrivateBrowsing:ToggleTrackingProtection",
-      msg => {
-        const PREF = "privacy.trackingprotection.pbmode.enabled";
-        Services.prefs.setBoolPref(PREF, !Services.prefs.getBoolPref(PREF));
     });
     window.messageManager.addMessageListener(
       "AboutPrivateBrowsing:DontShowIntroPanelAgain",

@@ -22,35 +22,6 @@ var gPrivacyPane = {
   _shouldPromptForRestart: true,
 
   /**
-   * Show the Tracking Protection UI depending on the
-   * privacy.trackingprotection.ui.enabled pref, and linkify its Learn More link
-   */
-  _initTrackingProtection() {
-    if (!Services.prefs.getBoolPref("privacy.trackingprotection.ui.enabled")) {
-      return;
-    }
-
-    let link = document.getElementById("trackingProtectionLearnMore");
-    let url = Services.urlFormatter.formatURLPref("app.support.baseURL") + "tracking-protection";
-    link.setAttribute("href", url);
-
-    this.trackingProtectionReadPrefs();
-
-    document.getElementById("trackingprotectionbox").hidden = false;
-    document.getElementById("trackingprotectionpbmbox").hidden = true;
-  },
-
-  /**
-   * Linkify the Learn More link of the Private Browsing Mode Tracking
-   * Protection UI.
-   */
-  _initTrackingProtectionPBM() {
-    let link = document.getElementById("trackingProtectionPBMLearnMore");
-    let url = Services.urlFormatter.formatURLPref("app.support.baseURL") + "tracking-protection-pbm";
-    link.setAttribute("href", url);
-  },
-
-  /**
    * Initialize autocomplete to ensure prefs are in sync.
    */
   _initAutocomplete() {
@@ -126,8 +97,6 @@ var gPrivacyPane = {
     this.updateHistoryModePane();
     this.updatePrivacyMicroControls();
     this.initAutoStartPrivateBrowsingReverter();
-    this._initTrackingProtection();
-    this._initTrackingProtectionPBM();
     this._initAutocomplete();
     this._initBrowserContainers();
 
@@ -153,10 +122,6 @@ var gPrivacyPane = {
       gPrivacyPane.clearPrivateDataNow(true);
       return false;
     });
-    setEventListener("doNotTrackSettings", "click", function() {
-      gPrivacyPane.showDoNotTrackSettings();
-      return false;
-    });
     setEventListener("privateBrowsingAutoStart", "command",
                      gPrivacyPane.updateAutostart);
     setEventListener("cookieExceptions", "command",
@@ -165,62 +130,10 @@ var gPrivacyPane = {
                      gPrivacyPane.showCookies);
     setEventListener("clearDataSettings", "command",
                      gPrivacyPane.showClearPrivateDataSettings);
-    setEventListener("trackingProtectionRadioGroup", "command",
-                     gPrivacyPane.trackingProtectionWritePrefs);
-    setEventListener("trackingProtectionExceptions", "command",
-                     gPrivacyPane.showTrackingProtectionExceptions);
-    setEventListener("changeBlockList", "command",
-                     gPrivacyPane.showBlockLists);
-    setEventListener("changeBlockListPBM", "command",
-                     gPrivacyPane.showBlockLists);
     setEventListener("browserContainersCheckbox", "command",
                      gPrivacyPane._checkBrowserContainers);
     setEventListener("browserContainersSettings", "command",
                      gPrivacyPane.showContainerSettings);
-  },
-
-  // TRACKING PROTECTION MODE
-
-  /**
-   * Selects the right item of the Tracking Protection radiogroup.
-   */
-  trackingProtectionReadPrefs() {
-    let enabledPref = document.getElementById("privacy.trackingprotection.enabled");
-    let pbmPref = document.getElementById("privacy.trackingprotection.pbmode.enabled");
-    let radiogroup = document.getElementById("trackingProtectionRadioGroup");
-
-    // Global enable takes precedence over enabled in Private Browsing.
-    if (enabledPref.value) {
-      radiogroup.value = "always";
-    } else if (pbmPref.value) {
-      radiogroup.value = "private";
-    } else {
-      radiogroup.value = "never";
-    }
-  },
-
-  /**
-   * Sets the pref values based on the selected item of the radiogroup.
-   */
-  trackingProtectionWritePrefs() {
-    let enabledPref = document.getElementById("privacy.trackingprotection.enabled");
-    let pbmPref = document.getElementById("privacy.trackingprotection.pbmode.enabled");
-    let radiogroup = document.getElementById("trackingProtectionRadioGroup");
-
-    switch (radiogroup.value) {
-      case "always":
-        enabledPref.value = true;
-        pbmPref.value = true;
-        break;
-      case "private":
-        enabledPref.value = false;
-        pbmPref.value = true;
-        break;
-      case "never":
-        enabledPref.value = false;
-        pbmPref.value = false;
-        break;
-    }
   },
 
   // HISTORY MODE
@@ -457,47 +370,10 @@ var gPrivacyPane = {
   },
 
   /**
-   * Displays fine-grained, per-site preferences for tracking protection.
-   */
-  showTrackingProtectionExceptions() {
-    let bundlePreferences = document.getElementById("bundlePreferences");
-    let params = {
-      permissionType: "trackingprotection",
-      hideStatusColumn: true,
-      windowTitle: bundlePreferences.getString("trackingprotectionpermissionstitle"),
-      introText: bundlePreferences.getString("trackingprotectionpermissionstext"),
-    };
-    gSubDialog.open("chrome://browser/content/preferences/permissions.xul",
-                    null, params);
-  },
-
-  /**
    * Displays container panel for customising and adding containers.
    */
   showContainerSettings() {
     gotoPref("containers");
-  },
-
-  /**
-   * Displays the available block lists for tracking protection.
-   */
-  showBlockLists() {
-    var bundlePreferences = document.getElementById("bundlePreferences");
-    let brandName = document.getElementById("bundleBrand")
-                            .getString("brandShortName");
-    var params = { brandShortName: brandName,
-                   windowTitle: bundlePreferences.getString("blockliststitle"),
-                   introText: bundlePreferences.getString("blockliststext") };
-    gSubDialog.open("chrome://browser/content/preferences/blocklists.xul",
-                    null, params);
-  },
-
-  /**
-   * Displays the Do Not Track settings dialog.
-   */
-  showDoNotTrackSettings() {
-    gSubDialog.open("chrome://browser/content/preferences/donottrack.xul",
-                    "resizable=no");
   },
 
   // HISTORY

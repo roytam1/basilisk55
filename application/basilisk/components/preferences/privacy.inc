@@ -10,11 +10,8 @@
 <preferences id="privacyPreferences" hidden="true" data-category="panePrivacy">
 
   <!-- Tracking -->
-  <preference id="privacy.trackingprotection.enabled"
-              name="privacy.trackingprotection.enabled"
-              type="bool"/>
-  <preference id="privacy.trackingprotection.pbmode.enabled"
-              name="privacy.trackingprotection.pbmode.enabled"
+  <preference id="privacy.donottrackheader.enabled"
+              name="privacy.donottrackheader.enabled"
               type="bool"/>
 
   <!-- XXX button prefs -->
@@ -88,58 +85,17 @@
 
 <!-- Tracking -->
 <groupbox id="trackingGroup" data-category="panePrivacy" hidden="true">
-  <vbox id="trackingprotectionbox" hidden="true">
-    <hbox align="start">
-      <vbox>
-        <caption><label>&trackingProtectionHeader.label;
-          <label id="trackingProtectionLearnMore" class="learnMore text-link"
-                 value="&trackingProtectionLearnMore.label;"/>
-        </label></caption>
-        <radiogroup id="trackingProtectionRadioGroup">
-          <radio value="always"
-                 label="&trackingProtectionAlways.label;"
-                 accesskey="&trackingProtectionAlways.accesskey;"/>
-          <radio value="private"
-                 label="&trackingProtectionPrivate.label;"
-                 accesskey="&trackingProtectionPrivate.accesskey;"/>
-          <radio value="never"
-                 label="&trackingProtectionNever.label;"
-                 accesskey="&trackingProtectionNever.accesskey;"/>
-        </radiogroup>
-      </vbox>
-      <spacer flex="1" />
-      <vbox>
-        <button id="trackingProtectionExceptions"
-                label="&trackingProtectionExceptions.label;"
-                accesskey="&trackingProtectionExceptions.accesskey;"
-                preference="pref.privacy.disable_button.tracking_protection_exceptions"/>
-        <button id="changeBlockList"
-                label="&changeBlockList.label;"
-                accesskey="&changeBlockList.accesskey;"
-                preference="pref.privacy.disable_button.change_blocklist"/>
-      </vbox>
-    </hbox>
-  </vbox>
-  <vbox id="trackingprotectionpbmbox">
+  <vbox id="donottrackbox">
     <caption><label>&tracking.label;</label></caption>
     <hbox align="center">
-      <checkbox id="trackingProtectionPBM"
-                preference="privacy.trackingprotection.pbmode.enabled"
-                accesskey="&trackingProtectionPBM5.accesskey;"
-                label="&trackingProtectionPBM5.label;" />
-      <label id="trackingProtectionPBMLearnMore"
-             class="learnMore text-link"
-             value="&trackingProtectionPBMLearnMore.label;"/>
-      <spacer flex="1" />
-      <button id="changeBlockListPBM"
-              label="&changeBlockList.label;" accesskey="&changeBlockList.accesskey;"
-              preference="pref.privacy.disable_button.change_blocklist"/>
+      <checkbox id="DoNotTrack"
+                preference="privacy.donottrackheader.enabled"
+                accesskey="&doNotTrack.accesskey;"
+                label="&doNotTrack.label;" />
+      <label class="text-link"
+             value="&doNotTrackLearnMore.label;"
+             href="https://www.mozilla.org/dnt"/>
     </hbox>
-  </vbox>
-  <vbox>
-    <description>&doNotTrack.pre.label;<label
-    class="text-link" id="doNotTrackSettings"
-    >&doNotTrack.settings.label;</label>&doNotTrack.post.label;</description>
   </vbox>
 </groupbox>
 

@@ -1682,7 +1682,7 @@ BrowserGlue.prototype = {
   },
 
   _migrateUI: function BG__migrateUI() {
-    const UI_VERSION = 43;
+    const UI_VERSION = 44;
     const BROWSER_DOCURL = "chrome://browser/content/browser.xul";
 
     let currentUIVersion;
@@ -2024,6 +2024,15 @@ BrowserGlue.prototype = {
         let newTheme = Services.prefs.getCharPref("devtools.theme") == "dark" ?
           "firefox-compact-dark@mozilla.org" : "firefox-compact-light@mozilla.org";
         Services.prefs.setCharPref("lightweightThemes.selectedThemeID", newTheme);
+      }
+    }
+
+    if (currentUIVersion < 44) {
+      // DoNotTrack is now GPC. Carry across user preference.
+      if (Services.prefs.prefHasUserValue("privacy.donottrackheader.enabled")) {
+        let DNTEnabled = Services.prefs.getBoolPref("privacy.donottrackheader.enabled");
+        Services.prefs.setBoolPref("privacy.GPCheader.enabled", DNTEnabled);
+        Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
       }
     }
 

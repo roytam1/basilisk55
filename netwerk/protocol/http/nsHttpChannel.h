@@ -465,7 +465,7 @@ private:
     void SetLoadGroupUserAgentOverride();
 
     void SetOriginHeader();
-    void SetDoNotTrack();
+    void SetGPC();
 
 private:
     nsCOMPtr<nsICancelable>           mProxyRequest;

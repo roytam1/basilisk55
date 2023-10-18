@@ -100,6 +100,11 @@ public:
     mOnline = aOnline;
   }
 
+  bool GlobalPrivacyControl() const
+  {
+    return nsContentUtils::GPCEnabled();
+  }
+
   void SetLanguages(const nsTArray<nsString>& aLanguages);
 
   uint64_t HardwareConcurrency() const;

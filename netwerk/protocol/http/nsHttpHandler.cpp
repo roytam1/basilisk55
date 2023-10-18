@@ -92,7 +92,7 @@
 #define HTTP_PREF_PREFIX        "network.http."
 #define INTL_ACCEPT_LANGUAGES   "intl.accept_languages"
 #define BROWSER_PREF_PREFIX     "browser.cache."
-#define DONOTTRACK_HEADER_ENABLED "privacy.donottrackheader.enabled"
+#define GPC_HEADER_ENABLED      "privacy.GPCheader.enabled"
 #define H2MANDATORY_SUITE        "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256"
 #define TELEMETRY_ENABLED        "toolkit.telemetry.enabled"
 #define ALLOW_EXPERIMENTS        "network.allow-experiments"
@@ -209,7 +209,7 @@ nsHttpHandler::nsHttpHandler()
     , mAcceptLanguagesIsDirty(true)
     , mPromptTempRedirect(true)
     , mEnablePersistentHttpsCaching(false)
-    , mDoNotTrackEnabled(false)
+    , mGPCEnabled(false)
     , mSafeHintEnabled(false)
     , mParentalControlEnabled(false)
     , mHandlerActive(false)
@@ -308,7 +308,7 @@ nsHttpHandler::Init()
         prefBranch->AddObserver(UA_PREF_PREFIX, this, true);
         prefBranch->AddObserver(INTL_ACCEPT_LANGUAGES, this, true);
         prefBranch->AddObserver(BROWSER_PREF("disk_cache_ssl"), this, true);
-        prefBranch->AddObserver(DONOTTRACK_HEADER_ENABLED, this, true);
+        prefBranch->AddObserver(GPC_HEADER_ENABLED, this, true);
         prefBranch->AddObserver(TELEMETRY_ENABLED, this, true);
         prefBranch->AddObserver(H2MANDATORY_SUITE, this, true);
         prefBranch->AddObserver(HTTP_PREF("tcp_keepalive.short_lived_connections"), this, true);
@@ -1560,11 +1560,11 @@ nsHttpHandler::PrefsChanged(nsIPrefBranch *prefs, const char *pref)
     // Tracking options
     //
 
-    if (PREF_CHANGED(DONOTTRACK_HEADER_ENABLED)) {
+    if (PREF_CHANGED(GPC_HEADER_ENABLED)) {
         cVar = false;
-        rv = prefs->GetBoolPref(DONOTTRACK_HEADER_ENABLED, &cVar);
+        rv = prefs->GetBoolPref(GPC_HEADER_ENABLED, &cVar);
         if (NS_SUCCEEDED(rv)) {
-            mDoNotTrackEnabled = cVar;
+            mGPCEnabled = cVar;
         }
     }
     // Hint option
@@ -2228,12 +2228,6 @@ nsHttpHandler::Observe(nsISupports *subject,
         // need to reset the session start time since cache validation may
         // depend on this value.
         mSessionStartTime = NowInSeconds();
-
-        if (!mDoNotTrackEnabled) {
-            Telemetry::Accumulate(Telemetry::DNT_USAGE, 2);
-        } else {
-            Telemetry::Accumulate(Telemetry::DNT_USAGE, 1);
-        }
     } else if (!strcmp(topic, "profile-change-net-restore")) {
         // initialize connection manager
         InitConnectionMgr();

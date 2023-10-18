@@ -16,5 +16,4 @@ interface nsIDOMNavigator : nsISupports
   readonly attribute DOMString             vendorSub;
   readonly attribute DOMString             product;
   readonly attribute DOMString             productSub;
-  readonly attribute DOMString             doNotTrack;
 };

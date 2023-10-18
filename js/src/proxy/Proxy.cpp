@@ -652,24 +652,6 @@ proxy_ObjectMoved(JSObject* obj, const JSObject* old)
     obj->as<ProxyObject>().handler()->objectMoved(obj, old);
 }
 
-bool
-js::proxy_Call(JSContext* cx, unsigned argc, Value* vp)
-{
-    CallArgs args = CallArgsFromVp(argc, vp);
-    RootedObject proxy(cx, &args.callee());
-    MOZ_ASSERT(proxy->is<ProxyObject>());
-    return Proxy::call(cx, proxy, args);
-}
-
-bool
-js::proxy_Construct(JSContext* cx, unsigned argc, Value* vp)
-{
-    CallArgs args = CallArgsFromVp(argc, vp);
-    RootedObject proxy(cx, &args.callee());
-    MOZ_ASSERT(proxy->is<ProxyObject>());
-    return Proxy::construct(cx, proxy, args);
-}
-
 const ClassOps js::ProxyClassOps = {
     nullptr,                 /* addProperty */
     nullptr,                 /* delProperty */

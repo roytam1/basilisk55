@@ -4125,6 +4125,15 @@ nsGlobalWindow::GetPerformance()
 }
 
 void
+nsPIDOMWindowInner::QueuePerformanceNavigationTiming()
+{
+  CreatePerformanceObjectIfNeeded();
+  if (mPerformance) {
+    mPerformance->QueueNavigationTimingEntry();
+  }
+}
+
+void
 nsPIDOMWindowInner::CreatePerformanceObjectIfNeeded()
 {
   MOZ_ASSERT(IsInnerWindow());

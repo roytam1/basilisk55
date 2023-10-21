@@ -63,8 +63,12 @@ public:
     return true;
   }
 
+  void QueueNavigationTimingEntry() override;
+
 protected:
   ~PerformanceMainThread();
+
+  void CreateNavigationTimingEntry();
 
   void InsertUserEntry(PerformanceEntry* aEntry) override;
 
@@ -72,7 +76,6 @@ protected:
   GetPerformanceTimingFromString(const nsAString& aTimingName) override;
 
   void DispatchBufferFullEvent() override;
-  void EnsureDocEntry();
 
   RefPtr<PerformanceEntry> mDocEntry;
   RefPtr<nsDOMNavigationTiming> mDOMTiming;

@@ -127,6 +127,8 @@ public:
 
   void MemoryPressure();
 
+  virtual void QueueNavigationTimingEntry() = 0;
+
 protected:
   Performance();
   explicit Performance(nsPIDOMWindowInner* aWindow);

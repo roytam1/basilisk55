@@ -10,6 +10,7 @@
 #include "mozilla/dom/SubtleCrypto.h"
 #include "nsIGlobalObject.h"
 
+#include "nsString.h"
 #include "nsWrapperCache.h"
 #include "mozilla/dom/TypedArray.h"
 #define NS_DOMCRYPTO_CID \
@@ -39,6 +40,8 @@ public:
   GetRandomValues(JSContext* aCx, const ArrayBufferView& aArray,
                   JS::MutableHandle<JSObject*> aRetval,
                   ErrorResult& aRv);
+
+void RandomUUID(nsAString& aRetVal);
 
   SubtleCrypto*
   Subtle();

@@ -191,7 +191,6 @@ public:
 
   bool IsClosed()
   {
-    MutexAutoLock lock(mMutex); 
     return ReadyState() == CLOSED;
   }
 

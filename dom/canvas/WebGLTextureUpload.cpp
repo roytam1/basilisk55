@@ -2212,6 +2212,7 @@ WebGLTexture::CopyTexImage2D(TexImageTarget target, GLint level, GLenum internal
                              srcTotalWidth, srcTotalHeight, srcUsage, 0, 0, 0, width,
                              height, dstUsage))
     {
+        Truncate(funcName);
         return;
     }
 

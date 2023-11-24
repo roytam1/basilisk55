@@ -42,6 +42,7 @@ class WakeLock;
 class ArrayBufferOrArrayBufferViewOrBlobOrFormDataOrUSVStringOrURLSearchParams;
 class ServiceWorkerContainer;
 class DOMRequest;
+class Clipboard;
 struct FlyWebPublishOptions;
 struct FlyWebFilter;
 class WebAuthentication;
@@ -231,6 +232,8 @@ public:
 
   already_AddRefed<ServiceWorkerContainer> ServiceWorker();
 
+  dom::Clipboard* Clipboard();
+
   mozilla::dom::WebAuthentication* Authentication();
 
   void GetLanguages(nsTArray<nsString>& aLanguages);
@@ -302,6 +305,7 @@ private:
   RefPtr<Promise> mBatteryPromise;
   RefPtr<PowerManager> mPowerManager;
   RefPtr<network::Connection> mConnection;
+  RefPtr<dom::Clipboard> mClipboard;
   RefPtr<WebAuthentication> mAuthentication;
 #ifdef MOZ_AUDIO_CHANNEL_MANAGER
   RefPtr<system::AudioChannelManager> mAudioChannelManager;

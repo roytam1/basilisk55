@@ -31,6 +31,7 @@
 #include "nsContentUtils.h"
 #include "nsUnicharUtils.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/dom/Clipboard.h"
 #include "mozilla/Telemetry.h"
 #include "BatteryManager.h"
 #include "mozilla/dom/GamepadServiceTest.h"
@@ -1892,6 +1893,15 @@ Navigator::GetUserAgent(nsPIDOMWindowInner* aWindow, nsIURI* aURI,
   }
 
   return siteSpecificUA->GetUserAgentForURIAndWindow(aURI, aWindow, aUserAgent);
+}
+
+Clipboard*
+Navigator::Clipboard()
+{
+  if (!mClipboard) {
+    mClipboard = new dom::Clipboard(GetWindow());
+  }
+  return mClipboard;
 }
 
 #ifdef MOZ_EME

@@ -78,6 +78,7 @@ WEBIDL_FILES = [
     'ChromeUtils.webidl',
     'Client.webidl',
     'Clients.webidl',
+    'Clipboard.webidl',
     'ClipboardEvent.webidl',
     'CommandEvent.webidl',
     'Comment.webidl',

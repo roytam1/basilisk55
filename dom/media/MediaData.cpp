@@ -10,11 +10,18 @@
 #include "ImageContainer.h"
 #include "mozilla/layers/SharedRGBImage.h"
 #include "YCbCrUtils.h"
+#include "mozilla/layers/ImageBridgeChild.h"
+#include "mozilla/layers/KnowsCompositor.h"
 
 #ifdef MOZ_WIDGET_GONK
 #include <cutils/properties.h>
 #endif
 #include <stdint.h>
+
+#ifdef XP_WIN
+#include "mozilla/WindowsVersion.h"
+#include "mozilla/layers/D3D11YCbCrImage.h"
+#endif
 
 namespace mozilla {
 
@@ -238,19 +245,14 @@ VideoData::UpdateTimestamp(int64_t aTimestamp)
   mDuration = updatedDuration;
 }
 
-/* static */
-bool VideoData::SetVideoDataToImage(PlanarYCbCrImage* aVideoImage,
-                                    const VideoInfo& aInfo,
-                                    const YCbCrBuffer &aBuffer,
-                                    const IntRect& aPicture,
-                                    bool aCopyData)
+PlanarYCbCrData
+ConstructPlanarYCbCrData(const VideoInfo& aInfo,
+                         const VideoData::YCbCrBuffer& aBuffer,
+                         const IntRect& aPicture)
 {
-  if (!aVideoImage) {
-    return false;
-  }
-  const YCbCrBuffer::Plane &Y = aBuffer.mPlanes[0];
-  const YCbCrBuffer::Plane &Cb = aBuffer.mPlanes[1];
-  const YCbCrBuffer::Plane &Cr = aBuffer.mPlanes[2];
+  const VideoData::YCbCrBuffer::Plane& Y = aBuffer.mPlanes[0];
+  const VideoData::YCbCrBuffer::Plane& Cb = aBuffer.mPlanes[1];
+  const VideoData::YCbCrBuffer::Plane& Cr = aBuffer.mPlanes[2];
 
   PlanarYCbCrData data;
   data.mYChannel = Y.mData + Y.mOffset;
@@ -269,6 +271,21 @@ bool VideoData::SetVideoDataToImage(PlanarYCbCrImage* aVideoImage,
   data.mStereoMode = aInfo.mStereoMode;
   data.mYUVColorSpace = aBuffer.mYUVColorSpace;
   data.mColorRange = aBuffer.mColorRange;
+  return data;
+}
+
+/* static */ bool
+VideoData::SetVideoDataToImage(PlanarYCbCrImage* aVideoImage,
+                               const VideoInfo& aInfo,
+                               const YCbCrBuffer &aBuffer,
+                               const IntRect& aPicture,
+                               bool aCopyData)
+{
+  if (!aVideoImage) {
+    return false;
+  }
+
+  PlanarYCbCrData data = ConstructPlanarYCbCrData(aInfo, aBuffer, aPicture);
 
   aVideoImage->SetDelayedConversion(true);
   if (aCopyData) {
@@ -288,7 +305,8 @@ VideoData::CreateAndCopyData(const VideoInfo& aInfo,
                              const YCbCrBuffer& aBuffer,
                              bool aKeyframe,
                              int64_t aTimecode,
-                             const IntRect& aPicture)
+                             const IntRect& aPicture,
+                             layers::KnowsCompositor* aAllocator)
 {
   if (!aContainer) {
     // Create a dummy VideoData with no image. This gives us something to
@@ -325,6 +343,23 @@ VideoData::CreateAndCopyData(const VideoInfo& aInfo,
 #ifdef MOZ_WIDGET_GONK
   if (IsYV12Format(Y, Cb, Cr) && !IsInEmulator()) {
     v->mImage = new layers::GrallocImage();
+  }
+#endif
+#if XP_WIN
+  // We disable this code path on Windows 7 due to intermittent crashes with old drivers.
+  // See Mozilla bug 1405110.
+  if (IsWin8OrLater() && !XRE_IsParentProcess() &&
+      aAllocator && aAllocator->GetCompositorBackendType()
+                    == layers::LayersBackend::LAYERS_D3D11) {
+    RefPtr<layers::D3D11YCbCrImage> d3d11Image = new layers::D3D11YCbCrImage();
+    PlanarYCbCrData data = ConstructPlanarYCbCrData(aInfo, aBuffer, aPicture);
+    if (d3d11Image->SetData(layers::ImageBridgeChild::GetSingleton()
+                            ? layers::ImageBridgeChild::GetSingleton().get()
+                            : aAllocator,
+                            aContainer, data)) {
+      v->mImage = d3d11Image;
+      return v.forget();
+    }
   }
 #endif
   if (!v->mImage) {

@@ -256,7 +256,8 @@ JSRuntime::JSRuntime(JSRuntime* parentRuntime)
     moduleResolveHook(),
     moduleMetadataHook(),
     moduleDynamicImportHook(),
-    scriptPrivateFinalizeHook()
+    scriptPrivateAddRefHook(),
+    scriptPrivateReleaseHook()
 {
     setGCStoreBufferPtr(&gc.storeBuffer);
 

@@ -27,6 +27,16 @@
   <preference id="browser.translation.detectLanguage"
               name="browser.translation.detectLanguage"
               type="bool"/>
+
+  <!-- JavaScript -->
+  <preference id="javascript.options.wasm"
+              name="javascript.options.wasm"
+              type="bool"/>
+#ifdef MOZ_WEBRTC
+  <preference id="media.peerconnection.enabled"
+              name="media.peerconnection.enabled"
+              type="bool"/>
+#endif
 </preferences>
 
 <script type="application/javascript"
@@ -208,4 +218,33 @@
     <button id="translateButton" label="&translateExceptions.label;"
             accesskey="&translateExceptions.accesskey;"/>
   </hbox>
+</groupbox>
+
+<!-- JavaScript -->
+<groupbox id="javascriptGroup" data-category="paneContent" hidden="true">
+  <caption><label>&javascript.label;</label></caption>
+  <grid id="javascriptGrid">
+    <columns>
+      <column flex="1"/>
+      <column/>
+    </columns>
+    <rows id="javascriptRows">
+      <row id="javascriptRow1">
+        <vbox align="start">
+          <checkbox id="javascriptWasmPolicy"
+                    preference="javascript.options.wasm"
+                    label="&javascriptWasm.label;"
+                    accesskey="&javascriptWasm.accesskey;" />
+        </vbox>
+      </row>
+      <row id="javascriptRow2">
+        <vbox align="start">
+          <checkbox id="javascriptWebRTCPolicy"
+                    preference="media.peerconnection.enabled"
+                    label="&javascriptWebrtc.label;"
+                    accesskey="&javascriptWebrtc.accesskey;" />
+        </vbox>
+      </row>
+    </rows>
+  </grid>
 </groupbox>

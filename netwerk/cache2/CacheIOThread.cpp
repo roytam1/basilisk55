@@ -477,6 +477,7 @@ void CacheIOThread::ThreadFunc()
       threadInternal->SetObserver(this);
 
     mXPCOMThread = xpcomThread.forget().take();
+    nsCOMPtr<nsIThread> thread = NS_GetCurrentThread();
 
     lock.NotifyAll();
 
@@ -497,7 +498,6 @@ loopStart:
         bool processedEvent;
         nsresult rv;
         do {
-          nsIThread *thread = mXPCOMThread;
           rv = thread->ProcessNextEvent(false, &processedEvent);
 
           MOZ_ASSERT(mBlockingIOWatcher);

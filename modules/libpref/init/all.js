@@ -4904,6 +4904,9 @@ pref("full-screen-api.unprefix.enabled", true);
 #endif
 pref("full-screen-api.allow-trusted-requests-only", true);
 pref("full-screen-api.pointer-lock.enabled", true);
+// Whether to restrict the full-screen API to the existing window size
+// If true, this effectively make fullscreen "fill window" instead.
+pref("full-screen-api.restrict-to-window", false);
 // transition duration of fade-to-black and fade-from-black, unit: ms
 #ifndef MOZ_WIDGET_GTK
 pref("full-screen-api.transition-duration.enter", "200 200");

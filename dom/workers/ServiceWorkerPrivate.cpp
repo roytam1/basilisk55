@@ -326,7 +326,7 @@ public:
     MOZ_ASSERT(mWorkerPrivate);
     mWorkerPrivate->AssertIsOnWorkerThread();
 
-    if (mPendingPromisesCount) {
+    if (mPendingPromisesCount || !mKeepAliveToken) {
       return;
     }
     if (mCallback) {
@@ -358,6 +358,18 @@ private:
     mSelfRef = nullptr;
   }
 
+  class MaybeDoneRunner : public MicroTaskRunnable
+  {
+  public:
+    explicit MaybeDoneRunner(KeepAliveHandler* aHandler) : mHandler(aHandler) {}
+    virtual void Run(AutoSlowOperation& aAso) override
+    {
+      mHandler->MaybeDone();
+    }
+
+    RefPtr<KeepAliveHandler> mHandler;
+  };
+
   void
   RemovePromise(ExtendableEventResult aResult)
   {
@@ -377,7 +389,7 @@ private:
     CycleCollectedJSContext* cx = CycleCollectedJSContext::Get();
     MOZ_ASSERT(cx);
 
-    RefPtr<nsIRunnable> r = NewRunnableMethod(this, &KeepAliveHandler::MaybeDone);
+    RefPtr<MaybeDoneRunner> r = new MaybeDoneRunner(this);
     cx->DispatchToMicroTask(r.forget());
   }
 };

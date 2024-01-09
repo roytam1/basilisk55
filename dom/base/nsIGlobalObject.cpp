@@ -146,6 +146,6 @@ void nsIGlobalObject::QueueMicrotask(VoidFunction& aCallback) {
   CycleCollectedJSContext* context = CycleCollectedJSContext::Get();
   if (context) {
     RefPtr<MicroTaskRunnable> mt = new QueuedMicrotask(this, aCallback);
-    context->DispatchMicroTaskRunnable(mt.forget());
+    context->DispatchToMicroTask(mt.forget());
   }
 }

@@ -490,7 +490,7 @@ nsCSPContext::reportInlineViolation(nsContentPolicyType aContentType,
 
   nsCOMPtr<nsISupportsCString> selfICString(do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID));
   if (selfICString) {
-    selfICString->SetData(nsDependentCString("self"));
+    selfICString->SetData(nsDependentCString("inline"));
   }
   nsCOMPtr<nsISupports> selfISupports(do_QueryInterface(selfICString));
 
@@ -653,7 +653,16 @@ nsCSPContext::LogViolationDetails(uint16_t aViolationType,
 
     nsCOMPtr<nsISupportsCString> selfICString(do_CreateInstance(NS_SUPPORTS_CSTRING_CONTRACTID));
     if (selfICString) {
-      selfICString->SetData(nsDependentCString("self"));
+      if (aViolationType == nsIContentSecurityPolicy::VIOLATION_TYPE_EVAL) {
+        selfICString->SetData(nsDependentCString("eval"));
+      } else if (aViolationType == nsIContentSecurityPolicy::VIOLATION_TYPE_INLINE_SCRIPT ||
+                 aViolationType == nsIContentSecurityPolicy::VIOLATION_TYPE_INLINE_STYLE) {
+        selfICString->SetData(nsDependentCString("inline"));
+      } else {
+        // All the other types should have a URL, but just in case, let's use
+        // 'self' here.
+        selfICString->SetData(nsDependentCString("self"));
+      }
     }
     nsCOMPtr<nsISupports> selfISupports(do_QueryInterface(selfICString));
 
@@ -828,7 +837,8 @@ StripURIForReporting(nsIURI* aURI,
 
 nsresult
 nsCSPContext::GatherSecurityPolicyViolationEventData(
-  nsISupports* aBlockedContentSource,
+  nsIURI* aBlockedURI,
+  const nsACString& aBlockedString,
   nsIURI* aOriginalURI,
   nsAString& aViolatedDirective,
   uint32_t aViolatedPolicyIndex,
@@ -862,24 +872,12 @@ nsCSPContext::GatherSecurityPolicyViolationEventData(
   aViolationEventInit.mReferrer = mReferrer;
 
   // blocked-uri
-  if (aBlockedContentSource) {
+  if (aBlockedURI) {
     nsAutoCString reportBlockedURI;
-    nsCOMPtr<nsIURI> uri = do_QueryInterface(aBlockedContentSource);
-    // could be a string or URI
-    if (uri) {
-      StripURIForReporting(uri, mSelfURI, reportBlockedURI);
-    } else {
-      nsCOMPtr<nsISupportsCString> cstr = do_QueryInterface(aBlockedContentSource);
-      if (cstr) {
-        cstr->GetData(reportBlockedURI);
-      }
-    }
-    if (reportBlockedURI.IsEmpty()) {
-      // this can happen for frame-ancestors violation where the violating
-      // ancestor is cross-origin.
-      NS_WARNING("No blocked URI (null aBlockedContentSource) for CSP violation report.");
-    }
+    StripURIForReporting(aBlockedURI, mSelfURI, reportBlockedURI);
     aViolationEventInit.mBlockedURI = NS_ConvertUTF8toUTF16(reportBlockedURI);
+  } else {
+    aViolationEventInit.mBlockedURI = NS_ConvertUTF8toUTF16(aBlockedString);
   }
 
   // effective-directive
@@ -1199,8 +1197,16 @@ class CSPReportSenderRunnable final : public Runnable
 
       // 0) prepare violation data
       mozilla::dom::SecurityPolicyViolationEventInit init;
+      // mBlockedContentSource could be a URI or a string.
+      nsCOMPtr<nsIURI> blockedURI = do_QueryInterface(mBlockedContentSource);
+      // if mBlockedContentSource is not a URI, it could be a string
+      nsCOMPtr<nsISupportsCString> blockedICString = do_QueryInterface(mBlockedContentSource);
+      nsAutoCString blockedDataStr;
+      if (blockedICString) {
+        blockedICString->GetData(blockedDataStr);
+      }
       rv = mCSPContext->GatherSecurityPolicyViolationEventData(
-        mBlockedContentSource, mOriginalURI,
+        blockedURI, blockedDataStr, mOriginalURI,
         mViolatedDirective, mViolatedPolicyIndex,
         mSourceFile, mScriptSample, mLineNum,
         init);
@@ -1218,12 +1224,6 @@ class CSPReportSenderRunnable final : public Runnable
       mCSPContext->SendReports(init, mViolatedPolicyIndex);
 
       // 3) log to console (one per policy violation)
-      // mBlockedContentSource could be a URI or a string.
-      nsCOMPtr<nsIURI> blockedURI = do_QueryInterface(mBlockedContentSource);
-      // if mBlockedContentSource is not a URI, it could be a string
-      nsCOMPtr<nsISupportsCString> blockedString = do_QueryInterface(mBlockedContentSource);
-
-      nsCString blockedDataStr;
 
       if (blockedURI) {
         blockedURI->GetSpec(blockedDataStr);
@@ -1233,8 +1233,6 @@ class CSPReportSenderRunnable final : public Runnable
           blockedDataStr.Truncate(40);
           blockedDataStr.AppendASCII("...");
         }
-      } else if (blockedString) {
-        blockedString->GetData(blockedDataStr);
       }
 
       if (blockedDataStr.Length() > 0) {

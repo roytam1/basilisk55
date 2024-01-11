@@ -188,6 +188,7 @@ nsresult CSP_AppendCSPFromHeader(nsIContentSecurityPolicy* aCsp,
 class nsCSPHostSrc;
 
 nsCSPHostSrc* CSP_CreateHostSrcFromURI(nsIURI* aSelfURI, bool aIsSelf = false);
+bool CSP_IsEmptyDirective(const nsAString& aValue, const nsAString& aDir);
 bool CSP_IsValidDirective(const nsAString& aDir);
 bool CSP_IsDirective(const nsAString& aValue, CSPDirective aDir);
 bool CSP_IsKeyword(const nsAString& aValue, enum CSPKeyword aKey);

@@ -86,6 +86,7 @@ class nsCSPContext : public nsIContentSecurityPolicy
       nsAString& aSourceFile,
       nsAString& aScriptSample,
       uint32_t aLineNum,
+      uint32_t aColumnNum,
       mozilla::dom::SecurityPolicyViolationEventInit& aViolationEventInit);
 
     nsresult SendReports(
@@ -102,7 +103,8 @@ class nsCSPContext : public nsIContentSecurityPolicy
                                   const nsAString& aObserverSubject,
                                   const nsAString& aSourceFile,
                                   const nsAString& aScriptSample,
-                                  uint32_t aLineNum);
+                                  uint32_t aLineNum,
+                                  uint32_t aColumnNum);
 
     // Hands off! Don't call this method unless you know what you
     // are doing. It's only supposed to be called from within
@@ -111,8 +113,12 @@ class nsCSPContext : public nsIContentSecurityPolicy
       mLoadingPrincipal = nullptr;
     }
 
-    nsWeakPtr GetLoadingContext(){
+    nsWeakPtr GetLoadingContext() {
       return mLoadingContext;
+    }
+
+    static uint32_t ScriptSampleMaxLength() {
+        return std::max(sScriptSampleMaxLength, 0);
     }
 
   private:
@@ -133,7 +139,10 @@ class nsCSPContext : public nsIContentSecurityPolicy
                                const nsAString& aContent,
                                const nsAString& aViolatedDirective,
                                uint32_t aViolatedPolicyIndex,
-                               uint32_t aLineNumber);
+                               uint32_t aLineNumber,
+                               uint32_t aColumnNumber);
+
+    static int32_t sScriptSampleMaxLength;
 
     nsString                                   mReferrer;
     uint64_t                                   mInnerWindowID; // used for web console logging

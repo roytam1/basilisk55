@@ -172,6 +172,9 @@ public:
    *  @param aLineNumber
    *      Line number of inline style element in the containing document (for
    *      reporting violations)
+   *  @param aColumnNumber
+   *      Column number of inline style element in the containing document (for
+   *      reporting violations)
    *  @param aStyleText
    *      Contents of the inline style element (for reporting violations)
    *  @param aRv
@@ -183,6 +186,7 @@ public:
                                    nsIPrincipal* aPrincipal,
                                    nsIURI* aSourceURI,
                                    uint32_t aLineNumber,
+                                   uint32_t aColumnNumber,
                                    const nsSubstring& aStyleText,
                                    nsresult* aRv);
 

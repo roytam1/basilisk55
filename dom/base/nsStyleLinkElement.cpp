@@ -41,6 +41,7 @@ nsStyleLinkElement::nsStyleLinkElement()
   : mDontLoadStyle(false)
   , mUpdatesEnabled(true)
   , mLineNumber(1)
+  , mColumnNumber(1)
 {
 }
 
@@ -126,6 +127,18 @@ nsStyleLinkElement::SetLineNumber(uint32_t aLineNumber)
 nsStyleLinkElement::GetLineNumber()
 {
   return mLineNumber;
+}
+
+/* virtual */ void
+nsStyleLinkElement::SetColumnNumber(uint32_t aColumnNumber)
+{
+  mColumnNumber = aColumnNumber;
+}
+
+/* virtual */ uint32_t
+nsStyleLinkElement::GetColumnNumber()
+{
+  return mColumnNumber;
 }
 
 /* static */ bool
@@ -415,8 +428,10 @@ nsStyleLinkElement::DoUpdateStyleSheet(nsIDocument* aOldDocument,
     if (!nsStyleUtil::CSPAllowsInlineStyle(thisContent,
                                            thisContent->NodePrincipal(),
                                            doc->GetDocumentURI(),
-                                           mLineNumber, text, &rv))
+                                           mLineNumber, mColumnNumber, text,
+                                           &rv)) {
       return rv;
+    }
 
     // Parse the style sheet.
     rv = doc->CSSLoader()->

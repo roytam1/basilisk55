@@ -265,16 +265,25 @@ nsCSPContext::permitsInternal(CSPDirective aDir,
       // decision may be wrong due to the inability to get the nonce, and will
       // incorrectly fail the unit tests.
       if (!aIsPreload && aSendViolationReports) {
+        uint32_t lineNumber = 0;
+        uint32_t columnNumber = 0;
+        nsAutoCString spec;
+        JSContext* cx = nsContentUtils::GetCurrentJSContext();
+        if (cx) {
+          nsJSUtils::GetCallingLocation(cx, spec, &lineNumber, &columnNumber);
+          // If GetCallingLocation fails linenumber & columnNumber are set to 0
+          // anyway so we can skip checking if that is the case.
+        }
         this->AsyncReportViolation((aSendContentLocationInViolationReports ?
                                     aContentLocation : nullptr),
-                                   aOriginalURI,  /* in case of redirect originalURI is not null */
-                                   violatedDirective,
-                                   p,             /* policy index        */
-                                   EmptyString(), /* no observer subject */
-                                   EmptyString(), /* no source file      */
-                                   EmptyString(), /* no script sample    */
-                                   0,             /* no line number      */
-                                   0);            /* no column number    */
+                                    aOriginalURI,  /* in case of redirect originalURI is not null */
+                                    violatedDirective,
+                                    p,                           /* policy index        */
+                                    EmptyString(),               /* no observer subject */
+                                    NS_ConvertUTF8toUTF16(spec), /* source file.        */
+                                    EmptyString(),               /* no script sample    */
+                                    lineNumber,                  /* line number         */
+                                    columnNumber);               /* column number       */
       }
     }
   }
@@ -519,6 +528,22 @@ nsCSPContext::reportInlineViolation(nsContentPolicyType aContentType,
     codeSample.Truncate(ScriptSampleMaxLength());
     codeSample.AppendLiteral("...");
   }
+
+  uint32_t lineNumber = aLineNumber;
+  uint32_t columnNumber = aColumnNumber;
+
+  JSContext* cx = nsContentUtils::GetCurrentJSContext();
+  if (cx) {
+    if (!nsJSUtils::GetCallingLocation(cx, sourceFile, &lineNumber,
+                                       &columnNumber)) {
+      // Get Calling Location resets line/col to 0
+      // so we reset those to the intial arguments
+      // in case it failed
+      lineNumber = aLineNumber;
+      columnNumber = aColumnNumber;
+    }
+  }
+
   AsyncReportViolation(selfISupports,                      // aBlockedContentSource
                        mSelfURI,                           // aOriginalURI
                        aViolatedDirective,                 // aViolatedDirective
@@ -526,8 +551,8 @@ nsCSPContext::reportInlineViolation(nsContentPolicyType aContentType,
                        observerSubject,                    // aObserverSubject
                        NS_ConvertUTF8toUTF16(sourceFile),  // aSourceFile
                        codeSample,                         // aScriptSample
-                       aLineNumber,                        // aLineNum
-                       aColumnNumber);                     // aColumnNum
+                       lineNumber,                         // aLineNum
+                       columnNumber);                      // aColumnNum
 }
 
 NS_IMETHODIMP

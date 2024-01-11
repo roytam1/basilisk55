@@ -241,6 +241,7 @@ public:
                           CompareCallback* aCallback)
     : mRegistration(aRegistration)
     , mCallback(aCallback)
+    , mInternalHeaders(new InternalHeaders())
     , mState(WaitingForOpen)
     , mNetworkFinished(false)
     , mCacheFinished(false)
@@ -433,11 +434,21 @@ public:
     return mCacheStorage;
   }
 
-  void
-  InitChannelInfo(nsIChannel* aChannel)
+  nsresult
+  OnStartRequest(nsIChannel* aChannel)
   {
+    nsresult rv = SetPrincipalInfo(aChannel);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      return rv;
+    }
+
     mChannelInfo.InitFromChannel(aChannel);
+
+    mInternalHeaders->FillResponseHeaders(aChannel);
+
+    return NS_OK;
   }
+ 
 
   nsresult
   SetPrincipalInfo(nsIChannel* aChannel)
@@ -561,6 +572,9 @@ private:
       ir->SetPrincipalInfo(Move(mPrincipalInfo));
     }
 
+    IgnoredErrorResult ignored;
+    ir->Headers()->Fill(*mInternalHeaders, ignored);
+
     RefPtr<Response> response = new Response(aCache->GetGlobalObject(), ir, nullptr);
 
     RequestOrUSVString request;
@@ -595,6 +609,7 @@ private:
   nsString mNewCacheName;
 
   ChannelInfo mChannelInfo;
+  RefPtr<InternalHeaders> mInternalHeaders;
 
   UniquePtr<mozilla::ipc::PrincipalInfo> mPrincipalInfo;
 
@@ -694,8 +709,7 @@ CompareNetwork::OnStartRequest(nsIRequest* aRequest, nsISupports* aContext)
   MOZ_ASSERT(channel == mChannel);
 #endif
 
-  mManager->InitChannelInfo(mChannel);
-  nsresult rv = mManager->SetPrincipalInfo(mChannel);
+  nsresult rv = mManager->OnStartRequest(mChannel);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return rv;
   }

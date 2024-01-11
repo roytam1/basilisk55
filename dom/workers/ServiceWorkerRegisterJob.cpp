@@ -57,6 +57,11 @@ ServiceWorkerRegisterJob::AsyncExecute()
   } else {
     registration = swm->CreateNewRegistration(mScope, mPrincipal,
                                               GetLoadFlags());
+
+    if (!registration) {
+      FailUpdateJob(NS_ERROR_DOM_ABORT_ERR);
+      return;
+    }
   }
 
   SetRegistration(registration);

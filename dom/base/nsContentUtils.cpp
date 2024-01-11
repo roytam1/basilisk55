@@ -2461,6 +2461,16 @@ nsContentUtils::GetCommonAncestor(nsINode* aNode1, nsINode* aNode2)
   });
 }
 
+/* static */
+nsIContent*
+nsContentUtils::GetCommonFlattenedTreeAncestor(nsIContent* aContent1,
+                                               nsIContent* aContent2)
+{
+  return GetCommonAncestorInternal(aContent1, aContent2, [](nsIContent* aContent) {
+    return aContent->GetFlattenedTreeParent();
+  });
+}
+
 // static
 nsINode*
 nsContentUtils::GetCommonAncestorUnderInteractiveContent(nsINode* aNode1,

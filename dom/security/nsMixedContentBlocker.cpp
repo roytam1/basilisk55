@@ -22,6 +22,7 @@
 #include "nsIHttpChannel.h"
 #include "nsIParentChannel.h"
 #include "mozilla/Preferences.h"
+#include "nsIProtocolHandler.h"
 #include "nsIScriptObjectPrincipal.h"
 #include "nsISecureBrowserUI.h"
 #include "nsIDocumentLoader.h"

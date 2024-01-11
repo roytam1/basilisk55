@@ -1,3 +1,5 @@
+#include "nsCharSeparatedTokenizer.h"
+#include "nsContentPolicyUtils.h"
 #include "nsContentSecurityManager.h"
 #include "nsEscape.h"
 #include "nsIChannel.h"
@@ -14,9 +16,18 @@
 #include "nsIURIFixup.h"
 #include "nsIImageLoadingContent.h"
 #include "nsINestedURI.h"
+#include "nsIProtocolHandler.h"
+#include "nsIScriptError.h"
+#include "nsMimeTypes.h"
+#include "nsNetUtil.h"
 
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/TabChild.h"
+#include "mozilla/ArrayUtils.h"
+#include "mozilla/LoadTainting.h"
+#include "mozilla/Preferences.h"
+
+using namespace mozilla;
 
 NS_IMPL_ISUPPORTS(nsContentSecurityManager,
                   nsIContentSecurityManager,

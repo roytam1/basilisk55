@@ -15,6 +15,7 @@
 #include "nsIServiceManager.h"
 #include "nsIStringBundle.h"
 #include "nsIURL.h"
+#include "nsNetUtil.h"
 #include "nsReadableUtils.h"
 #include "nsSandboxFlags.h"
 

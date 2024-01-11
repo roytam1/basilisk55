@@ -1240,42 +1240,42 @@ EnsureMIMEOfScript(nsIURI* aURI, nsHttpResponseHead* aResponseHead, nsILoadInfo*
 
     if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("text/plain"))) {
         // script load has type text/plain
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 5);
-        return NS_OK;
-    }
-
-    if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("text/xml"))) {
+    } else if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("text/xml"))) {
         // script load has type text/xml
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 7);
-        return NS_OK;
-    }
-
-    if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("application/octet-stream"))) {
+    } else if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("application/octet-stream"))) {
         // script load has type application/octet-stream
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 8);
-        return NS_OK;
-    }
-
-    if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("application/xml"))) {
+    } else if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("application/xml"))) {
         // script load has type application/xml
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 9);
-        return NS_OK;
-    }
-
-    if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("text/html"))) {
+    } else if (StringBeginsWith(contentType, NS_LITERAL_CSTRING("text/html"))) {
         // script load has type text/html
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 10);
-        return NS_OK;
-    }
-
-    if (contentType.IsEmpty()) {
+    } else if (contentType.IsEmpty()) {
         // script load has no type
-        Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 11);
-        return NS_OK;
+    } else {
+        // script load has unknown type
+        // We restrict importScripts() in worker code to JavaScript MIME types.
+        if (aLoadInfo->InternalContentPolicyType() ==
+            nsIContentPolicy::TYPE_INTERNAL_WORKER_IMPORT_SCRIPTS) {
+              // Instead of consulting Preferences::GetBool() all the time we
+              // can cache the result to speed things up.
+             static bool sCachedBlockImportScriptsWithWrongMime = false;
+             static bool sIsInited = false;
+             if (!sIsInited) {
+               sIsInited = true;
+               Preferences::AddBoolVarCache(
+                   &sCachedBlockImportScriptsWithWrongMime,
+                   "security.block_importScripts_with_wrong_mime");
+             }
+         
+            // Do not block the load if the feature is not enabled.
+            if (!sCachedBlockImportScriptsWithWrongMime) {
+               return NS_OK;
+            }
+    
+            ReportTypeBlocking(aURI, aLoadInfo, "BlockImportScriptsWithWrongMimeType");
+            return NS_ERROR_CORRUPTED_CONTENT;
+        }
     }
 
-    // script load has unknown type
-    Telemetry::Accumulate(Telemetry::SCRIPT_BLOCK_INCORRECT_MIME, 0);
     return NS_OK;
 }
 

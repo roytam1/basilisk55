@@ -1579,9 +1579,6 @@ SetPropIRGenerator::tryAttachStub()
 
     if (lhsVal_.isObject()) {
         RootedObject obj(cx_, &lhsVal_.toObject());
-        if (obj->watched())
-            return false;
-
         ObjOperandId objId = writer.guardIsObject(lhsValId);
         if (nameOrSymbol) {
             if (tryAttachNativeSetSlot(obj, objId, id, rhsValId))

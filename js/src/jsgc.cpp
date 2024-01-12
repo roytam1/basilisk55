@@ -207,7 +207,6 @@
 #include "jsscript.h"
 #include "jstypes.h"
 #include "jsutil.h"
-#include "jswatchpoint.h"
 #include "jsweakmap.h"
 #ifdef XP_WIN
 # include "jswin.h"
@@ -2392,11 +2391,6 @@ GCRuntime::updateZonePointersToRelocatedCells(Zone* zone, AutoLockForExclusiveAc
         gcstats::AutoPhase ap(stats, gcstats::PHASE_MARK_ROOTS);
 
         WeakMapBase::traceZone(zone, &trc);
-        for (CompartmentsInZoneIter c(zone); !c.done(); c.next()) {
-            c->trace(&trc);
-            if (c->watchpointMap)
-                c->watchpointMap->trace(&trc);
-        }
     }
 
     // Sweep everything to fix up weak pointers.
@@ -2439,7 +2433,6 @@ GCRuntime::updateRuntimePointersToRelocatedCells(AutoLockForExclusiveAccess& loc
     }
 
     // Sweep everything to fix up weak pointers.
-    WatchpointMap::sweepAll(rt);
     Debugger::sweepAll(rt->defaultFreeOp());
     jit::JitRuntime::SweepJitcodeGlobalTable(rt);
 
@@ -3864,10 +3857,6 @@ GCRuntime::markWeakReferences(gcstats::Phase phase)
             for (ZoneIterT zone(rt); !zone.done(); zone.next())
                 markedAny |= WeakMapBase::markZoneIteratively(zone, &marker);
         }
-        for (CompartmentsIterT<ZoneIterT> c(rt); !c.done(); c.next()) {
-            if (c->watchpointMap)
-                markedAny |= c->watchpointMap->markIteratively(&marker);
-        }
         markedAny |= Debugger::markIteratively(&marker);
         markedAny |= jit::JitRuntime::MarkJitcodeGlobalTableIteratively(&marker);
 
@@ -4638,9 +4627,6 @@ GCRuntime::beginSweepingZoneGroup(AutoLockForExclusiveAccess& lock)
 
             // Bug 1071218: the following two methods have not yet been
             // refactored to work on a single zone-group at once.
-
-            // Collect watch points associated with unreachable objects.
-            WatchpointMap::sweepAll(rt);
 
             // Detach unreachable debuggers and global objects from each other.
             Debugger::sweepAll(&fop);

@@ -885,14 +885,6 @@ UnboxedPlainObject::obj_deleteProperty(JSContext* cx, HandleObject obj, HandleId
 }
 
 /* static */ bool
-UnboxedPlainObject::obj_watch(JSContext* cx, HandleObject obj, HandleId id, HandleObject callable)
-{
-    if (!convertToNative(cx, obj))
-        return false;
-    return WatchProperty(cx, obj, id, callable);
-}
-
-/* static */ bool
 UnboxedPlainObject::obj_enumerate(JSContext* cx, HandleObject obj, AutoIdVector& properties,
                                   bool enumerableOnly)
 {
@@ -936,8 +928,6 @@ static const ObjectOps UnboxedPlainObjectObjectOps = {
     UnboxedPlainObject::obj_setProperty,
     UnboxedPlainObject::obj_getOwnPropertyDescriptor,
     UnboxedPlainObject::obj_deleteProperty,
-    UnboxedPlainObject::obj_watch,
-    nullptr,   /* No unwatch needed, as watch() converts the object to native */
     nullptr,   /* getElements */
     UnboxedPlainObject::obj_enumerate,
     nullptr    /* funToString */
@@ -1582,14 +1572,6 @@ UnboxedArrayObject::obj_deleteProperty(JSContext* cx, HandleObject obj, HandleId
 }
 
 /* static */ bool
-UnboxedArrayObject::obj_watch(JSContext* cx, HandleObject obj, HandleId id, HandleObject callable)
-{
-    if (!convertToNative(cx, obj))
-        return false;
-    return WatchProperty(cx, obj, id, callable);
-}
-
-/* static */ bool
 UnboxedArrayObject::obj_enumerate(JSContext* cx, HandleObject obj, AutoIdVector& properties,
                                   bool enumerableOnly)
 {
@@ -1632,8 +1614,6 @@ static const ObjectOps UnboxedArrayObjectObjectOps = {
     UnboxedArrayObject::obj_setProperty,
     UnboxedArrayObject::obj_getOwnPropertyDescriptor,
     UnboxedArrayObject::obj_deleteProperty,
-    UnboxedArrayObject::obj_watch,
-    nullptr,   /* No unwatch needed, as watch() converts the object to native */
     nullptr,   /* getElements */
     UnboxedArrayObject::obj_enumerate,
     nullptr    /* funToString */

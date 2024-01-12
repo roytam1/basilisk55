@@ -36,7 +36,6 @@
 #include "jsscript.h"
 #include "jsstr.h"
 #include "jstypes.h"
-#include "jswatchpoint.h"
 
 #include "gc/Marking.h"
 #include "jit/Ion.h"

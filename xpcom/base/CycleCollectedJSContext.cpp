@@ -1504,7 +1504,9 @@ CycleCollectedJSContext::AfterProcessMicrotasks()
   }
   // Cleanup Indexed Database transactions:
   // https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint
-  CleanupIDBTransactions(RecursionDepth());
+  if(!mPendingIDBTransactions.IsEmpty()) {
+    CleanupIDBTransactions(RecursionDepth());
+  }
 }
 
 uint32_t

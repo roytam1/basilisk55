@@ -1000,7 +1000,16 @@ nsRange::DoSetRange(nsINode* aStartN, uint32_t aStartOffset,
   // Notify any selection listeners. This has to occur last because otherwise the world
   // could be observed by a selection listener while the range was in an invalid state.
   if (mSelection) {
-    mSelection->NotifySelectionListeners(mCalledByJS);
+    // Our internal code should not move focus with using this instance while
+    // it's calling Selection::NotifySelectionListeners() which may move focus
+    // or calls selection listeners.  So, let's set mCalledByJS to false here
+    // since non-*JS() methods don't set it to false.
+    AutoCalledByJSRestore calledByJSRestorer(*this);
+    mCalledByJS = false;
+    // Be aware, this range may be modified or stop being a range for selection
+    // after this call.  Additionally, the selection instance may have gone.
+    RefPtr<Selection> selection = mSelection;
+    selection->NotifySelectionListeners(calledByJSRestorer.SavedValue());
   }
 }
 
@@ -1230,7 +1239,8 @@ nsRange::IsValidBoundary(nsINode* aNode)
 void
 nsRange::SetStartJS(nsINode& aNode, uint32_t aOffset, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetStart(aNode, aOffset, aErr);
 }
 
@@ -1292,7 +1302,8 @@ nsRange::SetStart(nsINode* aParent, uint32_t aOffset)
 void
 nsRange::SetStartBeforeJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetStartBefore(aNode, aErr);
 }
 
@@ -1330,7 +1341,8 @@ nsRange::SetStartBefore(nsIDOMNode* aSibling)
 void
 nsRange::SetStartAfterJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetStartAfter(aNode, aErr);
 }
 
@@ -1368,7 +1380,8 @@ nsRange::SetStartAfter(nsIDOMNode* aSibling)
 void
 nsRange::SetEndJS(nsINode& aNode, uint32_t aOffset, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetEnd(aNode, aOffset, aErr);
 }
 
@@ -1489,7 +1502,8 @@ nsRange::SetStartAndEnd(nsINode* aStartParent, uint32_t aStartOffset,
 void
 nsRange::SetEndBeforeJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetEndBefore(aNode, aErr);
 }
 
@@ -1527,7 +1541,8 @@ nsRange::SetEndBefore(nsIDOMNode* aSibling)
 void
 nsRange::SetEndAfterJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SetEndAfter(aNode, aErr);
 }
 
@@ -1580,7 +1595,8 @@ nsRange::Collapse(bool aToStart)
 void
 nsRange::CollapseJS(bool aToStart)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   Unused << Collapse(aToStart);
 }
 
@@ -1598,7 +1614,8 @@ nsRange::SelectNode(nsIDOMNode* aN)
 void
 nsRange::SelectNodeJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SelectNode(aNode, aErr);
 }
 
@@ -1644,7 +1661,8 @@ nsRange::SelectNodeContents(nsIDOMNode* aN)
 void
 nsRange::SelectNodeContentsJS(nsINode& aNode, ErrorResult& aErr)
 {
-  AutoCalledByJSSetter markAsCalledByJS(*this);
+  AutoCalledByJSRestore calledByJSRestorer(*this);
+  mCalledByJS = true;
   SelectNodeContents(aNode, aErr);
 }
 

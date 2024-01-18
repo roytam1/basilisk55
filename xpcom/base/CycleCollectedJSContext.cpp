@@ -1421,6 +1421,8 @@ CycleCollectedJSContext::ProcessStableStateQueue()
   MOZ_RELEASE_ASSERT(!mDoingStableStates);
   mDoingStableStates = true;
 
+  // When run, one event can add another event to the mStableStateEvents, as
+  // such you can't use iterators here.
   for (uint32_t i = 0; i < mStableStateEvents.Length(); ++i) {
     nsCOMPtr<nsIRunnable> event = mStableStateEvents[i].forget();
     event->Run();
@@ -1508,7 +1510,7 @@ CycleCollectedJSContext::AfterProcessMicrotasks()
 }
 
 uint32_t
-CycleCollectedJSContext::RecursionDepth()
+CycleCollectedJSContext::RecursionDepth() const
 {
   return mOwningThread->RecursionDepth();
 }

@@ -101,6 +101,7 @@ nsContentSink::nsContentSink()
   , mDeferredFlushTags(0)
   , mIsDocumentObserver(0)
   , mRunsToCompletion(0)
+  , mIsBlockingOnload(false)
   , mDeflectedCount(0)
   , mHasPendingEvent(false)
   , mCurrentParseEndTime(0)
@@ -1548,8 +1549,14 @@ nsContentSink::DropParserAndPerfHint(void)
     FavorPerformanceHint(true, 0);
   }
 
-  if (!mRunsToCompletion) {
+  // Call UnblockOnload only if mRunsToComletion is false and if
+  // we have already started loading because it's possible that this function
+  // is called (i.e. the parser is terminated) before we start loading due to
+  // destroying the window inside unload event callbacks for the previous
+  // document.
+  if (!mRunsToCompletion && mIsBlockingOnload) {
     mDocument->UnblockOnload(true);
+    mIsBlockingOnload = false;
   }
 }
 
@@ -1604,6 +1611,7 @@ nsContentSink::WillBuildModelImpl()
 {
   if (!mRunsToCompletion) {
     mDocument->BlockOnload();
+    mIsBlockingOnload = true;
 
     mBeginLoadTime = PR_IntervalToMicroseconds(PR_IntervalNow());
   }

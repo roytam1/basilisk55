@@ -61,16 +61,35 @@ public:
     switch (event) {
       case MediaStreamGraphEvent::EVENT_FINISHED:
         {
+          RefPtr<SynthStreamListener> self = this;
           if (!mStarted) {
             mStarted = true;
+            nsCOMPtr<nsIRunnable> startRunnable = NS_NewRunnableFunction(
+              [self] {
+                // "start" event will be fired in DoNotifyStarted() which is
+                // not allowed in stable state, so we do it asynchronously in
+                // next run.
+                NS_DispatchToMainThread(NewRunnableMethod(
+                  self,
+                  &SynthStreamListener::DoNotifyStarted));
+              });
             aGraph->DispatchToMainThreadAfterStreamStateUpdate(
               mAbstractMainThread,
-              NewRunnableMethod(this, &SynthStreamListener::DoNotifyStarted));
+              startRunnable.forget());
           }
 
+          nsCOMPtr<nsIRunnable> endRunnable = NS_NewRunnableFunction(
+            [self] {
+              // "end" event will be fired in DoNotifyFinished() which is
+              // not allowed in stable state, so we do it asynchronously in
+              // next run.
+              NS_DispatchToMainThread(NewRunnableMethod(
+                self,
+                &SynthStreamListener::DoNotifyFinished));
+            });
           aGraph->DispatchToMainThreadAfterStreamStateUpdate(
             mAbstractMainThread,
-            NewRunnableMethod(this, &SynthStreamListener::DoNotifyFinished));
+            endRunnable.forget());
         }
         break;
       case MediaStreamGraphEvent::EVENT_REMOVED:
@@ -87,9 +106,19 @@ public:
   {
     if (aBlocked == MediaStreamListener::UNBLOCKED && !mStarted) {
       mStarted = true;
+      RefPtr<SynthStreamListener> self = this;
+      nsCOMPtr<nsIRunnable> event = NS_NewRunnableFunction(
+        [self] {
+          // "start" event will be fired in DoNotifyStarted() which is
+          // not allowed in stable state, so we do it asynchronously in
+          // next run.
+          NS_DispatchToMainThread(NewRunnableMethod(
+            self,
+            &SynthStreamListener::DoNotifyStarted));
+        });
       aGraph->DispatchToMainThreadAfterStreamStateUpdate(
         mAbstractMainThread,
-        NewRunnableMethod(this, &SynthStreamListener::DoNotifyStarted));
+        event.forget());
     }
   }
 

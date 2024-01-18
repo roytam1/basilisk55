@@ -146,7 +146,7 @@ public:
     return mOwner;
   }
 
-  Element* GetRoot() const {
+  nsINode* GetRoot() const {
     return mRoot;
   }
 
@@ -179,7 +179,7 @@ protected:
   nsCOMPtr<nsPIDOMWindowInner>                    mOwner;
   RefPtr<nsIDocument>                             mDocument;
   RefPtr<mozilla::dom::IntersectionCallback>      mCallback;
-  RefPtr<Element>                                 mRoot;
+  RefPtr<nsINode>                                 mRoot;
   nsCSSRect                                       mRootMargin;
   nsTArray<double>                                mThresholds;
   

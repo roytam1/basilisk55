@@ -230,6 +230,7 @@ this.PopupNotifications = function PopupNotifications(tabbrowser, panel,
   this.buttonDelay = Services.prefs.getIntPref(PREF_SECURITY_DELAY);
 
   this.panel.addEventListener("popuphidden", this, true);
+  this.panel.addEventListener("popuppositioned", this, true);
   this.panel.classList.add("popup-notification-panel");
 
   // This listener will be attached to the chrome window whenever a notification
@@ -604,6 +605,7 @@ PopupNotifications.prototype = {
           break;
         }
 
+      case "popuppositioned":
       case "TabSelect":
         let self = this;
         // This is where we could detect if the panel is dismissed if the page

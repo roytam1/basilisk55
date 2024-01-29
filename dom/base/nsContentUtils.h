@@ -2167,6 +2167,11 @@ public:
   }
 
   /**
+   * Returns true if the preload service is enabled.
+   */
+  static bool IsPreloadEnabled();
+
+  /**
    * Return true if this doc is controlled by a ServiceWorker.
    */
   static bool IsControlledByServiceWorker(nsIDocument* aDocument);
@@ -3003,6 +3008,7 @@ private:
   static bool sPrivacyResistFingerprinting;
   static bool sSendPerformanceTimingNotifications;
   static bool sUseActivityCursor;
+  static bool sPreloadEnabled;
   static uint32_t sCookiesLifetimePolicy;
   static uint32_t sCookiesBehavior;
 

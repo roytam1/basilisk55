@@ -16,6 +16,7 @@
 #include "nsCPrefetchService.h"
 #include "nsStyleLinkElement.h"
 
+#include "nsAttrValueInlines.h"
 #include "nsEscape.h"
 #include "nsGkAtoms.h"
 #include "nsHTMLDNSPrefetch.h"
@@ -145,7 +146,8 @@ Link::TrySpeculativeLoadFeature()
     return;
   }
 
-  if (!nsContentUtils::PrefetchEnabled(mElement->OwnerDoc()->GetDocShell())) {
+  if (!nsContentUtils::PrefetchEnabled(mElement->OwnerDoc()->GetDocShell()) ||
+      !nsContentUtils::IsPreloadEnabled()) {
     return;
   }
 

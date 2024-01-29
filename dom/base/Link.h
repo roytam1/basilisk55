@@ -126,6 +126,8 @@ public:
   void TryDNSPrefetchPreconnectOrPrefetchOrPrerender();
   void CancelPrefetch();
 
+  static void ParseDestinationValue(const nsAString& aValue, nsAttrValue& aResult);
+
 protected:
   virtual ~Link();
 

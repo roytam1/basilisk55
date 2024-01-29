@@ -243,6 +243,11 @@ HTMLLinkElement::ParseAttribute(int32_t aNamespaceID,
       return true;
     }
 
+    if (aAttribute == nsGkAtoms::as) {
+      ParseDestinationValue(aValue, aResult);
+      return true;
+    }
+
     if (aAttribute == nsGkAtoms::sizes) {
       aResult.ParseAtomArray(aValue);
       return true;
@@ -375,6 +380,8 @@ HTMLLinkElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
          aName == nsGkAtoms::title ||
          aName == nsGkAtoms::media ||
          aName == nsGkAtoms::type ||
+         aName == nsGkAtoms::as ||
+         aName == nsGkAtoms::crossorigin ||
          (LINK_DISABLED && aName == nsGkAtoms::disabled))) {
       bool dropSheet = false;
       if (aName == nsGkAtoms::rel) {
@@ -472,6 +479,7 @@ static const DOMTokenListSupportedToken sSupportedRelValues[] = {
   "preconnect",
   "icon",
   "search",
+  "preload",
   nullptr
 };
 
@@ -601,6 +609,12 @@ JSObject*
 HTMLLinkElement::WrapNode(JSContext* aCx, JS::Handle<JSObject*> aGivenProto)
 {
   return HTMLLinkElementBinding::Wrap(aCx, this, aGivenProto);
+}
+
+void
+HTMLLinkElement::GetAs(nsAString& aResult)
+{
+  GetEnumAttr(nsGkAtoms::as, EmptyCString().get(), aResult);
 }
 
 already_AddRefed<nsIDocument>

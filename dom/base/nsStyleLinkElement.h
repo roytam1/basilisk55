@@ -66,7 +66,8 @@ public:
     eALTERNATE =    0x00000010,
     eHTMLIMPORT =   0x00000020,
     ePRECONNECT =   0x00000040,
-    ePRERENDER =    0x00000080
+    ePRERENDER =    0x00000080,
+    ePRELOAD =      0x00000100
   };
 
   // The return value is a bitwise or of 0 or more RelValues.

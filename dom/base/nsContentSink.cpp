@@ -472,6 +472,7 @@ nsContentSink::ProcessLinkHeader(const nsAString& aLinkData)
   nsAutoString media;
   nsAutoString anchor;
   nsAutoString crossOrigin;
+  nsAutoString destination;
 
   crossOrigin.SetIsVoid(true);
 
@@ -654,6 +655,11 @@ nsContentSink::ProcessLinkHeader(const nsAString& aLinkData)
               crossOrigin = value;
               crossOrigin.StripWhitespace();
             }
+          } else if (attr.LowerCaseEqualsLiteral("as")) {
+            if (destination.IsEmpty()) {
+              destination = value;
+              destination.StripWhitespace();
+            }
           }
         }
       }
@@ -667,7 +673,7 @@ nsContentSink::ProcessLinkHeader(const nsAString& aLinkData)
         rv = ProcessLink(anchor, href, rel,
                          // prefer RFC 5987 variant over non-I18zed version
                          titleStar.IsEmpty() ? title : titleStar,
-                         type, media, crossOrigin);
+                         type, media, crossOrigin, destination);
       }
 
       href.Truncate();
@@ -677,6 +683,7 @@ nsContentSink::ProcessLinkHeader(const nsAString& aLinkData)
       media.Truncate();
       anchor.Truncate();
       crossOrigin.SetIsVoid(true);
+      destination.Truncate();
       
       seenParameters = false;
     }
@@ -689,7 +696,7 @@ nsContentSink::ProcessLinkHeader(const nsAString& aLinkData)
     rv = ProcessLink(anchor, href, rel,
                      // prefer RFC 5987 variant over non-I18zed version
                      titleStar.IsEmpty() ? title : titleStar,
-                     type, media, crossOrigin);
+                     type, media, crossOrigin, destination);
   }
 
   return rv;
@@ -700,7 +707,8 @@ nsresult
 nsContentSink::ProcessLink(const nsSubstring& aAnchor, const nsSubstring& aHref,
                            const nsSubstring& aRel, const nsSubstring& aTitle,
                            const nsSubstring& aType, const nsSubstring& aMedia,
-                           const nsSubstring& aCrossOrigin)
+                           const nsSubstring& aCrossOrigin,
+                           const nsSubstring& aDestination)
 {
   uint32_t linkTypes =
     nsStyleLinkElement::ParseLinkTypes(aRel, mDocument->NodePrincipal());

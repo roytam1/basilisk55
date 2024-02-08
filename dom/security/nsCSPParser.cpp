@@ -109,6 +109,7 @@ nsCSPParser::nsCSPParser(cspTokens& aTokens,
  : mCurChar(nullptr)
  , mEndChar(nullptr)
  , mHasHashOrNonce(false)
+ , mHasAnyUnsafeEval(false)
  , mStrictDynamic(false)
  , mUnsafeInlineKeywordSrc(nullptr)
  , mChildSrc(nullptr)
@@ -479,7 +480,9 @@ nsCSPParser::keywordSource()
     if (!sStrictDynamicEnabled) {
       return nullptr;
     }
-    if (!CSP_IsDirective(mCurDir[0], nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE)) {
+    if (!CSP_IsDirective(mCurDir[0], nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE) &&
+        !CSP_IsDirective(mCurDir[0], nsIContentSecurityPolicy::SCRIPT_SRC_ELEM_DIRECTIVE) &&
+        !CSP_IsDirective(mCurDir[0], nsIContentSecurityPolicy::SCRIPT_SRC_ATTR_DIRECTIVE)) {
       // Todo: Enforce 'strict-dynamic' within default-src; see Bug 1313937
       const char16_t* params[] = { u"strict-dynamic" };
       logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringStrictDynamic",
@@ -516,6 +519,7 @@ nsCSPParser::keywordSource()
     if (doc) {
       doc->SetHasUnsafeEvalCSP(true);
     }
+    mHasAnyUnsafeEval = true;
     return new nsCSPKeywordSrc(CSP_KeywordToEnum(mCurToken));
   }
   return nullptr;
@@ -1065,7 +1069,8 @@ nsCSPParser::directiveName()
   }
 
   // if we have a script-src, cache it as a fallback for worker-src
-  // in case child-src is not present
+  // in case child-src is not present. It is also used as a fallback for
+  // script-src-elem and script-src-attr.
   if (CSP_IsDirective(mCurToken, nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE)) {
     mScriptSrc = new nsCSPScriptSrcDirective(CSP_StringToCSPDirective(mCurToken));
     return mScriptSrc;
@@ -1169,6 +1174,7 @@ nsCSPParser::directive()
   // make sure to reset cache variables when trying to invalidate unsafe-inline;
   // unsafe-inline might not only appear in script-src, but also in default-src
   mHasHashOrNonce = false;
+  mHasAnyUnsafeEval = false;
   mStrictDynamic = false;
   mUnsafeInlineKeywordSrc = nullptr;
 
@@ -1188,8 +1194,12 @@ nsCSPParser::directive()
 
   // If policy contains 'strict-dynamic' invalidate all srcs within script-src.
   if (mStrictDynamic) {
-    MOZ_ASSERT(cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE),
-               "strict-dynamic only allowed within script-src");
+    MOZ_ASSERT(
+        cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE) ||
+            cspDir->equals(
+                nsIContentSecurityPolicy::SCRIPT_SRC_ELEM_DIRECTIVE) ||
+            cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_ATTR_DIRECTIVE),
+        "strict-dynamic only allowed within script-src(-elem|attr)");
     for (uint32_t i = 0; i < srcs.Length(); i++) {
       // Please note that nsCSPNonceSrc as well as nsCSPHashSrc overwrite invalidate(),
       // so it's fine to just call invalidate() on all srcs. Please also note that
@@ -1208,8 +1218,8 @@ nsCSPParser::directive()
           !StringBeginsWith(NS_ConvertUTF16toUTF8(srcStr), NS_LITERAL_CSTRING("'nonce-")) &&
           !StringBeginsWith(NS_ConvertUTF16toUTF8(srcStr), NS_LITERAL_CSTRING("'sha")))
       {
-        const char16_t* params[] = { srcStr.get() };
-        logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringSrcForStrictDynamic",
+        const char16_t* params[] = { srcStr.get(), mCurDir[0].get() };
+        logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringScriptSrcForStrictDynamic",
                                  params, ArrayLength(params));
       }
     }
@@ -1223,11 +1233,22 @@ nsCSPParser::directive()
   }
   else if (mHasHashOrNonce && mUnsafeInlineKeywordSrc &&
            (cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE) ||
+            cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_ELEM_DIRECTIVE) ||
+            cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_ATTR_DIRECTIVE) ||
             cspDir->equals(nsIContentSecurityPolicy::STYLE_SRC_DIRECTIVE))) {
     mUnsafeInlineKeywordSrc->invalidate();
-    // log to the console that unsafe-inline will be ignored
-    const char16_t* params[] = { u"'unsafe-inline'" };
-    logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringSrcWithinScriptStyleSrc",
+    // log to the console that unsafe-inline will be ignored.
+    const char16_t* params[] = { u"'unsafe-inline'", mCurDir[0].get() };
+    logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringSrcWithinNonceOrHashDirective",
+                             params, ArrayLength(params));
+  }
+
+  if (mHasAnyUnsafeEval &&
+      (cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_ELEM_DIRECTIVE) ||
+       cspDir->equals(nsIContentSecurityPolicy::SCRIPT_SRC_ATTR_DIRECTIVE))) {
+    // Log to the console that (wasm-)unsafe-eval will be ignored.
+    const char16_t* params[] = { mCurDir[0].get() };
+    logWarningErrorToConsole(nsIScriptError::warningFlag, "ignoringUnsafeEval",
                              params, ArrayLength(params));
   }
 
@@ -1253,13 +1274,13 @@ nsCSPParser::policy()
 
   if (mChildSrc) {
     if (!mFrameSrc) {
-      // if frame-src is specified explicitly for that policy than child-src should
-      // not restrict frames; if not, than child-src needs to restrict frames.
+      // if frame-src is specified explicitly for that policy, then child-src should
+      // not restrict frames; if not, then child-src needs to restrict frames.
       mChildSrc->setRestrictFrames();
     }
     if (!mWorkerSrc) {
-      // if worker-src is specified explicitly for that policy than child-src should
-      // not restrict workers; if not, than child-src needs to restrict workers.
+      // if worker-src is specified explicitly for that policy, then child-src should
+      // not restrict workers; if not, then child-src needs to restrict workers.
       mChildSrc->setRestrictWorkers();
     }
   }
@@ -1267,6 +1288,18 @@ nsCSPParser::policy()
   // script-src has to govern workers.
   if (mScriptSrc && !mWorkerSrc && !mChildSrc) {
     mScriptSrc->setRestrictWorkers();
+  }
+
+  // If script-src is specified and script-src-elem is not specified, then
+  // script-src has to govern script requests and script blocks.
+  if (mScriptSrc && !mPolicy->hasDirective(nsIContentSecurityPolicy::SCRIPT_SRC_ELEM_DIRECTIVE)) {
+    mScriptSrc->setRestrictScriptElem();
+  }
+
+  // If script-src is specified and script-src-attr is not specified, then
+  // script-src has to govern script attr (event handlers).
+  if (mScriptSrc && !mPolicy->hasDirective(nsIContentSecurityPolicy::SCRIPT_SRC_ATTR_DIRECTIVE)) {
+    mScriptSrc->setRestrictScriptAttr();
   }
 
   return mPolicy;

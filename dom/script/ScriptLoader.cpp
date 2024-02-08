@@ -1474,7 +1474,7 @@ CSPAllowsInlineScript(nsIScriptElement *aElement, nsIDocument *aDocument)
   aElement->GetScriptText(scriptText);
 
   bool allowInlineScript = false;
-  rv = csp->GetAllowsInline(nsIContentPolicy::TYPE_SCRIPT,
+  rv = csp->GetAllowsInline(nsIContentSecurityPolicy::SCRIPT_SRC_DIRECTIVE,
                             nonce, parserCreated, scriptText,
                             aElement->GetScriptLineNumber(),
                             aElement->GetScriptColumnNumber(),

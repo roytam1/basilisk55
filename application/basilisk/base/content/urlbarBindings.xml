@@ -606,8 +606,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
             typeof(engineOrEngineName) == "string" ?
               Services.search.getEngineByName(engineOrEngineName) :
               engineOrEngineName;
-          let isOneOff = this.popup.oneOffSearchButtons
-              .maybeRecordTelemetry(event, openUILinkWhere, openUILinkParams);
           // Infer the type of the event which triggered the search.
           let eventType = "unknown";
           if (event instanceof KeyboardEvent) {
@@ -617,7 +615,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
           }
           // Augment the search action details object.
           let details = searchActionDetails || {};
-          details.isOneOff = isOneOff;
           details.type = eventType;
 
           BrowserSearch.recordSearchInTelemetry(engine, "urlbar", details);

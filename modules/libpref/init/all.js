@@ -5572,7 +5572,7 @@ pref("media.gmp.insecure.allow", false);
 pref("dom.audiochannel.mutedByDefault", false);
 
 // HTML <dialog> element
-pref("dom.dialog_element.enabled", false);
+pref("dom.dialog_element.enabled", true);
 
 // Secure Element API
 #ifdef MOZ_SECUREELEMENT

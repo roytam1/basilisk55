@@ -41,9 +41,9 @@ var gAdvancedPane = {
     this.updateReadPrefs();
 #endif
     this.updateOfflineApps();
-    this.initTelemetry();
+    //this.initTelemetry();
 #ifdef MOZ_TELEMETRY_REPORTING
-    this.initSubmitHealthReport();
+    //this.initSubmitHealthReport();
 #endif
     this.updateOnScreenKeyboardVisibility();
     this.updateCacheSizeInputField();

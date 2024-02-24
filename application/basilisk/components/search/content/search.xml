@@ -435,7 +435,6 @@
             isSuggestion: (!aOneOff && searchDetails),
             selection: searchDetails
           };
-          BrowserSearch.recordSearchInTelemetry(engine, "searchbar", details);
           // null parameter below specifies HTML response for search
           let params = {
             postData: submission.postData,

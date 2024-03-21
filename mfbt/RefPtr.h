@@ -215,8 +215,7 @@ public:
   RefPtr<T>&
   operator=(RefPtr<T> && aRefPtr)
   {
-    assign_assuming_AddRef(aRefPtr.mRawPtr);
-    aRefPtr.mRawPtr = nullptr;
+    assign_assuming_AddRef(aRefPtr.forget().take());
     return *this;
   }
 

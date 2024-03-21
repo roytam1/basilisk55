@@ -788,6 +788,7 @@
         ]]>
       </handler>
 #endif // XP_MACOSX
+
       <handler event="keydown" keycode="VK_ESCAPE">
         <![CDATA[
           if (this._editingColumn) {
@@ -1531,10 +1532,10 @@
                   popupChild.setAttribute("disabled", "true");
                 columns[currElement.getAttribute("ordinal")] = popupChild;
               });
-              columns.filter(function () { return true; })
-                     .forEach(function (e, i) {
+              columns.filter(function (e, i) {
                         e.setAttribute("colindex", i);
                         aPopup.insertBefore(e, refChild);
+                        return false;
                       });
             }
 

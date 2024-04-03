@@ -1881,20 +1881,21 @@ nsCSSFrameConstructor::CreateGeneratedContentItem(nsFrameConstructorState& aStat
     return;
   }
 
-  mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko();
-  RestyleManager::ReframingStyleContexts* rsc =
-    geckoRM->GetReframingStyleContexts();
-  if (rsc) {
-    nsStyleContext* oldStyleContext = rsc->Get(container, aPseudoElement);
-    if (oldStyleContext) {
-      RestyleManager::TryInitiatingTransition(aState.mPresContext,
-                                              container,
-                                              oldStyleContext,
-                                              &pseudoStyleContext);
-    } else {
-      aState.mPresContext->TransitionManager()->
-        PruneCompletedTransitions(container, aPseudoElement,
-                                  pseudoStyleContext);
+  if (mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko()) {
+    RestyleManager::ReframingStyleContexts* rsc =
+      geckoRM->GetReframingStyleContexts();
+    if (rsc) {
+      nsStyleContext* oldStyleContext = rsc->Get(container, aPseudoElement);
+      if (oldStyleContext) {
+        RestyleManager::TryInitiatingTransition(aState.mPresContext,
+                                                container,
+                                                oldStyleContext,
+                                                &pseudoStyleContext);
+      } else {
+        aState.mPresContext->TransitionManager()->
+          PruneCompletedTransitions(container, aPseudoElement,
+                                    pseudoStyleContext);
+      }
     }
   }
 
@@ -2443,8 +2444,7 @@ nsCSSFrameConstructor::ConstructDocElementFrame(Element*                 aDocEle
   // do so for the construction of a style context for an element.)
   RefPtr<nsStyleContext> styleContext;
   styleContext = mPresShell->StyleSet()->ResolveStyleFor(aDocElement,
-                                                         nullptr,
-                                                         LazyComputeBehavior::Allow);
+                                                         nullptr);
 
   const nsStyleDisplay* display = styleContext->StyleDisplay();
 
@@ -2479,8 +2479,7 @@ nsCSSFrameConstructor::ConstructDocElementFrame(Element*                 aDocEle
       // don't do so for the construction of a style context for an
       // element.)
       styleContext = mPresShell->StyleSet()->ResolveStyleFor(aDocElement,
-                                                             nullptr,
-                                                             LazyComputeBehavior::Allow);
+                                                             nullptr);
       display = styleContext->StyleDisplay();
     }
   }
@@ -5025,12 +5024,10 @@ nsCSSFrameConstructor::ResolveStyleContext(nsStyleContext* aParentStyleContext,
       if (aState) {
         result = styleSet->ResolveStyleFor(aContent->AsElement(),
                                            aParentStyleContext,
-                                           LazyComputeBehavior::Assert,
                                            aState->mTreeMatchContext);
       } else {
         result = styleSet->ResolveStyleFor(aContent->AsElement(),
-                                           aParentStyleContext,
-                                           LazyComputeBehavior::Assert);
+                                           aParentStyleContext);
       }
     } else {
       MOZ_ASSERT(aContent->IsInNativeAnonymousSubtree());
@@ -5059,20 +5056,21 @@ nsCSSFrameConstructor::ResolveStyleContext(nsStyleContext* aParentStyleContext,
     result = styleSet->ResolveStyleForText(aContent, aParentStyleContext);
   }
 
-  mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko();
-  RestyleManager::ReframingStyleContexts* rsc =
-    geckoRM->GetReframingStyleContexts();
-  if (rsc) {
-    nsStyleContext* oldStyleContext =
-      rsc->Get(aContent, CSSPseudoElementType::NotPseudo);
-    nsPresContext* presContext = mPresShell->GetPresContext();
-    if (oldStyleContext) {
-      RestyleManager::TryInitiatingTransition(presContext, aContent,
-                                              oldStyleContext, &result);
-    } else if (aContent->IsElement()) {
-      presContext->TransitionManager()->
-        PruneCompletedTransitions(aContent->AsElement(),
-          CSSPseudoElementType::NotPseudo, result);
+  if (mozilla::RestyleManager* geckoRM = RestyleManager()->GetAsGecko()) {
+    RestyleManager::ReframingStyleContexts* rsc =
+      geckoRM->GetReframingStyleContexts();
+    if (rsc) {
+      nsStyleContext* oldStyleContext =
+        rsc->Get(aContent, CSSPseudoElementType::NotPseudo);
+      nsPresContext* presContext = mPresShell->GetPresContext();
+      if (oldStyleContext) {
+        RestyleManager::TryInitiatingTransition(presContext, aContent,
+                                                oldStyleContext, &result);
+      } else if (aContent->IsElement()) {
+        presContext->TransitionManager()->
+          PruneCompletedTransitions(aContent->AsElement(),
+            CSSPseudoElementType::NotPseudo, result);
+      }
     }
   }
 
@@ -7752,8 +7750,6 @@ nsCSSFrameConstructor::ContentRangeInserted(nsIContent*            aContainer,
     if (!parentFrame &&
         !(aContainer->IsActiveChildrenElement() || ShadowRoot::FromNode(aContainer))) {
       // We're punting on frame construction because there's no container frame.
-      // The Servo-backed style system handles this case like the lazy frame
-      // construction case.
       return;
     }
 
@@ -9152,8 +9148,7 @@ nsCSSFrameConstructor::MaybeRecreateFramesForElement(Element* aElement)
 
   // The parent has a frame, so try resolving a new context.
   RefPtr<nsStyleContext> newContext = mPresShell->StyleSet()->
-    ResolveStyleFor(aElement, oldContext->GetParent(),
-                    LazyComputeBehavior::Assert);
+    ResolveStyleFor(aElement, oldContext->GetParent());
 
   if (oldDisplay == StyleDisplay::None) {
     ChangeUndisplayedContent(aElement, newContext);

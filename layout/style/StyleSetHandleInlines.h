@@ -65,19 +65,17 @@ StyleSetHandle::Ptr::EndUpdate()
 // resolve a style context
 already_AddRefed<nsStyleContext>
 StyleSetHandle::Ptr::ResolveStyleFor(dom::Element* aElement,
-                                     nsStyleContext* aParentContext,
-                                     LazyComputeBehavior aMayCompute)
+                                     nsStyleContext* aParentContext)
 {
-  return AsGecko()->ResolveStyleFor(aElement, aParentContext, aMayCompute);
+  return AsGecko()->ResolveStyleFor(aElement, aParentContext);
 }
 
 already_AddRefed<nsStyleContext>
 StyleSetHandle::Ptr::ResolveStyleFor(dom::Element* aElement,
                                      nsStyleContext* aParentContext,
-                                     LazyComputeBehavior aMayCompute,
                                      TreeMatchContext& aTreeMatchContext)
 {
-  return AsGecko()->ResolveStyleFor(aElement, aParentContext, aMayCompute, aTreeMatchContext);
+  return AsGecko()->ResolveStyleFor(aElement, aParentContext, aTreeMatchContext);
 }
 
 already_AddRefed<nsStyleContext>

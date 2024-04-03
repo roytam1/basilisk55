@@ -9,7 +9,6 @@
 #define mozilla_StyleAnimationValue_h_
 
 #include "mozilla/gfx/MatrixFwd.h"
-#include "mozilla/ServoBindingTypes.h"
 #include "mozilla/UniquePtr.h"
 #include "nsStringFwd.h"
 #include "nsStringBuffer.h"
@@ -574,7 +573,6 @@ struct PropertyStyleAnimationValuePair
 {
   nsCSSPropertyID mProperty;
   StyleAnimationValue mValue;
-  RefPtr<RawServoAnimationValue> mServoValue;
 };
 } // namespace mozilla
 

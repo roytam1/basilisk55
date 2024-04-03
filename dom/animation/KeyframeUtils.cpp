@@ -10,7 +10,6 @@
 #include "mozilla/Move.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/RangedArray.h"
-#include "mozilla/ServoBindingTypes.h"
 #include "mozilla/StyleAnimationValue.h"
 #include "mozilla/TimingParams.h"
 #include "mozilla/dom/BaseKeyframeTypesBinding.h" // For FastBaseKeyframe etc.
@@ -465,7 +464,6 @@ KeyframeUtils::GetKeyframesFromObject(JSContext* aCx,
     return keyframes;
   }
 
-  // FIXME: Bug 1311257: Support missing keyframes for Servo backend.
   if (!AnimationUtils::IsCoreAPIEnabled() &&
        (!nsDocument::AreWebAnimationsImplicitKeyframesEnabled(aCx, nullptr) &&
       HasImplicitKeyframeValues(keyframes, aDocument))) {
@@ -1409,8 +1407,7 @@ GetKeyframeListFromPropertyIndexedKeyframe(JSContext* aCx,
 
     // If we only have one value, we should animate from the underlying value
     // using additive animation--however, we don't support additive animation
-    // for Servo backend (bug 1311257) or when the core animation API pref is
-    // switched off.
+    // when the core animation API pref is switched off.
     if (!AnimationUtils::IsCoreAPIEnabled() &&
         !Preferences::GetBool("dom.animations-api.implicit-keyframes.enabled") &&
         count == 1) {

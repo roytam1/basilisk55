@@ -10,6 +10,7 @@
 
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/RestyleManager.h"
 
 #include "nsError.h"
 #include "nsDOMString.h"
@@ -492,8 +493,7 @@ public:
                                                     aParentContext,
                                                     pseudoElement);
     } else {
-      result = aStyleSet->ResolveStyleFor(aElement, aParentContext,
-                                          LazyComputeBehavior::Allow);
+      result = aStyleSet->ResolveStyleFor(aElement, aParentContext);
     }
     if (aStyleType == nsComputedDOMStyle::StyleType::eDefaultOnly) {
       // We really only want the user and UA rules.  Filter out the other ones.

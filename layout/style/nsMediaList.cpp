@@ -14,6 +14,9 @@
 #include "mozilla/dom/MediaListBinding.h"
 #include "mozilla/StyleSheet.h"
 #include "nsCSSParser.h"
+#include "nsCSSRules.h"
+
+using namespace mozilla::dom;
 
 template <class Numeric>
 int32_t DoCompare(Numeric a, Numeric b)

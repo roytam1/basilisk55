@@ -15,7 +15,6 @@
 
 namespace mozilla {
 class RestyleManager;
-class ServoRestyleManager;
 class RestyleManagerBase;
 namespace dom {
 class Element;
@@ -29,11 +28,8 @@ class nsStyleChangeList;
 
 namespace mozilla {
 
-#define SERVO_BIT 0x1
-
 /**
- * Smart pointer class that can hold a pointer to either a RestyleManager
- * or a ServoRestyleManager.
+ * Smart pointer class that can hold a pointer to a RestyleManager.
  */
 class RestyleManagerHandle
 {
@@ -63,21 +59,13 @@ public:
 
     const RestyleManager* GetAsGecko() const { return AsGecko(); }
 
-    const mozilla::RestyleManagerBase* AsBase() const {
-      return reinterpret_cast<const RestyleManagerBase*>(mValue & ~SERVO_BIT);
-    }
-
-    mozilla::RestyleManagerBase* AsBase() {
-      return reinterpret_cast<RestyleManagerBase*>(mValue & ~SERVO_BIT);
-    }
-
     // These inline methods are defined in RestyleManagerHandleInlines.h.
     inline MozExternalRefCountType AddRef();
     inline MozExternalRefCountType Release();
 
     // Restyle manager interface.  These inline methods are defined in
     // RestyleManagerHandleInlines.h and just forward to the underlying
-    // RestyleManager or ServoRestyleManager.  See corresponding comments in
+    // RestyleManager.  See corresponding comments in
     // RestyleManager.h for descriptions of these methods.
 
     inline void Disconnect();
@@ -123,10 +111,7 @@ public:
     inline void NotifyDestroyingFrame(nsIFrame* aFrame);
 
   private:
-    // Stores a pointer to an RestyleManager or a ServoRestyleManager.  The least
-    // significant bit is 0 for the former, 1 for the latter.  This is
-    // valid as the least significant bit will never be used for a pointer
-    // value on platforms we care about.
+    // Stores a pointer to an RestyleManager.
     uintptr_t mValue;
   };
 
@@ -142,10 +127,6 @@ public:
   {
     *this = aManager;
   }
-  MOZ_IMPLICIT RestyleManagerHandle(ServoRestyleManager* aManager)
-  {
-    *this = aManager;
-  }
 
   RestyleManagerHandle& operator=(decltype(nullptr))
   {
@@ -155,16 +136,8 @@ public:
 
   RestyleManagerHandle& operator=(RestyleManager* aManager)
   {
-    MOZ_ASSERT(!(reinterpret_cast<uintptr_t>(aManager) & SERVO_BIT),
-               "least significant bit shouldn't be set; we use it for state");
     mPtr.mValue = reinterpret_cast<uintptr_t>(aManager);
     return *this;
-  }
-
-  RestyleManagerHandle& operator=(ServoRestyleManager* aManager)
-  {
-    MOZ_CRASH("should not have a ServoRestyleManager object when MOZ_STYLO is "
-              "disabled");
   }
 
   // Make RestyleManagerHandle usable in boolean contexts.
@@ -178,8 +151,6 @@ public:
 private:
   Ptr mPtr;
 };
-
-#undef SERVO_BIT
 
 } // namespace mozilla
 

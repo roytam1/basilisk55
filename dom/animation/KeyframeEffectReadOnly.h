@@ -20,8 +20,6 @@
 #include "mozilla/ComputedTimingFunction.h"
 #include "mozilla/EffectCompositor.h"
 #include "mozilla/KeyframeEffectParams.h"
-// RawServoDeclarationBlock and associated RefPtrTraits
-#include "mozilla/ServoBindingTypes.h"
 #include "mozilla/StyleAnimationValue.h"
 #include "mozilla/dom/AnimationEffectReadOnly.h"
 #include "mozilla/dom/BindingDeclarations.h"
@@ -63,11 +61,6 @@ struct PropertyValuePair
   // property values, we store the specified property value as a token stream
   // (string).
   nsCSSValue mValue;
-
-  // The specified value when using the Servo backend. However, even when
-  // using the Servo backend, we still fill in |mValue| in the case where we
-  // fail to parse the value since we use it to store the original string.
-  RefPtr<RawServoDeclarationBlock> mServoDeclarationBlock;
 
   bool operator==(const PropertyValuePair&) const;
 };
@@ -123,8 +116,6 @@ struct AnimationPropertySegment
   // NOTE: In the case that no keyframe for 0 or 1 offset is specified
   // the unit of mFromValue or mToValue is eUnit_Null.
   StyleAnimationValue mFromValue, mToValue;
-  // FIXME add a deep == impl for RawServoAnimationValue
-  RefPtr<RawServoAnimationValue> mServoFromValue, mServoToValue;
 
   Maybe<ComputedTimingFunction> mTimingFunction;
   dom::CompositeOperation mFromComposite = dom::CompositeOperation::Replace;

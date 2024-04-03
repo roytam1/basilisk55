@@ -31,10 +31,7 @@ namespace mozilla {
 bool
 PropertyValuePair::operator==(const PropertyValuePair& aOther) const
 {
-  if (mProperty != aOther.mProperty || mValue != aOther.mValue) {
-    return false;
-  }
-  return true;
+  return mProperty == aOther.mProperty && mValue == aOther.mValue;
 }
 
 namespace dom {

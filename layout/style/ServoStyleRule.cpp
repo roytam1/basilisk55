@@ -49,45 +49,30 @@ NS_IMPL_RELEASE_USING_AGGREGATOR(ServoStyleRuleDeclaration, Rule())
 NS_IMETHODIMP
 ServoStyleRuleDeclaration::GetParentRule(nsIDOMCSSRule** aParent)
 {
-  *aParent = do_AddRef(Rule()).take();
   return NS_OK;
 }
 
 nsINode*
 ServoStyleRuleDeclaration::GetParentObject()
 {
-  return Rule()->GetDocument();
+  return nullptr;
 }
 
 DocGroup*
 ServoStyleRuleDeclaration::GetDocGroup() const
 {
-  nsIDocument* document = Rule()->GetDocument();
-  return document ? document->GetDocGroup() : nullptr;
+  return nullptr;
 }
 
 DeclarationBlock*
 ServoStyleRuleDeclaration::GetCSSDeclaration(Operation aOperation)
 {
-  return mDecls;
+  return nullptr;
 }
 
 nsresult
 ServoStyleRuleDeclaration::SetCSSDeclaration(DeclarationBlock* aDecl)
 {
-  ServoStyleRule* rule = Rule();
-  if (RefPtr<ServoStyleSheet> sheet = rule->GetStyleSheet()->AsServo()) {
-    nsCOMPtr<nsIDocument> doc = sheet->GetAssociatedDocument();
-    mozAutoDocUpdate updateBatch(doc, UPDATE_STYLE, true);
-    if (aDecl != mDecls) {
-      RefPtr<ServoDeclarationBlock> decls = aDecl->AsServo();
-      Servo_StyleRule_SetStyle(rule->Raw(), decls->Raw());
-      mDecls = decls.forget();
-    }
-    if (doc) {
-      doc->StyleRuleChanged(sheet, rule);
-    }
-  }
   return NS_OK;
 }
 
@@ -101,7 +86,6 @@ void
 ServoStyleRuleDeclaration::GetCSSParsingEnvironment(
   CSSParsingEnvironment& aCSSParseEnv)
 {
-  GetCSSParsingEnvironmentForRule(Rule(), aCSSParseEnv);
 }
 
 // -- ServoStyleRule --------------------------------------------------
@@ -124,64 +108,36 @@ NS_IMPL_RELEASE_INHERITED(ServoStyleRule, css::Rule)
 NS_IMPL_CYCLE_COLLECTION_CLASS(ServoStyleRule)
 
 NS_IMPL_CYCLE_COLLECTION_TRACE_BEGIN_INHERITED(ServoStyleRule, css::Rule)
-  // Keep this in sync with IsCCLeaf.
-
-  // Trace the wrapper for our declaration.  This just expands out
-  // NS_IMPL_CYCLE_COLLECTION_TRACE_PRESERVED_WRAPPER which we can't use
-  // directly because the wrapper is on the declaration, not on us.
-  tmp->mDecls.TraceWrapper(aCallbacks, aClosure);
 NS_IMPL_CYCLE_COLLECTION_TRACE_END
 
 NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(ServoStyleRule, css::Rule)
-  // Keep this in sync with IsCCLeaf.
-
-  // Unlink the wrapper for our declaraton.  This just expands out
-  // NS_IMPL_CYCLE_COLLECTION_UNLINK_PRESERVED_WRAPPER which we can't use
-  // directly because the wrapper is on the declaration, not on us.
-  tmp->mDecls.ReleaseWrapper(static_cast<nsISupports*>(p));
 NS_IMPL_CYCLE_COLLECTION_UNLINK_END
 
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN_INHERITED(ServoStyleRule, css::Rule)
-  // Keep this in sync with IsCCLeaf.
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
 
 bool
 ServoStyleRule::IsCCLeaf() const
 {
-  if (!Rule::IsCCLeaf()) {
-    return false;
-  }
-
-  return !mDecls.PreservingWrapper();
+  return false;
 }
 
 already_AddRefed<css::Rule>
 ServoStyleRule::Clone() const
 {
-  // Rule::Clone is only used when CSSStyleSheetInner is cloned in
-  // preparation of being mutated. However, ServoStyleSheet never clones
-  // anything, so this method should never be called.
-  MOZ_ASSERT_UNREACHABLE("Shouldn't be cloning ServoStyleRule");
   return nullptr;
 }
 
 size_t
 ServoStyleRule::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
 {
-  // TODO Implement this!
-  return aMallocSizeOf(this);
+  return 0;
 }
 
 #ifdef DEBUG
 void
 ServoStyleRule::List(FILE* out, int32_t aIndent) const
 {
-  nsAutoCString str;
-  for (int32_t i = 0; i < aIndent; i++) {
-    str.AppendLiteral("  ");
-  }
-  Servo_StyleRule_Debug(mRawRule, &str);
-  fprintf_stderr(out, "%s\n", str.get());
 }
 #endif
 
@@ -190,19 +146,18 @@ ServoStyleRule::List(FILE* out, int32_t aIndent) const
 uint16_t
 ServoStyleRule::Type() const
 {
-  return nsIDOMCSSRule::STYLE_RULE;
+  return 0;
 }
 
 void
 ServoStyleRule::GetCssTextImpl(nsAString& aCssText) const
 {
-  Servo_StyleRule_GetCssText(mRawRule, &aCssText);
 }
 
 nsICSSDeclaration*
 ServoStyleRule::Style()
 {
-  return &mDecls;
+  return nullptr;
 }
 
 /* CSSStyleRule implementation */
@@ -210,23 +165,18 @@ ServoStyleRule::Style()
 NS_IMETHODIMP
 ServoStyleRule::GetSelectorText(nsAString& aSelectorText)
 {
-  Servo_StyleRule_GetSelectorText(mRawRule, &aSelectorText);
   return NS_OK;
 }
 
 NS_IMETHODIMP
 ServoStyleRule::SetSelectorText(const nsAString& aSelectorText)
 {
-  // XXX We need to implement this... But Gecko doesn't have this either
-  //     so it's probably okay to leave it unimplemented currently?
-  //     See bug 37468 and mozilla::css::StyleRule::SetSelectorText.
   return NS_OK;
 }
 
 NS_IMETHODIMP
 ServoStyleRule::GetStyle(nsIDOMCSSStyleDeclaration** aStyle)
 {
-  *aStyle = do_AddRef(&mDecls).take();
   return NS_OK;
 }
 

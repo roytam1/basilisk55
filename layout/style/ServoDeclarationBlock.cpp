@@ -14,48 +14,35 @@ namespace mozilla {
 /* static */ already_AddRefed<ServoDeclarationBlock>
 ServoDeclarationBlock::FromCssText(const nsAString& aCssText)
 {
-  NS_ConvertUTF16toUTF8 value(aCssText);
-  RefPtr<RawServoDeclarationBlock>
-    raw = Servo_ParseStyleAttribute(&value).Consume();
-  RefPtr<ServoDeclarationBlock> decl = new ServoDeclarationBlock(raw.forget());
-  return decl.forget();
+  return nullptr;
 }
 
 void
 ServoDeclarationBlock::GetPropertyValue(const nsAString& aProperty,
                                         nsAString& aValue) const
 {
-  NS_ConvertUTF16toUTF8 property(aProperty);
-  Servo_DeclarationBlock_GetPropertyValue(mRaw, &property, &aValue);
 }
 
 void
 ServoDeclarationBlock::GetPropertyValueByID(nsCSSPropertyID aPropID,
                                             nsAString& aValue) const
 {
-  Servo_DeclarationBlock_GetPropertyValueById(mRaw, aPropID, &aValue);
 }
 
 bool
 ServoDeclarationBlock::GetPropertyIsImportant(const nsAString& aProperty) const
 {
-  NS_ConvertUTF16toUTF8 property(aProperty);
-  return Servo_DeclarationBlock_GetPropertyIsImportant(mRaw, &property);
+  return false;
 }
 
 void
 ServoDeclarationBlock::RemoveProperty(const nsAString& aProperty)
 {
-  AssertMutable();
-  NS_ConvertUTF16toUTF8 property(aProperty);
-  Servo_DeclarationBlock_RemoveProperty(mRaw, &property);
 }
 
 void
 ServoDeclarationBlock::RemovePropertyByID(nsCSSPropertyID aPropID)
 {
-  AssertMutable();
-  Servo_DeclarationBlock_RemovePropertyById(mRaw, aPropID);
 }
 
 } // namespace mozilla

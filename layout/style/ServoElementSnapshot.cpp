@@ -15,36 +15,15 @@ ServoElementSnapshot::ServoElementSnapshot(const Element* aElement)
   : mContains(Flags(0))
   , mState(0)
 {
-  MOZ_COUNT_CTOR(ServoElementSnapshot);
-  mIsHTMLElementInHTMLDocument =
-    aElement->IsHTMLElement() && aElement->IsInHTMLDocument();
-  mIsInChromeDocument =
-    nsContentUtils::IsChromeDoc(aElement->OwnerDoc());
 }
 
 ServoElementSnapshot::~ServoElementSnapshot()
 {
-  MOZ_COUNT_DTOR(ServoElementSnapshot);
 }
 
 void
 ServoElementSnapshot::AddAttrs(Element* aElement)
 {
-  MOZ_ASSERT(aElement);
-
-  if (HasAny(Flags::Attributes)) {
-    return;
-  }
-
-  uint32_t attrCount = aElement->GetAttrCount();
-  const nsAttrName* attrName;
-  for (uint32_t i = 0; i < attrCount; ++i) {
-    attrName = aElement->GetAttrNameAt(i);
-    const nsAttrValue* attrValue =
-      aElement->GetParsedAttr(attrName->LocalName(), attrName->NamespaceID());
-    mAttrs.AppendElement(ServoAttrSnapshot(*attrName, *attrValue));
-  }
-  mContains |= Flags::Attributes;
 }
 
 } // namespace mozilla

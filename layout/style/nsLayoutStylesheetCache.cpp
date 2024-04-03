@@ -233,8 +233,7 @@ nsLayoutStylesheetCache::DesignModeSheet()
 void
 nsLayoutStylesheetCache::Shutdown()
 {
-  gCSSLoader_Gecko = nullptr;
-  gCSSLoader_Servo = nullptr;
+  gCSSLoader = nullptr;
   gStyleCache_Gecko = nullptr;
   gStyleCache_Servo = nullptr;
   MOZ_ASSERT(!gUserContentSheetURL, "Got the URL but never used?");
@@ -291,14 +290,12 @@ nsLayoutStylesheetCache::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf
 
   // Measurement of the following members may be added later if DMD finds it is
   // worthwhile:
-  // - gCSSLoader_Gecko
-  // - gCSSLoader_Servo
+  // - gCSSLoader
 
   return n;
 }
 
-nsLayoutStylesheetCache::nsLayoutStylesheetCache(StyleBackendType aType)
-  : mBackendType(aType)
+nsLayoutStylesheetCache::nsLayoutStylesheetCache()
 {
   nsCOMPtr<nsIObserverService> obsSvc =
     mozilla::services::GetObserverService();
@@ -351,16 +348,15 @@ nsLayoutStylesheetCache::InitMemoryReporter()
 }
 
 /* static */ nsLayoutStylesheetCache*
-nsLayoutStylesheetCache::For(StyleBackendType aType)
+nsLayoutStylesheetCache::Get()
 {
   MOZ_ASSERT(NS_IsMainThread());
 
   bool mustInit = !gStyleCache_Gecko && !gStyleCache_Servo;
-  auto& cache = aType == StyleBackendType::Gecko ? gStyleCache_Gecko :
-                                                   gStyleCache_Servo;
+  auto& cache = gStyleCache_Gecko;
 
   if (!cache) {
-    cache = new nsLayoutStylesheetCache(aType);
+    cache = new nsLayoutStylesheetCache();
     cache->InitMemoryReporter();
   }
 
@@ -471,19 +467,15 @@ nsLayoutStylesheetCache::LoadSheet(nsIURI* aURI,
     return;
   }
 
-  auto& loader = mBackendType == StyleBackendType::Gecko ?
-    gCSSLoader_Gecko :
-    gCSSLoader_Servo;
-
-  if (!loader) {
-    loader = new mozilla::css::Loader(mBackendType);
-    if (!loader) {
+  if (!gCSSLoader) {
+    gCSSLoader = new mozilla::css::Loader();
+    if (!gCSSLoader) {
       ErrorLoadingSheet(aURI, "no Loader", eCrash);
       return;
     }
   }
 
-  nsresult rv = loader->LoadSheetSync(aURI, aParsingMode, true, aSheet);
+  nsresult rv = gCSSLoader->LoadSheetSync(aURI, aParsingMode, true, aSheet);
   if (NS_FAILED(rv)) {
     ErrorLoadingSheet(aURI,
       nsPrintfCString("LoadSheetSync failed with error %x", rv).get(),
@@ -495,8 +487,7 @@ nsLayoutStylesheetCache::LoadSheet(nsIURI* aURI,
 nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGeckoSheet,
                                          RefPtr<StyleSheet>* aServoSheet)
 {
-  MOZ_ASSERT(gCSSLoader_Gecko || gCSSLoader_Servo,
-             "pref changed before we loaded a sheet?");
+  MOZ_ASSERT(gCSSLoader, "pref changed before we loaded a sheet?");
 
   const bool gotGeckoSheet = aGeckoSheet && *aGeckoSheet;
   const bool gotServoSheet = aServoSheet && *aServoSheet;
@@ -515,11 +506,8 @@ nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGeckoSheet,
     return;
   }
 
-  if (gCSSLoader_Gecko) {
-    gCSSLoader_Gecko->ObsoleteSheet(uri);
-  }
-  if (gCSSLoader_Servo) {
-    gCSSLoader_Servo->ObsoleteSheet(uri);
+  if (gCSSLoader) {
+    gCSSLoader->ObsoleteSheet(uri);
   }
   if (gotGeckoSheet) {
     *aGeckoSheet = nullptr;
@@ -536,7 +524,7 @@ nsLayoutStylesheetCache::DependentPrefChanged(const char* aPref, void* aData)
              "pref changed after shutdown?");
 
   // Cause any UA style sheets whose parsing depends on the value of prefs
-  // to be re-parsed by dropping the sheet from gCSSLoader_{Gecko,Servo}'s cache
+  // to be re-parsed by dropping the sheet from gCSSLoader's cache
   // then setting our cached sheet pointer to null.  This will only work for
   // sheets that are loaded lazily.
 
@@ -674,10 +662,7 @@ mozilla::StaticRefPtr<nsLayoutStylesheetCache>
 nsLayoutStylesheetCache::gStyleCache_Servo;
 
 mozilla::StaticRefPtr<mozilla::css::Loader>
-nsLayoutStylesheetCache::gCSSLoader_Gecko;
-
-mozilla::StaticRefPtr<mozilla::css::Loader>
-nsLayoutStylesheetCache::gCSSLoader_Servo;
+nsLayoutStylesheetCache::gCSSLoader;
 
 mozilla::StaticRefPtr<nsIURI>
 nsLayoutStylesheetCache::gUserContentSheetURL;

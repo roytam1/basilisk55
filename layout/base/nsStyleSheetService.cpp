@@ -228,9 +228,7 @@ nsStyleSheetService::LoadAndRegisterSheetInternal(nsIURI *aSheetURI,
       return NS_ERROR_INVALID_ARG;
   }
 
-  // XXXheycam We'll need to load and register both a Gecko- and Servo-backed
-  // style sheet.
-  RefPtr<css::Loader> loader = new css::Loader(StyleBackendType::Gecko);
+  RefPtr<css::Loader> loader = new css::Loader();
 
   RefPtr<StyleSheet> sheet;
   nsresult rv = loader->LoadSheetSync(aSheetURI, parsingMode, true, &sheet);

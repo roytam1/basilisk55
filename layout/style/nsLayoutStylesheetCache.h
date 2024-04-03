@@ -12,7 +12,6 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/StaticPtr.h"
-#include "mozilla/StyleBackendType.h"
 #include "mozilla/css/Loader.h"
 
 class nsIFile;
@@ -50,7 +49,7 @@ class nsLayoutStylesheetCache final
    * and a particular UA style sheet might be cached in both, one or neither
    * nsLayoutStylesheetCache.)
    */
-  static nsLayoutStylesheetCache* For(mozilla::StyleBackendType aType);
+  static nsLayoutStylesheetCache* Get();
 
   mozilla::StyleSheet* ScrollbarsSheet();
   mozilla::StyleSheet* FormsSheet();
@@ -83,7 +82,7 @@ class nsLayoutStylesheetCache final
   size_t SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) const;
 
 private:
-  explicit nsLayoutStylesheetCache(mozilla::StyleBackendType aImpl);
+  explicit nsLayoutStylesheetCache();
   ~nsLayoutStylesheetCache();
 
   void InitFromProfile();
@@ -107,10 +106,8 @@ private:
 
   static mozilla::StaticRefPtr<nsLayoutStylesheetCache> gStyleCache_Gecko;
   static mozilla::StaticRefPtr<nsLayoutStylesheetCache> gStyleCache_Servo;
-  static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader_Gecko;
-  static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader_Servo;
+  static mozilla::StaticRefPtr<mozilla::css::Loader> gCSSLoader;
   static mozilla::StaticRefPtr<nsIURI> gUserContentSheetURL;
-  mozilla::StyleBackendType mBackendType;
   RefPtr<mozilla::StyleSheet> mChromePreferenceSheet;
   RefPtr<mozilla::StyleSheet> mContentEditableSheet;
   RefPtr<mozilla::StyleSheet> mContentPreferenceSheet;

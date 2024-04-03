@@ -27,7 +27,7 @@ public:
 
   // *aResult is not addrefed, since the PreloadedStyleSheet holds a strong
   // reference to the sheet.
-  nsresult GetSheet(StyleBackendType aType, StyleSheet** aResult);
+  nsresult GetSheet(StyleSheet** aResult);
 
 protected:
   virtual ~PreloadedStyleSheet() {}
@@ -35,8 +35,7 @@ protected:
 private:
   PreloadedStyleSheet(nsIURI* aURI, css::SheetParsingMode aParsingMode);
 
-  RefPtr<StyleSheet> mGecko;
-  RefPtr<StyleSheet> mServo;
+  RefPtr<StyleSheet> mStyleSheet;
 
   nsCOMPtr<nsIURI> mURI;
   css::SheetParsingMode mParsingMode;

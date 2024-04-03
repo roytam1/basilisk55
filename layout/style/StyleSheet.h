@@ -10,7 +10,6 @@
 #include "mozilla/css/SheetParsingMode.h"
 #include "mozilla/dom/CSSStyleSheetBinding.h"
 #include "mozilla/net/ReferrerPolicy.h"
-#include "mozilla/StyleBackendType.h"
 #include "mozilla/CORSMode.h"
 #include "mozilla/ServoUtils.h"
 
@@ -44,7 +43,7 @@ class StyleSheet : public nsIDOMCSSStyleSheet
                  , public nsWrapperCache
 {
 protected:
-  StyleSheet(StyleBackendType aType, css::SheetParsingMode aParsingMode);
+  StyleSheet(css::SheetParsingMode aParsingMode);
   StyleSheet(const StyleSheet& aCopy,
              nsIDocument* aDocumentToUse,
              nsINode* aOwningNodeToUse);
@@ -245,7 +244,6 @@ protected:
   // and/or useful in user sheets.
   css::SheetParsingMode mParsingMode;
 
-  const StyleBackendType mType;
   bool                  mDisabled;
 
   // mDocumentAssociationMode determines whether mDocument directly owns us (in

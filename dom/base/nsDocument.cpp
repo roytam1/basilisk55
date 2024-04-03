@@ -2171,8 +2171,7 @@ nsDocument::ResetStylesheetsToURI(nsIURI* aURI)
   mozAutoDocUpdate upd(this, UPDATE_STYLE, true);
   if (mStyleSetFilled) {
     // Skip removing style sheets from the style set if we know we haven't
-    // filled the style set.  (This allows us to avoid calling
-    // GetStyleBackendType() too early.)
+    // filled the style set.
     RemoveDocStyleSheetsFromStyleSets();
     RemoveStyleSheetsFromStyleSets(mOnDemandBuiltInUASheets, SheetType::Agent);
     RemoveStyleSheetsFromStyleSets(mAdditionalSheets[eAgentSheet], SheetType::Agent);
@@ -12566,16 +12565,6 @@ nsIDocument::ReportHasScrollLinkedEffect()
                                   NS_LITERAL_CSTRING("Async Pan/Zoom"),
                                   this, nsContentUtils::eLAYOUT_PROPERTIES,
                                   "ScrollLinkedEffectFound2");
-}
-
-void
-nsIDocument::UpdateStyleBackendType()
-{
-  MOZ_ASSERT(mStyleBackendType == StyleBackendType(0),
-             "no need to call UpdateStyleBackendType now");
-
-  // Assume Gecko by default.
-  mStyleBackendType = StyleBackendType::Gecko;
 }
 
 /**

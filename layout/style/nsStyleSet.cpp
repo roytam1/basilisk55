@@ -754,8 +754,6 @@ nsStyleSet::AppendAllXBLStyleSheets(nsTArray<mozilla::CSSStyleSheet*>& aArray) c
     AutoTArray<StyleSheet*, 32> sheets;
     mBindingManager->AppendAllSheets(sheets);
     for (StyleSheet* handle : sheets) {
-      MOZ_ASSERT(handle->IsGecko(), "stylo: AppendAllSheets shouldn't give us "
-                                    "ServoStyleSheets yet");
       aArray.AppendElement(handle->AsGecko());
     }
   }
@@ -1772,9 +1770,6 @@ nsStyleSet::ResolveStyleByRemovingAnimation(dom::Element* aTarget,
              pseudoType == CSSPseudoElementType::before ||
              pseudoType == CSSPseudoElementType::after,
              "unexpected type for animations");
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
-             "stylo: the style set and restyle manager must have the same "
-             "StyleBackendType");
   RestyleManager* restyleManager = PresContext()->RestyleManager()->AsGecko();
 
   bool oldSkipAnimationRules = restyleManager->SkipAnimationRules();
@@ -2314,9 +2309,6 @@ nsStyleSet::ReparentStyleContext(nsStyleContext* aStyleContext,
   CSSPseudoElementType pseudoType = aStyleContext->GetPseudoType();
   nsRuleNode* ruleNode = aStyleContext->RuleNode();
 
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
-             "stylo: the style set and restyle manager must have the same "
-             "StyleBackendType");
   NS_ASSERTION(!PresContext()->RestyleManager()->AsGecko()->SkipAnimationRules(),
                "we no longer handle SkipAnimationRules()");
 
@@ -2552,8 +2544,6 @@ nsStyleSet::EnsureUniqueInnerOnCSSSheets()
     // CSSStyleSheets).
     mBindingManager->AppendAllSheets(sheets);
     for (StyleSheet* sheet : sheets) {
-      MOZ_ASSERT(sheet->IsGecko(), "stylo: AppendAllSheets shouldn't give us "
-                                   "ServoStyleSheets yet");
       queue.AppendElement(sheet->AsGecko());
     }
   }
@@ -2602,8 +2592,5 @@ nsStyleSet::ClearSelectors()
   if (!mRuleTree) {
     return;
   }
-  MOZ_ASSERT(PresContext()->RestyleManager()->IsGecko(),
-             "stylo: the style set and restyle manager must have the same "
-             "StyleBackendType");
   PresContext()->RestyleManager()->AsGecko()->ClearSelectors();
 }

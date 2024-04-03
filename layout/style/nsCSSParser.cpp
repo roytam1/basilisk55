@@ -3890,7 +3890,6 @@ CSSParserImpl::ProcessImport(const nsString& aURLSpec,
 
   if (mChildLoader) {
     mChildLoader->LoadChildSheet(mSheet, url, aMedia, rule,
-                                 /* aServoParentRule = */ nullptr,
                                  mReusableSheets);
   }
 }

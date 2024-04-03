@@ -2034,11 +2034,7 @@ CounterStyleManager::BuildCounterStyle(const nsSubstring& aName)
   StyleSetHandle styleSet = mPresContext->StyleSet();
   // When this assertion is removed, please remove the hack to avoid it in
   // nsStyleList::nsStyleList.
-  NS_ASSERTION(styleSet->IsGecko(),
-               "stylo: ServoStyleSets do not support custom counter "
-               "styles yet");
-  nsCSSCounterStyleRule* rule = styleSet->IsGecko() ?
-    styleSet->AsGecko()->CounterStyleRuleForName(aName) : nullptr;
+  nsCSSCounterStyleRule* rule = styleSet->AsGecko()->CounterStyleRuleForName(aName);
   if (rule) {
     data = new (mPresContext) CustomCounterStyle(aName, this, rule);
   } else {
@@ -2083,11 +2079,7 @@ CounterStyleManager::NotifyRuleChanged()
     StyleSetHandle styleSet = mPresContext->StyleSet();
     // When this assertion is removed, please remove the hack to avoid it in
     // nsStyleList::nsStyleList.
-    NS_ASSERTION(styleSet->IsGecko(),
-                 "stylo: ServoStyleSets do not support custom counter "
-                 "styles yet");
-    nsCSSCounterStyleRule* newRule = styleSet->IsGecko() ?
-        styleSet->AsGecko()->CounterStyleRuleForName(iter.Key()) : nullptr;
+    nsCSSCounterStyleRule* newRule = styleSet->AsGecko()->CounterStyleRuleForName(iter.Key());
     if (!newRule) {
       if (style->IsCustomStyle()) {
         toBeRemoved = true;

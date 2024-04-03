@@ -396,7 +396,6 @@ void
 nsStyleBorder::FinishStyle(nsPresContext* aPresContext)
 {
   MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aPresContext->StyleSet()->IsServo());
 
   mBorderImageSource.ResolveImage(aPresContext);
 }
@@ -602,14 +601,8 @@ nsStyleList::nsStyleList(const nsPresContext* aContext)
   : mListStylePosition(NS_STYLE_LIST_STYLE_POSITION_OUTSIDE)
 {
   MOZ_COUNT_CTOR(nsStyleList);
-  if (aContext->StyleSet()->IsServo()) {
-    // FIXME: bug 1328319.
-    mCounterStyle =
-      CounterStyleManager::GetBuiltinStyle(NS_STYLE_LIST_STYLE_DISC);
-  } else {
-    mCounterStyle = aContext->CounterStyleManager()->
-      BuildCounterStyle(NS_LITERAL_STRING("disc"));
-  }
+  mCounterStyle = aContext->CounterStyleManager()->
+    BuildCounterStyle(NS_LITERAL_STRING("disc"));
   SetQuotesInitial();
 }
 
@@ -632,7 +625,6 @@ void
 nsStyleList::FinishStyle(nsPresContext* aPresContext)
 {
   MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aPresContext->StyleSet()->IsServo());
 
   if (mListStyleImage && !mListStyleImage->IsResolved()) {
     mListStyleImage->Resolve(aPresContext);
@@ -1164,7 +1156,6 @@ void
 nsStyleSVGReset::FinishStyle(nsPresContext* aPresContext)
 {
   MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aPresContext->StyleSet()->IsServo());
 
   mMask.ResolveImages(aPresContext);
 }
@@ -2976,7 +2967,6 @@ void
 nsStyleBackground::FinishStyle(nsPresContext* aPresContext)
 {
   MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aPresContext->StyleSet()->IsServo());
 
   mImage.ResolveImages(aPresContext);
 }
@@ -4039,7 +4029,6 @@ void
 nsStyleUserInterface::FinishStyle(nsPresContext* aPresContext)
 {
   MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aPresContext->StyleSet()->IsServo());
 
   for (nsCursorImage& cursor : mCursorImages) {
     if (cursor.mImage && !cursor.mImage->IsResolved()) {

@@ -22,7 +22,6 @@
 class nsIFrame;
 class nsStyleContext;
 class gfx3DMatrix;
-struct RawServoDeclarationBlock;
 
 namespace mozilla {
 
@@ -240,17 +239,6 @@ public:
                 const nsCSSValue& aSpecifiedValue,
                 bool aUseSVGMode,
                 nsTArray<PropertyStyleAnimationValuePair>& aResult);
-
-  /**
-   * A variant of ComputeValues that takes a RawServoDeclarationBlock
-   * as the specified value.
-   */
-  static MOZ_MUST_USE bool
-  ComputeValues(nsCSSPropertyID aProperty,
-                mozilla::CSSEnabledState aEnabledState,
-                nsStyleContext* aStyleContext,
-                const RawServoDeclarationBlock& aDeclarations,
-                nsTArray<PropertyStyleAnimationValuePair>& aValues);
 
   /**
    * Creates a specified value for the given computed value.

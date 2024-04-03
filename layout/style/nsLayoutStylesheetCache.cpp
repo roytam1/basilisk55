@@ -501,9 +501,6 @@ nsLayoutStylesheetCache::InvalidateSheet(RefPtr<StyleSheet>* aGeckoSheet,
   const bool gotGeckoSheet = aGeckoSheet && *aGeckoSheet;
   const bool gotServoSheet = aServoSheet && *aServoSheet;
 
-  // Make sure sheets have the expected types
-  MOZ_ASSERT(!gotGeckoSheet || (*aGeckoSheet)->IsGecko());
-  MOZ_ASSERT(!gotServoSheet || (*aServoSheet)->IsServo());
   // Make sure the URIs match
   MOZ_ASSERT(!gotServoSheet || !gotGeckoSheet ||
              (*aGeckoSheet)->GetSheetURI() == (*aServoSheet)->GetSheetURI(),
@@ -569,13 +566,8 @@ void
 nsLayoutStylesheetCache::BuildPreferenceSheet(RefPtr<StyleSheet>* aSheet,
                                               nsPresContext* aPresContext)
 {
-  if (mBackendType == StyleBackendType::Gecko) {
-    *aSheet = new CSSStyleSheet(eAgentSheetFeatures, CORS_NONE,
-                                mozilla::net::RP_Unset);
-  } else {
-    *aSheet = new ServoStyleSheet(eAgentSheetFeatures, CORS_NONE,
-                                  mozilla::net::RP_Unset, dom::SRIMetadata());
-  }
+  *aSheet = new CSSStyleSheet(eAgentSheetFeatures, CORS_NONE,
+                              mozilla::net::RP_Unset);
 
   StyleSheet* sheet = *aSheet;
 
@@ -670,17 +662,7 @@ nsLayoutStylesheetCache::BuildPreferenceSheet(RefPtr<StyleSheet>* aSheet,
                "kPreallocSize should be big enough to build preference style "
                "sheet without reallocation");
 
-  if (sheet->IsGecko()) {
-    sheet->AsGecko()->ReparseSheet(sheetText);
-  } else {
-    ServoStyleSheet* servoSheet = sheet->AsServo();
-    // NB: The pref sheet never has @import rules.
-    nsresult rv =
-      servoSheet->ParseSheet(nullptr, sheetText, uri, uri, nullptr, 0);
-    // Parsing the about:PreferenceStyleSheet URI can only fail on OOM. If we
-    // are OOM before we parsed any documents we might as well abort.
-    MOZ_RELEASE_ASSERT(NS_SUCCEEDED(rv));
-  }
+  sheet->AsGecko()->ReparseSheet(sheetText);
 
 #undef NS_GET_R_G_B
 }

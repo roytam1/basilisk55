@@ -465,14 +465,10 @@ public:
 
     // Set SkipAnimationRules flag if we are going to resolve style without
     // animation.
-    if (aPresContext->RestyleManager()->IsGecko()) {
-      mRestyleManager = aPresContext->RestyleManager()->AsGecko();
+    mRestyleManager = aPresContext->RestyleManager()->AsGecko();
 
-      mOldSkipAnimationRules = mRestyleManager->SkipAnimationRules();
-      mRestyleManager->SetSkipAnimationRules(true);
-    } else {
-      NS_WARNING("stylo: can't skip animaition rules yet");
-    }
+    mOldSkipAnimationRules = mRestyleManager->SkipAnimationRules();
+    mRestyleManager->SetSkipAnimationRules(true);
   }
 
   already_AddRefed<nsStyleContext>
@@ -533,8 +529,6 @@ public:
                           nsStyleContext* aParentContext,
                           bool aInDocWithShell)
   {
-    MOZ_ASSERT(!aStyleSet->IsServo(),
-      "Bug 1311257: Servo backend does not support the base value yet");
     MOZ_ASSERT(mAnimationFlag == nsComputedDOMStyle::eWithoutAnimation,
       "AnimationFlag should be eWithoutAnimation");
 
@@ -629,16 +623,6 @@ nsComputedDOMStyle::DoGetStyleContextForElementNoFlush(
     if (type >= CSSPseudoElementType::Count) {
       return nullptr;
     }
-  }
-
-  // For Servo, compute the result directly without recursively building up
-  // a throwaway style context chain.
-  if (ServoStyleSet* servoSet = styleSet->GetAsServo()) {
-    if (aStyleType == eDefaultOnly) {
-      NS_ERROR("stylo: ServoStyleSets cannot supply UA-only styles yet");
-      return nullptr;
-    }
-    return servoSet->ResolveTransientStyle(aElement, type);
   }
 
   RefPtr<nsStyleContext> parentContext;
@@ -808,10 +792,7 @@ MustReresolveStyle(const nsStyleContext* aContext)
   MOZ_ASSERT(aContext);
 
   if (aContext->HasPseudoElementData()) {
-    if (!aContext->GetPseudo() ||
-        aContext->StyleSource().IsServoComputedValues()) {
-      // TODO(emilio): When ::first-line is supported in Servo, we may want to
-      // fix this to avoid re-resolving pseudo-element styles.
+    if (!aContext->GetPseudo()) {
       return true;
     }
 

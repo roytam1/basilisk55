@@ -28,7 +28,7 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_CYCLE_COLLECTION_CLASS_INHERITED(ServoCSSRuleList, dom::CSSRuleList)
 
-  ServoStyleSheet* GetParentObject() final { return mStyleSheet; }
+  StyleSheet* GetParentObject() final { return nullptr; }
 
   css::Rule* IndexedGetter(uint32_t aIndex, bool& aFound) final;
   uint32_t Length() final { return mRules.Length(); }

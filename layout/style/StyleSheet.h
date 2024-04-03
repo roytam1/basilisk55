@@ -82,7 +82,7 @@ public:
    */
   void SetEnabled(bool aEnabled);
 
-  MOZ_DECL_STYLO_METHODS(CSSStyleSheet, ServoStyleSheet)
+  MOZ_DECL_STYLO_METHODS(CSSStyleSheet)
 
   // Whether the sheet is for an inline <style> element.
   inline bool IsInline() const;

@@ -2179,13 +2179,9 @@ nsDocument::ResetStylesheetsToURI(nsIURI* aURI)
     RemoveStyleSheetsFromStyleSets(mAdditionalSheets[eUserSheet], SheetType::User);
     RemoveStyleSheetsFromStyleSets(mAdditionalSheets[eAuthorSheet], SheetType::Doc);
 
-    if (GetStyleBackendType() == StyleBackendType::Gecko) {
-      nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
-      if (sheetService) {
-        RemoveStyleSheetsFromStyleSets(*sheetService->AuthorStyleSheets(), SheetType::Doc);
-      }
-    } else {
-      NS_ERROR("stylo: nsStyleSheetService doesn't handle ServoStyleSheets yet");
+    nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
+    if (sheetService) {
+      RemoveStyleSheetsFromStyleSets(*sheetService->AuthorStyleSheets(), SheetType::Doc);
     }
 
     mStyleSetFilled = false;
@@ -2252,23 +2248,18 @@ nsDocument::FillStyleSet(StyleSetHandle aStyleSet)
     }
   }
 
-  if (aStyleSet->IsGecko()) {
-    nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
-    if (sheetService) {
-      for (StyleSheet* sheet : *sheetService->AuthorStyleSheets()) {
-        aStyleSet->AppendStyleSheet(SheetType::Doc, sheet);
-      }
+  nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
+  if (sheetService) {
+    for (StyleSheet* sheet : *sheetService->AuthorStyleSheets()) {
+      aStyleSet->AppendStyleSheet(SheetType::Doc, sheet);
     }
+  }
 
-    // Iterate backwards to maintain order
-    for (StyleSheet* sheet : Reversed(mOnDemandBuiltInUASheets)) {
-      if (sheet->IsApplicable()) {
-        aStyleSet->PrependStyleSheet(SheetType::Agent, sheet);
-      }
+  // Iterate backwards to maintain order
+  for (StyleSheet* sheet : Reversed(mOnDemandBuiltInUASheets)) {
+    if (sheet->IsApplicable()) {
+      aStyleSet->PrependStyleSheet(SheetType::Agent, sheet);
     }
-  } else {
-    NS_WARNING("stylo: Not yet checking nsStyleSheetService for Servo-backed "
-               "documents. See bug 1290224");
   }
 
   AppendSheetsToStyleSet(aStyleSet, mAdditionalSheets[eAgentSheet],
@@ -2345,10 +2336,6 @@ nsDocument::IsWebComponentsEnabled(JSContext* aCx, JSObject* aObject)
     do_QueryInterface(nsJSUtils::GetStaticScriptGlobal(global));
 
   nsIDocument* doc = window ? window->GetExtantDoc() : nullptr;
-  if (doc && doc->IsStyledByServo()) {
-    NS_WARNING("stylo: Web Components not supported yet");
-    return false;
-  }
 
   return true;
 }
@@ -5907,12 +5894,6 @@ nsDocument::EnableStyleSheetsForSetInternal(const nsAString& aSheetSet,
   for (size_t index = 0; index < count; index++) {
     StyleSheet* sheet = SheetAt(index);
     NS_ASSERTION(sheet, "Null sheet in sheet list!");
-
-    // XXXheycam Make this work with ServoStyleSheets.
-    if (sheet->IsServo()) {
-      NS_ERROR("stylo: can't handle alternate ServoStyleSheets yet");
-      continue;
-    }
 
     sheet->AsGecko()->GetTitle(title);
     if (!title.IsEmpty()) {
@@ -9624,17 +9605,12 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
         RefPtr<StyleSheet> sheet = SheetAt(i);
         if (sheet) {
           if (sheet->IsApplicable()) {
-            // XXXheycam Need to make ServoStyleSheet cloning work.
-            if (sheet->IsGecko()) {
-              RefPtr<CSSStyleSheet> clonedSheet =
-                sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
-              NS_WARNING_ASSERTION(clonedSheet,
-                                   "Cloning a stylesheet didn't work!");
-              if (clonedSheet) {
-                clonedDoc->AddStyleSheet(clonedSheet);
-              }
-            } else {
-              NS_ERROR("stylo: ServoStyleSheet doesn't support cloning");
+            RefPtr<CSSStyleSheet> clonedSheet =
+              sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+            NS_WARNING_ASSERTION(clonedSheet,
+                                 "Cloning a stylesheet didn't work!");
+            if (clonedSheet) {
+              clonedDoc->AddStyleSheet(clonedSheet);
             }
           }
         }
@@ -9644,17 +9620,12 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
       for (StyleSheet* sheet : Reversed(thisAsDoc->mOnDemandBuiltInUASheets)) {
         if (sheet) {
           if (sheet->IsApplicable()) {
-            // XXXheycam Need to make ServoStyleSheet cloning work.
-            if (sheet->IsGecko()) {
-              RefPtr<CSSStyleSheet> clonedSheet =
-                sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
-              NS_WARNING_ASSERTION(clonedSheet,
-                                   "Cloning a stylesheet didn't work!");
-              if (clonedSheet) {
-                clonedDoc->AddOnDemandBuiltInUASheet(clonedSheet);
-              }
-            } else {
-              NS_ERROR("stylo: ServoStyleSheet doesn't support cloning");
+            RefPtr<CSSStyleSheet> clonedSheet =
+              sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+            NS_WARNING_ASSERTION(clonedSheet,
+                                 "Cloning a stylesheet didn't work!");
+            if (clonedSheet) {
+              clonedDoc->AddOnDemandBuiltInUASheet(clonedSheet);
             }
           }
         }
@@ -12510,14 +12481,8 @@ nsIDocument::FlushUserFontSet()
       nsTArray<nsFontFaceRuleContainer> rules;
       nsIPresShell* shell = GetShell();
       if (shell) {
-        // XXXheycam ServoStyleSets don't support exposing @font-face rules yet.
-        if (shell->StyleSet()->IsGecko()) {
-          if (!shell->StyleSet()->AsGecko()->AppendFontFaceRules(rules)) {
-            return;
-          }
-        } else {
-          NS_WARNING("stylo: ServoStyleSets cannot handle @font-face rules yet. "
-                     "See bug 1290237.");
+        if (!shell->StyleSet()->AsGecko()->AppendFontFaceRules(rules)) {
+          return;
         }
       }
 

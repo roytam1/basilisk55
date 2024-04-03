@@ -111,9 +111,6 @@ EffectSet::DestroyEffectSet(dom::Element* aElement,
 void
 EffectSet::UpdateAnimationGeneration(nsPresContext* aPresContext)
 {
-  MOZ_ASSERT(aPresContext->RestyleManager()->IsGecko(),
-             "stylo: Servo-backed style system should not be using "
-             "EffectSet");
   mAnimationGeneration =
     aPresContext->RestyleManager()->AsGecko()->GetAnimationGeneration();
 }

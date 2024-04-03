@@ -1158,9 +1158,6 @@ CSSStyleSheet::StyleSheetLoaded(StyleSheet* aSheet,
                                 bool aWasAlternate,
                                 nsresult aStatus)
 {
-  MOZ_ASSERT(aSheet->IsGecko(),
-             "why we were called back with a ServoStyleSheet?");
-
   CSSStyleSheet* sheet = aSheet->AsGecko();
 
   if (sheet->GetParentSheet() == nullptr) {

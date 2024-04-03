@@ -54,7 +54,6 @@
 #include "mozilla/dom/ShadowRoot.h"
 #include "mozilla/dom/URL.h"
 #include "mozilla/AsyncEventDispatcher.h"
-#include "mozilla/ServoBindings.h"
 #include "mozilla/StyleSheet.h"
 #include "mozilla/StyleSheetInlines.h"
 #include "mozilla/ConsoleReportCollector.h"
@@ -1131,10 +1130,6 @@ Loader::CreateSheet(nsIURI* aURI,
     }
 
     if (sheet) {
-      if (sheet->IsServo()) {
-        MOZ_CRASH("stylo: can't clone ServoStyleSheets yet");
-      }
-
       // This sheet came from the XUL cache or our per-document hashtable; it
       // better be a complete sheet.
       NS_ASSERTION(sheet->AsGecko()->IsComplete(),
@@ -1194,9 +1189,6 @@ Loader::CreateSheet(nsIURI* aURI,
 
     if (sheet) {
       // The sheet we have now should be either incomplete or unmodified
-      if (sheet->IsServo()) {
-        MOZ_CRASH("stylo: can't clone ServoStyleSheets yet");
-      }
       NS_ASSERTION(!sheet->AsGecko()->IsModified() ||
                    !sheet->AsGecko()->IsComplete(),
                    "Unexpected modified complete sheet");
@@ -1253,11 +1245,7 @@ Loader::CreateSheet(nsIURI* aURI,
                                   &sriMetadata);
     }
 
-    if (GetStyleBackendType() == StyleBackendType::Gecko) {
-      *aSheet = new CSSStyleSheet(aParsingMode, aCORSMode, aReferrerPolicy, sriMetadata);
-    } else {
-      *aSheet = new ServoStyleSheet(aParsingMode, aCORSMode, aReferrerPolicy, sriMetadata);
-    }
+    *aSheet = new CSSStyleSheet(aParsingMode, aCORSMode, aReferrerPolicy, sriMetadata);
     (*aSheet)->SetURIs(sheetURI, originalURI, baseURI);
   }
 
@@ -1303,13 +1291,7 @@ Loader::PrepareSheet(StyleSheet* aSheet,
   aSheet->SetTitle(aTitle);
   aSheet->SetEnabled(!isAlternate || isExplicitlyEnabled);
 
-  if (aSheet->IsGecko()) {
-    aSheet->AsGecko()->SetScopeElement(aScopeElement);
-  } else {
-    if (aScopeElement) {
-      NS_WARNING("stylo: scoped style sheets not supported");
-    }
-  }
+  aSheet->AsGecko()->SetScopeElement(aScopeElement);
 }
 
 /**
@@ -1407,24 +1389,15 @@ Loader::InsertSheetInDoc(StyleSheet* aSheet,
 nsresult
 Loader::InsertChildSheet(StyleSheet* aSheet,
                          StyleSheet* aParentSheet,
-                         ImportRule* aGeckoParentRule,
-                         const RawServoImportRule* aServoParentRule)
+                         ImportRule* aGeckoParentRule)
 {
   LOG(("css::Loader::InsertChildSheet"));
   MOZ_ASSERT(aSheet, "Nothing to insert");
   MOZ_ASSERT(aParentSheet, "Need a parent to insert into");
-  MOZ_ASSERT_IF(aSheet->IsGecko(), aGeckoParentRule && !aServoParentRule);
-  MOZ_ASSERT_IF(aSheet->IsServo(), aServoParentRule && !aGeckoParentRule);
-  if (aSheet->IsGecko()) {
-    // child sheets should always start out enabled, even if they got
-    // cloned off of top-level sheets which were disabled
-    aSheet->AsGecko()->SetEnabled(true);
-    aGeckoParentRule->SetSheet(aSheet->AsGecko()); // This sets the ownerRule on the sheet
-  } else {
-    RefPtr<RawServoStyleSheet> sheet =
-      Servo_ImportRule_GetSheet(aServoParentRule).Consume();
-    aSheet->AsServo()->SetSheetForImport(sheet);
-  }
+  // child sheets should always start out enabled, even if they got
+  // cloned off of top-level sheets which were disabled
+  aSheet->AsGecko()->SetEnabled(true);
+  aGeckoParentRule->SetSheet(aSheet->AsGecko()); // This sets the ownerRule on the sheet
   aParentSheet->AppendStyleSheet(aSheet);
 
   LOG(("  Inserting into parent sheet"));
@@ -1764,18 +1737,10 @@ Loader::ParseSheet(const nsAString& aInput,
 
   nsresult rv;
 
-  if (aLoadData->mSheet->IsGecko()) {
-    nsCSSParser parser(this, aLoadData->mSheet->AsGecko());
-    rv = parser.ParseSheet(aInput, sheetURI, baseURI,
-                           aLoadData->mSheet->Principal(),
-                           aLoadData->mLineNumber);
-  } else {
-    rv =
-      aLoadData->mSheet->AsServo()->ParseSheet(this,
-                                               aInput, sheetURI, baseURI,
-                                               aLoadData->mSheet->Principal(),
-                                               aLoadData->mLineNumber);
-  }
+  nsCSSParser parser(this, aLoadData->mSheet->AsGecko());
+  rv = parser.ParseSheet(aInput, sheetURI, baseURI,
+                         aLoadData->mSheet->Principal(),
+                         aLoadData->mLineNumber);
 
   mParsingDatas.RemoveElementAt(mParsingDatas.Length() - 1);
 
@@ -1811,10 +1776,6 @@ void
 Loader::SheetComplete(SheetLoadData* aLoadData, nsresult aStatus)
 {
   LOG(("css::Loader::SheetComplete"));
-
-  if (aLoadData->mSheet->IsServo() && NS_FAILED(aStatus)) {
-    aLoadData->mSheet->AsServo()->LoadFailed();
-  }
 
   // 8 is probably big enough for all our common cases.  It's not likely that
   // imports will nest more than 8 deep, and multiple sheets with the same URI
@@ -1892,8 +1853,7 @@ Loader::DoSheetComplete(SheetLoadData* aLoadData, nsresult aStatus,
       // If mSheetAlreadyComplete, then the sheet could well be modified between
       // when we posted the async call to SheetComplete and now, since the sheet
       // was page-accessible during that whole time.
-      MOZ_ASSERT(!(data->mSheet->IsGecko() &&
-                   data->mSheet->AsGecko()->IsModified()),
+      MOZ_ASSERT(!data->mSheet->AsGecko()->IsModified(),
                  "should not get marked modified during parsing");
       data->mSheet->SetComplete();
       data->ScheduleLoadEventIfNeeded(aStatus);
@@ -1934,43 +1894,38 @@ Loader::DoSheetComplete(SheetLoadData* aLoadData, nsresult aStatus,
     // one of the sheets that will be kept alive by a document or
     // parent sheet anyway, so that if someone then accesses it via
     // CSSOM we won't have extra clones of the inner lying around.
-    if (aLoadData->mSheet->IsGecko()) {
-      data = aLoadData;
-      CSSStyleSheet* sheet = aLoadData->mSheet->AsGecko();
-      while (data) {
-        if (data->mSheet->GetParentSheet() || data->mSheet->GetOwnerNode()) {
-          sheet = data->mSheet->AsGecko();
-          break;
-        }
-        data = data->mNext;
+    data = aLoadData;
+    CSSStyleSheet* sheet = aLoadData->mSheet->AsGecko();
+    while (data) {
+      if (data->mSheet->GetParentSheet() || data->mSheet->GetOwnerNode()) {
+        sheet = data->mSheet->AsGecko();
+        break;
       }
-#ifdef MOZ_XUL
-      if (IsChromeURI(aLoadData->mURI)) {
-        nsXULPrototypeCache* cache = nsXULPrototypeCache::GetInstance();
-        if (cache && cache->IsEnabled()) {
-          if (!cache->GetStyleSheet(aLoadData->mURI)) {
-            LOG(("  Putting sheet in XUL prototype cache"));
-            NS_ASSERTION(sheet->IsComplete(),
-                         "Should only be caching complete sheets");
-            cache->PutStyleSheet(sheet);
-          }
-        }
-      }
-      else {
-#endif
-        URIPrincipalReferrerPolicyAndCORSModeHashKey key(aLoadData->mURI,
-                                           aLoadData->mLoaderPrincipal,
-                                           aLoadData->mSheet->GetCORSMode(),
-                                           aLoadData->mSheet->GetReferrerPolicy());
-        NS_ASSERTION(sheet->IsComplete(),
-                     "Should only be caching complete sheets");
-        mSheets->mCompleteSheets.Put(&key, sheet);
-#ifdef MOZ_XUL
-      }
-#endif
-    } else {
-      NS_WARNING("stylo: Stylesheet caching not yet supported - see bug 1290218.");
+      data = data->mNext;
     }
+#ifdef MOZ_XUL
+    if (IsChromeURI(aLoadData->mURI)) {
+      nsXULPrototypeCache* cache = nsXULPrototypeCache::GetInstance();
+      if (cache && cache->IsEnabled()) {
+        if (!cache->GetStyleSheet(aLoadData->mURI)) {
+          LOG(("  Putting sheet in XUL prototype cache"));
+          NS_ASSERTION(sheet->IsComplete(),
+                       "Should only be caching complete sheets");
+          cache->PutStyleSheet(sheet);
+        }
+      }
+    } else {
+#endif
+      URIPrincipalReferrerPolicyAndCORSModeHashKey key(aLoadData->mURI,
+                                         aLoadData->mLoaderPrincipal,
+                                         aLoadData->mSheet->GetCORSMode(),
+                                         aLoadData->mSheet->GetReferrerPolicy());
+      NS_ASSERTION(sheet->IsComplete(),
+                   "Should only be caching complete sheets");
+      mSheets->mCompleteSheets.Put(&key, sheet);
+#ifdef MOZ_XUL
+    }
+#endif
   }
 
   NS_RELEASE(aLoadData);  // this will release parents and siblings and all that
@@ -2202,17 +2157,11 @@ Loader::LoadChildSheet(StyleSheet* aParentSheet,
                        nsIURI* aURL,
                        nsMediaList* aMedia,
                        ImportRule* aGeckoParentRule,
-                       const RawServoImportRule* aServoParentRule,
                        LoaderReusableStyleSheets* aReusableSheets)
 {
   LOG(("css::Loader::LoadChildSheet"));
   NS_PRECONDITION(aURL, "Must have a URI to load");
   NS_PRECONDITION(aParentSheet, "Must have a parent sheet");
-
-  // Servo doesn't support reusable sheets.
-  MOZ_ASSERT_IF(aReusableSheets, aParentSheet->IsGecko());
-  MOZ_ASSERT_IF(aParentSheet->IsGecko(), aGeckoParentRule && !aServoParentRule);
-  MOZ_ASSERT_IF(aParentSheet->IsServo(), aServoParentRule && !aGeckoParentRule);
 
   if (!mEnabled) {
     LOG_WARN(("  Not enabled"));
@@ -2225,11 +2174,7 @@ Loader::LoadChildSheet(StyleSheet* aParentSheet,
 
   // check for an associated document: if none, don't bother walking up the
   // parent sheets
-  //
-  // FIXME(emilio): Figure out whether this walk up is necessary (try seems
-  // green without it), and fix the parenting of stylesheets in the servo case
-  // if that's the case.
-  if (aParentSheet->GetAssociatedDocument() && aParentSheet->IsGecko()) {
+  if (aParentSheet->GetAssociatedDocument()) {
     StyleSheet* topSheet = aParentSheet;
     while (StyleSheet* parent = topSheet->GetParentSheet()) {
       topSheet = parent;
@@ -2267,9 +2212,6 @@ Loader::LoadChildSheet(StyleSheet* aParentSheet,
     LOG(("  No parent load; must be CSSOM"));
     // No parent load data, so the sheet will need to be notified when
     // we finish, if it can be, if we do the load asynchronously.
-    // XXXheycam ServoStyleSheet doesn't implement nsICSSLoaderObserver yet.
-    MOZ_ASSERT(aParentSheet->IsGecko(),
-               "stylo: ServoStyleSheets don't support child sheet loading yet");
     observer = aParentSheet->AsGecko();
   }
 
@@ -2298,8 +2240,7 @@ Loader::LoadChildSheet(StyleSheet* aParentSheet,
     PrepareSheet(sheet, empty, empty, aMedia, nullptr, isAlternate, false);
   }
 
-  rv = InsertChildSheet(sheet, aParentSheet, aGeckoParentRule,
-                        aServoParentRule);
+  rv = InsertChildSheet(sheet, aParentSheet, aGeckoParentRule);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (state == eSheetComplete) {
@@ -2638,10 +2579,8 @@ NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN(Loader)
          !iter.Done();
          iter.Next()) {
       NS_CYCLE_COLLECTION_NOTE_EDGE_NAME(cb, "Sheet cache nsCSSLoader");
-      if (iter.UserData()->IsGecko()) {
-        CSSStyleSheet* sheet = iter.UserData()->AsGecko();
-        cb.NoteXPCOMChild(NS_ISUPPORTS_CAST(nsIDOMCSSStyleSheet*, sheet));
-      }
+      CSSStyleSheet* sheet = iter.UserData()->AsGecko();
+      cb.NoteXPCOMChild(NS_ISUPPORTS_CAST(nsIDOMCSSStyleSheet*, sheet));
     }
   }
   nsTObserverArray<nsCOMPtr<nsICSSLoaderObserver>>::ForwardIterator

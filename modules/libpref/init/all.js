@@ -5659,11 +5659,6 @@ pref("dom.webkitBlink.filesystem.enabled", true);
 
 pref("media.block-autoplay-until-in-foreground", true);
 
-#ifdef MOZ_STYLO
-// Is the Servo-backed style system enabled?
-pref("layout.css.servo.enabled", true);
-#endif
-
 // HSTS Priming
 // If a request is mixed-content, send an HSTS priming request to attempt to
 // see if it is available over HTTPS.

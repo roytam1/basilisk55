@@ -55,7 +55,6 @@ const FOCUS_FILTER_ALL_TESTS = "all";
 const FOCUS_FILTER_NEEDS_FOCUS_TESTS = "needs-focus";
 const FOCUS_FILTER_NON_NEEDS_FOCUS_TESTS = "non-needs-focus";
 var gFocusFilterMode = FOCUS_FILTER_ALL_TESTS;
-var gCompareStyloToGecko = false;
 
 // "<!--CLEAR-->"
 const BLANK_URL_FOR_CLEARING = "data:text/html;charset=UTF-8,%3C%21%2D%2DCLEAR%2D%2D%3E";
@@ -401,12 +400,6 @@ function InitAndStartRefTests()
         gFocusFilterMode = prefs.getCharPref("reftest.focusFilterMode");
     } catch(e) {}
 
-#ifdef MOZ_STYLO
-    try {
-        gCompareStyloToGecko = prefs.getBoolPref("reftest.compareStyloToGecko");
-    } catch(e) {}
-#endif
-
     gWindowUtils = gContainingWindow.QueryInterface(CI.nsIInterfaceRequestor).getInterface(CI.nsIDOMWindowUtils);
     if (!gWindowUtils || !gWindowUtils.compareCanvases)
         throw "nsIDOMWindowUtils inteface missing";
@@ -711,11 +704,7 @@ function BuildConditionSandbox(aURL) {
     sandbox.webrtc = false;
 #endif
 
-#ifdef MOZ_STYLO
-    sandbox.stylo = true;
-#else
     sandbox.stylo = false;
-#endif
 
     var hh = CC[NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX + "http"].
                  getService(CI.nsIHttpProtocolHandler);
@@ -1319,16 +1308,6 @@ function StartCurrentURI(aState)
 
     var prefs = Components.classes["@mozilla.org/preferences-service;1"].
         getService(Components.interfaces.nsIPrefBranch);
-
-    if (gCompareStyloToGecko) {
-        if (gState == 2){
-            logger.info("Disabling Servo-backed style system");
-            prefs.setBoolPref('layout.css.servo.enabled', false);
-        } else {
-            logger.info("Enabling Servo-backed style system");
-            prefs.setBoolPref('layout.css.servo.enabled', true);
-        }
-    }
 
     var prefSettings = gURLs[0]["prefSettings" + aState];
     if (prefSettings.length > 0) {

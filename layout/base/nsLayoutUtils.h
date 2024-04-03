@@ -2398,11 +2398,7 @@ public:
   // or disabled at compile-time. However, we provide the additional capability
   // to disable it dynamically in stylo-enabled builds via a pref.
   static bool StyloEnabled() {
-#ifdef MOZ_STYLO
-    return sStyloEnabled;
-#else
     return false;
-#endif
   }
 
   static uint32_t IdlePeriodDeadlineLimit() {
@@ -2925,9 +2921,6 @@ private:
   static bool sInterruptibleReflowEnabled;
   static bool sSVGTransformBoxEnabled;
   static bool sTextCombineUprightDigitsEnabled;
-#ifdef MOZ_STYLO
-  static bool sStyloEnabled;
-#endif
   static uint32_t sIdlePeriodDeadlineLimit;
   static uint32_t sQuiescentFramesBeforeIdlePeriod;
 

@@ -1021,11 +1021,7 @@ public:
    * Returns true if this is a node belonging to a document that uses the Servo
    * style system.
    */
-#ifdef MOZ_STYLO
-  bool IsStyledByServo() const;
-#else
   bool IsStyledByServo() const { return false; }
-#endif
 
   inline void UnsetRestyleFlagsIfGecko();
 

@@ -155,11 +155,7 @@ public:
   }
 
   nsPresContext* PresContext() const {
-#ifdef MOZ_STYLO
-    return mPresContext;
-#else
     return mSource.AsGeckoRuleNode()->PresContext();
-#endif
   }
 
   nsStyleContext* GetParent() const { return mParent; }
@@ -748,12 +744,6 @@ private:
   // ComputedValues struct. This never changes after construction, except
   // when it's released and nulled out during teardown.
   const mozilla::OwningStyleContextSource mSource;
-
-#ifdef MOZ_STYLO
-  // In Gecko, we can get this off the rule node. We make this conditional
-  // on stylo builds to avoid the memory bloat on release.
-  nsPresContext* mPresContext;
-#endif
 
   // mCachedInheritedData and mCachedResetData point to both structs that
   // are owned by this style context and structs that are owned by one of

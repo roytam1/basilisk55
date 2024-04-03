@@ -87,9 +87,6 @@ nsStyleContext::nsStyleContext(nsStyleContext* aParent,
   , mEmptyChild(nullptr)
   , mPseudoTag(aPseudoTag)
   , mSource(Move(aSource))
-#ifdef MOZ_STYLO
-  , mPresContext(nullptr)
-#endif
   , mCachedResetData(nullptr)
   , mBits(((uint64_t)aPseudoType) << NS_STYLE_CONTEXT_TYPE_SHIFT)
   , mRefCnt(0)
@@ -107,10 +104,6 @@ nsStyleContext::nsStyleContext(nsStyleContext* aParent,
   : nsStyleContext(aParent, OwningStyleContextSource(Move(aRuleNode)),
                    aPseudoTag, aPseudoType)
 {
-#ifdef MOZ_STYLO
-  mPresContext = mSource.AsGeckoRuleNode()->PresContext();
-#endif
-
   if (aParent) {
 #ifdef DEBUG
     nsRuleNode *r1 = mParent->RuleNode(), *r2 = mSource.AsGeckoRuleNode();
@@ -137,10 +130,6 @@ nsStyleContext::nsStyleContext(nsStyleContext* aParent,
   : nsStyleContext(aParent, OwningStyleContextSource(Move(aComputedValues)),
                    aPseudoTag, aPseudoType)
 {
-#ifdef MOZ_STYLO
-  mPresContext = aPresContext;
-#endif
-
   FinishConstruction(aSkipParentDisplayBasedStyleFixup);
 }
 

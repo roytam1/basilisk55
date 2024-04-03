@@ -147,9 +147,7 @@
  * concurrent allocation, and the overhead matters. Bug 1291355 tracks
  * investigating the fragmentation overhead of turning this on for users.
  */
-#ifndef MOZ_STYLO
 #define MOZ_MEMORY_NARENAS_DEFAULT_ONE
-#endif
 
 /*
  * Pass this set of options to jemalloc as its default. It does not override

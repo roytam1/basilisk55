@@ -54,11 +54,7 @@ public:
     bool IsServo() const
     {
       MOZ_ASSERT(mValue, "RestyleManagerHandle null pointer dereference");
-#ifdef MOZ_STYLO
-      return mValue & SERVO_BIT;
-#else
       return false;
-#endif
     }
 
     StyleBackendType BackendType() const
@@ -196,16 +192,8 @@ public:
 
   RestyleManagerHandle& operator=(ServoRestyleManager* aManager)
   {
-#ifdef MOZ_STYLO
-    MOZ_ASSERT(!(reinterpret_cast<uintptr_t>(aManager) & SERVO_BIT),
-               "least significant bit shouldn't be set; we use it for state");
-    mPtr.mValue =
-      aManager ? (reinterpret_cast<uintptr_t>(aManager) | SERVO_BIT) : 0;
-    return *this;
-#else
     MOZ_CRASH("should not have a ServoRestyleManager object when MOZ_STYLO is "
               "disabled");
-#endif
   }
 
   // Make RestyleManagerHandle usable in boolean contexts.

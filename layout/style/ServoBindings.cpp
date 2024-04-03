@@ -768,11 +768,9 @@ Gecko_Construct_nsStyleVariables(nsStyleVariables* ptr)
 
 #undef STYLE_STRUCT
 
-#ifndef MOZ_STYLO
 #define SERVO_BINDING_FUNC(name_, return_, ...)                               \
   return_ name_(__VA_ARGS__) {                                                \
     MOZ_CRASH("stylo: shouldn't be calling " #name_ "in a non-stylo build");  \
   }
 #include "ServoBindingList.h"
 #undef SERVO_BINDING_FUNC
-#endif

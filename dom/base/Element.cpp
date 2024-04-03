@@ -1866,10 +1866,6 @@ Element::UnbindFromTree(bool aDeep, bool aNullParent)
   // recomputed it anyway if we ever insert the nodes back into a document.
   if (IsStyledByServo()) {
     ClearServoData();
-  } else {
-#ifdef MOZ_STYLO
-    MOZ_ASSERT(!HasServoData());
-#endif
   }
 
   // Editable descendant count only counts descendants that
@@ -4122,9 +4118,5 @@ Element::SetCustomElementDefinition(CustomElementDefinition* aDefinition)
 
 void
 Element::ClearServoData() {
-#ifdef MOZ_STYLO
-  Servo_Element_ClearData(this);
-#else
   MOZ_CRASH("Accessing servo node data in non-stylo build");
-#endif
 }

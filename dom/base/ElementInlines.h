@@ -8,7 +8,6 @@
 #define mozilla_dom_ElementInlines_h
 
 #include "mozilla/dom/Element.h"
-#include "mozilla/ServoBindings.h"
 #include "nsIContentInlines.h"
 #include "nsIDocument.h"
 
@@ -48,48 +47,6 @@ Element::GetFlattenedTreeParentElementForStyle() const
 
   return nullptr;
 }
-
-inline bool
-Element::ShouldTraverseForServo()
-{
-  return HasDirtyDescendantsForServo() || Servo_Element_ShouldTraverse(this);
-}
-
-inline void
-Element::NoteDirtyDescendantsForServo()
-{
-  if (!HasServoData()) {
-    // The dirty descendants bit only applies to styled elements.
-    return;
-  }
-
-  Element* curr = this;
-  while (curr && !curr->HasDirtyDescendantsForServo()) {
-    curr->SetHasDirtyDescendantsForServo();
-    curr = curr->GetFlattenedTreeParentElementForStyle();
-  }
-
-  MOZ_ASSERT(DirtyDescendantsBitIsPropagatedForServo());
-}
-
-#ifdef DEBUG
-inline bool
-Element::DirtyDescendantsBitIsPropagatedForServo()
-{
-  Element* curr = this;
-  while (curr) {
-    if (!curr->HasDirtyDescendantsForServo()) {
-      return false;
-    }
-    nsINode* parentNode = curr->GetParentNode();
-    curr = curr->GetFlattenedTreeParentElementForStyle();
-    MOZ_ASSERT_IF(!curr,
-                  parentNode == OwnerDoc() ||
-                  parentNode == parentNode->OwnerDoc()->GetRootElement());
-  }
-  return true;
-}
-#endif
 
 } // namespace dom
 } // namespace mozilla

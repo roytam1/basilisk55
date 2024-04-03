@@ -459,36 +459,6 @@ public:
   inline Element* GetFlattenedTreeParentElement() const;
   inline Element* GetFlattenedTreeParentElementForStyle() const;
 
-  bool HasDirtyDescendantsForServo() const
-  {
-    MOZ_ASSERT(IsStyledByServo());
-    return HasFlag(NODE_HAS_DIRTY_DESCENDANTS_FOR_SERVO);
-  }
-
-  void SetHasDirtyDescendantsForServo() {
-    MOZ_ASSERT(IsStyledByServo());
-    SetFlags(NODE_HAS_DIRTY_DESCENDANTS_FOR_SERVO);
-  }
-
-  void UnsetHasDirtyDescendantsForServo() {
-    MOZ_ASSERT(IsStyledByServo());
-    UnsetFlags(NODE_HAS_DIRTY_DESCENDANTS_FOR_SERVO);
-  }
-
-  inline bool ShouldTraverseForServo();
-
-  inline void NoteDirtyDescendantsForServo();
-
-#ifdef DEBUG
-  inline bool DirtyDescendantsBitIsPropagatedForServo();
-#endif
-
-  bool HasServoData() {
-    MOZ_CRASH("Accessing servo node data in non-stylo build");
-  }
-
-  void ClearServoData();
-
 protected:
   /**
    * Method to get the _intrinsic_ content state of this element.  This is the
@@ -1706,9 +1676,9 @@ inline const mozilla::dom::Element* nsINode::AsElement() const
   return static_cast<const mozilla::dom::Element*>(this);
 }
 
-inline void nsINode::UnsetRestyleFlagsIfGecko()
+inline void nsINode::UnsetRestyleFlags()
 {
-  if (IsElement() && !AsElement()->IsStyledByServo()) {
+  if (IsElement()) {
     UnsetFlags(ELEMENT_ALL_RESTYLE_FLAGS);
   }
 }

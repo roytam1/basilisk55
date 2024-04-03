@@ -18,13 +18,6 @@ using namespace dom;
 inline bool
 ServoRestyleManager::HasPendingRestyles()
 {
-  nsIDocument* doc = PresContext()->Document();
-  DocumentStyleRootIterator iter(doc);
-  while (Element* root = iter.GetNextStyleRoot()) {
-    if (root->ShouldTraverseForServo()) {
-      return true;
-    }
-  }
   return false;
 }
 

@@ -1208,10 +1208,6 @@ public:
 
   void UpdateStyleBackendType();
 
-  bool IsStyledByServo() const {
-    return GetStyleBackendType() == mozilla::StyleBackendType::Servo;
-  }
-
   /**
    * Get this document's StyleImageLoader.  This is guaranteed to not return null.
    */

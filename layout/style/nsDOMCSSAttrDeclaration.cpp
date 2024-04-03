@@ -12,7 +12,6 @@
 #include "mozilla/DeclarationBlock.h"
 #include "mozilla/DeclarationBlockInlines.h"
 #include "mozilla/dom/Element.h"
-#include "mozilla/ServoDeclarationBlock.h"
 #include "nsIDocument.h"
 #include "nsIDOMMutationEvent.h"
 #include "nsIURI.h"
@@ -129,12 +128,8 @@ nsDOMCSSAttributeDeclaration::GetCSSDeclaration(Operation aOperation)
 
   // cannot fail
   RefPtr<DeclarationBlock> decl;
-  if (mElement->IsStyledByServo()) {
-    decl = new ServoDeclarationBlock();
-  } else {
-    decl = new css::Declaration();
-    decl->AsGecko()->InitializeEmpty();
-  }
+  decl = new css::Declaration();
+  decl->AsGecko()->InitializeEmpty();
 
   // this *can* fail (inside SetAttrAndNotify, at least).
   nsresult rv;

@@ -1017,13 +1017,7 @@ public:
   virtual nsPIDOMWindowOuter* GetOwnerGlobalForBindings() override;
   virtual nsIGlobalObject* GetOwnerGlobal() const override;
 
-  /**
-   * Returns true if this is a node belonging to a document that uses the Servo
-   * style system.
-   */
-  bool IsStyledByServo() const { return false; }
-
-  inline void UnsetRestyleFlagsIfGecko();
+  inline void UnsetRestyleFlags();
 
   /**
    * Adds a mutation observer to be notified when this node, or any of its

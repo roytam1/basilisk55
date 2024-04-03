@@ -16,7 +16,6 @@
 #include "mozilla/FloatingPoint.h" // For IsFinite
 #include "mozilla/LookAndFeel.h" // For LookAndFeel::GetInt
 #include "mozilla/KeyframeUtils.h"
-#include "mozilla/ServoBindings.h"
 #include "mozilla/StyleAnimationValue.h"
 #include "Layers.h" // For Layer
 #include "nsComputedDOMStyle.h" // nsComputedDOMStyle::GetStyleContextForElement
@@ -35,14 +34,7 @@ PropertyValuePair::operator==(const PropertyValuePair& aOther) const
   if (mProperty != aOther.mProperty || mValue != aOther.mValue) {
     return false;
   }
-  if (mServoDeclarationBlock == aOther.mServoDeclarationBlock) {
-    return true;
-  }
-  if (!mServoDeclarationBlock || !aOther.mServoDeclarationBlock) {
-    return false;
-  }
-  return Servo_DeclarationBlock_Equals(mServoDeclarationBlock,
-                                       aOther.mServoDeclarationBlock);
+  return true;
 }
 
 namespace dom {
@@ -414,11 +406,6 @@ KeyframeEffectReadOnly::CompositeValue(
     MOZ_ASSERT(!aValueToComposite.IsNull(),
       "Input value should be valid in case of replace composite");
     // Just copy the input value in case of 'Replace'.
-    return result;
-  }
-
-  // FIXME: Bug 1311257: Get the base value for the servo backend.
-  if (mDocument->IsStyledByServo()) {
     return result;
   }
 
@@ -1107,21 +1094,15 @@ KeyframeEffectReadOnly::GetKeyframes(JSContext*& aCx,
     JS::Rooted<JSObject*> keyframeObject(aCx, &keyframeJSValue.toObject());
     for (const PropertyValuePair& propertyValue : keyframe.mPropertyValues) {
       nsAutoString stringValue;
-      if (propertyValue.mServoDeclarationBlock) {
-        Servo_DeclarationBlock_SerializeOneValue(
-          propertyValue.mServoDeclarationBlock,
-          propertyValue.mProperty, &stringValue);
-      } else {
-        // nsCSSValue::AppendToString does not accept shorthands properties but
-        // works with token stream values if we pass eCSSProperty_UNKNOWN as
-        // the property.
-        nsCSSPropertyID propertyForSerializing =
-          nsCSSProps::IsShorthand(propertyValue.mProperty)
-          ? eCSSProperty_UNKNOWN
-          : propertyValue.mProperty;
-        propertyValue.mValue.AppendToString(
-          propertyForSerializing, stringValue, nsCSSValue::eNormalized);
-      }
+      // nsCSSValue::AppendToString does not accept shorthands properties but
+      // works with token stream values if we pass eCSSProperty_UNKNOWN as
+      // the property.
+      nsCSSPropertyID propertyForSerializing =
+        nsCSSProps::IsShorthand(propertyValue.mProperty)
+        ? eCSSProperty_UNKNOWN
+        : propertyValue.mProperty;
+      propertyValue.mValue.AppendToString(
+        propertyForSerializing, stringValue, nsCSSValue::eNormalized);
 
       const char* name = nsCSSProps::PropertyIDLName(propertyValue.mProperty);
       JS::Rooted<JS::Value> value(aCx);

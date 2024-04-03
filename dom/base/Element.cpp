@@ -1585,7 +1585,7 @@ Element::BindToTree(nsIDocument* aDocument, nsIContent* aParent,
                // And clear the lazy frame construction bits.
                NODE_NEEDS_FRAME | NODE_DESCENDANTS_NEED_FRAMES);
     // And the restyle bits
-    UnsetRestyleFlagsIfGecko();
+    UnsetRestyleFlags();
   } else if (IsInShadowTree()) {
     // We're not in a document, but we did get inserted into a shadow tree.
     // Since we won't have any restyle data in the document's restyle trackers,
@@ -1595,7 +1595,7 @@ Element::BindToTree(nsIDocument* aDocument, nsIContent* aParent,
     // inserted into a document.
     UnsetFlags(NODE_FORCE_XBL_BINDINGS |
                NODE_NEEDS_FRAME | NODE_DESCENDANTS_NEED_FRAMES);
-    UnsetRestyleFlagsIfGecko();
+    UnsetRestyleFlags();
   } else {
     // If we're not in the doc and not in a shadow tree,
     // update our subtree pointer.
@@ -1861,12 +1861,6 @@ Element::UnbindFromTree(bool aDeep, bool aNullParent)
   }
 
   ClearInDocument();
-
-  // Computed styled data isn't useful for detached nodes, and we'll need to
-  // recomputed it anyway if we ever insert the nodes back into a document.
-  if (IsStyledByServo()) {
-    ClearServoData();
-  }
 
   // Editable descendant count only counts descendants that
   // are in the uncomposed document.
@@ -4114,9 +4108,4 @@ Element::SetCustomElementDefinition(CustomElementDefinition* aDefinition)
   MOZ_ASSERT(data);
 
   data->SetCustomElementDefinition(aDefinition);
-}
-
-void
-Element::ClearServoData() {
-  MOZ_CRASH("Accessing servo node data in non-stylo build");
 }

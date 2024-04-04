@@ -65,8 +65,7 @@
 #include "nsIWordBreaker.h"
 #include "nsGenericDOMDataNode.h"
 #include "nsIFrameInlines.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
+#include "nsStyleSet.h"
 #include "mozilla/layers/LayersMessages.h"
 
 #include <algorithm>

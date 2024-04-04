@@ -25,7 +25,7 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/EventForwards.h"
 #include "mozilla/MemoryReporting.h"
-#include "mozilla/StyleSetHandle.h"
+#include "mozilla/SheetType.h"
 #include "mozilla/UniquePtr.h"
 #include "nsAutoPtr.h"
 #include "nsContentUtils.h" // For AddScriptBlocker().
@@ -44,6 +44,7 @@
 
 class nsIDocShell;
 class nsRange;
+class nsStyleSet;
 
 struct RangePaintInfo;
 struct nsCallbackEventRequest;
@@ -92,7 +93,7 @@ public:
   static bool AccessibleCaretEnabled(nsIDocShell* aDocShell);
 
   void Init(nsIDocument* aDocument, nsPresContext* aPresContext,
-            nsViewManager* aViewManager, mozilla::StyleSetHandle aStyleSet);
+            nsViewManager* aViewManager, nsStyleSet* aStyleSet);
   virtual void Destroy() override;
 
   virtual void UpdatePreferenceStyles() override;

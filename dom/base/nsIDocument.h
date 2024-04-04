@@ -99,6 +99,7 @@ class nsWindowSizes;
 class nsDOMCaretPosition;
 class nsViewportInfo;
 class nsIGlobalObject;
+class nsStyleSet;
 struct nsCSSSelectorList;
 
 namespace mozilla {
@@ -107,7 +108,6 @@ class CSSStyleSheet;
 class ErrorResult;
 class EventStates;
 class PendingAnimationTracker;
-class StyleSetHandle;
 class SVGAttrAnimationRuleProcessor;
 template<typename> class OwningNonNull;
 
@@ -831,7 +831,7 @@ public:
   virtual already_AddRefed<nsIPresShell> CreateShell(
       nsPresContext* aContext,
       nsViewManager* aViewManager,
-      mozilla::StyleSetHandle aStyleSet) = 0;
+      nsStyleSet* aStyleSet) = 0;
   virtual void DeleteShell() = 0;
 
   nsIPresShell* GetShell() const

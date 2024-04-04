@@ -31,8 +31,6 @@
 #include "RubyUtils.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ArenaObjectID.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
 
 #include "mozilla/ReflowInput.h"
 #include "nsLayoutUtils.h"
@@ -156,7 +154,7 @@ nsStyleContext::~nsStyleContext()
 #endif
 
   nsPresContext *presContext = PresContext();
-  DebugOnly<nsStyleSet*> styleSet = presContext->PresShell()->StyleSet()->GetAsGecko();
+  DebugOnly<nsStyleSet*> styleSet = presContext->PresShell()->StyleSet();
   NS_ASSERTION(!styleSet ||
                styleSet->GetRuleTree() == mRuleNode->RuleTree() ||
                styleSet->IsInRuleTreeReconstruct(),
@@ -697,7 +695,7 @@ nsStyleContext::ApplyStyleFixups(bool aSkipParentDisplayBasedStyleFixup)
     mozilla::dom::Element* docElement = presContext->Document()->GetRootElement();
     if (docElement) {
       RefPtr<nsStyleContext> rootStyle =
-        presContext->StyleSet()->AsGecko()->ResolveStyleFor(docElement, nullptr);
+        presContext->StyleSet()->ResolveStyleFor(docElement, nullptr);
       auto dir = rootStyle->StyleVisibility()->mDirection;
       if (dir != StyleVisibility()->mDirection) {
         nsStyleVisibility* uniqueVisibility = GET_UNIQUE_STYLE_DATA(Visibility);

@@ -524,7 +524,7 @@ ResolvedStyleCache::Get(nsPresContext *aPresContext,
 
     nsCOMArray<nsIStyleRule> rules;
     rules.AppendObject(aKeyframeDeclaration);
-    RefPtr<nsStyleContext> resultStrong = aPresContext->StyleSet()->AsGecko()->
+    RefPtr<nsStyleContext> resultStrong = aPresContext->StyleSet()->
       ResolveStyleByAddingRules(aParentStyleContext, rules);
     mCache.Put(aKeyframeDeclaration, resultStrong);
     result = resultStrong;
@@ -1051,7 +1051,7 @@ CSSAnimationBuilder::GetComputedValue(nsPresContext* aPresContext,
   StyleAnimationValue computedValue;
 
   if (!mStyleWithoutAnimation) {
-    mStyleWithoutAnimation = aPresContext->StyleSet()->AsGecko()->
+    mStyleWithoutAnimation = aPresContext->StyleSet()->
       ResolveStyleByRemovingAnimation(mTarget, mStyleContext,
                                       eRestyle_AllHintsWithAnimations);
   }
@@ -1097,7 +1097,7 @@ nsAnimationManager::BuildAnimations(nsStyleContext* aStyleContext,
     nsCSSKeyframesRule* rule =
       src.GetName().IsEmpty()
       ? nullptr
-      : mPresContext->StyleSet()->AsGecko()->KeyframesRuleForName(src.GetName());
+      : mPresContext->StyleSet()->KeyframesRuleForName(src.GetName());
     if (!rule) {
       continue;
     }

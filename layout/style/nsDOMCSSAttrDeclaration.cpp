@@ -18,6 +18,8 @@
 #include "nsIFrame.h"
 #include "ActiveLayerTracker.h"
 
+class nsStyleSet;
+
 using namespace mozilla;
 
 nsDOMCSSAttributeDeclaration::nsDOMCSSAttributeDeclaration(dom::Element* aElement,

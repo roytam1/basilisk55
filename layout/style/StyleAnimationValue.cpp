@@ -10,8 +10,6 @@
 #include "mozilla/MathAlgorithms.h"
 #include "mozilla/RuleNodeCacheConditions.h"
 #include "mozilla/StyleAnimationValue.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
 #include "mozilla/Tuple.h"
 #include "mozilla/UniquePtr.h"
 #include "nsStyleTransformMatrix.h"
@@ -3493,7 +3491,7 @@ ComputeValuesFromStyleRule(nsCSSPropertyID aProperty,
     return false;
   }
 
-  nsStyleSet* styleSet = aStyleContext->PresContext()->StyleSet()->AsGecko();
+  nsStyleSet* styleSet = aStyleContext->PresContext()->StyleSet();
 
   RefPtr<nsStyleContext> tmpStyleContext;
   if (aIsContextSensitive) {

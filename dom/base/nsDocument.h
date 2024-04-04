@@ -44,7 +44,7 @@
 #include "nsGkAtoms.h"
 #include "nsIApplicationCache.h"
 #include "nsIApplicationCacheContainer.h"
-#include "mozilla/StyleSetHandle.h"
+#include "nsStyleSet.h"
 #include "PLDHashTable.h"
 #include "nsAttrAndChildArray.h"
 #include "nsDOMAttributeMap.h"
@@ -427,7 +427,7 @@ public:
    */
   already_AddRefed<nsIPresShell> CreateShell(nsPresContext* aContext,
                                              nsViewManager* aViewManager,
-                                             mozilla::StyleSetHandle aStyleSet)
+                                             nsStyleSet* aStyleSet)
     final;
   virtual void DeleteShell() override;
 
@@ -1133,7 +1133,7 @@ protected:
       const nsTArray<RefPtr<mozilla::StyleSheet>>& aSheets,
       mozilla::SheetType aType);
   void ResetStylesheetsToURI(nsIURI* aURI);
-  void FillStyleSet(mozilla::StyleSetHandle aStyleSet);
+  void FillStyleSet(nsStyleSet* aStyleSet);
 
   // Return whether all the presshells for this document are safe to flush
   bool IsSafeToFlush() const;

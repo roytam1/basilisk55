@@ -37,8 +37,7 @@
 #include "nsIDocument.h"
 
 #include "nsCSSPseudoElements.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
+#include "nsStyleSet.h"
 #include "imgIRequest.h"
 #include "nsLayoutUtils.h"
 #include "nsCSSKeywords.h"
@@ -473,7 +472,7 @@ public:
   }
 
   already_AddRefed<nsStyleContext>
-  ResolveWithAnimation(StyleSetHandle aStyleSet,
+  ResolveWithAnimation(nsStyleSet* aStyleSet,
                        Element* aElement,
                        CSSPseudoElementType aType,
                        nsStyleContext* aParentContext,
@@ -516,14 +515,14 @@ public:
         rules[i].swap(rules[length - i - 1]);
       }
 
-      result = aStyleSet->AsGecko()->ResolveStyleForRules(aParentContext,
+      result = aStyleSet->ResolveStyleForRules(aParentContext,
                                                           rules);
     }
     return result.forget();
   }
 
   already_AddRefed<nsStyleContext>
-  ResolveWithoutAnimation(StyleSetHandle aStyleSet,
+  ResolveWithoutAnimation(nsStyleSet* aStyleSet,
                           Element* aElement,
                           CSSPseudoElementType aType,
                           nsStyleContext* aParentContext,
@@ -539,13 +538,13 @@ public:
       Element* pseudoElement =
         frame && aInDocWithShell ? frame->GetPseudoElement(aType) : nullptr;
       result =
-        aStyleSet->AsGecko()->ResolvePseudoElementStyleWithoutAnimation(
+        aStyleSet->ResolvePseudoElementStyleWithoutAnimation(
           aElement, aType,
           aParentContext,
           pseudoElement);
     } else {
       result =
-        aStyleSet->AsGecko()->ResolveStyleWithoutAnimation(aElement,
+        aStyleSet->ResolveStyleWithoutAnimation(aElement,
                                                            aParentContext);
     }
     return result.forget();
@@ -614,7 +613,7 @@ nsComputedDOMStyle::DoGetStyleContextForElementNoFlush(
   if (!presContext)
     return nullptr;
 
-  StyleSetHandle styleSet = presShell->StyleSet();
+  nsStyleSet* styleSet = presShell->StyleSet();
 
   auto type = CSSPseudoElementType::NotPseudo;
   if (aPseudo) {

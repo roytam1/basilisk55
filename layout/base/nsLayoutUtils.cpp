@@ -117,8 +117,7 @@
 #include "mozilla/EventDispatcher.h"
 #include "mozilla/EventStateManager.h"
 #include "mozilla/RuleNodeCacheConditions.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
+#include "nsStyleSet.h"
 #include "RegionBuilder.h"
 #include "SVGSVGElement.h"
 
@@ -9253,12 +9252,12 @@ ComputeSVGReferenceRect(nsIFrame* aFrame,
       MOZ_ASSERT(svgElement);
 
       if (svgElement && svgElement->HasViewBoxRect()) {
-        // If a ‘viewBox‘ attribute is specified for the SVG viewport creating
+        // If a ?�viewBox??attribute is specified for the SVG viewport creating
         // element:
         // 1. The reference box is positioned at the origin of the coordinate
-        //    system established by the ‘viewBox‘ attribute.
+        //    system established by the ?�viewBox??attribute.
         // 2. The dimension of the reference box is set to the width and height
-        //    values of the ‘viewBox‘ attribute.
+        //    values of the ?�viewBox??attribute.
         nsSVGViewBox* viewBox = svgElement->GetViewBox();
         const nsSVGViewBoxRect& value = viewBox->GetAnimValue();
         r = nsRect(nsPresContext::CSSPixelsToAppUnits(value.x),

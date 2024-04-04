@@ -611,7 +611,7 @@ inline
 void nsRuleNode::AddRef()
 {
   if (mRefCnt++ == 0) {
-    mPresContext->StyleSet()->AsGecko()->RuleNodeInUse(this);
+    mPresContext->StyleSet()->RuleNodeInUse(this);
   }
 }
 
@@ -619,7 +619,7 @@ inline
 void nsRuleNode::Release()
 {
   if (--mRefCnt == 0) {
-    mPresContext->StyleSet()->AsGecko()->RuleNodeUnused(this, /* aMayGC = */ true);
+    mPresContext->StyleSet()->RuleNodeUnused(this, /* aMayGC = */ true);
   }
 }
 #endif

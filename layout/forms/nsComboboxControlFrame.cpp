@@ -30,8 +30,7 @@
 #include "nsIDocument.h"
 #include "nsIScrollableFrame.h"
 #include "nsListControlFrame.h"
-#include "mozilla/StyleSetHandle.h"
-#include "mozilla/StyleSetHandleInlines.h"
+#include "nsStyleSet.h"
 #include "nsNodeInfoManager.h"
 #include "nsContentCreatorFunctions.h"
 #include "nsLayoutUtils.h"
@@ -1356,7 +1355,7 @@ nsComboboxControlFrame::CreateFrameForDisplayNode()
 
   // Get PresShell
   nsIPresShell *shell = PresContext()->PresShell();
-  StyleSetHandle styleSet = shell->StyleSet();
+  nsStyleSet* styleSet = shell->StyleSet();
 
   // create the style contexts for the anonymous block frame and text frame
   RefPtr<nsStyleContext> styleContext;

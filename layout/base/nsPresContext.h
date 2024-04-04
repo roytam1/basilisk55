@@ -228,7 +228,7 @@ public:
   }
 
 #ifdef MOZILLA_INTERNAL_API
-  mozilla::StyleSetHandle StyleSet() const { return GetPresShell()->StyleSet(); }
+  nsStyleSet* StyleSet() const { return GetPresShell()->StyleSet(); }
 
   nsFrameManager* FrameManager()
     { return PresShell()->FrameManager(); }

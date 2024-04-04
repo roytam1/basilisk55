@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/RestyleManagerBase.h"
-#include "mozilla/StyleSetHandleInlines.h"
+#include "nsStyleSet.h"
 #include "nsIFrame.h"
 
 namespace mozilla {
@@ -35,7 +35,7 @@ RestyleManagerBase::ContentStateChangedInternal(Element* aElement,
   MOZ_ASSERT(aOutChangeHint);
   MOZ_ASSERT(aOutRestyleHint);
 
-  StyleSetHandle styleSet = PresContext()->StyleSet();
+  nsStyleSet* styleSet = PresContext()->StyleSet();
   NS_ASSERTION(styleSet, "couldn't get style set");
 
   *aOutChangeHint = nsChangeHint(0);

@@ -349,7 +349,7 @@ KeyframeEffectReadOnly::ResolveBaseStyle(nsCSSPropertyID aProperty,
   }
 
   RefPtr<nsStyleContext> styleContextWithoutAnimation =
-    aStyleContext->PresContext()->StyleSet()->AsGecko()->
+    aStyleContext->PresContext()->StyleSet()->
       ResolveStyleByRemovingAnimation(mTarget->mElement,
                                       aStyleContext,
                                       eRestyle_AllHintsWithAnimations);
@@ -1462,7 +1462,7 @@ CreateStyleContextForAnimationValue(nsCSSPropertyID aProperty,
   rules.AppendObject(styleRule);
 
   nsStyleSet* styleSet =
-    aBaseStyleContext->PresContext()->StyleSet()->AsGecko();
+    aBaseStyleContext->PresContext()->StyleSet();
 
   RefPtr<nsStyleContext> styleContext =
     styleSet->ResolveStyleByAddingRules(aBaseStyleContext, rules);

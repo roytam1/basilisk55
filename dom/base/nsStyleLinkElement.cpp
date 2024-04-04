@@ -324,7 +324,7 @@ nsStyleLinkElement::DoUpdateStyleSheet(nsIDocument* aOldDocument,
 
   Element* oldScopeElement = nullptr;
   if (mStyleSheet) {
-    oldScopeElement = mStyleSheet->AsGecko()->GetScopeElement();
+    oldScopeElement = mStyleSheet->AsConcrete()->GetScopeElement();
   }
 
   if (mStyleSheet && (aOldDocument || aOldShadowRoot)) {
@@ -486,7 +486,7 @@ nsStyleLinkElement::UpdateStyleSheetScopedness(bool aIsNowScoped)
     return;
   }
 
-  CSSStyleSheet* sheet = mStyleSheet->AsGecko();
+  CSSStyleSheet* sheet = mStyleSheet->AsConcrete();
 
   nsCOMPtr<nsIContent> thisContent;
   CallQueryInterface(this, getter_AddRefs(thisContent));

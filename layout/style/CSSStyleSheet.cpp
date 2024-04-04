@@ -651,7 +651,7 @@ CSSStyleSheet::FindOwningWindowInnerID() const
     RefPtr<StyleSheet> sheet =
       static_cast<css::Rule*>(mOwnerRule)->GetStyleSheet();
     if (sheet) {
-      windowID = sheet->AsGecko()->FindOwningWindowInnerID();
+      windowID = sheet->AsConcrete()->FindOwningWindowInnerID();
     }
   }
 
@@ -1158,7 +1158,7 @@ CSSStyleSheet::StyleSheetLoaded(StyleSheet* aSheet,
                                 bool aWasAlternate,
                                 nsresult aStatus)
 {
-  CSSStyleSheet* sheet = aSheet->AsGecko();
+  CSSStyleSheet* sheet = aSheet->AsConcrete();
 
   if (sheet->GetParentSheet() == nullptr) {
     return NS_OK; // ignore if sheet has been detached already (see parseSheet)

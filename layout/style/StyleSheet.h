@@ -11,7 +11,6 @@
 #include "mozilla/dom/CSSStyleSheetBinding.h"
 #include "mozilla/net/ReferrerPolicy.h"
 #include "mozilla/CORSMode.h"
-#include "mozilla/DeprecatedUtils.h"
 
 #include "nsIDOMCSSStyleSheet.h"
 #include "nsWrapperCache.h"
@@ -80,7 +79,8 @@ public:
    */
   void SetEnabled(bool aEnabled);
 
-  MOZ_DECL_DEPRECATED_METHODS(CSSStyleSheet)
+  inline CSSStyleSheet* AsConcrete();
+  inline const CSSStyleSheet* AsConcrete() const;
 
   // Whether the sheet is for an inline <style> element.
   inline bool IsInline() const;

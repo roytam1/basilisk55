@@ -2310,7 +2310,7 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
   }
 
   if (sheet)
-    styleSet->AppendStyleSheet(SheetType::User, sheet->AsGecko());
+    styleSet->AppendStyleSheet(SheetType::User, sheet->AsConcrete());
 
   // Append chrome sheets (scrollbars + forms).
   bool shouldOverride = false;
@@ -2346,7 +2346,7 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
           cssLoader->LoadSheetSync(uri, &chromeSheet);
           if (!chromeSheet) continue;
 
-          styleSet->PrependStyleSheet(SheetType::Agent, chromeSheet->AsGecko());
+          styleSet->PrependStyleSheet(SheetType::Agent, chromeSheet->AsConcrete());
           shouldOverride = true;
         }
         free(str);
@@ -2357,7 +2357,7 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
   if (!shouldOverride) {
     sheet = cache->ScrollbarsSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
   }
 
@@ -2373,12 +2373,12 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
 
     sheet = cache->NumberControlSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
 
     sheet = cache->FormsSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
 
     if (aDocument->LoadsFullXULStyleSheetUpFront()) {
@@ -2386,7 +2386,7 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
       // up-front here.
       sheet = cache->XULSheet();
       if (sheet) {
-        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
       }
     }
 
@@ -2394,25 +2394,25 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
     if (sheet) {
       // Load the minimal XUL rules for scrollbars and a few other XUL things
       // that non-XUL (typically HTML) documents commonly use.
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
 
     sheet = cache->CounterStylesSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
 
     if (nsLayoutUtils::ShouldUseNoScriptSheet(aDocument)) {
       sheet = cache->NoScriptSheet();
       if (sheet) {
-        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
       }
     }
 
     if (nsLayoutUtils::ShouldUseNoFramesSheet(aDocument)) {
       sheet = cache->NoFramesSheet();
       if (sheet) {
-        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+        styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
       }
     }
 
@@ -2421,26 +2421,26 @@ nsDocumentViewer::CreateStyleSet(nsIDocument* aDocument)
 
     sheet = cache->HTMLSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
 
     styleSet->PrependStyleSheet(SheetType::Agent,
-                                cache->UASheet()->AsGecko());
+                                cache->UASheet()->AsConcrete());
   } else {
     // SVG documents may have scrollbars and need the scrollbar styling.
     sheet = cache->MinimalXULSheet();
     if (sheet) {
-      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
   }
 
   nsStyleSheetService* sheetService = nsStyleSheetService::GetInstance();
   if (sheetService) {
     for (StyleSheet* sheet : *sheetService->AgentStyleSheets()) {
-      styleSet->AppendStyleSheet(SheetType::Agent, sheet->AsGecko());
+      styleSet->AppendStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
     for (StyleSheet* sheet : Reversed(*sheetService->UserStyleSheets())) {
-      styleSet->PrependStyleSheet(SheetType::User, sheet->AsGecko());
+      styleSet->PrependStyleSheet(SheetType::User, sheet->AsConcrete());
     }
   }
 

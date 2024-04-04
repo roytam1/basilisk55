@@ -179,7 +179,7 @@ nsStyleSheetService::LoadAndRegisterSheet(nsIURI *aSheetURI,
       // mSheets[aSheetType]
 
       StyleSheet* sheet = mSheets[aSheetType].LastElement();
-      CSSStyleSheet* cssSheet = sheet->AsGecko();
+      CSSStyleSheet* cssSheet = sheet->AsConcrete();
       serv->NotifyObservers(NS_ISUPPORTS_CAST(nsIDOMCSSStyleSheet*, cssSheet),
                             message, nullptr);
     }
@@ -319,7 +319,7 @@ nsStyleSheetService::UnregisterSheet(nsIURI *aSheetURI, uint32_t aSheetType)
 
   nsCOMPtr<nsIObserverService> serv = services::GetObserverService();
   if (serv) {
-    CSSStyleSheet* cssSheet = sheet->AsGecko();
+    CSSStyleSheet* cssSheet = sheet->AsConcrete();
     serv->NotifyObservers(NS_ISUPPORTS_CAST(nsIDOMCSSStyleSheet*, cssSheet),
                           message, nullptr);
   }

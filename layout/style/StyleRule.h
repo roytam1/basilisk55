@@ -368,7 +368,7 @@ public:
   CSSStyleSheet* GetStyleSheet() const
   {
     StyleSheet* sheet = Rule::GetStyleSheet();
-    return sheet ? sheet->AsGecko() : nullptr;
+    return sheet ? sheet->AsConcrete() : nullptr;
   }
 
   virtual already_AddRefed<Rule> Clone() const override;

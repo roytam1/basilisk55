@@ -12,18 +12,28 @@
 
 namespace mozilla {
 
-MOZ_DEFINE_DEPRECATED_METHODS(StyleSheet, CSSStyleSheet)
+CSSStyleSheet*
+StyleSheet::AsConcrete()
+{
+  return static_cast<CSSStyleSheet*>(this);
+}
+
+const CSSStyleSheet*
+StyleSheet::AsConcrete() const
+{
+  return static_cast<const CSSStyleSheet*>(this);
+}
 
 StyleSheetInfo&
 StyleSheet::SheetInfo()
 {
-  return *AsGecko()->mInner;
+  return *AsConcrete()->mInner;
 }
 
 const StyleSheetInfo&
 StyleSheet::SheetInfo() const
 {
-  return *AsGecko()->mInner;
+  return *AsConcrete()->mInner;
 }
 
 bool
@@ -72,7 +82,7 @@ StyleSheet::IsApplicable() const
 bool
 StyleSheet::HasRules() const
 {
-  return AsGecko()->HasRules();
+  return AsConcrete()->HasRules();
 }
 
 void
@@ -80,19 +90,19 @@ StyleSheet::SetAssociatedDocument(nsIDocument* aDocument,
                                   DocumentAssociationMode aAssociationMode)
 {
   MOZ_ASSERT(aDocument);
-  AsGecko()->SetAssociatedDocument(aDocument, aAssociationMode);
+  AsConcrete()->SetAssociatedDocument(aDocument, aAssociationMode);
 }
 
 void
 StyleSheet::ClearAssociatedDocument()
 {
-  AsGecko()->SetAssociatedDocument(nullptr, NotOwnedByDocument);
+  AsConcrete()->SetAssociatedDocument(nullptr, NotOwnedByDocument);
 }
 
 StyleSheet*
 StyleSheet::GetParentSheet() const
 {
-  return AsGecko()->GetParentSheet();
+  return AsConcrete()->GetParentSheet();
 }
 
 StyleSheet*
@@ -113,7 +123,7 @@ StyleSheet::GetParentObject() const
 void
 StyleSheet::AppendStyleSheet(StyleSheet* aSheet)
 {
-  AsGecko()->AppendStyleSheet(aSheet->AsGecko());
+  AsConcrete()->AppendStyleSheet(aSheet->AsConcrete());
 }
 
 nsIPrincipal*
@@ -156,19 +166,19 @@ StyleSheet::GetIntegrity(dom::SRIMetadata& aResult) const
 size_t
 StyleSheet::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
 {
-  return AsGecko()->SizeOfIncludingThis(aMallocSizeOf);
+  return AsConcrete()->SizeOfIncludingThis(aMallocSizeOf);
 }
 
 #ifdef DEBUG
 void
 StyleSheet::List(FILE* aOut, int32_t aIndex) const
 {
-  AsGecko()->List(aOut, aIndex);
+  AsConcrete()->List(aOut, aIndex);
 }
 #endif
 
-void StyleSheet::WillDirty() { AsGecko()->WillDirty(); }
-void StyleSheet::DidDirty() { AsGecko()->DidDirty(); }
+void StyleSheet::WillDirty() { AsConcrete()->WillDirty(); }
+void StyleSheet::DidDirty() { AsConcrete()->DidDirty(); }
 
 
 }

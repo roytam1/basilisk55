@@ -2872,7 +2872,7 @@ HTMLEditor::EnableStyleSheet(const nsAString& aURL,
   nsCOMPtr<nsIDocument> document = GetDocument();
   sheet->SetAssociatedDocument(document, StyleSheet::NotOwnedByDocument);
 
-  return sheet->AsGecko()->SetDisabled(!aEnable);
+  return sheet->AsConcrete()->SetDisabled(!aEnable);
 }
 
 bool
@@ -2889,7 +2889,7 @@ HTMLEditor::EnableExistingStyleSheet(const nsAString& aURL)
   nsCOMPtr<nsIDocument> document = GetDocument();
   sheet->SetAssociatedDocument(document, StyleSheet::NotOwnedByDocument);
 
-  sheet->AsGecko()->SetDisabled(false);
+  sheet->AsConcrete()->SetDisabled(false);
   return true;
 }
 

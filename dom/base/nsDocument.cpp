@@ -2135,7 +2135,7 @@ nsDocument::RemoveDocStyleSheetsFromStyleSets()
     if (sheet->IsApplicable()) {
       nsCOMPtr<nsIPresShell> shell = GetShell();
       if (shell) {
-        shell->StyleSet()->RemoveDocStyleSheet(sheet->AsGecko());
+        shell->StyleSet()->RemoveDocStyleSheet(sheet->AsConcrete());
       }
     }
     // XXX Tell observers?
@@ -2154,7 +2154,7 @@ nsDocument::RemoveStyleSheetsFromStyleSets(
     if (sheet->IsApplicable()) {
       nsCOMPtr<nsIPresShell> shell = GetShell();
       if (shell) {
-        shell->StyleSet()->RemoveStyleSheet(aType, sheet->AsGecko());
+        shell->StyleSet()->RemoveStyleSheet(aType, sheet->AsConcrete());
       }
     }
     // XXX Tell observers?
@@ -2225,7 +2225,7 @@ AppendSheetsToStyleSet(nsStyleSet* aStyleSet,
                        SheetType aType)
 {
   for (StyleSheet* sheet : Reversed(aSheets)) {
-    aStyleSet->AppendStyleSheet(aType, sheet->AsGecko());
+    aStyleSet->AppendStyleSheet(aType, sheet->AsConcrete());
   }
 }
 
@@ -2241,21 +2241,21 @@ nsDocument::FillStyleSet(nsStyleSet* aStyleSet)
 
   for (StyleSheet* sheet : Reversed(mStyleSheets)) {
     if (sheet->IsApplicable()) {
-      aStyleSet->AddDocStyleSheet(sheet->AsGecko(), this);
+      aStyleSet->AddDocStyleSheet(sheet->AsConcrete(), this);
     }
   }
 
   nsStyleSheetService *sheetService = nsStyleSheetService::GetInstance();
   if (sheetService) {
     for (StyleSheet* sheet : *sheetService->AuthorStyleSheets()) {
-      aStyleSet->AppendStyleSheet(SheetType::Doc, sheet->AsGecko());
+      aStyleSet->AppendStyleSheet(SheetType::Doc, sheet->AsConcrete());
     }
   }
 
   // Iterate backwards to maintain order
   for (StyleSheet* sheet : Reversed(mOnDemandBuiltInUASheets)) {
     if (sheet->IsApplicable()) {
-      aStyleSet->PrependStyleSheet(SheetType::Agent, sheet->AsGecko());
+      aStyleSet->PrependStyleSheet(SheetType::Agent, sheet->AsConcrete());
     }
   }
 
@@ -3988,7 +3988,7 @@ nsDocument::AddOnDemandBuiltInUASheet(StyleSheet* aSheet)
       // do not override Firefox OS/Mobile's content.css sheet. Maybe we should
       // have an insertion point to match the order of
       // nsDocumentViewer::CreateStyleSet though?
-      shell->StyleSet()->PrependStyleSheet(SheetType::Agent, aSheet->AsGecko());
+      shell->StyleSet()->PrependStyleSheet(SheetType::Agent, aSheet->AsConcrete());
     }
   }
 
@@ -4000,7 +4000,7 @@ nsDocument::AddStyleSheetToStyleSets(StyleSheet* aSheet)
 {
   nsCOMPtr<nsIPresShell> shell = GetShell();
   if (shell) {
-    shell->StyleSet()->AddDocStyleSheet(aSheet->AsGecko(), this);
+    shell->StyleSet()->AddDocStyleSheet(aSheet->AsConcrete(), this);
   }
 }
 
@@ -4067,7 +4067,7 @@ nsDocument::RemoveStyleSheetFromStyleSets(StyleSheet* aSheet)
 {
   nsCOMPtr<nsIPresShell> shell = GetShell();
   if (shell) {
-    shell->StyleSet()->RemoveDocStyleSheet(aSheet->AsGecko());
+    shell->StyleSet()->RemoveDocStyleSheet(aSheet->AsConcrete());
   }
 }
 
@@ -4286,7 +4286,7 @@ nsDocument::AddAdditionalStyleSheet(additionalSheetType aType, StyleSheet* aShee
   nsCOMPtr<nsIPresShell> shell = GetShell();
   if (shell) {
     SheetType type = ConvertAdditionalSheetType(aType);
-    shell->StyleSet()->AppendStyleSheet(type, aSheet->AsGecko());
+    shell->StyleSet()->AppendStyleSheet(type, aSheet->AsConcrete());
   }
 
   // Passing false, so documet.styleSheets.length will not be affected by
@@ -4314,7 +4314,7 @@ nsDocument::RemoveAdditionalStyleSheet(additionalSheetType aType, nsIURI* aSheet
       nsCOMPtr<nsIPresShell> shell = GetShell();
       if (shell) {
         SheetType type = ConvertAdditionalSheetType(aType);
-        shell->StyleSet()->RemoveStyleSheet(type, sheetRef->AsGecko());
+        shell->StyleSet()->RemoveStyleSheet(type, sheetRef->AsConcrete());
       }
     }
 
@@ -5892,9 +5892,9 @@ nsDocument::EnableStyleSheetsForSetInternal(const nsAString& aSheetSet,
     StyleSheet* sheet = SheetAt(index);
     NS_ASSERTION(sheet, "Null sheet in sheet list!");
 
-    sheet->AsGecko()->GetTitle(title);
+    sheet->AsConcrete()->GetTitle(title);
     if (!title.IsEmpty()) {
-      sheet->AsGecko()->SetEnabled(title.Equals(aSheetSet));
+      sheet->AsConcrete()->SetEnabled(title.Equals(aSheetSet));
     }
   }
   if (aUpdateCSSLoader) {
@@ -9603,7 +9603,7 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
         if (sheet) {
           if (sheet->IsApplicable()) {
             RefPtr<CSSStyleSheet> clonedSheet =
-              sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+              sheet->AsConcrete()->Clone(nullptr, nullptr, clonedDoc, nullptr);
             NS_WARNING_ASSERTION(clonedSheet,
                                  "Cloning a stylesheet didn't work!");
             if (clonedSheet) {
@@ -9618,7 +9618,7 @@ nsIDocument::CreateStaticClone(nsIDocShell* aCloneContainer)
         if (sheet) {
           if (sheet->IsApplicable()) {
             RefPtr<CSSStyleSheet> clonedSheet =
-              sheet->AsGecko()->Clone(nullptr, nullptr, clonedDoc, nullptr);
+              sheet->AsConcrete()->Clone(nullptr, nullptr, clonedDoc, nullptr);
             NS_WARNING_ASSERTION(clonedSheet,
                                  "Cloning a stylesheet didn't work!");
             if (clonedSheet) {

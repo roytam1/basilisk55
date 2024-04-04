@@ -180,8 +180,7 @@
 #include "nsPlaceholderFrame.h"
 #include "nsTransitionManager.h"
 #include "ChildIterator.h"
-#include "mozilla/RestyleManagerHandle.h"
-#include "mozilla/RestyleManagerHandleInlines.h"
+#include "mozilla/RestyleManager.h"
 #include "nsIDOMHTMLElement.h"
 #include "nsIDragSession.h"
 #include "nsIFrameInlines.h"
@@ -569,7 +568,7 @@ VerifyStyleTree(nsPresContext* aPresContext, nsFrameManager* aFrameManager)
 {
   if (nsFrame::GetVerifyStyleTreeEnable()) {
     nsIFrame* rootFrame = aFrameManager->GetRootFrame();
-    aPresContext->RestyleManager()->AsGecko()->DebugVerifyStyleTree(rootFrame);
+    aPresContext->RestyleManager()->DebugVerifyStyleTree(rootFrame);
   }
 }
 #define VERIFY_STYLE_TREE ::VerifyStyleTree(mPresContext, mFrameConstructor)
@@ -2846,7 +2845,7 @@ PresShell::RecreateFramesFor(nsIContent* aContent)
 
   // Mark ourselves as not safe to flush while we're doing frame construction.
   ++mChangeNestCount;
-  RestyleManagerHandle restyleManager = mPresContext->RestyleManager();
+  RestyleManager* restyleManager = mPresContext->RestyleManager();
   nsresult rv = restyleManager->ProcessRestyledFrames(changeList);
   restyleManager->FlushOverflowChangedTracker();
   --mChangeNestCount;
@@ -3632,7 +3631,7 @@ void
 PresShell::DispatchSynthMouseMove(WidgetGUIEvent* aEvent,
                                   bool aFlushOnHoverChange)
 {
-  RestyleManagerHandle restyleManager = mPresContext->RestyleManager();
+  RestyleManager* restyleManager = mPresContext->RestyleManager();
   uint32_t hoverGenerationBefore =
     restyleManager->GetHoverGeneration();
   nsEventStatus status;
@@ -4452,7 +4451,7 @@ nsIPresShell::RestyleForCSSRuleChanges()
     return;
   }
 
-  RestyleManagerHandle restyleManager = mPresContext->RestyleManager();
+  RestyleManager* restyleManager = mPresContext->RestyleManager();
 
   if (scopeRoots.IsEmpty()) {
     // If scopeRoots is empty, we know that mStylesHaveChanged was true at
@@ -6758,7 +6757,7 @@ FlushThrottledStyles(nsIDocument *aDocument, void *aData)
   if (shell && shell->IsVisible()) {
     nsPresContext* presContext = shell->GetPresContext();
     if (presContext) {
-      presContext->RestyleManager()->AsGecko()->UpdateOnlyAnimationStyles();
+      presContext->RestyleManager()->UpdateOnlyAnimationStyles();
     }
   }
 
@@ -9429,9 +9428,9 @@ PresShell::Observe(nsISupports* aSubject,
         {
           nsAutoScriptBlocker scriptBlocker;
           ++mChangeNestCount;
-          RestyleManagerHandle restyleManager = mPresContext->RestyleManager();
-          restyleManager->AsGecko()->ProcessRestyledFrames(changeList);
-          restyleManager->AsGecko()->FlushOverflowChangedTracker();
+          RestyleManager* restyleManager = mPresContext->RestyleManager();
+          restyleManager->ProcessRestyledFrames(changeList);
+          restyleManager->FlushOverflowChangedTracker();
           --mChangeNestCount;
         }
       }

@@ -465,7 +465,7 @@ public:
 
     // Set SkipAnimationRules flag if we are going to resolve style without
     // animation.
-    mRestyleManager = aPresContext->RestyleManager()->AsGecko();
+    mRestyleManager = aPresContext->RestyleManager();
 
     mOldSkipAnimationRules = mRestyleManager->SkipAnimationRules();
     mRestyleManager->SetSkipAnimationRules(true);

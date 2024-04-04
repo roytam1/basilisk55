@@ -55,8 +55,7 @@
 #include "mozilla/css/Declaration.h"
 #include "mozilla/dom/SVGElementBinding.h"
 #include "mozilla/Unused.h"
-#include "mozilla/RestyleManagerHandle.h"
-#include "mozilla/RestyleManagerHandleInlines.h"
+#include "mozilla/RestyleManager.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -934,9 +933,9 @@ nsSVGElement::WalkAnimatedContentStyleRules(nsRuleWalker* aRuleWalker)
   // whether this is a "no-animation restyle". (This should match the check
   // in nsHTMLCSSStyleSheet::RulesMatching(), where we determine whether to
   // apply the SMILOverrideStyle.)
-  RestyleManagerHandle restyleManager =
+  RestyleManager* restyleManager =
     aRuleWalker->PresContext()->RestyleManager();
-  if (!restyleManager->AsGecko()->SkipAnimationRules()) {
+  if (!restyleManager->SkipAnimationRules()) {
     // update/walk the animated content style rule.
     css::Declaration* animContentDeclBlock = GetAnimatedContentDeclarationBlock();
     if (!animContentDeclBlock) {

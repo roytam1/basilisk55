@@ -11,7 +11,7 @@
 #include "nsHTMLCSSStyleSheet.h"
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/css/StyleRule.h"
-#include "mozilla/DeclarationBlockInlines.h"
+#include "mozilla/css/Declaration.h"
 #include "nsIStyleRuleProcessor.h"
 #include "nsPresContext.h"
 #include "nsRuleWalker.h"
@@ -40,7 +40,7 @@ nsHTMLCSSStyleSheet::~nsHTMLCSSStyleSheet()
     // Ideally we'd just call MiscContainer::Evict, but we can't do that since
     // we're iterating the hashtable.
     if (value->mType == nsAttrValue::eCSSDeclaration) {
-      DeclarationBlock* declaration = value->mValue.mCSSDeclaration;
+      css::Declaration* declaration = value->mValue.mCSSDeclaration;
       declaration->SetHTMLCSSStyleSheet(nullptr);
     } else {
       MOZ_ASSERT_UNREACHABLE("unexpected cached nsAttrValue type");
@@ -66,10 +66,10 @@ nsHTMLCSSStyleSheet::ElementRulesMatching(nsPresContext* aPresContext,
                                           nsRuleWalker* aRuleWalker)
 {
   // just get the one and only style rule from the content's STYLE attribute
-  DeclarationBlock* declaration = aElement->GetInlineStyleDeclaration();
+  css::Declaration* declaration = aElement->GetInlineStyleDeclaration();
   if (declaration) {
     declaration->SetImmutable();
-    aRuleWalker->Forward(declaration->AsGecko());
+    aRuleWalker->Forward(declaration);
   }
 
   declaration = aElement->GetSMILOverrideStyleDeclaration();
@@ -79,7 +79,7 @@ nsHTMLCSSStyleSheet::ElementRulesMatching(nsPresContext* aPresContext,
       // Animation restyle (or non-restyle traversal of rules)
       // Now we can walk SMIL overrride style, without triggering transitions.
       declaration->SetImmutable();
-      aRuleWalker->Forward(declaration->AsGecko());
+      aRuleWalker->Forward(declaration);
     }
   }
 }
@@ -95,10 +95,10 @@ nsHTMLCSSStyleSheet::PseudoElementRulesMatching(Element* aPseudoElement,
   MOZ_ASSERT(aPseudoElement);
 
   // just get the one and only style rule from the content's STYLE attribute
-  DeclarationBlock* declaration = aPseudoElement->GetInlineStyleDeclaration();
+  css::Declaration* declaration = aPseudoElement->GetInlineStyleDeclaration();
   if (declaration) {
     declaration->SetImmutable();
-    aRuleWalker->Forward(declaration->AsGecko());
+    aRuleWalker->Forward(declaration);
   }
 }
 

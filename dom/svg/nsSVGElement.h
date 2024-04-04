@@ -38,7 +38,9 @@ class nsSVGString;
 class nsSVGViewBox;
 
 namespace mozilla {
-class DeclarationBlock;
+namespace css {
+class Declaration;
+}
 
 namespace dom {
 class SVGSVGElement;
@@ -350,7 +352,7 @@ protected:
 
   void UpdateContentDeclarationBlock();
   void UpdateAnimatedContentDeclarationBlock();
-  mozilla::DeclarationBlock* GetAnimatedContentDeclarationBlock();
+  mozilla::css::Declaration* GetAnimatedContentDeclarationBlock();
 
   nsAttrValue WillChangeValue(nsIAtom* aName);
   // aNewValue is set to the old value. This value may be invalid if
@@ -640,7 +642,7 @@ private:
 
   nsSVGClass mClassAttribute;
   nsAutoPtr<nsAttrValue> mClassAnimAttr;
-  RefPtr<mozilla::DeclarationBlock> mContentDeclarationBlock;
+  RefPtr<mozilla::css::Declaration> mContentDeclarationBlock;
 };
 
 /**

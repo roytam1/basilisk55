@@ -17,7 +17,7 @@
 #include "nsIAtom.h"
 #include "nsUnicharUtils.h"
 #include "mozilla/MemoryReporting.h"
-#include "mozilla/DeclarationBlockInlines.h"
+#include "mozilla/css/Declaration.h"
 #include "nsContentUtils.h"
 #include "nsReadableUtils.h"
 #include "prprf.h"
@@ -150,7 +150,7 @@ nsAttrValue::nsAttrValue(nsIAtom* aValue)
   SetTo(aValue);
 }
 
-nsAttrValue::nsAttrValue(already_AddRefed<DeclarationBlock> aValue,
+nsAttrValue::nsAttrValue(already_AddRefed<css::Declaration> aValue,
                          const nsAString* aSerialized)
     : mBits(0)
 {
@@ -420,7 +420,7 @@ nsAttrValue::SetTo(double aValue, const nsAString* aSerialized)
 }
 
 void
-nsAttrValue::SetTo(already_AddRefed<DeclarationBlock> aValue,
+nsAttrValue::SetTo(already_AddRefed<css::Declaration> aValue,
                    const nsAString* aSerialized)
 {
   MiscContainer* cont = EnsureEmptyMiscContainer();
@@ -643,7 +643,7 @@ nsAttrValue::ToString(nsAString& aResult) const
     {
       aResult.Truncate();
       MiscContainer *container = GetMiscContainer();
-      if (DeclarationBlock* decl = container->mValue.mCSSDeclaration) {
+      if (css::Declaration* decl = container->mValue.mCSSDeclaration) {
         decl->ToString(aResult);
       }
       const_cast<nsAttrValue*>(this)->SetMiscAtomOrString(&aResult);
@@ -1748,7 +1748,7 @@ nsAttrValue::ParseStyleAttribute(const nsAString& aString,
     }
   }
 
-  RefPtr<DeclarationBlock> decl;
+  RefPtr<css::Declaration> decl;
   css::Loader* cssLoader = ownerDoc->CSSLoader();
   nsCSSParser cssParser(cssLoader);
   decl = cssParser.ParseStyleAttribute(aString, docURI, baseURI,

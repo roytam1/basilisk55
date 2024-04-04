@@ -38,7 +38,6 @@
 #include "mozilla/EventListenerManager.h"
 #include "mozilla/EventStateManager.h"
 #include "mozilla/EventStates.h"
-#include "mozilla/DeclarationBlockInlines.h"
 #include "nsFocusManager.h"
 #include "nsHTMLStyleSheet.h"
 #include "nsNameSpaceManager.h"
@@ -54,6 +53,7 @@
 #include "nsIScriptSecurityManager.h"
 #include "nsIServiceManager.h"
 #include "mozilla/css/StyleRule.h"
+#include "mozilla/css/Declaration.h"
 #include "nsIURL.h"
 #include "nsViewManager.h"
 #include "nsIWidget.h"
@@ -348,8 +348,8 @@ nsXULElement::Clone(mozilla::dom::NodeInfo *aNodeInfo, nsINode **aResult) const
 
         // Style rules need to be cloned.
         if (originalValue->Type() == nsAttrValue::eCSSDeclaration) {
-            DeclarationBlock* decl = originalValue->GetCSSDeclarationValue();
-            RefPtr<DeclarationBlock> declClone = decl->Clone();
+            css::Declaration* decl = originalValue->GetCSSDeclarationValue();
+            RefPtr<css::Declaration> declClone = decl->Clone();
 
             nsString stringValue;
             originalValue->ToString(stringValue);
@@ -1748,8 +1748,8 @@ nsXULElement::MakeHeavyweight(nsXULPrototypeElement* aPrototype)
 
         // Style rules need to be cloned.
         if (protoattr->mValue.Type() == nsAttrValue::eCSSDeclaration) {
-            DeclarationBlock* decl = protoattr->mValue.GetCSSDeclarationValue();
-            RefPtr<DeclarationBlock> declClone = decl->Clone();
+            css::Declaration* decl = protoattr->mValue.GetCSSDeclarationValue();
+            RefPtr<css::Declaration> declClone = decl->Clone();
 
             nsString stringValue;
             protoattr->mValue.ToString(stringValue);

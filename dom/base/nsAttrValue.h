@@ -37,8 +37,8 @@ class nsStyledElement;
 struct MiscContainer;
 
 namespace mozilla {
-class DeclarationBlock;
 namespace css {
+class Declaration;
 struct URLValue;
 struct ImageValue;
 } // namespace css
@@ -123,7 +123,7 @@ public:
   nsAttrValue(const nsAttrValue& aOther);
   explicit nsAttrValue(const nsAString& aValue);
   explicit nsAttrValue(nsIAtom* aValue);
-  nsAttrValue(already_AddRefed<mozilla::DeclarationBlock> aValue,
+  nsAttrValue(already_AddRefed<mozilla::css::Declaration> aValue,
               const nsAString* aSerialized);
   explicit nsAttrValue(const nsIntMargin& aValue);
   ~nsAttrValue();
@@ -149,7 +149,7 @@ public:
   void SetTo(int16_t aInt);
   void SetTo(int32_t aInt, const nsAString* aSerialized);
   void SetTo(double aValue, const nsAString* aSerialized);
-  void SetTo(already_AddRefed<mozilla::DeclarationBlock> aValue,
+  void SetTo(already_AddRefed<mozilla::css::Declaration> aValue,
              const nsAString* aSerialized);
   void SetTo(mozilla::css::URLValue* aValue, const nsAString* aSerialized);
   void SetTo(const nsIntMargin& aValue);
@@ -201,7 +201,7 @@ public:
   inline int16_t GetEnumValue() const;
   inline float GetPercentValue() const;
   inline AtomArray* GetAtomArrayValue() const;
-  inline mozilla::DeclarationBlock* GetCSSDeclarationValue() const;
+  inline mozilla::css::Declaration* GetCSSDeclarationValue() const;
   inline mozilla::css::URLValue* GetURLValue() const;
   inline mozilla::css::ImageValue* GetImageValue() const;
   inline double GetDoubleValue() const;

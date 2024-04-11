@@ -1073,12 +1073,16 @@ protected:
   bool ParseListStyle();
   bool ParseListStyleType(nsCSSValue& aValue);
   bool ParseMargin();
+  bool ParseMarginBlock();
+  bool ParseMarginInline();
   bool ParseClipPath(nsCSSValue& aValue);
   bool ParseTransform(bool aIsPrefixed, bool aDisallowRelativeValues = false);
   bool ParseObjectPosition();
   bool ParseOutline();
   bool ParseOverflow();
   bool ParsePadding();
+  bool ParsePaddingBlock();
+  bool ParsePaddingInline();
   bool ParseQuotes();
   bool ParseTextAlign(nsCSSValue& aValue,
                       const KTableEntry aTable[]);
@@ -12072,6 +12076,10 @@ CSSParserImpl::ParsePropertyByFunction(nsCSSPropertyID aPropID)
     return ParseListStyle();
   case eCSSProperty_margin:
     return ParseMargin();
+  case eCSSProperty_margin_block:
+    return ParseMarginBlock();
+  case eCSSProperty_margin_inline:
+    return ParseMarginInline();
   case eCSSProperty_object_position:
     return ParseObjectPosition();
   case eCSSProperty_outline:
@@ -12080,6 +12088,10 @@ CSSParserImpl::ParsePropertyByFunction(nsCSSPropertyID aPropID)
     return ParseOverflow();
   case eCSSProperty_padding:
     return ParsePadding();
+  case eCSSProperty_padding_block:
+    return ParsePaddingBlock();
+  case eCSSProperty_padding_inline:
+    return ParsePaddingInline();
   case eCSSProperty_quotes:
     return ParseQuotes();
   case eCSSProperty_text_decoration:
@@ -15604,6 +15616,20 @@ CSSParserImpl::ParseMargin()
 }
 
 bool
+CSSParserImpl::ParseMarginBlock()
+{
+  return ParseBoxPairProperties(eCSSProperty_margin_block_start,
+                                eCSSProperty_margin_block_end);
+}
+
+bool
+CSSParserImpl::ParseMarginInline()
+{
+  return ParseBoxPairProperties(eCSSProperty_margin_inline_start,
+                                eCSSProperty_margin_inline_end);
+}
+
+bool
 CSSParserImpl::ParseObjectPosition()
 {
   nsCSSValue value;
@@ -15687,6 +15713,20 @@ CSSParserImpl::ParsePadding()
   };
 
   return ParseBoxProperties(kPaddingSideIDs);
+}
+
+bool
+CSSParserImpl::ParsePaddingBlock()
+{
+  return ParseBoxPairProperties(eCSSProperty_padding_block_start,
+                                eCSSProperty_padding_block_end);
+}
+
+bool
+CSSParserImpl::ParsePaddingInline()
+{
+  return ParseBoxPairProperties(eCSSProperty_padding_inline_start,
+                                eCSSProperty_padding_inline_end);
 }
 
 bool

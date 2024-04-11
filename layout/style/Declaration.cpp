@@ -1482,6 +1482,10 @@ Declaration::GetPropertyValueInternal(
       }
       MOZ_FALLTHROUGH;
     }
+    case eCSSProperty_margin_block:
+    case eCSSProperty_margin_inline:
+    case eCSSProperty_padding_block:
+    case eCSSProperty_padding_inline:
     case eCSSProperty_gap: {
       const nsCSSPropertyID* subprops =
         nsCSSProps::SubpropertyEntryFor(aProperty);

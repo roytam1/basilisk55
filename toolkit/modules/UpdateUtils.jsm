@@ -85,6 +85,9 @@ this.UpdateUtils = {
     if (/%LOCALE%/.test(url)) {
       url = url.replace(/%LOCALE%/g, this.Locale);
     }
+    url = url.replace(/%CPU_SSE2%/g, Services.appShell.hiddenDOMWindow.navigator.cpuHasSSE2);
+    url = url.replace(/%CPU_AVX%/g, Services.appShell.hiddenDOMWindow.navigator.cpuHasAVX);
+    url = url.replace(/%CPU_AVX2%/g, Services.appShell.hiddenDOMWindow.navigator.cpuHasAVX2);
     url = url.replace(/%CHANNEL%/g, this.UpdateChannel);
     url = url.replace(/%PLATFORM_VERSION%/g, Services.appinfo.platformVersion);
     url = url.replace(/%DISTRIBUTION%/g,

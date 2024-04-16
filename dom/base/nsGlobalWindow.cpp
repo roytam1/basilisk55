@@ -3528,6 +3528,8 @@ nsGlobalWindow::GetEventTargetParent(EventChainPreVisitor& aVisitor)
 
   aVisitor.mCanHandle = true;
   // Middle/right click shouldn't dispatch click event, use auxclick to instead.
+  // Note: mDoc should always exist here, but check just in case someone yanked
+  // it out from under us.
   if (mDoc && mDoc->IsXULDocument()) {
     aVisitor.mForceContentDispatch = true; //FIXME! Bug 329119
   }

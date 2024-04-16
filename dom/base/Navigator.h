@@ -188,6 +188,8 @@ public:
   bool JavaEnabled(CallerType aCallerType, ErrorResult& aRv);
   uint64_t HardwareConcurrency();
   bool CpuHasSSE2();
+  bool CpuHasAVX();
+  bool CpuHasAVX2();
   bool TaintEnabled()
   {
     return false;

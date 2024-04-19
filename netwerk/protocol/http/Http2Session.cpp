@@ -92,6 +92,7 @@ Http2Session::Http2Session(nsISocketTransport *aSocketTransport, uint32_t versio
   , mClosed(false)
   , mCleanShutdown(false)
   , mTLSProfileConfirmed(false)
+  , mAggregatedHeaderSize(0)
   , mGoAwayReason(NO_HTTP_ERROR)
   , mClientGoAwayReason(UNASSIGNED)
   , mPeerGoAwayReason(UNASSIGNED)
@@ -1272,6 +1273,13 @@ Http2Session::RecvHeaders(Http2Session *self)
     RETURN_SESSION_ERROR(self, PROTOCOL_ERROR);
   }
 
+  uint32_t frameSize = self->mInputFrameDataSize - paddingControlBytes -
+                       priorityLen - paddingLength;
+  if (self->mAggregatedHeaderSize + frameSize >
+      gHttpHandler->MaxHttpResponseHeaderSize()) {
+    LOG(("Http2Session %p header exceeds the limit\n", self));
+    RETURN_SESSION_ERROR(self, PROTOCOL_ERROR);
+  }
   if (!self->mInputFrameDataStream) {
     // Cannot find stream. We can continue the session, but we need to
     // uncompress the header block to maintain the correct compression context
@@ -1284,7 +1292,7 @@ Http2Session::RecvHeaders(Http2Session *self)
       self->GenerateRstStream(PROTOCOL_ERROR, self->mInputFrameID);
 
     self->mDecompressBuffer.Append(&self->mInputFrameBuffer[kFrameHeaderBytes + paddingControlBytes + priorityLen],
-                                   self->mInputFrameDataSize - paddingControlBytes - priorityLen - paddingLength);
+                                   frameSize);
 
     if (self->mInputFrameFlags & kFlag_END_HEADERS) {
       rv = self->UncompressAndDiscard(false);
@@ -1311,15 +1319,15 @@ Http2Session::RecvHeaders(Http2Session *self)
 
   // queue up any compression bytes
   self->mDecompressBuffer.Append(&self->mInputFrameBuffer[kFrameHeaderBytes + paddingControlBytes + priorityLen],
-                                 self->mInputFrameDataSize - paddingControlBytes - priorityLen - paddingLength);
+                                 frameSize);
 
   self->mInputFrameDataStream->UpdateTransportReadEvents(self->mInputFrameDataSize);
   self->mLastDataReadEpoch = self->mLastReadEpoch;
 
   if (!isContinuation) {
-    self->mAggregatedHeaderSize = self->mInputFrameDataSize - paddingControlBytes - priorityLen - paddingLength;
+    self->mAggregatedHeaderSize = frameSize;
   } else {
-    self->mAggregatedHeaderSize += self->mInputFrameDataSize - paddingControlBytes - priorityLen - paddingLength;
+    self->mAggregatedHeaderSize += frameSize;
   }
 
   if (!endHeadersFlag) { // more are coming - don't process yet
@@ -1635,6 +1643,15 @@ Http2Session::RecvPushPromise(Http2Session *self)
           self->mInputFrameDataSize));
     RETURN_SESSION_ERROR(self, PROTOCOL_ERROR);
   }
+  
+  uint32_t frameSize = self->mInputFrameDataSize - paddingControlBytes -
+                       promiseLen - paddingLength;
+
+  if (self->mAggregatedHeaderSize + frameSize >
+      gHttpHandler->MaxHttpResponseHeaderSize()) {
+    LOG(("Http2Session:RecvPushPromise %p header exceeds the limit\n", self));
+    RETURN_SESSION_ERROR(self, PROTOCOL_ERROR);
+  }
 
   LOG3(("Http2Session::RecvPushPromise %p ID 0x%X assoc ID 0x%X "
         "paddingLength %d padded %d\n",
@@ -1706,7 +1723,7 @@ Http2Session::RecvPushPromise(Http2Session *self)
     // Need to decompress the headers even though we aren't using them yet in
     // order to keep the compression context consistent for other frames
     self->mDecompressBuffer.Append(&self->mInputFrameBuffer[kFrameHeaderBytes + paddingControlBytes + promiseLen],
-                                   self->mInputFrameDataSize - paddingControlBytes - promiseLen - paddingLength);
+                                   frameSize);
     if (self->mInputFrameFlags & kFlag_END_PUSH_PROMISE) {
       rv = self->UncompressAndDiscard(true);
       if (NS_FAILED(rv)) {
@@ -1720,12 +1737,12 @@ Http2Session::RecvPushPromise(Http2Session *self)
   }
 
   self->mDecompressBuffer.Append(&self->mInputFrameBuffer[kFrameHeaderBytes + paddingControlBytes + promiseLen],
-                                 self->mInputFrameDataSize - paddingControlBytes - promiseLen - paddingLength);
+                                 frameSize);
 
   if (self->mInputFrameType != FRAME_TYPE_CONTINUATION) {
-    self->mAggregatedHeaderSize = self->mInputFrameDataSize - paddingControlBytes - promiseLen - paddingLength;
+    self->mAggregatedHeaderSize = frameSize;
   } else {
-    self->mAggregatedHeaderSize += self->mInputFrameDataSize - paddingControlBytes - promiseLen - paddingLength;
+    self->mAggregatedHeaderSize += frameSize;
   }
 
   if (!(self->mInputFrameFlags & kFlag_END_PUSH_PROMISE)) {

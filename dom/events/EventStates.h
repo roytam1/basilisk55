@@ -295,6 +295,8 @@ private:
 // #define NS_EVENT_STATE_?????????? NS_DEFINE_EVENT_STATE_MACRO(52)
 // Element has focus-within.
 #define NS_EVENT_STATE_FOCUS_WITHIN NS_DEFINE_EVENT_STATE_MACRO(53)
+// Modal <dialog> element
+#define NS_EVENT_STATE_MODAL_DIALOG NS_DEFINE_EVENT_STATE_MACRO(54)
 
 #define DIR_ATTR_STATES (NS_EVENT_STATE_HAS_DIR_ATTR |          \
                          NS_EVENT_STATE_DIR_ATTR_LTR |          \
@@ -313,7 +315,8 @@ private:
 #define ESM_MANAGED_STATES (DIR_ATTR_STATES | NS_EVENT_STATE_ACTIVE | NS_EVENT_STATE_FOCUS |  \
                             NS_EVENT_STATE_HOVER | NS_EVENT_STATE_DRAGOVER |   \
                             NS_EVENT_STATE_URLTARGET | NS_EVENT_STATE_FOCUSRING | \
-                            NS_EVENT_STATE_FULL_SCREEN | NS_EVENT_STATE_FOCUS_WITHIN)
+                            NS_EVENT_STATE_FULL_SCREEN | NS_EVENT_STATE_FOCUS_WITHIN | \
+                            NS_EVENT_STATE_MODAL_DIALOG)
 
 #define INTRINSIC_STATES (~ESM_MANAGED_STATES)
 

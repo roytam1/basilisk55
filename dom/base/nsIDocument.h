@@ -35,6 +35,7 @@
 #include "mozilla/CORSMode.h"
 #include "mozilla/dom/DocumentOrShadowRoot.h"
 #include "mozilla/dom/Dispatcher.h"
+#include "mozilla/FunctionRef.h"
 #include "mozilla/LinkedList.h"
 #include "mozilla/StyleSheet.h"
 #include "mozilla/TimeStamp.h"
@@ -1323,9 +1324,9 @@ public:
   virtual void RemoveFromNameTable(Element* aElement, nsIAtom* aName) = 0;
 
   /**
-   * Returns all elements in the fullscreen stack in the insertion order.
+   * Returns all elements in the top layer in the insertion order.
    */
-  virtual nsTArray<Element*> GetFullscreenStack() const = 0;
+  virtual nsTArray<Element*> GetTopLayer() const = 0;
 
   /**
    * Asynchronously requests that the document make aElement the fullscreen
@@ -1380,6 +1381,8 @@ public:
    * fullscreen.
    */
   virtual nsIDocument* GetFullscreenRoot() = 0;
+
+  virtual size_t CountFullscreenElements() const = 0;
 
   /**
    * Sets the fullscreen root to aRoot. This stores a weak reference to aRoot
@@ -2660,7 +2663,8 @@ public:
   nsIURI* GetDocumentURIObject() const;
   // Not const because all the full-screen goop is not const
   virtual bool FullscreenEnabled(mozilla::dom::CallerType aCallerType) = 0;
-  virtual Element* FullScreenStackTop() = 0;
+  virtual Element* GetTopLayerTop() = 0;
+  virtual Element* GetUnretargetedFullScreenElement() = 0;
   bool Fullscreen()
   {
     return !!GetFullscreenElement();

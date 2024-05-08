@@ -107,7 +107,7 @@ FixedTableLayoutStrategy::GetMinISize(nsRenderingContext* aRenderingContext)
             result -= spacing * (colSpan - 1);
           }
         }
-        // else, for 'auto', '-moz-available', '-moz-fit-content',
+        // else, for 'auto', '-moz-available', 'fit-content',
         // and 'calc()' with percentages, do nothing
       }
     }
@@ -262,7 +262,7 @@ FixedTableLayoutStrategy::ComputeColumnISizes(const ReflowInput& aReflowInput)
           colFrame->AddPrefPercent(pct);
           pctTotal += pct;
         } else {
-          // 'auto', '-moz-available', '-moz-fit-content', and 'calc()'
+          // 'auto', '-moz-available', 'fit-content', and 'calc()'
           // with percentages
           colISize = unassignedMarker;
         }

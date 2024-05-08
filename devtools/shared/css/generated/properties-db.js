@@ -9542,6 +9542,7 @@ exports.CSS_PROPERTIES = {
 exports.PSEUDO_ELEMENTS = [
   ":after",
   ":before",
+  ":slotted",
   ":backdrop",
   ":first-letter",
   ":first-line",

@@ -103,6 +103,8 @@ class nsIGlobalObject;
 class nsStyleSet;
 struct nsCSSSelectorList;
 
+using mozilla::FunctionRef;
+
 namespace mozilla {
 class AbstractThread;
 class CSSStyleSheet;
@@ -1389,6 +1391,13 @@ public:
    * in this document.
    */
   virtual void SetFullscreenRoot(nsIDocument* aRoot) = 0;
+  
+  /**
+   * Push elements to and pop elements from the top layer.
+   * Currently in use for fullscreen and modal version of <dialog>.
+   */
+  virtual bool TopLayerPush(Element* aElement) = 0;
+  virtual Element* TopLayerPop(FunctionRef<bool(Element*)> aPredicateFunc) = 0;
 
   /**
    * Synchronously cleans up the fullscreen state on the given document.

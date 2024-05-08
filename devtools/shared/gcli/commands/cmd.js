@@ -91,7 +91,7 @@ function loadItemsFromMozDir() {
 }
 
 exports.mozDirLoader = function (name) {
-  return loadItemsFromMozDir()().then(items => {
+  return loadItemsFromMozDir().then(items => {
     return { items };
   });
 };

@@ -7988,6 +7988,12 @@ PresShell::HandleEventInternal(WidgetEvent* aEvent,
               aEvent->mFlags.mDefaultPreventedByChrome) {
             mIsLastChromeOnlyEscapeKeyConsumed = true;
           }
+          if (aEvent->mMessage == eKeyDown &&
+              !aEvent->mFlags.mDefaultPrevented) {
+            if (nsIDocument* doc = GetDocument()) {
+              doc->TryCancelDialog();
+            }
+          }
         }
       }
       if (aEvent->mMessage == eKeyDown) {

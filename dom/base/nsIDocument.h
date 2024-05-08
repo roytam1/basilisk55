@@ -1400,6 +1400,11 @@ public:
   virtual Element* TopLayerPop(FunctionRef<bool(Element*)> aPredicateFunc) = 0;
 
   /**
+   * Cancel the dialog element if the document is blocked by the dialog.
+   */
+  virtual void TryCancelDialog() = 0;
+  
+  /**
    * Synchronously cleans up the fullscreen state on the given document.
    *
    * Calling this without performing fullscreen transition could lead

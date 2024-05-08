@@ -50,6 +50,7 @@ public:
   void ShowModal(ErrorResult& aError);
   
   bool IsInTopLayer() const;
+  void CancelDialog();
 
   nsString mReturnValue;
 

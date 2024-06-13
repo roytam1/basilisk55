@@ -946,6 +946,11 @@ nsFormFillController::HandleEvent(nsIDOMEvent* aEvent)
       mFocusedPopup->ClosePopup();
     return NS_OK;
   }
+  if (type.EqualsLiteral("resize")) {
+    if (mFocusedPopup)
+      mFocusedPopup->ClosePopup();
+    return NS_OK;
+  }    
   if (type.EqualsLiteral("pagehide")) {
 
     nsCOMPtr<nsIDocument> doc = do_QueryInterface(
@@ -1254,6 +1259,8 @@ nsFormFillController::AddWindowListeners(nsPIDOMWindowOuter* aWindow)
                               TrustedEventsAtCapture());
   elm->AddEventListenerByType(this, NS_LITERAL_STRING("contextmenu"),
                               TrustedEventsAtCapture());
+  elm->AddEventListenerByType(this, NS_LITERAL_STRING("resize"),
+                              TrustedEventsAtCapture());
 
   // Note that any additional listeners added should ensure that they ignore
   // untrusted events, which might be sent by content that's up to no good.
@@ -1297,6 +1304,8 @@ nsFormFillController::RemoveWindowListeners(nsPIDOMWindowOuter* aWindow)
   elm->RemoveEventListenerByType(this, NS_LITERAL_STRING("compositionend"),
                                  TrustedEventsAtCapture());
   elm->RemoveEventListenerByType(this, NS_LITERAL_STRING("contextmenu"),
+                                 TrustedEventsAtCapture());
+  elm->RemoveEventListenerByType(this, NS_LITERAL_STRING("resize"),
                                  TrustedEventsAtCapture());
 }
 

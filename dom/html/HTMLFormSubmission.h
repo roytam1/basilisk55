@@ -8,6 +8,7 @@
 #define mozilla_dom_HTMLFormSubmission_h
 
 #include "mozilla/Attributes.h"
+#include "mozilla/dom/HTMLDialogElement.h"
 #include "nsCOMPtr.h"
 #include "nsIContent.h"
 #include "nsNCRFallbackEncoderWrapper.h"
@@ -139,6 +140,8 @@ public:
     aTarget = mTarget;
   }
 
+  virtual DialogFormSubmission* GetAsDialogSubmission() { return nullptr; }
+
 protected:
   /**
    * Can only be constructed by subclasses.
@@ -196,6 +199,51 @@ public:
 private:
   // The encoder that will encode Unicode names and values
   nsNCRFallbackEncoderWrapper mEncoder;
+};
+
+
+class DialogFormSubmission final : public HTMLFormSubmission {
+ public:
+  DialogFormSubmission(nsAString& aResult, nsIURI* aActionURL,
+                       const nsAString& aTarget,
+                       const nsACString& aCharset, Element* aSubmitter,
+                       HTMLDialogElement* aDialogElement)
+      : HTMLFormSubmission(aActionURL, aTarget, aCharset, aSubmitter)
+      , mDialogElement(aDialogElement)
+      , mReturnValue(aResult) {
+  }
+
+  nsresult AddNameValuePair(const nsAString& aName,
+                            const nsAString& aValue) override {
+    MOZ_CRASH("This method should not be called");
+    return NS_OK;
+  }
+
+  nsresult AddNameBlobOrNullPair(const nsAString& aName, Blob* aBlob) override {
+    MOZ_CRASH("This method should not be called");
+    return NS_OK;
+  }
+
+  nsresult AddNameDirectoryPair(const nsAString& aName,
+                                Directory* aDirectory) override {
+    MOZ_CRASH("This method should not be called");
+    return NS_OK;
+  }
+
+  nsresult GetEncodedSubmission(nsIURI* aURI, nsIInputStream** aPostDataStream) override {
+    MOZ_CRASH("This method should not be called");
+    return NS_OK;
+  }
+
+  DialogFormSubmission* GetAsDialogSubmission() override { return this; }
+
+  HTMLDialogElement* DialogElement() { return mDialogElement; }
+
+  nsString& ReturnValue() { return mReturnValue; }
+
+ private:
+  const RefPtr<HTMLDialogElement> mDialogElement;
+  nsString mReturnValue;
 };
 
 /**

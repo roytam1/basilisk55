@@ -13,6 +13,7 @@
  * https://dvcs.w3.org/hg/gamepad/raw-file/default/gamepad.html#navigator-interface-extension
  * http://www.w3.org/TR/beacon/#sec-beacon-method
  * https://html.spec.whatwg.org/#navigatorconcurrenthardware
+ * https://w3c.github.io/webdriver/webdriver-spec.html#interface
  * http://wicg.github.io/netinfo/#extensions-to-the-navigator-interface
  *
  * © Copyright 2004-2011 Apple Computer, Inc., Mozilla Foundation, and
@@ -33,6 +34,7 @@ Navigator implements NavigatorStorageUtils;
 Navigator implements NavigatorConcurrentHardware;
 Navigator implements NavigatorStorage;
 Navigator implements NavigatorGlobalPrivacyControl;
+Navigator implements NavigatorAutomationInformation;
 
 [NoInterfaceObject, Exposed=(Window,Worker)]
 interface NavigatorID {
@@ -383,4 +385,11 @@ partial interface Navigator {
 partial interface Navigator {
   [Pref="security.webauth.webauthn", SameObject]
   readonly attribute WebAuthentication authentication;
+};
+
+// https://w3c.github.io/webdriver/webdriver-spec.html#interface
+[NoInterfaceObject, Exposed=Window]
+interface NavigatorAutomationInformation {
+  [Pref="dom.webdriver.enabled"]
+  readonly attribute boolean webdriver;
 };

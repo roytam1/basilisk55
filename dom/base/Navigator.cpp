@@ -1916,6 +1916,14 @@ Navigator::Clipboard()
   return mClipboard;
 }
 
+/* static */
+bool
+Navigator::Webdriver()
+{
+  // We don't support Selenium or marionette, so this is always false.
+  return false;
+}
+
 #ifdef MOZ_EME
 static nsCString
 ToCString(const nsString& aString)

@@ -238,6 +238,8 @@ public:
 
   mozilla::dom::WebAuthentication* Authentication();
 
+  static bool Webdriver();
+
   void GetLanguages(nsTArray<nsString>& aLanguages);
 
   bool MozE10sEnabled();

@@ -14,6 +14,7 @@ EXPORTS.mozilla.dom += [
     'nsCSPService.h',
     'nsCSPUtils.h',
     'nsMixedContentBlocker.h',
+    'SecFetch.h',
     'SRICheck.h',
     'SRILogHelper.h',
     'SRIMetadata.h',
@@ -33,6 +34,7 @@ UNIFIED_SOURCES += [
     'nsCSPService.cpp',
     'nsCSPUtils.cpp',
     'nsMixedContentBlocker.cpp',
+    'SecFetch.cpp',
     'SRICheck.cpp',
     'SRIMetadata.cpp',
 ]

@@ -103,6 +103,7 @@
 #include "HSTSPrimerListener.h"
 #include "CacheStorageService.h"
 #include "HttpChannelParent.h"
+#include "mozilla/dom/SecFetch.h"
 
 #ifdef MOZ_TASK_TRACER
 #include "GeckoTaskTracer.h"
@@ -410,6 +411,8 @@ nsHttpChannel::Connect()
                               NS_LITERAL_CSTRING("1"), false);
         NS_ENSURE_SUCCESS(rv, rv);
     }
+    
+    mozilla::dom::SecFetch::AddSecFetchHeader(this);
 
     bool isHttps = false;
     rv = mURI->SchemeIs("https", &isHttps);

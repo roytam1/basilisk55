@@ -441,7 +441,6 @@ ImageBitmap::ImageBitmap(nsIGlobalObject* aGlobal, layers::Image* aData,
   , mDataWrapper(new ImageUtils(mData))
   , mPictureRect(0, 0, aData->GetSize().width, aData->GetSize().height)
   , mIsPremultipliedAlpha(aIsPremultipliedAlpha)
-  , mIsCroppingAreaOutSideOfSourceImage(false)
   , mWriteOnly(aWriteOnly)
 {
   MOZ_ASSERT(aData, "aData is null in ImageBitmap constructor.");
@@ -469,23 +468,6 @@ void
 ImageBitmap::SetPictureRect(const IntRect& aRect, ErrorResult& aRv)
 {
   mPictureRect = FixUpNegativeDimension(aRect, aRv);
-}
-
-void
-ImageBitmap::SetIsCroppingAreaOutSideOfSourceImage(const IntSize& aSourceSize,
-                                                   const Maybe<IntRect>& aCroppingRect)
-{
-  // No cropping at all.
-  if (aCroppingRect.isNothing()) {
-    mIsCroppingAreaOutSideOfSourceImage = false;
-    return;
-  }
-
-  if (aCroppingRect->X() < 0 || aCroppingRect->Y() < 0 ||
-      aCroppingRect->Width() > aSourceSize.width ||
-      aCroppingRect->Height() > aSourceSize.height) {
-    mIsCroppingAreaOutSideOfSourceImage = true;
-  }
 }
 
 static already_AddRefed<SourceSurface>
@@ -731,7 +713,6 @@ ImageBitmap::ToCloneData() const
   UniquePtr<ImageBitmapCloneData> result(new ImageBitmapCloneData());
   result->mPictureRect = mPictureRect;
   result->mIsPremultipliedAlpha = mIsPremultipliedAlpha;
-  result->mIsCroppingAreaOutSideOfSourceImage = mIsCroppingAreaOutSideOfSourceImage;
   RefPtr<SourceSurface> surface = mData->GetAsSourceSurface();
   result->mSurface = surface->GetDataSurface();
   MOZ_ASSERT(result->mSurface);
@@ -751,9 +732,6 @@ ImageBitmap::CreateFromCloneData(nsIGlobalObject* aGlobal,
 
   // Report memory allocation.
   RegisterAllocation(aGlobal, aData->mSurface);
-
-  ret->mIsCroppingAreaOutSideOfSourceImage =
-    aData->mIsCroppingAreaOutSideOfSourceImage;
 
   ErrorResult rv;
   ret->SetPictureRect(aData->mPictureRect, rv);
@@ -832,9 +810,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, HTMLImageElement& aImageEl
     ret->SetPictureRect(aCropRect.ref(), aRv);
   }
 
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  ret->SetIsCroppingAreaOutSideOfSourceImage(surface->GetSize(), aCropRect);
-
   return ret.forget();
 }
 
@@ -885,9 +860,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, HTMLVideoElement& aVideoEl
   if (ret && aCropRect.isSome()) {
     ret->SetPictureRect(aCropRect.ref(), aRv);
   }
-
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  ret->SetIsCroppingAreaOutSideOfSourceImage(data->GetSize(), aCropRect);
 
   return ret.forget();
 }
@@ -961,9 +933,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, HTMLCanvasElement& aCanvas
     ret->SetPictureRect(cropRect, aRv);
   }
 
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  ret->SetIsCroppingAreaOutSideOfSourceImage(surface->GetSize(), aCropRect);
-
   return ret.forget();
 }
 
@@ -1032,9 +1001,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, ImageData& aImageData,
   // The cropping information has been handled in the CreateImageFromRawData()
   // function.
 
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  ret->SetIsCroppingAreaOutSideOfSourceImage(imageSize, aCropRect);
-
   return ret.forget();
 }
 
@@ -1075,9 +1041,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, CanvasRenderingContext2D& 
     ret->SetPictureRect(aCropRect.ref(), aRv);
   }
 
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  ret->SetIsCroppingAreaOutSideOfSourceImage(surface->GetSize(), aCropRect);
-
   return ret.forget();
 }
 
@@ -1099,14 +1062,6 @@ ImageBitmap::CreateInternal(nsIGlobalObject* aGlobal, ImageBitmap& aImageBitmap,
   // Set the picture rectangle.
   if (ret && aCropRect.isSome()) {
     ret->SetPictureRect(aCropRect.ref(), aRv);
-  }
-
-  // Set mIsCroppingAreaOutSideOfSourceImage.
-  if (aImageBitmap.mIsCroppingAreaOutSideOfSourceImage == true) {
-    ret->mIsCroppingAreaOutSideOfSourceImage = true;
-  } else {
-    ret->SetIsCroppingAreaOutSideOfSourceImage(aImageBitmap.mPictureRect.Size(),
-                                               aCropRect);
   }
 
   return ret.forget();
@@ -1370,9 +1325,6 @@ private:
     // Create ImageBitmap object.
     RefPtr<ImageBitmap> imageBitmap = new ImageBitmap(mGlobalObject, data, false /* write-only */);
 
-    // Set mIsCroppingAreaOutSideOfSourceImage.
-    imageBitmap->SetIsCroppingAreaOutSideOfSourceImage(sourceSize, originalCropRect);
-
     return imageBitmap.forget();
   }
 };
@@ -1466,9 +1418,6 @@ private:
     // Create ImageBitmap object.
     RefPtr<ImageBitmap> imageBitmap = new ImageBitmap(mGlobalObject, data, false /* write-only */);
 
-    // Set mIsCroppingAreaOutSideOfSourceImage.
-    imageBitmap->SetIsCroppingAreaOutSideOfSourceImage(sourceSize, originalCropRect);
-
     return imageBitmap.forget();
   }
 
@@ -1558,20 +1507,17 @@ ImageBitmap::ReadStructuredClone(JSContext* aCx,
   uint32_t picRectWidth_;
   uint32_t picRectHeight_;
   uint32_t isPremultipliedAlpha_;
-  uint32_t isCroppingAreaOutSideOfSourceImage_;
   uint32_t writeOnly;
   uint32_t dummy;
 
   if (!JS_ReadUint32Pair(aReader, &picRectX_, &picRectY_) ||
       !JS_ReadUint32Pair(aReader, &picRectWidth_, &picRectHeight_) ||
       !JS_ReadUint32Pair(aReader, &isPremultipliedAlpha_,
-                                  &isCroppingAreaOutSideOfSourceImage_) ||
+                                  &dummy) ||
       !JS_ReadUint32Pair(aReader, &writeOnly, &dummy)) {
     return nullptr;
   }
 
-  MOZ_ASSERT(dummy == 0);
-  
   int32_t picRectX = BitwiseCast<int32_t>(picRectX_);
   int32_t picRectY = BitwiseCast<int32_t>(picRectY_);
   int32_t picRectWidth = BitwiseCast<int32_t>(picRectWidth_);
@@ -1591,9 +1537,6 @@ ImageBitmap::ReadStructuredClone(JSContext* aCx,
     RefPtr<layers::Image> img = CreateImageFromSurface(aClonedSurfaces[aIndex]);
     RefPtr<ImageBitmap> imageBitmap =
       new ImageBitmap(aParent, img, !!writeOnly, isPremultipliedAlpha_);
-
-    imageBitmap->mIsCroppingAreaOutSideOfSourceImage =
-      isCroppingAreaOutSideOfSourceImage_;
 
     ErrorResult error;
     imageBitmap->SetPictureRect(IntRect(picRectX, picRectY,
@@ -1627,7 +1570,6 @@ ImageBitmap::WriteStructuredClone(JSStructuredCloneWriter* aWriter,
   const uint32_t picRectWidth = BitwiseCast<uint32_t>(aImageBitmap->mPictureRect.width);
   const uint32_t picRectHeight = BitwiseCast<uint32_t>(aImageBitmap->mPictureRect.height);
   const uint32_t isPremultipliedAlpha = aImageBitmap->mIsPremultipliedAlpha ? 1 : 0;
-  const uint32_t isCroppingAreaOutSideOfSourceImage = aImageBitmap->mIsCroppingAreaOutSideOfSourceImage ? 1 : 0;
   const uint32_t isWriteOnly = aImageBitmap->mWriteOnly ? 1 : 0;
 
   // Indexing the cloned surfaces and send the index to the receiver.
@@ -1636,8 +1578,7 @@ ImageBitmap::WriteStructuredClone(JSStructuredCloneWriter* aWriter,
   if (NS_WARN_IF(!JS_WriteUint32Pair(aWriter, SCTAG_DOM_IMAGEBITMAP, index)) ||
       NS_WARN_IF(!JS_WriteUint32Pair(aWriter, picRectX, picRectY)) ||
       NS_WARN_IF(!JS_WriteUint32Pair(aWriter, picRectWidth, picRectHeight)) ||
-      NS_WARN_IF(!JS_WriteUint32Pair(aWriter, isPremultipliedAlpha,
-                                              isCroppingAreaOutSideOfSourceImage)) ||
+      NS_WARN_IF(!JS_WriteUint32Pair(aWriter, isPremultipliedAlpha, 0)) ||
       NS_WARN_IF(!JS_WriteUint32Pair(aWriter, isWriteOnly, 0))) {
     return false;
   }
@@ -1711,215 +1652,6 @@ ImageBitmap::MappedDataLength(ImageBitmapFormat aFormat, ErrorResult& aRv)
   } else {
     return CalculateImageBufferSize(aFormat, Width(), Height());
   }
-}
-
-template<typename T>
-class MapDataIntoBufferSource
-{
-protected:
-  MapDataIntoBufferSource(JSContext* aCx,
-                          Promise *aPromise,
-                          ImageBitmap *aImageBitmap,
-                          const T& aBuffer,
-                          int32_t aOffset,
-                          ImageBitmapFormat aFormat)
-  : mPromise(aPromise)
-  , mImageBitmap(aImageBitmap)
-  , mBuffer(aCx, aBuffer.Obj())
-  , mOffset(aOffset)
-  , mFormat(aFormat)
-  {
-    MOZ_ASSERT(mPromise);
-    MOZ_ASSERT(JS_IsArrayBufferObject(mBuffer) ||
-               JS_IsArrayBufferViewObject(mBuffer));
-  }
-
-  virtual ~MapDataIntoBufferSource() = default;
-
-  void DoMapDataIntoBufferSource()
-  {
-    ErrorResult error;
-
-    // Prepare destination buffer.
-    uint8_t* bufferData = nullptr;
-    uint32_t bufferLength = 0;
-    bool isSharedMemory = false;
-    if (JS_IsArrayBufferObject(mBuffer)) {
-      js::GetArrayBufferLengthAndData(mBuffer, &bufferLength, &isSharedMemory, &bufferData);
-    } else if (JS_IsArrayBufferViewObject(mBuffer)) {
-      js::GetArrayBufferViewLengthAndData(mBuffer, &bufferLength, &isSharedMemory, &bufferData);
-    } else {
-      error.Throw(NS_ERROR_NOT_IMPLEMENTED);
-      mPromise->MaybeReject(error);
-      return;
-    }
-
-    if (NS_WARN_IF(!bufferData) || NS_WARN_IF(!bufferLength)) {
-      error.Throw(NS_ERROR_NOT_AVAILABLE);
-      mPromise->MaybeReject(error);
-      return;
-    }
-
-    // Check length.
-    const int32_t neededBufferLength =
-      mImageBitmap->MappedDataLength(mFormat, error);
-
-    if (((int32_t)bufferLength - mOffset) < neededBufferLength) {
-      error.Throw(NS_ERROR_DOM_INDEX_SIZE_ERR);
-      mPromise->MaybeReject(error);
-      return;
-    }
-
-    // Call ImageBitmapFormatUtils.
-    UniquePtr<ImagePixelLayout> layout =
-      mImageBitmap->mDataWrapper->MapDataInto(bufferData,
-                                              mOffset,
-                                              bufferLength,
-                                              mFormat,
-                                              error);
-
-    if (NS_WARN_IF(!layout)) {
-      mPromise->MaybeReject(error);
-      return;
-    }
-
-    mPromise->MaybeResolve(*layout);
-  }
-
-  RefPtr<Promise> mPromise;
-  RefPtr<ImageBitmap> mImageBitmap;
-  JS::PersistentRooted<JSObject*> mBuffer;
-  int32_t mOffset;
-  ImageBitmapFormat mFormat;
-};
-
-template<typename T>
-class MapDataIntoBufferSourceTask final : public Runnable,
-                                          public MapDataIntoBufferSource<T>
-{
-public:
-  MapDataIntoBufferSourceTask(JSContext* aCx,
-                              Promise *aPromise,
-                              ImageBitmap *aImageBitmap,
-                              const T& aBuffer,
-                              int32_t aOffset,
-                              ImageBitmapFormat aFormat)
-  : MapDataIntoBufferSource<T>(aCx, aPromise, aImageBitmap, aBuffer, aOffset, aFormat)
-  {
-  }
-
-  virtual ~MapDataIntoBufferSourceTask() = default;
-
-  NS_IMETHOD Run() override
-  {
-    MapDataIntoBufferSource<T>::DoMapDataIntoBufferSource();
-    return NS_OK;
-  }
-};
-
-template<typename T>
-class MapDataIntoBufferSourceWorkerTask final : public WorkerSameThreadRunnable,
-                                                public MapDataIntoBufferSource<T>
-{
-public:
-  MapDataIntoBufferSourceWorkerTask(JSContext* aCx,
-                                    Promise *aPromise,
-                                    ImageBitmap *aImageBitmap,
-                                    const T& aBuffer,
-                                    int32_t aOffset,
-                                    ImageBitmapFormat aFormat)
-  : WorkerSameThreadRunnable(GetCurrentThreadWorkerPrivate()),
-    MapDataIntoBufferSource<T>(aCx, aPromise, aImageBitmap, aBuffer, aOffset, aFormat)
-  {
-  }
-
-  virtual ~MapDataIntoBufferSourceWorkerTask() = default;
-
-  bool WorkerRun(JSContext* aCx, WorkerPrivate* aWorkerPrivate) override
-  {
-    MapDataIntoBufferSource<T>::DoMapDataIntoBufferSource();
-    return true;
-  }
-};
-
-void AsyncMapDataIntoBufferSource(JSContext* aCx,
-                                  Promise *aPromise,
-                                  ImageBitmap *aImageBitmap,
-                                  const ArrayBufferViewOrArrayBuffer& aBuffer,
-                                  int32_t aOffset,
-                                  ImageBitmapFormat aFormat)
-{
-  MOZ_ASSERT(aCx);
-  MOZ_ASSERT(aPromise);
-  MOZ_ASSERT(aImageBitmap);
-
-  if (NS_IsMainThread()) {
-    nsCOMPtr<nsIRunnable> task;
-
-    if (aBuffer.IsArrayBuffer()) {
-      const ArrayBuffer& buffer = aBuffer.GetAsArrayBuffer();
-      task = new MapDataIntoBufferSourceTask<ArrayBuffer>(aCx, aPromise, aImageBitmap, buffer, aOffset, aFormat);
-    } else if (aBuffer.IsArrayBufferView()) {
-      const ArrayBufferView& bufferView = aBuffer.GetAsArrayBufferView();
-      task = new MapDataIntoBufferSourceTask<ArrayBufferView>(aCx, aPromise, aImageBitmap, bufferView, aOffset, aFormat);
-    }
-
-    NS_DispatchToCurrentThread(task); // Actually, to the main-thread.
-  } else {
-    RefPtr<WorkerSameThreadRunnable> task;
-
-    if (aBuffer.IsArrayBuffer()) {
-      const ArrayBuffer& buffer = aBuffer.GetAsArrayBuffer();
-      task = new MapDataIntoBufferSourceWorkerTask<ArrayBuffer>(aCx, aPromise, aImageBitmap, buffer, aOffset, aFormat);
-    } else if (aBuffer.IsArrayBufferView()) {
-      const ArrayBufferView& bufferView = aBuffer.GetAsArrayBufferView();
-      task = new MapDataIntoBufferSourceWorkerTask<ArrayBufferView>(aCx, aPromise, aImageBitmap, bufferView, aOffset, aFormat);
-    }
-
-    task->Dispatch(); // Actually, to the current worker-thread.
-  }
-}
-
-already_AddRefed<Promise>
-ImageBitmap::MapDataInto(JSContext* aCx,
-                         ImageBitmapFormat aFormat,
-                         const ArrayBufferViewOrArrayBuffer& aBuffer,
-                         int32_t aOffset, ErrorResult& aRv)
-{
-  MOZ_ASSERT(mDataWrapper, "No ImageBitmapFormatUtils functionalities.");
-  MOZ_ASSERT(aCx, "No JSContext while calling ImageBitmap::MapDataInto().");
-
-  RefPtr<Promise> promise = Promise::Create(mParent, aRv);
-
-  if (NS_WARN_IF(aRv.Failed())) {
-    return nullptr;
-  }
-
-  // Check for cases that should throws.
-  // Case 1:
-  // If image bitmap was cropped to the source rectangle so that it contains any
-  // transparent black pixels (cropping area is outside of the source image),
-  // then reject promise with IndexSizeError and abort these steps.
-  if (mIsCroppingAreaOutSideOfSourceImage) {
-    aRv.Throw(NS_ERROR_DOM_INDEX_SIZE_ERR);
-    return promise.forget();
-  }
-
-  // Case 2:
-  // If the image bitmap is going to be accessed in YUV422/YUV422 series with a
-  // cropping area starts at an odd x or y coordinate.
-  if (aFormat == ImageBitmapFormat::YUV422P ||
-      aFormat == ImageBitmapFormat::YUV420P ||
-      aFormat == ImageBitmapFormat::YUV420SP_NV12 ||
-      aFormat == ImageBitmapFormat::YUV420SP_NV21) {
-    if ((mPictureRect.x & 1) || (mPictureRect.y & 1)) {
-      aRv.Throw(NS_ERROR_DOM_INDEX_SIZE_ERR);
-      return promise.forget();
-    }
-  }
-
-  AsyncMapDataIntoBufferSource(aCx, promise, this, aBuffer, aOffset, aFormat);
-  return promise.forget();
 }
 
 } // namespace dom

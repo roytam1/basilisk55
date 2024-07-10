@@ -43,7 +43,6 @@ class WorkerStructuredCloneClosure;
 
 class ArrayBufferViewOrArrayBuffer;
 class CanvasRenderingContext2D;
-struct ChannelPixelLayout;
 class CreateImageBitmapFromBlob;
 class CreateImageBitmapFromBlobTask;
 class CreateImageBitmapFromBlobWorkerTask;

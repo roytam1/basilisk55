@@ -41,6 +41,7 @@ EXPORTS.mozilla.net += [
     'NullHttpChannel.h',
     'PHttpChannelParams.h',
     'PSpdyPush.h',
+    'SecFetch.h',
     'TimingStruct.h',
 ]
 
@@ -88,6 +89,7 @@ UNIFIED_SOURCES += [
     'nsHttpTransaction.cpp',
     'NullHttpChannel.cpp',
     'NullHttpTransaction.cpp',
+    'SecFetch.cpp',
     'TunnelUtils.cpp',
 ]
 

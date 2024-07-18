@@ -3902,7 +3902,8 @@ GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
              "mMustGatherDocumentRules is true");
 
   if (css::Rule::MEDIA_RULE == type ||
-      css::Rule::SUPPORTS_RULE == type) {
+      css::Rule::SUPPORTS_RULE == type ||
+      css::Rule::LAYER_BLOCK_RULE == type) {
     css::GroupRule* groupRule = static_cast<css::GroupRule*>(aRule);
     if (!groupRule->EnumerateRulesForwards(GatherDocRuleEnumFunc, aData)) {
       return false;
@@ -3981,7 +3982,8 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
     }
   }
   else if (css::Rule::MEDIA_RULE == type ||
-           css::Rule::SUPPORTS_RULE == type) {
+           css::Rule::SUPPORTS_RULE == type ||
+           css::Rule::LAYER_BLOCK_RULE == type) {
     css::GroupRule* groupRule = static_cast<css::GroupRule*>(aRule);
     const bool use =
       groupRule->UseForPresentation(data->mPresContext, data->mCacheKey);

@@ -4964,7 +4964,8 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
   // followed by a "{", which indicates an anonymous layer.
   bool isStatement = false;
   if (tk->mType == eCSSToken_Ident) {
-    nameList->AppendElement(tk->mIdent);
+    nsString* currentName = new nsString();
+    currentName->Assign(tk->mIdent);
 
     bool parsing = true;
     bool expectIdent = false;
@@ -4975,11 +4976,21 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
 
       switch (tk->mType) {
         case eCSSToken_Symbol: {
-          if (',' == tk->mSymbol) {
+          if ('.' == tk->mSymbol) {
+            expectIdent = true;
+            if (!currentName->IsEmpty()) {
+              currentName->Append(tk->mSymbol);
+              continue;
+            }
+            parsing = false;
+            break;
+          } else if (',' == tk->mSymbol) {
             if (expectIdent) {
               parsing = false;
               break;
             }
+            nameList->AppendElement(*currentName);
+            currentName = new nsString();
             expectIdent = true;
             continue;
           } else if (';' == tk->mSymbol) {
@@ -4987,6 +4998,8 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
               parsing = false;
               break;
             }
+            nameList->AppendElement(*currentName);
+            currentName = new nsString();
             isStatement = true;
             parsing = false;
             break;
@@ -4995,6 +5008,7 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
               parsing = false;
               break;
             }
+            nameList->AppendElement(*currentName);
             uint32_t nameListLength = nameList->Length();
             if (nameListLength == 0 || nameListLength > 1) {
               return false;
@@ -5005,8 +5019,8 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
           }
         }
         case eCSSToken_Ident: {
-          nameList->AppendElement(tk->mIdent);
           expectIdent = false;
+          currentName->Append(tk->mIdent);
           break;
         }
         default: {
@@ -5020,6 +5034,7 @@ CSSParserImpl::ParseLayerRule(RuleAppendFunc aAppendFunc, void* aProcessData)
       return false;
     }    
   } else if (tk->mType == eCSSToken_Symbol && '{' != tk->mSymbol) {
+    UngetToken();
     return false;
   }
 

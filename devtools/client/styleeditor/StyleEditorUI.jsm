@@ -175,7 +175,10 @@ StyleEditorUI.prototype = {
 
     this._view = new SplitView(viewRoot);
 
-    wire(this._view.rootElement, ".style-editor-newButton", () =>{
+    wire(this._view.rootElement, ".style-editor-newButton", (e) =>{
+      if (e.button != 0) {
+        return;
+      }
       this._debuggee.addStyleSheet(null);
     });
 

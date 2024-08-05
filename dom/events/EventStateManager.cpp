@@ -4647,7 +4647,6 @@ EventStateManager::InitAndDispatchClickEvent(WidgetMouseEvent* aMouseUpEvent,
   event.mTime = aMouseUpEvent->mTime;
   event.mTimeStamp = aMouseUpEvent->mTimeStamp;
   event.mFlags.mOnlyChromeDispatch = aNoContentDispatch;
-  event.mFlags.mNoContentDispatch = aNoContentDispatch;
   event.button = aMouseUpEvent->button;
   event.pointerId = aMouseUpEvent->pointerId;
   event.inputSource = aMouseUpEvent->inputSource;

@@ -139,7 +139,6 @@ public:
   nsresult
   GetEventTargetParent(EventChainPreVisitor& aVisitor) override
   {
-    aVisitor.mForceContentDispatch = true;
     return NS_OK;
   }
 

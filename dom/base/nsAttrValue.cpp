@@ -1599,12 +1599,12 @@ nsAttrValue::ParsePositiveIntValue(const nsAString& aString)
   return true;
 }
 
-void
+bool
 nsAttrValue::SetColorValue(nscolor aColor, const nsAString& aString)
 {
   nsStringBuffer* buf = GetStringBuffer(aString).take();
   if (!buf) {
-    return;
+    return false;
   }
 
   MiscContainer* cont = EnsureEmptyMiscContainer();
@@ -1613,6 +1613,7 @@ nsAttrValue::SetColorValue(nscolor aColor, const nsAString& aString)
 
   // Save the literal string we were passed for round-tripping.
   cont->mStringBits = reinterpret_cast<uintptr_t>(buf) | eStringBase;
+  return true;
 }
 
 bool
@@ -1636,13 +1637,11 @@ nsAttrValue::ParseColor(const nsAString& aString)
   if (colorStr.First() == '#') {
     nsDependentString withoutHash(colorStr.get() + 1, colorStr.Length() - 1);
     if (NS_HexToRGBA(withoutHash, nsHexColorType::NoAlpha, &color)) {
-      SetColorValue(color, aString);
-      return true;
+      return SetColorValue(color, aString);
     }
   } else {
     if (NS_ColorNameToRGB(colorStr, &color)) {
-      SetColorValue(color, aString);
-      return true;
+      return SetColorValue(color, aString);
     }
   }
 
@@ -1653,8 +1652,7 @@ nsAttrValue::ParseColor(const nsAString& aString)
 
   // Use NS_LooseHexToRGB as a fallback if nothing above worked.
   if (NS_LooseHexToRGB(colorStr, &color)) {
-    SetColorValue(color, aString);
-    return true;
+    return SetColorValue(color, aString);
   }
 
   return false;

@@ -63,6 +63,7 @@ private:
     bool                                      mDisableIPv6;
     bool                                      mDisablePrefetch;
     bool                                      mBlockDotOnion;
+    bool                                      mBlockQuad0;
     bool                                      mFirstTime;
     bool                                      mNotifyResolution;
     bool                                      mOfflineLocalhost;

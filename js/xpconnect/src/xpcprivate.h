@@ -2968,7 +2968,7 @@ nsresult
 GetSandboxMetadata(JSContext* cx, JS::HandleObject sandboxArg,
                    JS::MutableHandleValue rval);
 
-nsresult
+MOZ_MUST_USE nsresult
 SetSandboxMetadata(JSContext* cx, JS::HandleObject sandboxArg,
                    JS::HandleValue metadata);
 

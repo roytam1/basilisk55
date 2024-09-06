@@ -1259,7 +1259,10 @@ xpc::CreateSandboxObject(JSContext* cx, MutableHandleValue vp, nsISupports* prin
     // about:memory may use that information
     xpc::SetLocationForGlobal(sandbox, options.sandboxName);
 
-    xpc::SetSandboxMetadata(cx, sandbox, options.metadata);
+    nsresult rv = xpc::SetSandboxMetadata(cx, sandbox, options.metadata);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      return rv;
+    }
 
     JSAutoCompartment ac(cx, sandbox);
     JS_FireOnNewGlobalObject(cx, sandbox);

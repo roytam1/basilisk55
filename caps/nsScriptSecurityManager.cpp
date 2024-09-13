@@ -76,6 +76,7 @@ nsIIOService    *nsScriptSecurityManager::sIOService = nullptr;
 nsIStringBundle *nsScriptSecurityManager::sStrBundle = nullptr;
 JSContext       *nsScriptSecurityManager::sContext   = nullptr;
 bool nsScriptSecurityManager::sStrictFileOriginPolicy = true;
+bool nsScriptSecurityManager::sSameOriginPolicy = true;
 
 ///////////////////////////
 // Convenience Functions //
@@ -545,7 +546,7 @@ nsScriptSecurityManager::CheckSameOriginURI(nsIURI* aSourceURI,
                                             nsIURI* aTargetURI,
                                             bool reportError)
 {
-    if (!SecurityCompareURIs(aSourceURI, aTargetURI))
+    if (sSameOriginPolicy && !SecurityCompareURIs(aSourceURI, aTargetURI))
     {
          if (reportError) {
             ReportError(nullptr, NS_LITERAL_STRING("CheckSameOriginError"),
@@ -1372,10 +1373,13 @@ nsScriptSecurityManager::CanGetService(JSContext *cx,
 const char sJSEnabledPrefName[] = "javascript.enabled";
 const char sFileOriginPolicyPrefName[] =
     "security.fileuri.strict_origin_policy";
+const char sSameOriginPolicyPrefName[] =
+    "security.same_origin_policy.enabled";
 
 static const char* kObservedPrefs[] = {
   sJSEnabledPrefName,
   sFileOriginPolicyPrefName,
+  sSameOriginPolicyPrefName,
   "capability.policy.",
   nullptr
 };
@@ -1531,6 +1535,8 @@ nsScriptSecurityManager::ScriptSecurityPrefChanged()
         Preferences::GetBool(sJSEnabledPrefName, mIsJavaScriptEnabled);
     sStrictFileOriginPolicy =
         Preferences::GetBool(sFileOriginPolicyPrefName, false);
+    sSameOriginPolicy =
+        Preferences::GetBool(sSameOriginPolicyPrefName, true);
     mFileURIWhitelist.reset();
 }
 

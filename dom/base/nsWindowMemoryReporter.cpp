@@ -830,7 +830,6 @@ nsWindowMemoryReporter::KillCheckTimer()
   }
 }
 
-#ifdef DEBUG
 /* static */ void
 nsWindowMemoryReporter::UnlinkGhostWindows()
 {
@@ -867,4 +866,3 @@ nsWindowMemoryReporter::UnlinkGhostWindows()
     }
   }
 }
-#endif

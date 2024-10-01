@@ -656,7 +656,8 @@ nsXMLContentSink::ProcessStyleLink(nsIContent* aElement,
                                    bool aAlternate,
                                    const nsSubstring& aTitle,
                                    const nsSubstring& aType,
-                                   const nsSubstring& aMedia)
+                                   const nsSubstring& aMedia,
+                                   const nsSubstring& aReferrerPolicy)
 {
   nsresult rv = NS_OK;
   mPrettyPrintXML = false;
@@ -715,7 +716,7 @@ nsXMLContentSink::ProcessStyleLink(nsIContent* aElement,
 
   // Let nsContentSink deal with css.
   rv = nsContentSink::ProcessStyleLink(aElement, aHref, aAlternate,
-                                       aTitle, aType, aMedia);
+                                       aTitle, aType, aMedia, aReferrerPolicy);
 
   // nsContentSink::ProcessStyleLink handles the bookkeeping here wrt
   // pending sheets.
@@ -1265,7 +1266,9 @@ nsXMLContentSink::HandleProcessingInstruction(const char16_t *aTarget,
       return DidProcessATokenImpl();
   }
 
-  rv = ProcessStyleLink(node, href, isAlternate, title, type, media);
+  // <?xml-stylesheet?> processing instructions don't have a referrerpolicy
+  // pseudo-attribute, so we pass in an empty string
+  rv = ProcessStyleLink(node, href, isAlternate, title, type, media, EmptyString());
   return NS_SUCCEEDED(rv) ? DidProcessATokenImpl() : rv;
 }
 

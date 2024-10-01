@@ -98,7 +98,9 @@ protected:
                                     bool aAlternate,
                                     const nsSubstring& aTitle,
                                     const nsSubstring& aType,
-                                    const nsSubstring& aMedia) override;
+                                    const nsSubstring& aMedia,
+                                    const nsSubstring& aReferrerPolicy) override;
+
   nsresult LoadXSLStyleSheet(nsIURI* aUrl);
   void StartLayout();
 
@@ -333,7 +335,8 @@ nsXMLFragmentContentSink::ProcessStyleLink(nsIContent* aElement,
                                            bool aAlternate,
                                            const nsSubstring& aTitle,
                                            const nsSubstring& aType,
-                                           const nsSubstring& aMedia)
+                                           const nsSubstring& aMedia,
+                                           const nsSubstring& aReferrerPolicy)
 {
   // don't process until moved to document
   return NS_OK;

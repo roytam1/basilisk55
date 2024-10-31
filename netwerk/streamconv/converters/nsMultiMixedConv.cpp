@@ -644,6 +644,7 @@ nsMultiMixedConv::OnDataAvailable(nsIRequest *request, nsISupports *context,
             mContentType.Truncate();
             mContentLength = UINT64_MAX;
             mContentDisposition.Truncate();
+            mContentSecurityPolicy.Truncate();
             mIsByteRangeRequest = false;
             mByteRangeStart = 0;
             mByteRangeEnd = 0;
@@ -714,6 +715,12 @@ nsMultiMixedConv::OnStartRequest(nsIRequest *request, nsISupports *ctxt) {
         rv = httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("content-type"), delimiter);
         if (NS_FAILED(rv)) {
             return rv;
+        }
+        nsCString csp;
+        rv = httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("content-security-policy"),
+                                            csp);
+        if (NS_SUCCEEDED(rv)) {
+          mRootContentSecurityPolicy = csp;
         }
     } else {
         // try asking the channel directly
@@ -1062,6 +1069,28 @@ nsMultiMixedConv::ParseHeaders(nsIChannel *aChannel, char *&aPtr,
                 mIsByteRangeRequest = true;
                 if (mContentLength == UINT64_MAX)
                     mContentLength = uint64_t(mByteRangeEnd - mByteRangeStart + 1);
+            } else if (headerStr.LowerCaseEqualsLiteral("content-security-policy")) {
+                mContentSecurityPolicy = headerVal;
+                nsCOMPtr<nsIHttpChannel> httpChannel = do_QueryInterface(aChannel);
+                if (httpChannel) {
+                  nsCString resultCSP = mRootContentSecurityPolicy;
+                  if (!mContentSecurityPolicy.IsEmpty()) {
+                    // We are updating the root channel CSP header respectively for
+                    // each part as: CSP-root + CSP-partN, where N is the part number.
+                    // Here we append current part's CSP to root CSP and reset CSP
+                    // header for each part.
+                    if (!resultCSP.IsEmpty()) {
+                      resultCSP.Append(";");
+                    }
+                    resultCSP.Append(mContentSecurityPolicy);
+                  }
+                  nsresult rv = httpChannel->SetResponseHeader(
+                                  NS_LITERAL_CSTRING("Content-Security-Policy"),
+                                  resultCSP, false);
+                  if (NS_FAILED(rv)) {
+                    return NS_ERROR_CORRUPTED_CONTENT;
+                  }
+                }
             }
         }
         *newLine = tmpChar;

@@ -722,6 +722,12 @@ nsMultiMixedConv::OnStartRequest(nsIRequest *request, nsISupports *ctxt) {
         if (NS_SUCCEEDED(rv)) {
           mRootContentSecurityPolicy = csp;
         }
+        nsCString contentDisposition;
+        rv = httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("content-disposition"),
+                                            contentDisposition);
+        if (NS_SUCCEEDED(rv)) {
+          mRootContentDisposition = contentDisposition;
+        }
     } else {
         // try asking the channel directly
         rv = channel->GetContentType(delimiter);
@@ -882,7 +888,12 @@ nsMultiMixedConv::SendStart(nsIChannel *aChannel) {
     rv = mPartChannel->SetContentLength(mContentLength);
     if (NS_FAILED(rv)) return rv;
 
-    mPartChannel->SetContentDisposition(mContentDisposition);
+    // Adopt content-disposition from the root doc, if present.
+    if (!mRootContentDisposition.IsEmpty()) {
+      mPartChannel->SetContentDisposition(mRootContentDisposition);
+    } else {
+      mPartChannel->SetContentDisposition(mContentDisposition);
+    }
 
     nsLoadFlags loadFlags = 0;
     mPartChannel->GetLoadFlags(&loadFlags);

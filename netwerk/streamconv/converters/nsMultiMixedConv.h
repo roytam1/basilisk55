@@ -158,6 +158,7 @@ protected:
     nsCString           mContentDisposition;
     nsCString           mContentSecurityPolicy;
     nsCString           mRootContentSecurityPolicy;
+    nsCString           mRootContentDisposition;
     uint64_t            mContentLength;
     
     char                *mBuffer;

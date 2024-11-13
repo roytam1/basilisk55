@@ -90,29 +90,6 @@ js::CreateRegExpMatchResult(JSContext* cx, RegExpShared& re,
     size_t numPairs = matches.length();
     MOZ_ASSERT(numPairs > 0);
 
-    // Steps 20-21: Allocate the match result object.
-    RootedArrayObject arr(cx, NewDenseFullyAllocatedArrayWithTemplate(cx, numPairs, templateObject));
-    if (!arr)
-        return false;
-
-    // Steps 28-29 and 33 a-d: Initialize the elements of the match result.
-    // Store a Value for each match pair.
-    for (size_t i = 0; i < numPairs; i++) {
-        const MatchPair& pair = matches[i];
-
-        if (pair.isUndefined()) {
-            MOZ_ASSERT(i != 0); /* Since we had a match, first pair must be present. */
-            arr->setDenseInitializedLength(i + 1);
-            arr->initDenseElement(i, UndefinedValue());
-        } else {
-            JSLinearString* str = NewDependentString(cx, input, pair.start, pair.length());
-            if (!str)
-                return false;
-            arr->setDenseInitializedLength(i + 1);
-            arr->initDenseElement(i, StringValue(str));
-        }
-    }
-
     // Step 34a (reordered): Allocate and initialize the indices object if needed.
     // This is an inlined implementation of MakeIndicesArray:
     // https://tc39.es/ecma262/#sec-makeindicesarray
@@ -138,31 +115,47 @@ js::CreateRegExpMatchResult(JSContext* cx, RegExpShared& re,
       } else {
         indices->setSlot(0, UndefinedValue());
       }
+    }
 
-      // FIXME: can we merge this with step 28-29 and 33 a-d above??
-      // MakeIndicesArray: step 13 a-d. (Step 13.e is implemented below.)
-      for (size_t i = 0; i < numPairs; i++) {
+    // Steps 20-21: Allocate the match result object.
+    RootedArrayObject arr(cx, NewDenseFullyAllocatedArrayWithTemplate(cx, numPairs, templateObject));
+    if (!arr)
+        return false;
+
+    // Steps 28-29 and 33 a-d: Initialize the elements of the match result.
+    // Store a Value for each match pair.
+    // Merged with MakeIndicesArray: step 13 a-d. (Step 13.e is implemented below.)
+    for (size_t i = 0; i < numPairs; i++) {
         const MatchPair& pair = matches[i];
-  
+
         if (pair.isUndefined()) {
-          // Since we had a match, first pair must be present.
-          MOZ_ASSERT(i != 0);
-          indices->setDenseInitializedLength(i + 1);
-          indices->initDenseElement(i, UndefinedValue());
+            MOZ_ASSERT(i != 0); /* Since we had a match, first pair must be present. */
+            arr->setDenseInitializedLength(i + 1);
+            arr->initDenseElement(i, UndefinedValue());
+            if (hasIndices) {
+              indices->setDenseInitializedLength(i + 1);
+              indices->initDenseElement(i, UndefinedValue());
+            }
         } else {
-          RootedArrayObject indexPair(cx, NewDenseFullyAllocatedArray(cx, 2));
-          if (!indexPair) {
-            return false;
-          }
-          indexPair->setDenseInitializedLength(2);
-          indexPair->initDenseElement(0, Int32Value(pair.start));
-          indexPair->initDenseElement(1, Int32Value(pair.limit));
-  
-          indices->setDenseInitializedLength(i + 1);
-          indices->initDenseElement(i, ObjectValue(*indexPair));
+            JSLinearString* str = NewDependentString(cx, input, pair.start, pair.length());
+            if (!str)
+                return false;
+            arr->setDenseInitializedLength(i + 1);
+            arr->initDenseElement(i, StringValue(str));
+
+            if (hasIndices) {
+              RootedArrayObject indexPair(cx, NewDenseFullyAllocatedArray(cx, 2));
+              if (!indexPair) {
+                return false;
+              }
+              indexPair->setDenseInitializedLength(2);
+              indexPair->initDenseElement(0, Int32Value(pair.start));
+              indexPair->initDenseElement(1, Int32Value(pair.limit));
+      
+              indices->setDenseInitializedLength(i + 1);
+              indices->initDenseElement(i, ObjectValue(*indexPair));
+            }
         }
-      }
-      // /FIXME
     }
 
     // Steps 30-31 (reordered): Allocate the groups object (if needed).

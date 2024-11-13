@@ -51,6 +51,7 @@ JS_STATIC_ASSERT(MultilineFlag == JSREG_MULTILINE);
 JS_STATIC_ASSERT(StickyFlag == JSREG_STICKY);
 JS_STATIC_ASSERT(UnicodeFlag == JSREG_UNICODE);
 JS_STATIC_ASSERT(DotAllFlag == JSREG_DOTALL);
+JS_STATIC_ASSERT(HasIndicesFlag == JSREG_HASINDICES);
 
 RegExpObject*
 js::RegExpAlloc(ExclusiveContext* cx, HandleObject proto /* = nullptr */)
@@ -136,6 +137,10 @@ RegExpObject::getShared(JSContext* cx, Handle<RegExpObject*> regexp,
 /* static */ bool
 RegExpObject::isOriginalFlagGetter(JSNative native, RegExpFlag* mask)
 {
+  if (native == regexp_hasIndices) {
+      *mask = HasIndicesFlag;
+      return true;
+  }
   if (native == regexp_global) {
       *mask = GlobalFlag;
       return true;
@@ -148,16 +153,16 @@ RegExpObject::isOriginalFlagGetter(JSNative native, RegExpFlag* mask)
       *mask = MultilineFlag;
       return true;
   }
+  if (native == regexp_dotAll) {
+      *mask = DotAllFlag;
+      return true;
+  }
   if (native == regexp_sticky) {
       *mask = StickyFlag;
       return true;
   }
   if (native == regexp_unicode) {
       *mask = UnicodeFlag;
-      return true;
-  }
-  if (native == regexp_dotAll) {
-      *mask = DotAllFlag;
       return true;
   }
 
@@ -489,11 +494,15 @@ RegExpObject::toString(JSContext* cx) const
     sb.infallibleAppend('/');
 
     // Steps 5-7.
+    if (hasIndices() && !sb.append('d'))
+        return nullptr;
     if (global() && !sb.append('g'))
         return nullptr;
     if (ignoreCase() && !sb.append('i'))
         return nullptr;
     if (multiline() && !sb.append('m'))
+        return nullptr;
+    if (dotAll() && !sb.append('s'))
         return nullptr;
     if (unicode() && !sb.append('u'))
         return nullptr;
@@ -1484,12 +1493,16 @@ ParseRegExpFlags(const CharT* chars, size_t length, RegExpFlag* flagsOut, char16
     for (size_t i = 0; i < length; i++) {
         *lastParsedOut = chars[i];
         switch (chars[i]) {
-          case 'i':
-            if (!HandleRegExpFlag(IgnoreCaseFlag, flagsOut))
+          case 'd':
+            if (!HandleRegExpFlag(HasIndicesFlag, flagsOut))
                 return false;
             break;
           case 'g':
             if (!HandleRegExpFlag(GlobalFlag, flagsOut))
+                return false;
+            break;
+          case 'i':
+            if (!HandleRegExpFlag(IgnoreCaseFlag, flagsOut))
                 return false;
             break;
           case 'm':

@@ -818,15 +818,42 @@ js::regexp_unicode(JSContext* cx, unsigned argc, JS::Value* vp)
     return CallNonGenericMethod<IsRegExpInstanceOrPrototype, regexp_unicode_impl>(cx, args);
 }
 
+// ES 2022 22.2.5.6.
+MOZ_ALWAYS_INLINE bool
+regexp_hasIndices_impl(JSContext* cx, const CallArgs& args)
+{
+    MOZ_ASSERT(IsRegExpInstanceOrPrototype(args.thisv()));
+
+    // Step 2.a.
+    if (!IsRegExpObject(args.thisv())) {
+        args.rval().setUndefined();
+        return true;
+    }
+
+    // Steps 3-5.
+    Rooted<RegExpObject*> reObj(cx, &args.thisv().toObject().as<RegExpObject>());
+    args.rval().setBoolean(reObj->hasIndices());
+    return true;
+}
+
+bool
+js::regexp_hasIndices(JSContext* cx, unsigned argc, JS::Value* vp)
+{
+    // Steps 1-3.
+    CallArgs args = CallArgsFromVp(argc, vp);
+    return CallNonGenericMethod<IsRegExpInstanceOrPrototype, regexp_hasIndices_impl>(cx, args);
+}
+
 const JSPropertySpec js::regexp_properties[] = {
     JS_SELF_HOSTED_GET("flags", "RegExpFlagsGetter", 0),
+    JS_PSG("hasIndices", regexp_hasIndices, 0),
     JS_PSG("global", regexp_global, 0),
     JS_PSG("ignoreCase", regexp_ignoreCase, 0),
     JS_PSG("multiline", regexp_multiline, 0),
+    JS_PSG("dotAll", regexp_dotAll, 0),
     JS_PSG("source", regexp_source, 0),
     JS_PSG("sticky", regexp_sticky, 0),
     JS_PSG("unicode", regexp_unicode, 0),
-    JS_PSG("dotAll", regexp_dotAll, 0),
     JS_PS_END
 };
 
@@ -1800,6 +1827,13 @@ js::RegExpPrototypeOptimizableRaw(JSContext* cx, JSObject* proto)
         return false;
 
     if (!IsSelfHostedFunctionWithName(flagsGetter, cx->names().RegExpFlagsGetter))
+        return false;
+
+    JSNative hasIndicesGetter;
+    if (!GetOwnNativeGetterPure(cx, proto, NameToId(cx->names().hasIndices), &hasIndicesGetter))
+        return false;
+
+    if (hasIndicesGetter != regexp_hasIndices)
         return false;
 
     JSNative globalGetter;

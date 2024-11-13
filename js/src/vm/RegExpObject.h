@@ -56,9 +56,10 @@ enum RegExpFlag : uint8_t
     StickyFlag      = 0x08,
     UnicodeFlag     = 0x10,
     DotAllFlag      = 0x20,
+    HasIndicesFlag  = 0x40,
 
     NoFlags         = 0x00,
-    AllFlags        = 0x3f
+    AllFlags        = 0x7f
 };
 
 static_assert(IgnoreCaseFlag == REGEXP_IGNORECASE_FLAG &&
@@ -66,7 +67,8 @@ static_assert(IgnoreCaseFlag == REGEXP_IGNORECASE_FLAG &&
               MultilineFlag == REGEXP_MULTILINE_FLAG &&
               StickyFlag == REGEXP_STICKY_FLAG &&
               UnicodeFlag == REGEXP_UNICODE_FLAG &&
-              DotAllFlag == REGEXP_DOTALL_FLAG,
+              DotAllFlag == REGEXP_DOTALL_FLAG &&
+              HasIndicesFlag == REGEXP_HASINDICES_FLAG,
               "Flag values should be in sync with self-hosted JS");
 
 enum RegExpRunStatus
@@ -206,12 +208,13 @@ class RegExpShared : public gc::TenuredCell
 
     JSAtom* getSource() const           { return source; }
     RegExpFlag getFlags() const         { return flags; }
-    bool ignoreCase() const             { return flags & IgnoreCaseFlag; }
+    bool hasIndices() const             { return flags & HasIndicesFlag; }
     bool global() const                 { return flags & GlobalFlag; }
+    bool ignoreCase() const             { return flags & IgnoreCaseFlag; }
     bool multiline() const              { return flags & MultilineFlag; }
-    bool sticky() const                 { return flags & StickyFlag; }
-    bool unicode() const                { return flags & UnicodeFlag; }
     bool dotAll() const                 { return flags & DotAllFlag; }
+    bool unicode() const                { return flags & UnicodeFlag; }
+    bool sticky() const                 { return flags & StickyFlag; }
 
     bool isCompiled(CompilationMode mode, bool latin1,
                     ForceByteCodeEnum force = DontForceByteCode) const {
@@ -451,12 +454,13 @@ class RegExpObject : public NativeObject
         setSlot(FLAGS_SLOT, Int32Value(flags));
     }
 
-    bool ignoreCase() const { return getFlags() & IgnoreCaseFlag; }
+    bool hasIndices() const { return getFlags() & HasIndicesFlag; }
     bool global() const     { return getFlags() & GlobalFlag; }
+    bool ignoreCase() const { return getFlags() & IgnoreCaseFlag; }
     bool multiline() const  { return getFlags() & MultilineFlag; }
-    bool sticky() const     { return getFlags() & StickyFlag; }
-    bool unicode() const    { return getFlags() & UnicodeFlag; }
     bool dotAll() const     { return getFlags() & DotAllFlag; }
+    bool unicode() const    { return getFlags() & UnicodeFlag; }
+    bool sticky() const     { return getFlags() & StickyFlag; }
 
     static bool isOriginalFlagGetter(JSNative native, RegExpFlag* mask);
 

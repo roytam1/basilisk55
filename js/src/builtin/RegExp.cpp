@@ -99,6 +99,9 @@ js::CreateRegExpMatchResult(JSContext* cx, RegExpShared& re,
       // MakeIndicesArray: step 8
       ArrayObject* indicesTemplate =
           cx->compartment()->regExps.getOrCreateMatchResultTemplateObject(cx, RegExpCompartment::ResultTemplateKind::Indices);
+      if (!indicesTemplate) {
+        return false;
+      }
       indices = NewDenseFullyAllocatedArrayWithTemplate(cx, numPairs, indicesTemplate);
       if (!indices) {
         return false;

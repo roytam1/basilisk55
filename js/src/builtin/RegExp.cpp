@@ -32,7 +32,7 @@ using mozilla::Maybe;
 using CapturesVector = GCVector<Value, 4>;
 
 /*
- * ES 2021 draft 21.2.5.2.2: Steps 16-28
+ * Implements RegExpBuiltinExec: Steps 18-35
  * https://tc39.es/ecma262/#sec-regexpbuiltinexec
  */
 bool
@@ -51,10 +51,16 @@ js::CreateRegExpMatchResult(JSContext* cx, RegExpShared& re,
      *  input:          input string
      *  index:          start index for the match
      *  groups:         named capture groups for the match
+     *  indices:        capture indices for the match, if required
      */
 
+    bool hasIndices = re.hasIndices();
+    
     /* Get the templateObject that defines the shape and type of the output object */
-    JSObject* templateObject = cx->compartment()->regExps.getOrCreateMatchResultTemplateObject(cx);
+    RegExpCompartment::ResultTemplateKind kind =
+      hasIndices ? RegExpCompartment::ResultTemplateKind::WithIndices
+                 : RegExpCompartment::ResultTemplateKind::Normal;
+    JSObject* templateObject = cx->compartment()->regExps.getOrCreateMatchResultTemplateObject(cx, kind);
     if (!templateObject)
         return false;
 

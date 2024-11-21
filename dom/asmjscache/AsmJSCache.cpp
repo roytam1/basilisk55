@@ -351,7 +351,6 @@ public:
     mWriteParams(aWriteParams),
     mState(eInitial),
     mResult(JS::AsmJSCache_InternalError),
-    mIsApp(false),
     mEnforcingQuota(true),
     mDeleteReceived(false),
     mActorDestroyed(false),
@@ -582,7 +581,6 @@ private:
   State mState;
   JS::AsmJSCacheResult mResult;
 
-  bool mIsApp;
   bool mEnforcingQuota;
   bool mDeleteReceived;
   bool mActorDestroyed;
@@ -603,12 +601,11 @@ ParentRunnable::InitOnMainThread()
     return rv;
   }
 
-  rv = QuotaManager::GetInfoFromPrincipal(principal, &mSuffix, &mGroup,
-                                          &mOrigin, &mIsApp);
+  rv = QuotaManager::GetInfoFromPrincipal(principal, &mSuffix, &mGroup, &mOrigin);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mEnforcingQuota =
-    QuotaManager::IsQuotaEnforced(quota::PERSISTENCE_TYPE_TEMPORARY, mOrigin, mIsApp);
+    QuotaManager::IsQuotaEnforced(quota::PERSISTENCE_TYPE_TEMPORARY);
 
   return NS_OK;
 }
@@ -627,7 +624,6 @@ ParentRunnable::OpenDirectory()
   QuotaManager::Get()->OpenDirectory(quota::PERSISTENCE_TYPE_TEMPORARY,
                                      mGroup,
                                      mOrigin,
-                                     mIsApp,
                                      quota::Client::ASMJS,
                                      /* aExclusive */ true,
                                      this);
@@ -647,7 +643,6 @@ ParentRunnable::ReadMetadata()
                                   mSuffix,
                                   mGroup,
                                   mOrigin,
-                                  mIsApp,
                                   getter_AddRefs(mDirectory));
   if (NS_WARN_IF(NS_FAILED(rv))) {
     mResult = JS::AsmJSCache_StorageInitFailure;

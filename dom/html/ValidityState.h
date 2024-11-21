@@ -7,6 +7,7 @@
 #ifndef mozilla_dom_ValidityState_h
 #define mozilla_dom_ValidityState_h
 
+#include "nsCOMPtr.h"
 #include "nsIDOMValidityState.h"
 #include "nsIConstraintValidation.h"
 #include "nsWrapperCache.h"

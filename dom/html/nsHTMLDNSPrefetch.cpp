@@ -21,6 +21,7 @@
 #include "nsIWebProgressListener.h"
 #include "nsIWebProgress.h"
 #include "nsCURILoader.h"
+#include "nsContentUtils.h"
 #include "nsIDNSRecord.h"
 #include "nsIDNSService.h"
 #include "nsICancelable.h"

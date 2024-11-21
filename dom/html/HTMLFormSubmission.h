@@ -9,6 +9,7 @@
 
 #include "mozilla/Attributes.h"
 #include "mozilla/dom/HTMLDialogElement.h"
+#include "mozilla/dom/HTMLFormElement.h"
 #include "nsCOMPtr.h"
 #include "nsIContent.h"
 #include "nsNCRFallbackEncoderWrapper.h"

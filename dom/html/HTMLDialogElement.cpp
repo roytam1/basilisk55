@@ -8,6 +8,7 @@
 #include "mozilla/dom/HTMLDialogElementBinding.h"
 #include "mozilla/dom/HTMLUnknownElement.h"
 #include "mozilla/Preferences.h"
+#include "nsContentUtils.h"
 
 // Expand NS_IMPL_NS_NEW_HTML_ELEMENT(Dialog) with pref check
 nsGenericHTMLElement*

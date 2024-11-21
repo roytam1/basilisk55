@@ -16,13 +16,15 @@
 
 #include "AudioChannelService.h"
 
-#include "nsComponentManagerUtils.h"
-#include "nsFrameLoader.h"
 #include "nsIDOMDOMRequest.h"
+#include "nsIDOMDocument.h"
 #include "nsIDOMElement.h"
 #include "nsIMozBrowserFrame.h"
 #include "nsINode.h"
 #include "nsIPrincipal.h"
+#include "nsComponentManagerUtils.h"
+#include "nsFrameLoader.h"
+#include "nsContentUtils.h"
 
 using namespace mozilla::dom;
 

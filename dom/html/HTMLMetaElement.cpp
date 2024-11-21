@@ -8,9 +8,10 @@
 #include "mozilla/dom/HTMLMetaElement.h"
 #include "mozilla/dom/HTMLMetaElementBinding.h"
 #include "mozilla/dom/nsCSPService.h"
+#include "nsIDOMDocument.h"
+#include "nsIContentSecurityPolicy.h"
 #include "nsContentUtils.h"
 #include "nsStyleConsts.h"
-#include "nsIContentSecurityPolicy.h"
 
 NS_IMPL_NS_NEW_HTML_ELEMENT(Meta)
 

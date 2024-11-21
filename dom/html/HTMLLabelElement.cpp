@@ -7,6 +7,7 @@
 /**
  * Implementation of HTML <label> elements.
  */
+#include "HTMLFormElement.h"
 #include "HTMLLabelElement.h"
 #include "mozilla/EventDispatcher.h"
 #include "mozilla/MouseEvents.h"

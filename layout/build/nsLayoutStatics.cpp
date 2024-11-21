@@ -280,8 +280,6 @@ nsLayoutStatics::Initialize()
   ProcessPriorityManager::Init();
 
   nsPermissionManager::ClearOriginDataObserverInit();
-  nsCookieService::AppClearDataObserverInit();
-  nsApplicationCacheService::AppClearDataObserverInit();
 
   HTMLVideoElement::Init();
 

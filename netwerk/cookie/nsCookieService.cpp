@@ -686,15 +686,6 @@ nsCookieService::GetSingleton()
   return gCookieService;
 }
 
-/* static */ void
-nsCookieService::AppClearDataObserverInit()
-{
-  nsCOMPtr<nsIObserverService> observerService = services::GetObserverService();
-  nsCOMPtr<nsIObserver> obs = new AppClearDataObserver();
-  observerService->AddObserver(obs, TOPIC_CLEAR_ORIGIN_DATA,
-                               /* ownsWeak= */ false);
-}
-
 /******************************************************************************
  * nsCookieService impl:
  * public methods

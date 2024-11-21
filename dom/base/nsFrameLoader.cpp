@@ -2200,11 +2200,6 @@ nsFrameLoader::OwnerIsIsolatedMozBrowserFrame()
     return false;
   }
 
-  bool isolated = browserFrame->GetIsolated();
-  if (isolated) {
-    return true;
-  }
-
   return false;
 }
 

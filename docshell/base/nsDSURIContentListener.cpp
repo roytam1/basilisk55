@@ -432,6 +432,7 @@ ShouldIgnoreFrameOptions(nsIChannel* aChannel, nsIPrincipal* aPrincipal)
     return false;
   }
 
+#ifdef DEBUG
   // log warning to console that xfo is ignored because of CSP
   nsCOMPtr<nsILoadInfo> loadInfo = aChannel->GetLoadInfo();
   uint64_t innerWindowID = loadInfo ? loadInfo->GetInnerWindowID() : 0;
@@ -445,7 +446,7 @@ ShouldIgnoreFrameOptions(nsIChannel* aChannel, nsIPrincipal* aPrincipal)
                       0,             // no columnnumber
                       nsIScriptError::warningFlag,
                       "CSP", innerWindowID);
-
+#endif
   return true;
 }
 

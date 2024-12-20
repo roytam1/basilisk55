@@ -6454,7 +6454,7 @@ HTMLMediaElement::CopyInnerTo(Element* aDest)
 
   // Make sure cloned <audio> and <video> respect their "muted" attribute.
   HTMLMediaElement* dest = static_cast<HTMLMediaElement*>(aDest);
-  if (HasAttr(nsGkAtoms::muted)) {
+  if (HasAttr(kNameSpaceID_None, nsGkAtoms::muted)) {
     dest->mMuted |= MUTED_BY_CONTENT;
   }
 

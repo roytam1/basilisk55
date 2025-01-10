@@ -847,6 +847,10 @@ ADTSDemuxer::ADTSSniffer(const uint8_t* aData, const uint32_t aLength)
   if (aLength < 7) {
     return false;
   }
+  // Avoid seeking if blob doesn't start with an ADTS marker.
+  if (!adts::FrameHeader::MatchesSync(aData)) {
+    return false;
+  }
   auto parser = MakeUnique<adts::FrameParser>();
 
   if (!parser->Parse(0, aData, aData + aLength)) {

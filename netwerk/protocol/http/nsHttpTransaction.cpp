@@ -761,7 +761,7 @@ nsHttpTransaction::ReadSegments(nsAHttpSegmentReader *reader,
         return mStatus;
     }
 
-    if (!mConnected && !m0RTTInProgress) {
+    if (mConnection && !mConnected && !m0RTTInProgress) {
         mConnected = true;
         nsCOMPtr<nsISupports> info;
         mConnection->GetSecurityInfo(getter_AddRefs(info));

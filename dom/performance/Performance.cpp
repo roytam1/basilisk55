@@ -78,7 +78,7 @@ enum class Performance::ResolveTimestampAttribute {
   Duration,
 };
 
-NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(Performance)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(Performance)
 NS_INTERFACE_MAP_END_INHERITING(DOMEventTargetHelper)
 
 NS_IMPL_CYCLE_COLLECTION_INHERITED(Performance,

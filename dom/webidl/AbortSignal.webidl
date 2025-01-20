@@ -8,6 +8,8 @@
  Func="AbortController::IsEnabled"]
 interface AbortSignal : EventTarget {
   [NewObject] static AbortSignal abort();
+  [NewObject] static AbortSignal timeout(unsigned long long milliseconds);
+  
   readonly attribute boolean aborted;
 
   attribute EventHandler onabort;

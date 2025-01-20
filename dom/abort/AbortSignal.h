@@ -48,9 +48,13 @@ public:
   Aborted() const;
 
   void Abort();
+  void Timeout();
 
   IMPL_EVENT_HANDLER(abort);
+  IMPL_EVENT_HANDLER(timeout);
+
   static already_AddRefed<AbortSignal> Abort(GlobalObject& aGlobal);
+  static already_AddRefed<AbortSignal> Timeout(GlobalObject& aGlobal, uint64_t aMilliseconds);
 
   void
   AddFollower(Follower* aFollower);

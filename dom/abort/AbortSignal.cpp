@@ -50,6 +50,15 @@ already_AddRefed<AbortSignal> AbortSignal::Abort(GlobalObject& aGlobal) {
   return abortSignal.forget();
 }
 
+already_AddRefed<AbortSignal> AbortSignal::Timeout(GlobalObject& aGlobal, uint64_t aMilliseconds) {
+  nsCOMPtr<nsIGlobalObject> global = do_QueryInterface(aGlobal.GetAsSupports());
+  
+  // Stub implementation, just return an AbortSignal object
+  RefPtr<AbortSignal> abortSignal = new AbortSignal(global, false);
+  
+  return abortSignal.forget();
+}
+
 bool
 AbortSignal::Aborted() const
 {

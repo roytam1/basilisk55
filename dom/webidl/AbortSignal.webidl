@@ -7,6 +7,7 @@
 [Exposed=(Window,Worker),
  Func="AbortController::IsEnabled"]
 interface AbortSignal : EventTarget {
+  [NewObject] static AbortSignal abort();
   readonly attribute boolean aborted;
 
   attribute EventHandler onabort;

@@ -47,10 +47,10 @@ public:
   bool
   Aborted() const;
 
-  void
-  Abort();
+  void Abort();
 
   IMPL_EVENT_HANDLER(abort);
+  static already_AddRefed<AbortSignal> Abort(GlobalObject& aGlobal);
 
   void
   AddFollower(Follower* aFollower);

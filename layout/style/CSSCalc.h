@@ -428,6 +428,17 @@ struct ReduceNumberCalcOps : public mozilla::css::BasicFloatCalcOps,
   }
 };
 
+// Same as above, but reduces leaves as <percentage>. You normally don't want to use this.
+// Only useful in parsing percentage saturation and lightness values by ParseColorComponent.
+struct ReducePercentageCalcOps : ReduceNumberCalcOps
+{
+  result_type ComputeLeafValue(const nsCSSValue& aValue)
+  {
+    MOZ_ASSERT(aValue.GetUnit() == eCSSUnit_Percent, "unexpected unit");
+    return aValue.GetPercentValue();
+  }
+};
+
 /**
  * ReduceIntegerCalcOps is a CalcOps implementation for pure-integer calc()
  * (sub-)expressions, input as nsCSSValues.

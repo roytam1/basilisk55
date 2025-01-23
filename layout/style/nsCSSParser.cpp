@@ -7345,7 +7345,7 @@ CSSParserImpl::ParseColorComponent(float& aComponent, Maybe<char> aSeparator)
     if (!ParseCalc(aValue, VARIANT_LPN | VARIANT_CALC)) {
       return false;
     }
-    ReduceNumberCalcOps ops;
+    ReducePercentageCalcOps ops;
     value = mozilla::css::ComputeCalc(aValue, ops);
   } else {
     REPORT_UNEXPECTED_TOKEN(PEExpectedPercent);

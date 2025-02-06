@@ -25,7 +25,7 @@ pref("general.useragent.locale", "chrome://global/locale/intl.properties");
 // Platform User-agent compatibility mode default settings
 pref("general.useragent.compatMode.gecko", true);
 pref("general.useragent.compatMode.firefox", false);
-pref("general.useragent.compatMode.version", "102.0");
+pref("general.useragent.compatMode.version", "115.0");
 pref("general.useragent.appVersionIsBuildID", true);
 
 // In order to disable all overrides by default, don't initialize

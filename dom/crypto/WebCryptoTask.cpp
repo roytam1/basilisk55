@@ -221,7 +221,7 @@ Coerce(JSContext* aCx, T& aTarget, const OOS& aAlgorithm)
 
   JS::RootedValue value(aCx, JS::ObjectValue(*aAlgorithm.GetAsObject()));
   if (!aTarget.Init(aCx, value)) {
-    return NS_ERROR_DOM_SYNTAX_ERR;
+    return NS_ERROR_DOM_TYPE_MISMATCH_ERR;
   }
 
   return NS_OK;
@@ -453,9 +453,15 @@ WebCryptoTask::FailWithError(nsresult aRv)
   MOZ_ASSERT(IsOnOriginalThread());
   Telemetry::Accumulate(Telemetry::WEBCRYPTO_RESOLVED, false);
 
-  // Blindly convert nsresult to DOMException
-  // Individual tasks must ensure they pass the right values
-  mResultPromise->MaybeReject(aRv);
+  if (aRv == NS_ERROR_DOM_TYPE_MISMATCH_ERR) {
+    ErrorResult rv;
+    rv.ThrowTypeError<MSG_DOM_OPERATION_FAILED>();
+    mResultPromise->MaybeReject(rv);
+  } else {
+    // Blindly convert nsresult to DOMException
+    // Individual tasks must ensure they pass the right values
+    mResultPromise->MaybeReject(aRv);
+  }
   // Manually release mResultPromise while we're on the main thread
   mResultPromise = nullptr;
   mWorkerHolder = nullptr;
@@ -3033,7 +3039,7 @@ public:
     RootedDictionary<EcdhKeyDeriveParams> params(aCx);
     mEarlyRv = Coerce(aCx, params, aAlgorithm);
     if (NS_FAILED(mEarlyRv)) {
-      mEarlyRv = NS_ERROR_DOM_SYNTAX_ERR;
+      /* The returned code is installed by Coerce function. */
       return;
     }
 

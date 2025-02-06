@@ -203,7 +203,7 @@ GetAlgorithmName(JSContext* aCx, const OOS& aAlgorithm, nsString& aName)
   }
 
   if (!NormalizeToken(aName, aName)) {
-    return NS_ERROR_DOM_SYNTAX_ERR;
+    return NS_ERROR_DOM_NOT_SUPPORTED_ERR;
   }
 
   return NS_OK;

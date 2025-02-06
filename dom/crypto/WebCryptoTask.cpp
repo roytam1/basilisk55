@@ -2313,7 +2313,6 @@ public:
     nsString algName;
     mEarlyRv = GetAlgorithmName(aCx, aAlgorithm, algName);
     if (NS_FAILED(mEarlyRv)) {
-      mEarlyRv = NS_ERROR_DOM_SYNTAX_ERR;
       return;
     }
 
@@ -2342,7 +2341,6 @@ public:
       nsString hashName;
       mEarlyRv = GetAlgorithmName(aCx, params.mHash, hashName);
       if (NS_FAILED(mEarlyRv)) {
-        mEarlyRv = NS_ERROR_DOM_SYNTAX_ERR;
         return;
       }
 
@@ -2440,7 +2438,6 @@ GenerateAsymmetricKeyTask::GenerateAsymmetricKeyTask(
   // Extract algorithm name
   mEarlyRv = GetAlgorithmName(aCx, aAlgorithm, mAlgName);
   if (NS_FAILED(mEarlyRv)) {
-    mEarlyRv = NS_ERROR_DOM_SYNTAX_ERR;
     return;
   }
 
@@ -2463,7 +2460,6 @@ GenerateAsymmetricKeyTask::GenerateAsymmetricKeyTask(
     nsString hashName;
     mEarlyRv = GetAlgorithmName(aCx, params.mHash, hashName);
     if (NS_FAILED(mEarlyRv)) {
-      mEarlyRv = NS_ERROR_DOM_SYNTAX_ERR;
       return;
     }
 

@@ -1031,8 +1031,8 @@ nsContainerFrame::ComputeAutoSize(nsRenderingContext* aRenderingContext,
 void
 nsContainerFrame::ReflowChild(nsIFrame*                aKidFrame,
                               nsPresContext*           aPresContext,
-                              ReflowOutput&     aDesiredSize,
-                              const ReflowInput& aReflowInput,
+                              ReflowOutput&            aDesiredSize,
+                              const ReflowInput&       aReflowInput,
                               const WritingMode&       aWM,
                               const LogicalPoint&      aPos,
                               const nsSize&            aContainerSize,
@@ -1045,6 +1045,9 @@ nsContainerFrame::ReflowChild(nsIFrame*                aKidFrame,
     NS_ASSERTION(aContainerSize.width != NS_UNCONSTRAINEDSIZE,
                  "ReflowChild with unconstrained container width!");
   }
+  MOZ_ASSERT(aDesiredSize.VisualOverflow() == nsRect(0,0,0,0) &&
+             aDesiredSize.ScrollableOverflow() == nsRect(0,0,0,0),
+             "please reset the overflow areas before calling ReflowChild");
 
   // Position the child frame and its view if requested.
   if (ReflowChildFlags::NoMoveFrame !=

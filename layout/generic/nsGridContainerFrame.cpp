@@ -3794,10 +3794,25 @@ MeasuringReflow(nsIFrame*           aChild,
       nsIFrame::ReflowChildFlags::NoMoveFrame |
       nsIFrame::ReflowChildFlags::NoSizeView |
       nsIFrame::ReflowChildFlags::NoDeleteNextInFlowChild;
-  parent->ReflowChild(aChild, pc, childSize, childRI, wm,
-                      LogicalPoint(wm), nsSize(), flags, childStatus);
-  parent->FinishReflowChild(aChild, pc, childSize, &childRI, wm,
-                            LogicalPoint(wm), nsSize(), flags);
+  if (childSize.mBoundingMetrics.width != 0) {
+    parent->ReflowChild(aChild,
+                        pc,
+                        childSize,
+                        childRI,
+                        wm,
+                        LogicalPoint(wm),
+                        nsSize(),
+                        flags,
+                        childStatus);
+    parent->FinishReflowChild(aChild, 
+                              pc, 
+                              childSize, 
+                              &childRI, 
+                              wm, 
+                              LogicalPoint(wm), 
+                              nsSize(), 
+                              flags);
+  }
 #ifdef DEBUG
     parent->DeleteProperty(nsContainerFrame::DebugReflowingWithInfiniteISize());
 #endif

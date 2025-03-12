@@ -278,7 +278,11 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
    */
   nsCOMPtr<nsIURI> originalUri;
   rv = oldChannel->GetOriginalURI(getter_AddRefs(originalUri));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_FAILED(rv)) {
+    autoCallback.DontCallback();
+    oldChannel->Cancel(NS_ERROR_DOM_BAD_URI);
+    return rv;
+  }
 
   bool isPreload = nsContentUtils::IsPreloadType(policyType);
 
@@ -310,6 +314,7 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
       // is no point in checking the real policy
       if (NS_CP_REJECTED(aDecision)) {
         autoCallback.DontCallback();
+        oldChannel->Cancel(NS_ERROR_DOM_BAD_URI);
         return NS_BINDING_FAILED;
       }
     }
@@ -333,6 +338,7 @@ CSPService::AsyncOnChannelRedirect(nsIChannel *oldChannel,
   // if ShouldLoad doesn't accept the load, cancel the request
   if (!NS_CP_ACCEPTED(aDecision)) {
     autoCallback.DontCallback();
+    oldChannel->Cancel(NS_ERROR_DOM_BAD_URI);
     return NS_BINDING_FAILED;
   }
   return NS_OK;

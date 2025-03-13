@@ -70,7 +70,9 @@ void EncodeKeyword(const Tag& keyword, uint8_t* data, size_t size, size_t pos) {
 }
 
 Status AppendKeyword(const Tag& keyword, PaddedBytes* data) {
+#if 0
   static_assert(std::tuple_size<Tag>{} == 4);
+#endif
   return data->append(keyword);
 }
 

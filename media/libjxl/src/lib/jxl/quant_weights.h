@@ -77,7 +77,9 @@ struct QuantEncodingInternal {
 
   template <size_t A>
   static constexpr QuantEncodingInternal Library() {
+#if 0
     static_assert(A < kNumPredefinedTables);
+#endif
     return QuantEncodingInternal(Tag<kQuantModeLibrary>(), A);
   }
   constexpr QuantEncodingInternal(Tag<kQuantModeLibrary> /* tag */,

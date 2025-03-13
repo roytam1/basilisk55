@@ -39,6 +39,7 @@
 #include "js/SourceBufferHolder.h"
 #include "js/Stream.h"
 #include "js/TracingAPI.h"
+#include "js/Transcoding.h"
 #include "js/UniquePtr.h"
 #include "js/Utility.h"
 #include "js/Value.h"
@@ -5747,63 +5748,6 @@ class MOZ_RAII AutoHideScriptedCaller
     JSContext* mContext;
     MOZ_DECL_USE_GUARD_OBJECT_NOTIFIER
 };
-
-/*
- * Encode/Decode interpreted scripts and functions to/from memory.
- */
-
-typedef mozilla::Vector<uint8_t> TranscodeBuffer;
-
-enum TranscodeResult
-{
-    // Successful encoding / decoding.
-    TranscodeResult_Ok = 0,
-
-    // A warning message, is set to the message out-param.
-    TranscodeResult_Failure = 0x100,
-    TranscodeResult_Failure_BadBuildId =          TranscodeResult_Failure | 0x1,
-    TranscodeResult_Failure_RunOnceNotSupported = TranscodeResult_Failure | 0x2,
-    TranscodeResult_Failure_AsmJSNotSupported =   TranscodeResult_Failure | 0x3,
-    TranscodeResult_Failure_BadDecode =           TranscodeResult_Failure | 0x4,
-
-    TranscodeResult_Failure_WrongCompileOption =  TranscodeResult_Failure | 0x5,
-    TranscodeResult_Failure_NotInterpretedFun =   TranscodeResult_Failure | 0x6,
-
-    // There is a pending exception on the context.
-    TranscodeResult_Throw = 0x200
-};
-
-extern JS_PUBLIC_API(TranscodeResult)
-EncodeScript(JSContext* cx, TranscodeBuffer& buffer, JS::HandleScript script);
-
-extern JS_PUBLIC_API(TranscodeResult)
-EncodeInterpretedFunction(JSContext* cx, TranscodeBuffer& buffer, JS::HandleObject funobj);
-
-extern JS_PUBLIC_API(TranscodeResult)
-DecodeScript(JSContext* cx, TranscodeBuffer& buffer, JS::MutableHandleScript scriptp,
-             size_t cursorIndex = 0);
-
-extern JS_PUBLIC_API(TranscodeResult)
-DecodeInterpretedFunction(JSContext* cx, TranscodeBuffer& buffer, JS::MutableHandleFunction funp,
-                          size_t cursorIndex = 0);
-
-// Register an encoder on the given script source, such that all functions can
-// be encoded as they are parsed. This strategy is used to avoid blocking the
-// main thread in a non-interruptible way.
-//
-// The |script| argument of |StartIncrementalEncoding| and
-// |FinishIncrementalEncoding| should be the top-level script returned either as
-// an out-param of any of the |Compile| functions, or the result of
-// |FinishOffThreadScript|.
-//
-// The |buffer| argument of |FinishIncrementalEncoding| is used for appending
-// the encoded bytecode into the buffer. If any of these functions failed, the
-// content of |buffer| would be undefined.
-extern JS_PUBLIC_API(bool)
-StartIncrementalEncoding(JSContext* cx, JS::HandleScript script);
-
-extern JS_PUBLIC_API(bool)
-FinishIncrementalEncoding(JSContext* cx, JS::HandleScript script, TranscodeBuffer& buffer);
 
 } /* namespace JS */
 

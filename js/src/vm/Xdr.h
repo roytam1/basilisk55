@@ -9,6 +9,7 @@
 #include "mozilla/EndianUtils.h"
 #include "mozilla/TypeTraits.h"
 
+#include "js/Transcoding.h"
 #include "jsatom.h"
 #include "jsfriendapi.h"
 

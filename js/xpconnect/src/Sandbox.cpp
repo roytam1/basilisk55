@@ -11,6 +11,7 @@
 #include "AccessCheck.h"
 #include "jsfriendapi.h"
 #include "js/Proxy.h"
+#include "js/SourceBufferHolder.h"
 #include "js/StructuredClone.h"
 #include "nsContentUtils.h"
 #include "nsGlobalWindow.h"

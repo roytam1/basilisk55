@@ -75,6 +75,7 @@
 #include "js/Equality.h"  // JS::SameValue
 #include "js/GCAPI.h"
 #include "js/Initialization.h"
+#include "js/SourceBufferHolder.h"
 #include "js/StructuredClone.h"
 #include "js/TrackedOptimizationInfo.h"
 #include "perf/jsperf.h"
@@ -4077,8 +4078,8 @@ ParseModule(JSContext* cx, unsigned argc, Value* vp)
         return false;
 
     const char16_t* chars = stableChars.twoByteRange().begin().get();
-    SourceBufferHolder srcBuf(chars, scriptContents->length(),
-                              SourceBufferHolder::NoOwnership);
+    JS::SourceBufferHolder srcBuf(chars, scriptContents->length(),
+                                  SourceBufferHolder::NoOwnership);
 
     RootedObject module(cx, frontend::CompileModule(cx, options, srcBuf));
     if (!module)

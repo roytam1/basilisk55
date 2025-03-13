@@ -63,6 +63,7 @@
 #include "js/Initialization.h"
 #include "js/Proxy.h"
 #include "js/SliceBudget.h"
+#include "js/SourceBufferHolder.h"
 #include "js/StructuredClone.h"
 #include "js/Utility.h"
 #include "vm/AsyncFunction.h"
@@ -106,6 +107,7 @@ using mozilla::PodZero;
 using mozilla::Some;
 
 using JS::AutoGCRooter;
+using JS::SourceBufferHolder;
 using JS::ToInt32;
 using JS::ToInteger;
 using JS::ToUint32;

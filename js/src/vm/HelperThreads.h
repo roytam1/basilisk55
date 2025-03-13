@@ -22,6 +22,7 @@
 
 #include "frontend/TokenStream.h"
 #include "jit/Ion.h"
+#include "js/SourceBufferHolder.h"
 #include "threading/ConditionVariable.h"
 #include "vm/MutexIDs.h"
 

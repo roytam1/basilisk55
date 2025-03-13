@@ -33,6 +33,7 @@
 #include "frontend/Parser.h"
 #include "gc/Policy.h"
 #include "js/MemoryMetrics.h"
+#include "js/SourceBufferHolder.h"
 #include "vm/SelfHosting.h"
 #include "vm/StringBuffer.h"
 #include "vm/Time.h"
@@ -69,6 +70,7 @@ using mozilla::PodZero;
 using mozilla::PositiveInfinity;
 using JS::AsmJSOption;
 using JS::GenericNaN;
+using JS::SourceBufferHolder;
 
 /*****************************************************************************/
 

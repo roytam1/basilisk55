@@ -18,6 +18,7 @@
 #endif
 
 #include "jsapi.h"
+#include "js/SourceBufferHolder.h"
 #include "nsCOMPtr.h"
 #include "nsAutoPtr.h"
 #include "nsIComponentManager.h"

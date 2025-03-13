@@ -27,6 +27,7 @@
 #include "jit/BaselineJIT.h"
 #include "js/Date.h"
 #include "js/GCAPI.h"
+#include "js/SourceBufferHolder.h"
 #include "js/UbiNodeBreadthFirst.h"
 #include "js/Vector.h"
 #include "proxy/ScriptedProxyHandler.h"
@@ -51,6 +52,7 @@ using namespace js;
 using JS::dbg::AutoEntryMonitor;
 using JS::dbg::Builder;
 using js::frontend::IsIdentifier;
+using JS::SourceBufferHolder;
 using mozilla::ArrayLength;
 using mozilla::DebugOnly;
 using mozilla::MakeScopeExit;

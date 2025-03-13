@@ -28,7 +28,7 @@ namespace frontend {
 JSScript*
 CompileGlobalScript(ExclusiveContext* cx, LifoAlloc& alloc, ScopeKind scopeKind,
                     const ReadOnlyCompileOptions& options,
-                    SourceBufferHolder& srcBuf,
+                    JS::SourceBufferHolder& srcBuf,
                     SourceCompressionTask* extraSct = nullptr,
                     ScriptSourceObject** sourceObjectOut = nullptr);
 
@@ -36,17 +36,17 @@ JSScript*
 CompileEvalScript(ExclusiveContext* cx, LifoAlloc& alloc,
                   HandleObject scopeChain, HandleScope enclosingScope,
                   const ReadOnlyCompileOptions& options,
-                  SourceBufferHolder& srcBuf,
+                  JS::SourceBufferHolder& srcBuf,
                   SourceCompressionTask* extraSct = nullptr,
                   ScriptSourceObject** sourceObjectOut = nullptr);
 
 ModuleObject*
 CompileModule(JSContext* cx, const ReadOnlyCompileOptions& options,
-              SourceBufferHolder& srcBuf);
+              JS::SourceBufferHolder& srcBuf);
 
 ModuleObject*
 CompileModule(ExclusiveContext* cx, const ReadOnlyCompileOptions& options,
-              SourceBufferHolder& srcBuf, LifoAlloc& alloc,
+              JS::SourceBufferHolder& srcBuf, LifoAlloc& alloc,
               ScriptSourceObject** sourceObjectOut = nullptr);
 
 MOZ_MUST_USE bool

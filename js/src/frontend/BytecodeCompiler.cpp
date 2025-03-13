@@ -16,6 +16,7 @@
 #include "frontend/FoldConstants.h"
 #include "frontend/NameFunctions.h"
 #include "frontend/Parser.h"
+#include "js/SourceBufferHolder.h"
 #include "vm/GlobalObject.h"
 #include "vm/TraceLogging.h"
 #include "wasm/AsmJS.h"
@@ -27,8 +28,11 @@
 
 using namespace js;
 using namespace js::frontend;
+
 using mozilla::Maybe;
 using mozilla::Nothing;
+
+using JS::SourceBufferHolder;
 
 class MOZ_STACK_CLASS AutoCompilationTraceLogger
 {

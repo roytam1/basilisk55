@@ -22,6 +22,7 @@
 
 #include "frontend/TokenStream.h"
 #include "jit/Ion.h"
+#include "js/CompileOptions.h"
 #include "js/SourceBufferHolder.h"
 #include "threading/ConditionVariable.h"
 #include "vm/MutexIDs.h"
@@ -497,17 +498,17 @@ CancelOffThreadParses(JSRuntime* runtime);
  * alive until the compilation finishes.
  */
 bool
-StartOffThreadParseScript(JSContext* cx, const ReadOnlyCompileOptions& options,
+StartOffThreadParseScript(JSContext* cx, const JS::ReadOnlyCompileOptions& options,
                           const char16_t* chars, size_t length,
                           JS::OffThreadCompileCallback callback, void* callbackData);
 
 bool
-StartOffThreadParseModule(JSContext* cx, const ReadOnlyCompileOptions& options,
+StartOffThreadParseModule(JSContext* cx, const JS::ReadOnlyCompileOptions& options,
                           const char16_t* chars, size_t length,
                           JS::OffThreadCompileCallback callback, void* callbackData);
 
 bool
-StartOffThreadDecodeScript(JSContext* cx, const ReadOnlyCompileOptions& options,
+StartOffThreadDecodeScript(JSContext* cx, const JS::ReadOnlyCompileOptions& options,
                            JS::TranscodeBuffer& buffer, size_t cursor,
                            JS::OffThreadCompileCallback callback, void* callbackData);
 
@@ -562,7 +563,7 @@ struct ParseTask
 {
     ParseTaskKind kind;
     ExclusiveContext* cx;
-    OwningCompileOptions options;
+    JS::OwningCompileOptions options;
     // Anonymous union, the only correct interpretation is provided by the
     // ParseTaskKind value, or from the virtual parse function.
     union {
@@ -607,7 +608,7 @@ struct ParseTask
     ParseTask(ParseTaskKind kind, ExclusiveContext* cx, JSObject* exclusiveContextGlobal,
               JSContext* initCx, JS::TranscodeBuffer& buffer, size_t cursor,
               JS::OffThreadCompileCallback callback, void* callbackData);
-    bool init(JSContext* cx, const ReadOnlyCompileOptions& options);
+    bool init(JSContext* cx, const JS::ReadOnlyCompileOptions& options);
 
     void activate(JSRuntime* rt);
     virtual void parse() = 0;

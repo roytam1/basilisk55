@@ -10,6 +10,7 @@
 
 #include "NamespaceImports.h"
 
+#include "js/CompileOptions.h"
 #include "vm/Scope.h"
 #include "vm/String.h"
 
@@ -27,7 +28,7 @@ namespace frontend {
 
 JSScript*
 CompileGlobalScript(ExclusiveContext* cx, LifoAlloc& alloc, ScopeKind scopeKind,
-                    const ReadOnlyCompileOptions& options,
+                    const JS::ReadOnlyCompileOptions& options,
                     JS::SourceBufferHolder& srcBuf,
                     SourceCompressionTask* extraSct = nullptr,
                     ScriptSourceObject** sourceObjectOut = nullptr);
@@ -35,17 +36,17 @@ CompileGlobalScript(ExclusiveContext* cx, LifoAlloc& alloc, ScopeKind scopeKind,
 JSScript*
 CompileEvalScript(ExclusiveContext* cx, LifoAlloc& alloc,
                   HandleObject scopeChain, HandleScope enclosingScope,
-                  const ReadOnlyCompileOptions& options,
+                  const JS::ReadOnlyCompileOptions& options,
                   JS::SourceBufferHolder& srcBuf,
                   SourceCompressionTask* extraSct = nullptr,
                   ScriptSourceObject** sourceObjectOut = nullptr);
 
 ModuleObject*
-CompileModule(JSContext* cx, const ReadOnlyCompileOptions& options,
+CompileModule(JSContext* cx, const JS::ReadOnlyCompileOptions& options,
               JS::SourceBufferHolder& srcBuf);
 
 ModuleObject*
-CompileModule(ExclusiveContext* cx, const ReadOnlyCompileOptions& options,
+CompileModule(ExclusiveContext* cx, const JS::ReadOnlyCompileOptions& options,
               JS::SourceBufferHolder& srcBuf, LifoAlloc& alloc,
               ScriptSourceObject** sourceObjectOut = nullptr);
 
@@ -66,36 +67,36 @@ CompileLazyFunction(JSContext* cx, Handle<LazyScript*> lazy, const char16_t* cha
 //
 MOZ_MUST_USE bool
 CompileStandaloneFunction(JSContext* cx, MutableHandleFunction fun,
-                          const ReadOnlyCompileOptions& options,
+                          const JS::ReadOnlyCompileOptions& options,
                           JS::SourceBufferHolder& srcBuf,
                           mozilla::Maybe<uint32_t> parameterListEnd,
                           HandleScope enclosingScope = nullptr);
 
 MOZ_MUST_USE bool
 CompileStandaloneGenerator(JSContext* cx, MutableHandleFunction fun,
-                           const ReadOnlyCompileOptions& options,
+                           const JS::ReadOnlyCompileOptions& options,
                            JS::SourceBufferHolder& srcBuf,
                            mozilla::Maybe<uint32_t> parameterListEnd);
 
 MOZ_MUST_USE bool
 CompileStandaloneAsyncFunction(JSContext* cx, MutableHandleFunction fun,
-                               const ReadOnlyCompileOptions& options,
+                               const JS::ReadOnlyCompileOptions& options,
                                JS::SourceBufferHolder& srcBuf,
                                mozilla::Maybe<uint32_t> parameterListEnd);
 
 MOZ_MUST_USE bool
 CompileStandaloneAsyncGenerator(JSContext* cx, MutableHandleFunction fun,
-                                const ReadOnlyCompileOptions& options,
+                                const JS::ReadOnlyCompileOptions& options,
                                 JS::SourceBufferHolder& srcBuf,
                                 mozilla::Maybe<uint32_t> parameterListEnd);
 
 MOZ_MUST_USE bool
 CompileAsyncFunctionBody(JSContext* cx, MutableHandleFunction fun,
-                         const ReadOnlyCompileOptions& options,
+                         const JS::ReadOnlyCompileOptions& options,
                          Handle<PropertyNameVector> formals, JS::SourceBufferHolder& srcBuf);
 
 ScriptSourceObject*
-CreateScriptSourceObject(ExclusiveContext* cx, const ReadOnlyCompileOptions& options,
+CreateScriptSourceObject(ExclusiveContext* cx, const JS::ReadOnlyCompileOptions& options,
                          mozilla::Maybe<uint32_t> parameterListEnd = mozilla::Nothing());
 
 /*

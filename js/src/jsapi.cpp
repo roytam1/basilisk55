@@ -58,6 +58,7 @@
 #include "gc/Policy.h"
 #include "jit/JitCommon.h"
 #include "js/CharacterEncoding.h"
+#include "js/CompileOptions.h"
 #include "js/Conversions.h"
 #include "js/Date.h"
 #include "js/Initialization.h"
@@ -107,6 +108,8 @@ using mozilla::PodZero;
 using mozilla::Some;
 
 using JS::AutoGCRooter;
+using JS::CompileOptions;
+using JS::ReadOnlyCompileOptions;
 using JS::SourceBufferHolder;
 using JS::ToInt32;
 using JS::ToInteger;

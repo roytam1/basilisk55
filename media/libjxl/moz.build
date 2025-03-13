@@ -111,7 +111,7 @@ EXPORTS.jxl += [
     "/media/libjxl/src/lib/include/jxl/types.h",
 ]
 
-# DEFINES["JPEGXL_ENABLE_BOXES"] = "0"
+DEFINES["JPEGXL_ENABLE_BOXES"] = "0"
 DEFINES["JPEGXL_ENABLE_TRANSCODE_JPEG"] = "0"
 
 FINAL_LIBRARY = "gkmedias"

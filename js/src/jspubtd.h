@@ -150,8 +150,6 @@ class JS_PUBLIC_API(AutoEnterCycleCollection);
 class JS_PUBLIC_API(AutoAssertOnBarrier);
 struct JS_PUBLIC_API(PropertyDescriptor);
 
-typedef void (*OffThreadCompileCallback)(void* token, void* callbackData);
-
 enum class HeapState {
     Idle,             // doing nothing with the GC heap
     Tracing,          // tracing the GC heap without collecting, e.g. IterateCompartments()

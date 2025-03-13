@@ -3862,7 +3862,6 @@ class JS_FRIEND_API(TransitiveCompileOptions)
         canLazilyParse(true),
         strictOption(false),
         extraWarningsOption(false),
-        forEachStatementOption(false),
         werrorOption(false),
         asmJSOption(AsmJSOption::Disabled),
         throwOnAsmJSValidationFailureOption(false),
@@ -3897,7 +3896,6 @@ class JS_FRIEND_API(TransitiveCompileOptions)
     bool canLazilyParse;
     bool strictOption;
     bool extraWarningsOption;
-    bool forEachStatementOption;
     bool werrorOption;
     AsmJSOption asmJSOption;
     bool throwOnAsmJSValidationFailureOption;

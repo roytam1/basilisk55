@@ -19,7 +19,6 @@
 #include "nsNetCID.h"
 #include "nsCOMPtr.h"
 #include "nsICryptoHash.h"
-#include "mozilla/Telemetry.h"
 
 #include <windows.h>
 
@@ -273,16 +272,6 @@ nsAuthSSPI::Init(const char *serviceName,
                                            &useBefore);
     if (rc != SEC_E_OK)
         return NS_ERROR_UNEXPECTED;
-
-    static bool sTelemetrySent = false;
-    if (!sTelemetrySent) {
-        mozilla::Telemetry::Accumulate(
-            mozilla::Telemetry::NTLM_MODULE_USED_2,
-            serviceFlags & nsIAuthModule::REQ_PROXY_AUTH
-                ? NTLM_MODULE_WIN_API_PROXY
-                : NTLM_MODULE_WIN_API_DIRECT);
-        sTelemetrySent = true;
-    }
 
     LOG(("AcquireCredentialsHandle() succeeded.\n"));
     return NS_OK;

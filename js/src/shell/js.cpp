@@ -5369,7 +5369,7 @@ GetSharedArrayBuffer(JSContext* cx, unsigned argc, Value* vp)
         SharedArrayRawBuffer* buf = sharedArrayBufferMailbox;
         if (buf) {
             if (!buf->addReference()) {
-                JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_REFCNT_OFLO);
+                JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_TOO_MANY_REFS);
                 return false;
             }
 

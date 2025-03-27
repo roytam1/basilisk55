@@ -266,7 +266,7 @@ SharedArrayRawBufferRefs::acquire(JSContext* cx, SharedArrayRawBuffer* rawbuf)
 
     if (!rawbuf->addReference()) {
         refs_.popBack();
-        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_REFCNT_OFLO);
+        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_TOO_MANY_REFS);
         return false;
     }
 
@@ -283,7 +283,7 @@ SharedArrayRawBufferRefs::acquireAll(JSContext* cx, const SharedArrayRawBufferRe
 
     for (auto ref : that.refs_) {
         if (!ref->addReference()) {
-            JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_REFCNT_OFLO);
+            JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_SC_SAB_TOO_MANY_REFS);
             return false;
         }
         MOZ_ALWAYS_TRUE(refs_.append(ref));
@@ -2055,7 +2055,7 @@ JSStructuredCloneReader::readSharedArrayBuffer(uint32_t nbytes, MutableHandleVal
     // The new object will have a new reference to the rawbuf.
 
     if (!rawbuf->addReference()) {
-        JS_ReportErrorNumberASCII(context(), GetErrorMessage, nullptr, JSMSG_SC_SAB_REFCNT_OFLO);
+        JS_ReportErrorNumberASCII(context(), GetErrorMessage, nullptr, JSMSG_SC_SAB_TOO_MANY_REFS);
         return false;
     }
 

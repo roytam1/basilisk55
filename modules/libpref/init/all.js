@@ -3777,7 +3777,7 @@ pref("ui.osk.debug.keyboardDisplayReason", "");
 //  * 0: never
 //  * 1: always
 //  * 2: auto
-pref("widget.windows.follow_shortcuts_on_file_open", 2);
+pref("widget.windows.follow_shortcuts_on_file_open", 1);
 
 # XP_WIN
 #endif

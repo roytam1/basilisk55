@@ -9,6 +9,7 @@
 
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/Event.h" // for nsIDOMEvent::InternalDOMEvent()
+#include "mozilla/dom/HTMLAreaElement.h"
 #include "mozilla/gfx/PathHelpers.h"
 #include "mozilla/UniquePtr.h"
 #include "nsString.h"
@@ -29,10 +30,11 @@
 
 using namespace mozilla;
 using namespace mozilla::gfx;
+using namespace mozilla::dom;
 
 class Area {
 public:
-  explicit Area(nsIContent* aArea);
+  explicit Area(HTMLAreaElement* aArea);
   virtual ~Area();
 
   virtual void ParseCoords(const nsAString& aSpec);
@@ -45,17 +47,17 @@ public:
 
   void HasFocus(bool aHasFocus);
 
-  nsCOMPtr<nsIContent> mArea;
+  RefPtr<HTMLAreaElement> mArea;
   UniquePtr<nscoord[]> mCoords;
   int32_t mNumCoords;
   bool mHasFocus;
 };
 
-Area::Area(nsIContent* aArea)
+Area::Area(HTMLAreaElement* aArea)
   : mArea(aArea)
 {
   MOZ_COUNT_CTOR(Area);
-  NS_PRECONDITION(mArea, "How did that happen?");
+  MOZ_ASSERT(mArea, "How did that happen?");
   mNumCoords = 0;
   mHasFocus = false;
 }
@@ -266,7 +268,7 @@ void Area::HasFocus(bool aHasFocus)
 
 class DefaultArea : public Area {
 public:
-  explicit DefaultArea(nsIContent* aArea);
+  explicit DefaultArea(HTMLAreaElement* aArea);
 
   virtual bool IsInside(nscoord x, nscoord y) const override;
   virtual void Draw(nsIFrame* aFrame, DrawTarget& aDrawTarget,
@@ -275,7 +277,7 @@ public:
   virtual void GetRect(nsIFrame* aFrame, nsRect& aRect) override;
 };
 
-DefaultArea::DefaultArea(nsIContent* aArea)
+DefaultArea::DefaultArea(HTMLAreaElement* aArea)
   : Area(aArea)
 {
 }
@@ -310,7 +312,7 @@ void DefaultArea::GetRect(nsIFrame* aFrame, nsRect& aRect)
 
 class RectArea : public Area {
 public:
-  explicit RectArea(nsIContent* aArea);
+  explicit RectArea(HTMLAreaElement* aArea);
 
   virtual void ParseCoords(const nsAString& aSpec) override;
   virtual bool IsInside(nscoord x, nscoord y) const override;
@@ -320,7 +322,7 @@ public:
   virtual void GetRect(nsIFrame* aFrame, nsRect& aRect) override;
 };
 
-RectArea::RectArea(nsIContent* aArea)
+RectArea::RectArea(HTMLAreaElement* aArea)
   : Area(aArea)
 {
 }
@@ -416,7 +418,7 @@ void RectArea::GetRect(nsIFrame* aFrame, nsRect& aRect)
 
 class PolyArea : public Area {
 public:
-  explicit PolyArea(nsIContent* aArea);
+  explicit PolyArea(HTMLAreaElement* aArea);
 
   virtual void ParseCoords(const nsAString& aSpec) override;
   virtual bool IsInside(nscoord x, nscoord y) const override;
@@ -426,7 +428,7 @@ public:
   virtual void GetRect(nsIFrame* aFrame, nsRect& aRect) override;
 };
 
-PolyArea::PolyArea(nsIContent* aArea)
+PolyArea::PolyArea(HTMLAreaElement* aArea)
   : Area(aArea)
 {
 }
@@ -573,7 +575,7 @@ void PolyArea::GetRect(nsIFrame* aFrame, nsRect& aRect)
 
 class CircleArea : public Area {
 public:
-  explicit CircleArea(nsIContent* aArea);
+  explicit CircleArea(HTMLAreaElement* aArea);
 
   virtual void ParseCoords(const nsAString& aSpec) override;
   virtual bool IsInside(nscoord x, nscoord y) const override;
@@ -583,7 +585,7 @@ public:
   virtual void GetRect(nsIFrame* aFrame, nsRect& aRect) override;
 };
 
-CircleArea::CircleArea(nsIContent* aArea)
+CircleArea::CircleArea(HTMLAreaElement* aArea)
   : Area(aArea)
 {
 }
@@ -750,21 +752,17 @@ nsImageMap::Init(nsImageFrame* aImageFrame, nsIContent* aMap)
 
 
 nsresult
-nsImageMap::SearchForAreas(nsIContent* aParent, bool& aFoundArea,
-                           bool& aFoundAnchor)
+nsImageMap::SearchForAreas(nsIContent* aParent)
 {
   nsresult rv = NS_OK;
-  uint32_t i, n = aParent->GetChildCount();
+  uint32_t n = aParent->GetChildCount();
 
-  // Look for <area> or <a> elements. We'll use whichever type we find first.
-  for (i = 0; i < n; i++) {
-    nsIContent *child = aParent->GetChildAt(i);
-
-    // If we haven't determined that the map element contains an
-    // <a> element yet, then look for <area>.
-    if (!aFoundAnchor && child->IsHTMLElement(nsGkAtoms::area)) {
-      aFoundArea = true;
-      rv = AddArea(child);
+  // Look for <area> elements.
+  for (nsIContent* child = aParent->GetFirstChild();
+       child;
+       child = child->GetNextSibling()) {
+    if (auto* area = static_cast<HTMLAreaElement*>(HTMLAreaElement::FromContent(child))) {
+      rv = AddArea(area);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Continue to next child. This stops mConsiderWholeSubtree from
@@ -774,17 +772,9 @@ nsImageMap::SearchForAreas(nsIContent* aParent, bool& aFoundArea,
       continue;
     }
 
-    // If we haven't determined that the map element contains an
-    // <area> element yet, then look for <a>.
-    if (!aFoundArea && child->IsHTMLElement(nsGkAtoms::a)) {
-      aFoundAnchor = true;
-      rv = AddArea(child);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
     if (child->IsElement()) {
       mConsiderWholeSubtree = true;
-      rv = SearchForAreas(child, aFoundArea, aFoundAnchor);
+      rv = SearchForAreas(child);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }
@@ -798,11 +788,9 @@ nsImageMap::UpdateAreas()
   // Get rid of old area data
   FreeAreas();
 
-  bool foundArea = false;
-  bool foundAnchor = false;
   mConsiderWholeSubtree = false;
+  nsresult rv = SearchForAreas(mMap);
 
-  nsresult rv = SearchForAreas(mMap, foundArea, foundAnchor);
 #ifdef ACCESSIBILITY
   if (NS_SUCCEEDED(rv)) {
     nsAccessibilityService* accService = GetAccService();
@@ -815,7 +803,7 @@ nsImageMap::UpdateAreas()
 }
 
 nsresult
-nsImageMap::AddArea(nsIContent* aArea)
+nsImageMap::AddArea(HTMLAreaElement* aArea)
 {
   static nsIContent::AttrValuesArray strings[] =
     {&nsGkAtoms::rect, &nsGkAtoms::rectangle,

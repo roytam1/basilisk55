@@ -751,16 +751,15 @@ nsImageMap::Init(nsImageFrame* aImageFrame, nsIContent* aMap)
 void
 nsImageMap::SearchForAreas(nsIContent* aParent)
 {
-  uint32_t n = aParent->GetChildCount();
-
   // Look for <area> elements.
   for (nsIContent* child = aParent->GetFirstChild();
        child;
        child = child->GetNextSibling()) {
-    if (auto* area = static_cast<HTMLAreaElement*>(HTMLAreaElement::FromContent(child))) {
+    if (child->IsHTMLElement(nsGkAtoms::area)) {
+      HTMLAreaElement* area = static_cast<HTMLAreaElement*>(HTMLAreaElement::FromContent(child));
       AddArea(area);
 
-      // Continue to next child. This stops mConsiderWholeSubtree from
+      // Continue to next sibling. This stops mConsiderWholeSubtree from
       // getting set. It also makes us ignore children of <area>s which
       // is consistent with how we react to dynamic insertion of such
       // children.
@@ -895,11 +894,10 @@ nsImageMap::AttributeChanged(nsIDocument*  aDocument,
                              const nsAttrValue* aOldValue)
 {
   // If the parent of the changing content node is our map then update
-  // the map.  But only do this if the node is an HTML <area> or <a>
+  // the map.  But only do this if the node is an HTML <area>
   // and the attribute that's changing is "shape" or "coords" -- those
   // are the only cases we care about.
-  if ((aElement->NodeInfo()->Equals(nsGkAtoms::area) ||
-       aElement->NodeInfo()->Equals(nsGkAtoms::a)) &&
+  if (aElement->NodeInfo()->Equals(nsGkAtoms::area) &&
       aElement->IsHTMLElement() &&
       aNameSpaceID == kNameSpaceID_None &&
       (aAttribute == nsGkAtoms::shape ||

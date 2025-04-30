@@ -825,6 +825,10 @@ nsImageMap::AddArea(HTMLAreaElement* aArea)
     MOZ_ASSERT_UNREACHABLE("FindAttrValueIn returned an unexpected value.");
     break;
   }
+  if (!area) {
+    // Possibly OOM, or invalid attr (does not assert in release); early exit
+    return;
+  }
 
   //Add focus listener to track area focus changes
   aArea->AddSystemEventListener(NS_LITERAL_STRING("focus"), this, false, false);

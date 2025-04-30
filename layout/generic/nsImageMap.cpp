@@ -676,9 +676,9 @@ void CircleArea::GetRect(nsIFrame* aFrame, nsRect& aRect)
 //----------------------------------------------------------------------
 
 
-nsImageMap::nsImageMap() :
-  mImageFrame(nullptr),
-  mContainsBlockContents(false)
+nsImageMap::nsImageMap()
+  : mImageFrame(nullptr)
+  , mConsiderWholeSubtree(false)
 {
 }
 
@@ -767,7 +767,7 @@ nsImageMap::SearchForAreas(nsIContent* aParent, bool& aFoundArea,
       rv = AddArea(child);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      // Continue to next child. This stops mContainsBlockContents from
+      // Continue to next child. This stops mConsiderWholeSubtree from
       // getting set. It also makes us ignore children of <area>s which
       // is consistent with how we react to dynamic insertion of such
       // children.
@@ -783,7 +783,7 @@ nsImageMap::SearchForAreas(nsIContent* aParent, bool& aFoundArea,
     }
 
     if (child->IsElement()) {
-      mContainsBlockContents = true;
+      mConsiderWholeSubtree = true;
       rv = SearchForAreas(child, aFoundArea, aFoundAnchor);
       NS_ENSURE_SUCCESS(rv, rv);
     }
@@ -800,7 +800,7 @@ nsImageMap::UpdateAreas()
 
   bool foundArea = false;
   bool foundAnchor = false;
-  mContainsBlockContents = false;
+  mConsiderWholeSubtree = false;
 
   nsresult rv = SearchForAreas(mMap, foundArea, foundAnchor);
 #ifdef ACCESSIBILITY
@@ -908,7 +908,7 @@ nsImageMap::Draw(nsIFrame* aFrame, DrawTarget& aDrawTarget,
 void
 nsImageMap::MaybeUpdateAreas(nsIContent *aContent)
 {
-  if (aContent == mMap || mContainsBlockContents) {
+  if (aContent == mMap || mConsiderWholeSubtree) {
     UpdateAreas();
   }
 }

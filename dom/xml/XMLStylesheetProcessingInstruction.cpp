@@ -104,9 +104,10 @@ XMLStylesheetProcessingInstruction::OverrideBaseURI(nsIURI* aNewBaseURI)
 }
 
 already_AddRefed<nsIURI>
-XMLStylesheetProcessingInstruction::GetStyleSheetURL(bool* aIsInline)
+XMLStylesheetProcessingInstruction::GetStyleSheetURL(bool* aIsInline, nsIPrincipal** aTriggeringPrincipal)
 {
   *aIsInline = false;
+  *aTriggeringPrincipal = nullptr;
 
   nsAutoString href;
   if (!GetAttrValue(nsGkAtoms::href, href)) {

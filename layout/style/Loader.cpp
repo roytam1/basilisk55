@@ -2009,6 +2009,7 @@ Loader::LoadInlineStyle(nsIContent* aElement,
 nsresult
 Loader::LoadStyleLink(nsIContent* aElement,
                       nsIURI* aURL,
+                      nsIPrincipal* aTriggeringPrincipal,
                       const nsAString& aTitle,
                       const nsAString& aMedia,
                       bool aHasAlternateRel,
@@ -2038,11 +2039,9 @@ Loader::LoadStyleLink(nsIContent* aElement,
   nsIPrincipal* loadingPrincipal = aElement ? aElement->NodePrincipal()
                                             : mDocument->NodePrincipal();
 
-  //SHOULD BE:
-  //nsIPrincipal* principal = aTriggeringPrincipal ? aTriggeringPrincipal
-  //                                               : loadingPrincipal;
-  nsIPrincipal* principal = loadingPrincipal;
-  
+  nsIPrincipal* principal = aTriggeringPrincipal ? aTriggeringPrincipal
+                                                 : loadingPrincipal;
+
   nsISupports* context = aElement;
   if (!context) {
     context = mDocument;

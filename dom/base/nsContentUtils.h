@@ -2816,6 +2816,8 @@ public:
 
   static bool PushEnabled(JSContext* aCx, JSObject* aObj);
   
+  static bool CSPEnabled(JSContext* aCx, JSObject* aObj);
+  
   static bool StreamsEnabled(JSContext* aCx, JSObject* aObj);
 
   static bool IsNonSubresourceRequest(nsIChannel* aChannel);

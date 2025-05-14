@@ -146,9 +146,13 @@ public:
   {
     SetHTMLAttr(nsGkAtoms::src, aSrc, aTriggeringPrincipal, aError);
   }
-  void SetSrcset(const nsAString& aSrcset, ErrorResult& aError)
+  void GetSrcset(nsAString& aSrcset, nsIPrincipal&)
   {
-    SetHTMLAttr(nsGkAtoms::srcset, aSrcset, aError);
+    GetHTMLAttr(nsGkAtoms::srcset, aSrcset);
+  }
+  void SetSrcset(const nsAString& aSrcset, nsIPrincipal& aTriggeringPrincipal, ErrorResult& aError)
+  {
+    SetHTMLAttr(nsGkAtoms::srcset, aSrcset, aTriggeringPrincipal, aError);
   }
   void GetCrossOrigin(nsAString& aResult)
   {
@@ -394,6 +398,7 @@ private:
   bool mInDocResponsiveContent;
   RefPtr<ImageLoadTask> mPendingImageLoadTask;
   nsCOMPtr<nsIPrincipal> mSrcTriggeringPrincipal;
+  nsCOMPtr<nsIPrincipal> mSrcsetTriggeringPrincipal;
 
   // Last URL that was attempted to load by this element.
   nsCOMPtr<nsIURI> mLastSelectedSource;

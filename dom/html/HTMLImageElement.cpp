@@ -432,6 +432,7 @@ HTMLImageElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
     }
   } else if (aName == nsGkAtoms::srcset &&
              aNameSpaceID == kNameSpaceID_None) {
+    mSrcsetTriggeringPrincipal = aMaybeScriptedPrincipal;
     PictureSourceSrcsetChanged(this, attrVal.String(), aNotify);
   } else if (aName == nsGkAtoms::sizes &&
              aNameSpaceID == kNameSpaceID_None) {
@@ -483,7 +484,7 @@ HTMLImageElement::AfterMaybeChangeAttr(int32_t aNamespaceID, nsIAtom* aName,
     if (InResponsiveMode()) {
       if (mResponsiveSelector &&
           mResponsiveSelector->Content() == this) {
-        mResponsiveSelector->SetDefaultSource(aValue.String());
+        mResponsiveSelector->SetDefaultSource(aValue.String(), mSrcTriggeringPrincipal);
       }
       QueueImageLoadTask(true);
     } else if (aNotify && OwnerDoc()->IsCurrentActiveDocument()) {
@@ -1000,13 +1001,14 @@ HTMLImageElement::LoadSelectedImage(bool aForce, bool aNotify, bool aAlwaysLoad)
   double currentDensity = 1.0; // default to 1.0 for the src attribute case
   if (mResponsiveSelector) {
     nsCOMPtr<nsIURI> url = mResponsiveSelector->GetSelectedImageURL();
+    nsCOMPtr<nsIPrincipal> triggeringPrincipal = mResponsiveSelector->GetSelectedImageTriggeringPrincipal();
     selectedSource = url;
     currentDensity = mResponsiveSelector->GetSelectedImageDensity();
     if (!aAlwaysLoad && SelectedSourceMatchesLast(selectedSource, currentDensity)) {
       return NS_OK;
     }
     if (url) {
-      rv = LoadImage(url, aForce, aNotify, eImageLoadType_Imageset);
+      rv = LoadImage(url, aForce, aNotify, eImageLoadType_Imageset, triggeringPrincipal);
     }
   } else {
     nsAutoString src;
@@ -1055,7 +1057,11 @@ HTMLImageElement::PictureSourceSrcsetChanged(nsIContent *aSourceNode,
   if (aSourceNode == currentSrc) {
     // We're currently using this node as our responsive selector
     // source.
-    mResponsiveSelector->SetCandidatesFromSourceSet(aNewValue);
+    nsCOMPtr<nsIPrincipal> principal;
+    if (aSourceNode == this) {
+      principal = mSrcsetTriggeringPrincipal;
+    }
+    mResponsiveSelector->SetCandidatesFromSourceSet(aNewValue, principal);
   }
 
   if (!mInDocResponsiveContent && IsInComposedDoc()) {
@@ -1240,6 +1246,8 @@ HTMLImageElement::SourceElementMatches(nsIContent* aSourceNode)
 bool
 HTMLImageElement::TryCreateResponsiveSelector(nsIContent *aSourceNode)
 {
+  nsCOMPtr<nsIPrincipal> principal;
+
   // Skip if this is not a <source> with matching media query
   bool isSourceTag = aSourceNode->IsHTMLElement(nsGkAtoms::source);
   if (isSourceTag) {
@@ -1249,6 +1257,7 @@ HTMLImageElement::TryCreateResponsiveSelector(nsIContent *aSourceNode)
   } else if (aSourceNode->IsHTMLElement(nsGkAtoms::img)) {
     // Otherwise this is the <img> tag itself
     MOZ_ASSERT(aSourceNode == this);
+    principal = mSrcsetTriggeringPrincipal;
   }
 
   // Skip if has no srcset or an empty srcset
@@ -1264,8 +1273,8 @@ HTMLImageElement::TryCreateResponsiveSelector(nsIContent *aSourceNode)
 
   // Try to parse
   RefPtr<ResponsiveImageSelector> sel = new ResponsiveImageSelector(aSourceNode);
-  if (!sel->SetCandidatesFromSourceSet(srcset)) {
-    // No possible candidates, don't need to bother parsing sizes
+  if (!sel->SetCandidatesFromSourceSet(srcset, principal)) {
+    // No possible candidates; no need to bother parsing sizes
     return false;
   }
 
@@ -1278,7 +1287,7 @@ HTMLImageElement::TryCreateResponsiveSelector(nsIContent *aSourceNode)
     MOZ_ASSERT(aSourceNode == this);
     nsAutoString src;
     if (GetAttr(kNameSpaceID_None, nsGkAtoms::src, src) && !src.IsEmpty()) {
-      sel->SetDefaultSource(src);
+      sel->SetDefaultSource(src, mSrcTriggeringPrincipal);
     }
   }
 

@@ -103,6 +103,11 @@ HTMLSourceElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                                 nsIPrincipal* aMaybeScriptedPrincipal,
                                 bool aNotify)
 {
+  if (aNameSpaceID == kNameSpaceID_None && aName == nsGkAtoms::srcset) {
+    mSrcsetTriggeringPrincipal = nsContentUtils::GetAttrTriggeringPrincipal(
+        this, aValue ? aValue->GetStringValue() : EmptyString(),
+        aMaybeScriptedPrincipal);
+  }
   // If we are associated with a <picture> with a valid <img>, notify it of
   // responsive parameter changes
   Element *parent = nsINode::GetParentElement();

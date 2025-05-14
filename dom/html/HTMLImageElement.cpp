@@ -1060,6 +1060,8 @@ HTMLImageElement::PictureSourceSrcsetChanged(nsIContent *aSourceNode,
     nsCOMPtr<nsIPrincipal> principal;
     if (aSourceNode == this) {
       principal = mSrcsetTriggeringPrincipal;
+    } else if (auto* source = HTMLSourceElement::FromContent(aSourceNode)) {
+      principal = source->GetSrcsetTriggeringPrincipal();
     }
     mResponsiveSelector->SetCandidatesFromSourceSet(aNewValue, principal);
   }
@@ -1254,6 +1256,8 @@ HTMLImageElement::TryCreateResponsiveSelector(nsIContent *aSourceNode)
     if (!SourceElementMatches(aSourceNode)) {
       return false;
     }
+    auto* source = HTMLSourceElement::FromContent(aSourceNode);
+    principal = source->GetSrcsetTriggeringPrincipal();
   } else if (aSourceNode->IsHTMLElement(nsGkAtoms::img)) {
     // Otherwise this is the <img> tag itself
     MOZ_ASSERT(aSourceNode == this);

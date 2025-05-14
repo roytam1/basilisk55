@@ -1087,7 +1087,9 @@ nsMathMLElement::GetHrefURI() const
 nsresult
 nsMathMLElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                               const nsAttrValue* aValue,
-                              const nsAttrValue* aOldValue, bool aNotify)
+                              const nsAttrValue* aOldValue,
+                              nsIPrincipal* aSubjectPrincipal,
+                              bool aNotify)
 {
   // It is important that this be done after the attribute is set/unset.
   // We will need the updated attribute value because notifying the document
@@ -1105,7 +1107,8 @@ nsMathMLElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
   }
 
   return nsMathMLElementBase::AfterSetAttr(aNameSpaceID, aName, aValue,
-                                           aOldValue, aNotify);
+                                           aOldValue, aSubjectPrincipal,
+                                           aNotify);
 }
 
 JSObject*

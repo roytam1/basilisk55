@@ -95,10 +95,11 @@ SVGStyleElement::UnbindFromTree(bool aDeep, bool aNullParent)
 nsresult
 SVGStyleElement::SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                          nsIAtom* aPrefix, const nsAString& aValue,
+                         nsIPrincipal* aSubjectPrincipal,
                          bool aNotify)
 {
   nsresult rv = SVGStyleElementBase::SetAttr(aNameSpaceID, aName, aPrefix,
-                                             aValue, aNotify);
+                                             aValue, aSubjectPrincipal, aNotify);
   if (NS_SUCCEEDED(rv) && aNameSpaceID == kNameSpaceID_None) {
     if (aName == nsGkAtoms::title ||
         aName == nsGkAtoms::media ||

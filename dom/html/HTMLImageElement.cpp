@@ -395,10 +395,12 @@ HTMLImageElement::BeforeSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
 nsresult
 HTMLImageElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                                const nsAttrValue* aValue,
-                               const nsAttrValue* aOldValue, bool aNotify)
+                               const nsAttrValue* aOldValue,
+                               nsIPrincipal* aMaybeScriptedPrincipal,
+                               bool aNotify)
 {
   if (aValue) {
-    AfterMaybeChangeAttr(aNameSpaceID, aName, aNotify);
+    AfterMaybeChangeAttr(aNameSpaceID, aName, aMaybeScriptedPrincipal, aNotify);
   }
 
   if (aNameSpaceID == kNameSpaceID_None && mForm &&
@@ -441,7 +443,9 @@ HTMLImageElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
   }
 
   return nsGenericHTMLElement::AfterSetAttr(aNameSpaceID, aName,
-                                            aValue, aOldValue, aNotify);
+                                            aValue, aOldValue,
+                                            aMaybeScriptedPrincipal,
+                                            aNotify);
 }
 
 nsresult
@@ -450,7 +454,7 @@ HTMLImageElement::OnAttrSetButNotChanged(int32_t aNamespaceID, nsIAtom* aName,
                                          bool aNotify)
 {
   BeforeMaybeChangeAttr(aNamespaceID, aName, aValue, aNotify);
-  AfterMaybeChangeAttr(aNamespaceID, aName, aNotify);
+  AfterMaybeChangeAttr(aNamespaceID, aName, nullptr, aNotify);
 
   return nsGenericHTMLElement::OnAttrSetButNotChanged(aNamespaceID, aName,
                                                       aValue, aNotify);
@@ -532,6 +536,7 @@ HTMLImageElement::BeforeMaybeChangeAttr(int32_t aNamespaceID, nsIAtom* aName,
 
 void
 HTMLImageElement::AfterMaybeChangeAttr(int32_t aNamespaceID, nsIAtom* aName,
+                                       nsIPrincipal* aMaybeScriptedPrincipal,
                                        bool aNotify)
 {
   // Because we load image synchronously in non-responsive-mode, we need to do

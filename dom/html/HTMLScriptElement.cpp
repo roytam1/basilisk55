@@ -233,13 +233,17 @@ HTMLScriptElement::SetNoModule(bool aValue, ErrorResult& aRv)
 nsresult
 HTMLScriptElement::AfterSetAttr(int32_t aNamespaceID, nsIAtom* aName,
                                 const nsAttrValue* aValue,
-                                const nsAttrValue* aOldValue, bool aNotify)
+                                const nsAttrValue* aOldValue,
+                                nsIPrincipal* aMaybeScriptedPrincipal,
+                                bool aNotify)
 {
   if (nsGkAtoms::async == aName && kNameSpaceID_None == aNamespaceID) {
     mForceAsync = false;
   }
-  return nsGenericHTMLElement::AfterSetAttr(aNamespaceID, aName, aValue,
-                                            aOldValue, aNotify);
+  return nsGenericHTMLElement::AfterSetAttr(aNamespaceID, aName,
+                                            aValue, aOldValue,
+                                            aMaybeScriptedPrincipal,
+                                            aNotify);
 }
 
 NS_IMETHODIMP

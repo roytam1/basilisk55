@@ -60,6 +60,7 @@ public:
   virtual nsresult AfterSetAttr(int32_t aNamespaceID, nsIAtom* aName,
                                 const nsAttrValue* aValue,
                                 const nsAttrValue* aOldValue,
+                                nsIPrincipal* aMaybeScriptedPrincipal,
                                 bool aNotify) override;
 
   // WebIDL

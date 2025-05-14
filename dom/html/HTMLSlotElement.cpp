@@ -103,6 +103,7 @@ nsresult
 HTMLSlotElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                               const nsAttrValue* aValue,
                               const nsAttrValue* aOldValue,
+                              nsIPrincipal* aSubjectPrincipal,
                               bool aNotify)
 {
 
@@ -120,7 +121,8 @@ HTMLSlotElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
   }
 
   return nsGenericHTMLElement::AfterSetAttr(aNameSpaceID, aName, aValue,
-                                            aOldValue, aNotify);
+                                            aOldValue, aSubjectPrincipal,
+                                            aNotify);
 }
 
 /**

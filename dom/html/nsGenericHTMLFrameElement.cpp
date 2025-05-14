@@ -338,7 +338,9 @@ PrincipalAllowsBrowserFrame(nsIPrincipal* aPrincipal)
 /* virtual */ nsresult
 nsGenericHTMLFrameElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                                         const nsAttrValue* aValue,
-                                        const nsAttrValue* aOldValue, bool aNotify)
+                                        const nsAttrValue* aOldValue,
+                                        nsIPrincipal* aSubjectPrincipal,
+                                        bool aNotify)
 {
   if (aValue) {
     nsAttrValueOrString value(aValue);
@@ -377,7 +379,8 @@ nsGenericHTMLFrameElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
   }
 
   return nsGenericHTMLElement::AfterSetAttr(aNameSpaceID, aName, aValue,
-                                            aOldValue, aNotify);
+                                            aOldValue, aSubjectPrincipal,
+                                            aNotify);
 }
 
 nsresult

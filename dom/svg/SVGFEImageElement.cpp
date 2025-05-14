@@ -120,7 +120,9 @@ SVGFEImageElement::IsAttributeMapped(const nsIAtom* name) const
 nsresult
 SVGFEImageElement::AfterSetAttr(int32_t aNamespaceID, nsIAtom* aName,
                                 const nsAttrValue* aValue,
-                                const nsAttrValue* aOldValue, bool aNotify)
+                                const nsAttrValue* aOldValue,
+                                nsIPrincipal* aSubjectPrincipal,
+                                bool aNotify)
 {
   if (aName == nsGkAtoms::href &&
       (aNamespaceID == kNameSpaceID_XLink ||
@@ -140,7 +142,9 @@ SVGFEImageElement::AfterSetAttr(int32_t aNamespaceID, nsIAtom* aName,
   }
 
   return SVGFEImageElementBase::AfterSetAttr(aNamespaceID, aName,
-                                             aValue, aOldValue, aNotify);
+                                             aValue, aOldValue,
+                                             aSubjectPrincipal,
+                                             aNotify);
 }
 
 void

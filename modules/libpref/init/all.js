@@ -1578,8 +1578,18 @@ pref("network.http.request.max-attempts", 10);
 
 // Headers
 pref("network.http.accept.default", "*/*");
-pref("network.http.accept.navigation", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-pref("network.http.accept.image", "image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5");
+// Top-level navigation should include all non-ubiquitous mime types in front of */*
+// including image and video/audio types that are handled top-level.
+#ifdef MOZ_JXL
+pref("network.http.accept.navigation", "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/webp,video/x-matroska,video/webm,*/*;q=0.8");
+#else
+pref("network.http.accept.navigation", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,video/x-matroska,video/webm,*/*;q=0.8");
+#endif
+#ifdef MOZ_JXL
+pref("network.http.accept.image", "image/jxl,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5");
+#else
+pref("network.http.accept.image", "image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5");
+#endif
 pref("network.http.accept.style", "text/css,*/*;q=0.1");
 
 // Prefs allowing granular control of referers

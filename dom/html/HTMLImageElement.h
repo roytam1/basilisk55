@@ -138,9 +138,13 @@ public:
   {
     SetHTMLAttr(nsGkAtoms::alt, aAlt, aError);
   }
-  void SetSrc(const nsAString& aSrc, ErrorResult& aError)
+  void GetSrc(nsAString& aSrc, nsIPrincipal&)
   {
-    SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
+    GetURIAttr(nsGkAtoms::src, nullptr, aSrc);
+  }
+  void SetSrc(const nsAString& aSrc, nsIPrincipal& aTriggeringPrincipal, ErrorResult& aError)
+  {
+    SetHTMLAttr(nsGkAtoms::src, aSrc, aTriggeringPrincipal, aError);
   }
   void SetSrcset(const nsAString& aSrcset, ErrorResult& aError)
   {
@@ -372,31 +376,24 @@ private:
    * @param aName the localname of the attribute being set
    * @param aValue the value it's being set to represented as either a string or
    *        a parsed nsAttrValue.
-   * @param aNotify Whether we plan to notify document observers.
-   */
-  void BeforeMaybeChangeAttr(int32_t aNamespaceID, nsIAtom* aName,
-                             const nsAttrValueOrString& aValue,
-                             bool aNotify);
-  /**
-   * This function is called by AfterSetAttr and OnAttrSetButNotChanged.
-   * It will not be called if the value is being unset.
-   *
-   * @param aNamespaceID the namespace of the attr being set
-   * @param aName the localname of the attribute being set
+   * @param aOldValue the value previously set. Will be null if no value was
+   *        previously set. This value should only be used when
+   *        aValueMaybeChanged is true; when aValueMaybeChanged is false,
+   *        aOldValue should be considered unreliable.
+   * @param aValueMaybeChanged will be false when this function is called from
+   *        OnAttrSetButNotChanged to indicate that the value was not changed.
    * @param aNotify Whether we plan to notify document observers.
    */
   void AfterMaybeChangeAttr(int32_t aNamespaceID, nsIAtom* aName,
+                            const nsAttrValueOrString& aValue,
+                            const nsAttrValue* aOldValue,
+                            bool aValueMaybeChanged,
                             nsIPrincipal* aMaybeScriptedPrincipal,
                             bool aNotify);
-  /**
-   * Used by BeforeMaybeChangeAttr and AfterMaybeChangeAttr to keep track of
-   * whether a reload needs to be forced after an attribute change that is
-   * currently in progress.
-   */
-  bool mForceReload;
 
   bool mInDocResponsiveContent;
   RefPtr<ImageLoadTask> mPendingImageLoadTask;
+  nsCOMPtr<nsIPrincipal> mSrcTriggeringPrincipal;
 
   // Last URL that was attempted to load by this element.
   nsCOMPtr<nsIURI> mLastSelectedSource;

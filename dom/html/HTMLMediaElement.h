@@ -405,10 +405,13 @@ public:
 
   MediaError* GetError() const;
 
-  // XPCOM GetSrc() is OK
-  void SetSrc(const nsAString& aSrc, ErrorResult& aRv)
+  void GetSrc(nsString& aSrc, nsIPrincipal&)
   {
-    SetHTMLAttr(nsGkAtoms::src, aSrc, aRv);
+    GetSrc(aSrc); // XPCOM
+  }
+  void SetSrc(const nsAString& aSrc, nsIPrincipal& aTriggeringPrincipal, ErrorResult& aRv)
+  {
+    SetHTMLAttr(nsGkAtoms::src, aSrc, aTriggeringPrincipal, aRv);
   }
 
   // XPCOM GetCurrentSrc() is OK
@@ -1307,6 +1310,9 @@ protected:
   // Holds a reference to the DOM wrapper for the MediaStream that has been
   // set in the src attribute.
   RefPtr<DOMMediaStream> mSrcAttrStream;
+
+  // Holds the triggering principal for the src attribute.
+  nsCOMPtr<nsIPrincipal> mSrcAttrTriggeringPrincipal;
 
   // Holds a reference to the DOM wrapper for the MediaStream that we're
   // actually playing.

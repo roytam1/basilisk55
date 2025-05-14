@@ -58,6 +58,7 @@
 #include "nsView.h"
 #include "GroupedSHistory.h"
 #include "PartialSHistory.h"
+#include "nsQueryObject.h"
 
 #include "nsIURI.h"
 #include "nsIURL.h"
@@ -86,6 +87,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/jsipc/CrossProcessObjectWrappers.h"
 #include "mozilla/layout/RenderFrameParent.h"
+#include "nsGenericHTMLFrameElement.h"
 #include "GeckoProfiler.h"
 
 #include "jsapi.h"
@@ -235,6 +237,7 @@ nsFrameLoader::LoadFrame()
   NS_ENSURE_TRUE(mOwnerContent, NS_ERROR_NOT_INITIALIZED);
 
   nsAutoString src;
+  nsCOMPtr<nsIPrincipal> principal;
 
   bool isSrcdoc = mOwnerContent->IsHTMLElement(nsGkAtoms::iframe) &&
                   mOwnerContent->HasAttr(kNameSpaceID_None, nsGkAtoms::srcdoc);
@@ -242,7 +245,7 @@ nsFrameLoader::LoadFrame()
     src.AssignLiteral("about:srcdoc");
   }
   else {
-    GetURL(src);
+    GetURL(src, getter_AddRefs(principal));
 
     src.Trim(" \t\n\r");
 
@@ -283,7 +286,7 @@ nsFrameLoader::LoadFrame()
   }
 
   if (NS_SUCCEEDED(rv)) {
-    rv = LoadURI(uri);
+    rv = LoadURI(uri, principal);
   }
 
   if (NS_FAILED(rv)) {
@@ -309,7 +312,7 @@ nsFrameLoader::FireErrorEvent()
 }
 
 NS_IMETHODIMP
-nsFrameLoader::LoadURI(nsIURI* aURI)
+nsFrameLoader::LoadURI(nsIURI* aURI, nsIPrincipal* aTriggeringPrincipal)
 {
   if (!aURI)
     return NS_ERROR_INVALID_POINTER;
@@ -317,13 +320,15 @@ nsFrameLoader::LoadURI(nsIURI* aURI)
 
   nsCOMPtr<nsIDocument> doc = mOwnerContent->OwnerDoc();
 
-  nsresult rv = CheckURILoad(aURI);
+  nsresult rv = CheckURILoad(aURI, aTriggeringPrincipal);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mURIToLoad = aURI;
+  mTriggeringPrincipal = aTriggeringPrincipal ? aTriggeringPrincipal : nullptr;
   rv = doc->InitializeFrameLoader(this);
   if (NS_FAILED(rv)) {
     mURIToLoad = nullptr;
+    mTriggeringPrincipal = nullptr;
   }
   return rv;
 }
@@ -798,7 +803,7 @@ nsFrameLoader::ReallyStartLoadingInternal()
                "MaybeCreateDocShell succeeded with a null mDocShell");
 
   // Just to be safe, recheck uri.
-  rv = CheckURILoad(mURIToLoad);
+  rv = CheckURILoad(mURIToLoad, mTriggeringPrincipal);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDocShellLoadInfo> loadInfo;
@@ -812,7 +817,11 @@ nsFrameLoader::ReallyStartLoadingInternal()
   // We'll use our principal, not that of the document loaded inside us.  This
   // is very important; needed to prevent XSS attacks on documents loaded in
   // subframes!
-  loadInfo->SetTriggeringPrincipal(mOwnerContent->NodePrincipal());
+  if (mTriggeringPrincipal) {
+    loadInfo->SetTriggeringPrincipal(mTriggeringPrincipal);
+  } else {
+    loadInfo->SetTriggeringPrincipal(mOwnerContent->NodePrincipal());
+  }
 
   nsCOMPtr<nsIURI> referrer;
 
@@ -886,7 +895,7 @@ nsFrameLoader::ReallyStartLoadingInternal()
 }
 
 nsresult
-nsFrameLoader::CheckURILoad(nsIURI* aURI)
+nsFrameLoader::CheckURILoad(nsIURI* aURI, nsIPrincipal* aTriggeringPrincipal)
 {
   // Check for security.  The fun part is trying to figure out what principals
   // to use.  The way I figure it, if we're doing a LoadFrame() accidentally
@@ -905,7 +914,9 @@ nsFrameLoader::CheckURILoad(nsIURI* aURI)
   nsIScriptSecurityManager *secMan = nsContentUtils::GetSecurityManager();
 
   // Get our principal
-  nsIPrincipal* principal = mOwnerContent->NodePrincipal();
+  nsIPrincipal* principal = (aTriggeringPrincipal ?
+                             aTriggeringPrincipal :
+                             mOwnerContent->NodePrincipal());
 
   // Check if we are allowed to load absURL
   nsresult rv =
@@ -2514,7 +2525,7 @@ nsFrameLoader::MaybeCreateDocShell()
 }
 
 void
-nsFrameLoader::GetURL(nsString& aURI)
+nsFrameLoader::GetURL(nsString& aURI, nsIPrincipal** aTriggeringPrincipal)
 {
   aURI.Truncate();
 
@@ -2522,6 +2533,10 @@ nsFrameLoader::GetURL(nsString& aURI)
     mOwnerContent->GetAttr(kNameSpaceID_None, nsGkAtoms::data, aURI);
   } else {
     mOwnerContent->GetAttr(kNameSpaceID_None, nsGkAtoms::src, aURI);
+    if (RefPtr<nsGenericHTMLFrameElement> frame = do_QueryObject(mOwnerContent)) {
+      nsCOMPtr<nsIPrincipal> prin = frame->GetSrcTriggeringPrincipal();
+      prin.forget(aTriggeringPrincipal);
+    }
   }
 }
 

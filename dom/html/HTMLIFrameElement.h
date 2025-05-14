@@ -49,10 +49,13 @@ public:
   uint32_t GetSandboxFlags();
 
   // Web IDL binding methods
-  // The XPCOM GetSrc is fine for our purposes
-  void SetSrc(const nsAString& aSrc, ErrorResult& aError)
+  void GetSrc(nsString& aSrc, nsIPrincipal&) const
   {
-    SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
+    GetURIAttr(nsGkAtoms::src, nullptr, aSrc);
+  }
+  void SetSrc(const nsAString& aSrc, nsIPrincipal& aTriggeringPrincipal, ErrorResult& aError)
+  {
+    SetHTMLAttr(nsGkAtoms::src, aSrc, aTriggeringPrincipal, aError);
   }
   void GetSrcdoc(DOMString& aSrcdoc)
   {

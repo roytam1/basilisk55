@@ -167,9 +167,9 @@ HTMLScriptElement::Defer()
 }
 
 void
-HTMLScriptElement::SetSrc(const nsAString& aSrc, ErrorResult& rv)
+HTMLScriptElement::SetSrc(const nsAString& aSrc, nsIPrincipal& aTriggeringPrincipal, ErrorResult& rv)
 {
-  rv = SetAttrHelper(nsGkAtoms::src, aSrc);
+  SetHTMLAttr(nsGkAtoms::src, aSrc, aTriggeringPrincipal, rv);
 }
 
 void
@@ -231,16 +231,21 @@ HTMLScriptElement::SetNoModule(bool aValue, ErrorResult& aRv)
 }
 
 nsresult
-HTMLScriptElement::AfterSetAttr(int32_t aNamespaceID, nsIAtom* aName,
+HTMLScriptElement::AfterSetAttr(int32_t aNameSpaceID, nsIAtom* aName,
                                 const nsAttrValue* aValue,
                                 const nsAttrValue* aOldValue,
                                 nsIPrincipal* aMaybeScriptedPrincipal,
                                 bool aNotify)
 {
-  if (nsGkAtoms::async == aName && kNameSpaceID_None == aNamespaceID) {
+  if (aName == nsGkAtoms::async && aNameSpaceID == kNameSpaceID_None) {
     mForceAsync = false;
   }
-  return nsGenericHTMLElement::AfterSetAttr(aNamespaceID, aName,
+  if (aName == nsGkAtoms::src && aNameSpaceID == kNameSpaceID_None) {
+    mSrcTriggeringPrincipal = nsContentUtils::GetAttrTriggeringPrincipal(
+        this, aValue ? aValue->GetStringValue() : EmptyString(),
+        aMaybeScriptedPrincipal);
+  }
+  return nsGenericHTMLElement::AfterSetAttr(aNameSpaceID, aName,
                                             aValue, aOldValue,
                                             aMaybeScriptedPrincipal,
                                             aNotify);

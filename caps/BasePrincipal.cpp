@@ -290,7 +290,8 @@ OriginAttributes::IsPrivateBrowsing(const nsACString& aOrigin)
   return !!attrs.mPrivateBrowsingId;
 }
 
-BasePrincipal::BasePrincipal()
+BasePrincipal::BasePrincipal(PrincipalKind aKind)
+  : mKind(aKind)
 {}
 
 BasePrincipal::~BasePrincipal()

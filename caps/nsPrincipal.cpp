@@ -63,10 +63,11 @@ nsPrincipal::InitializeStatics()
 }
 
 nsPrincipal::nsPrincipal()
-  : mCodebaseImmutable(false)
+  : BasePrincipal(eCodebasePrincipal)
+  , mCodebaseImmutable(false)
   , mDomainImmutable(false)
   , mInitialized(false)
-{ }
+{}
 
 nsPrincipal::~nsPrincipal()
 {
@@ -521,6 +522,7 @@ struct OriginComparator
 
 nsExpandedPrincipal::nsExpandedPrincipal(nsTArray<nsCOMPtr<nsIPrincipal>> &aWhiteList,
                                          const OriginAttributes& aAttrs)
+  : BasePrincipal(eExpandedPrincipal)
 {
   // We force the principals to be sorted by origin so that nsExpandedPrincipal
   // origins can have a canonical form.

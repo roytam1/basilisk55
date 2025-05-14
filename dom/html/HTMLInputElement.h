@@ -640,10 +640,13 @@ public:
     SetUnsignedIntAttr(nsGkAtoms::size, aValue, DEFAULT_COLS, aRv);
   }
 
-  // XPCOM GetSrc() is OK
-  void SetSrc(const nsAString& aValue, ErrorResult& aRv)
+  void GetSrc(nsAString& aValue, nsIPrincipal&)
   {
-    SetHTMLAttr(nsGkAtoms::src, aValue, aRv);
+    GetURIAttr(nsGkAtoms::src, nullptr, aValue);
+  }
+  void SetSrc(const nsAString& aValue, nsIPrincipal& aTriggeringPrincipal, ErrorResult& aRv)
+  {
+    SetHTMLAttr(nsGkAtoms::src, aValue, aTriggeringPrincipal, aRv);
   }
 
   // XPCOM GetStep() is OK
@@ -1578,6 +1581,11 @@ protected:
    * nsTextEditorState cannot do its job.
    */
   nsTextEditorState::SelectionProperties mSelectionProperties;
+
+  /**
+   * The triggering principal for the src attribute.
+   */
+  nsCOMPtr<nsIPrincipal> mSrcTriggeringPrincipal;
 
   // Step scale factor values, for input types that have one.
   static const Decimal kStepScaleFactorDate;

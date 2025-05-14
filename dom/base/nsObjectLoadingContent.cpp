@@ -1559,7 +1559,8 @@ nsObjectLoadingContent::CheckLoadPolicy(int16_t *aContentPolicy)
   *aContentPolicy = nsIContentPolicy::ACCEPT;
   nsresult rv = NS_CheckContentLoadPolicy(contentPolicyType,
                                           mURI,
-                                          doc->NodePrincipal(),
+                                          doc->NodePrincipal(), // loading principal
+                                          doc->NodePrincipal(), // triggering principal
                                           thisContent,
                                           mContentType,
                                           nullptr, //extra
@@ -1610,7 +1611,8 @@ nsObjectLoadingContent::CheckProcessPolicy(int16_t *aContentPolicy)
   nsresult rv =
     NS_CheckContentProcessPolicy(objectType,
                                  mURI ? mURI : mBaseURI,
-                                 doc->NodePrincipal(),
+                                 doc->NodePrincipal(), // loading principal
+                                 doc->NodePrincipal(), // triggering principal
                                  static_cast<nsIImageLoadingContent*>(this),
                                  mContentType,
                                  nullptr, //extra

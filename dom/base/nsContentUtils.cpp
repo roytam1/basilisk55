@@ -3308,6 +3308,7 @@ nsContentUtils::CanLoadImage(nsIURI* aURI, nsISupports* aContext,
   rv = NS_CheckContentLoadPolicy(aContentType,
                                  aURI,
                                  aLoadingPrincipal,
+                                 aLoadingPrincipal, // triggering principal
                                  aContext,
                                  EmptyCString(), //mime guess
                                  nullptr,         //extra

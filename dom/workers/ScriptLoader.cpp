@@ -1243,9 +1243,8 @@ private:
 
       // We did inherit CSP in bug 1223647. If we do not already have a CSP, we
       // should get it from the HTTP headers on the worker script.
-      if (mWorkerPrivate->CSPEnabled() &&
-          !mWorkerPrivate->GetCSP() &&
-          CSPService::sCSPEnabled) {
+      if (CSPService::sCSPEnabled &&
+          !mWorkerPrivate->GetCSP()) {
         rv = mWorkerPrivate->SetCSPFromHeaderValues(tCspHeaderValue,
                                                     tCspROHeaderValue);
         NS_ENSURE_SUCCESS(rv, rv);

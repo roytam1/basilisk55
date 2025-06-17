@@ -45,7 +45,6 @@ EXPORTS += [
     'nsCTooltipTextProvider.h',
     'nsDocShellLoadTypes.h',
     'nsDocShellTreeOwner.h',
-    'nsILinkHandler.h',
     'nsIScrollObserver.h',
     'nsIWebShellServices.h',
     'SerializedLoadContext.h',

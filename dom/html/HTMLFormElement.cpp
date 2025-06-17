@@ -23,7 +23,6 @@
 #include "nsPresContext.h"
 #include "nsIDocument.h"
 #include "nsIFormControlFrame.h"
-#include "nsILinkHandler.h"
 #include "nsError.h"
 #include "nsContentUtils.h"
 #include "nsInterfaceHashtable.h"
@@ -52,6 +51,7 @@
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIWebProgress.h"
 #include "nsIDocShell.h"
+#include "nsDocShell.h" // for ::Cast
 #include "nsIPrompt.h"
 #include "nsISecurityUITelemetry.h"
 #include "nsIStringBundle.h"
@@ -772,9 +772,8 @@ HTMLFormElement::SubmitSubmission(HTMLFormSubmission* aFormSubmission)
 
   // If there is no link handler, then we won't actually be able to submit.
   nsIDocument* doc = GetComposedDoc();
-  nsCOMPtr<nsISupports> container = doc ? doc->GetContainer() : nullptr;
-  nsCOMPtr<nsILinkHandler> linkHandler(do_QueryInterface(container));
-  if (!linkHandler || IsEditable()) {
+  nsCOMPtr<nsIDocShell> container = doc ? doc->GetDocShell() : nullptr;
+  if (!container || IsEditable()) {
     mIsSubmitting = false;
     return NS_OK;
   }
@@ -840,12 +839,12 @@ HTMLFormElement::SubmitSubmission(HTMLFormSubmission* aFormSubmission)
 
     nsAutoString target;
     aFormSubmission->GetTarget(target);
-    rv = linkHandler->OnLinkClickSync(this, actionURI,
-                                      target.get(),
-                                      NullString(),
-                                      postDataStream, nullptr, false,
-                                      getter_AddRefs(docShell),
-                                      getter_AddRefs(mSubmittingRequest));
+    rv = nsDocShell::Cast(container)->OnLinkClickSync(this, actionURI,
+                                                      target.get(),
+                                                      NullString(),
+                                                      postDataStream, nullptr, false,
+                                                      getter_AddRefs(docShell),
+                                                      getter_AddRefs(mSubmittingRequest));
     NS_ENSURE_SUBMIT_SUCCESS(rv);
   }
 

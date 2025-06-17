@@ -1058,7 +1058,7 @@ CanFalseStartCallback(PRFileDesc* fd, void* client_data, PRBool *canFalseStart)
   }
 
   // XXX: An attacker can choose which protocols are advertised in the
-  // NPN extension. TODO(Bug 861311): We should restrict the ability
+  // ALPN extension. TODO(Bug 861311): We should restrict the ability
   // of an attacker leverage this capability by restricting false start
   // to the same protocol we previously saw for the server, after the
   // first successful connection to the server.

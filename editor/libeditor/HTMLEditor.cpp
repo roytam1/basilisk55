@@ -165,11 +165,10 @@ HTMLEditor::~HTMLEditor()
   // free any default style propItems
   RemoveAllDefaultProperties();
 
-  if (mDisabledLinkHandling && IsInitialized()) {
-    nsCOMPtr<nsIPresShell> ps = GetPresShell();
-
-    if (ps && ps->GetDocument()) {
-      ps->GetDocument()->SetLinkHandlingEnabled(mOldLinkHandlingEnabled);
+  if (mDisabledLinkHandling) {
+    nsCOMPtr<nsIDocument> doc = GetDocument();
+    if (doc) {
+      doc->SetLinkHandlingEnabled(mOldLinkHandlingEnabled);
     }
   }
 
@@ -290,10 +289,10 @@ HTMLEditor::Init(nsIDOMDocument* aDoc,
     mCSSEditUtils = MakeUnique<CSSEditUtils>(this);
 
     // disable links
-    nsCOMPtr<nsIPresShell> presShell = GetPresShell();
-    NS_ENSURE_TRUE(presShell, NS_ERROR_FAILURE);
-    nsIDocument *doc = presShell->GetDocument();
-    NS_ENSURE_TRUE(doc, NS_ERROR_NULL_POINTER);
+    nsCOMPtr<nsIDocument> doc = GetDocument();
+    if (NS_WARN_IF(!doc)) {
+      return NS_ERROR_FAILURE;
+    }
     if (!IsPlaintextEditor() && !IsInteractionAllowed()) {
       mDisabledLinkHandling = true;
       mOldLinkHandlingEnabled = doc->LinkHandlingEnabled();

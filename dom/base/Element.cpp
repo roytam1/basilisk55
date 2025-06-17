@@ -151,6 +151,8 @@
 #include "nsDOMStringMap.h"
 #include "DOMIntersectionObserver.h"
 
+#include "nsDocShell.h" // for ::Cast
+
 using namespace mozilla;
 using namespace mozilla::dom;
 

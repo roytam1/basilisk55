@@ -517,6 +517,15 @@ nsStyleBorder::CalcDifference(const nsStyleBorder& aNewData) const
     return nsChangeHint_NeutralChange;
   }
 
+  // mBorderImage* fields are checked only when border-image is not 'none'.
+  if (mBorderImageSource != aNewData.mBorderImageSource ||
+      mBorderImageRepeatH != aNewData.mBorderImageRepeatH ||
+      mBorderImageRepeatV != aNewData.mBorderImageRepeatV ||
+      mBorderImageSlice != aNewData.mBorderImageSlice ||
+      mBorderImageWidth != aNewData.mBorderImageWidth) {
+    return nsChangeHint_NeutralChange;
+  }
+
   return nsChangeHint(0);
 }
 
@@ -4047,15 +4056,15 @@ nsStyleUIReset::CalcDifference(const nsStyleUIReset& aNewData) const
     hint |= nsChangeHint_SchedulePaint;
   }
 
-  if (mIMEMode != aNewData.mIMEMode) {
-    hint |= nsChangeHint_NeutralChange;
-  }
-
   if (mScrollbarWidth != aNewData.mScrollbarWidth) {
     // For scrollbar-width change, we need some special handling similar
     // to overflow properties. Specifically, we may need to reconstruct
     // the scrollbar or force reflow of the viewport scrollbar.
     hint |= nsChangeHint_ScrollbarChange;
+  }
+
+  if (!hint && mIMEMode != aNewData.mIMEMode) {
+    hint |= nsChangeHint_NeutralChange;
   }
 
   return hint;

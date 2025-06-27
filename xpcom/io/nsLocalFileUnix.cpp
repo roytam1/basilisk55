@@ -1555,12 +1555,24 @@ nsLocalFile::IsExecutable(bool* aResult)
 
     // Search for any of the set of executable extensions.
     static const char* const executableExts[] = {
-      "air",  // Adobe AIR installer
 #ifdef MOZ_WIDGET_COCOA
-      "inetloc",  // https://ssd-disclosure.com/ssd-advisory-macos-finder-rce/
-      "fileloc",  // File location files can be used to point to other files.
-      "webloc",   // same URL
+      "afploc",    // Can point to other files.
+      "atloc",     // Can point to other files.
+      "fileloc",   // File location files can be used to point to other
+                   // files.
+      "ftploc",    // Can point to other files.
+      "inetloc",   // Shouldn't be able to do the same, but can, due to
+                   // macOS vulnerabilities.
+      "atloc",     // Can point to other files.
+      "fileloc",   // File location files can be used to point to other
+                   // files.
+      "ftploc",    // Can point to other files.
+      "inetloc",   // Shouldn't be able to do the same, but can, due to
+                   // macOS vulnerabilities.
+      "terminal",  // macOS Terminal app configuration files
+      "webloc",    // same URL
 #endif
+      "air",  // Adobe AIR installer
       "jar"   // java application bundle
     };
     nsDependentSubstring ext = Substring(path, dotIdx + 1);

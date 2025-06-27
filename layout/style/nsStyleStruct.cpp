@@ -4025,36 +4025,40 @@ nsStyleUIReset::~nsStyleUIReset()
 nsChangeHint
 nsStyleUIReset::CalcDifference(const nsStyleUIReset& aNewData) const
 {
+  nsChangeHint hint = nsChangeHint(0);
+
   // ignore mIMEMode
   if (mForceBrokenImageIcon != aNewData.mForceBrokenImageIcon) {
-    return nsChangeHint_ReconstructFrame;
+    hint |= nsChangeHint_ReconstructFrame;
   }
+
   if (mWindowShadow != aNewData.mWindowShadow) {
     // We really need just an nsChangeHint_SyncFrameView, except
     // on an ancestor of the frame, so we get that by doing a
     // reflow.
-    return NS_STYLE_HINT_REFLOW;
+    hint |= NS_STYLE_HINT_REFLOW;
   }
+
   if (mUserSelect != aNewData.mUserSelect) {
-    return NS_STYLE_HINT_VISUAL;
+    hint |= NS_STYLE_HINT_VISUAL;
   }
 
   if (mWindowDragging != aNewData.mWindowDragging) {
-    return nsChangeHint_SchedulePaint;
+    hint |= nsChangeHint_SchedulePaint;
   }
 
   if (mIMEMode != aNewData.mIMEMode) {
-    return nsChangeHint_NeutralChange;
+    hint |= nsChangeHint_NeutralChange;
   }
 
   if (mScrollbarWidth != aNewData.mScrollbarWidth) {
     // For scrollbar-width change, we need some special handling similar
     // to overflow properties. Specifically, we may need to reconstruct
     // the scrollbar or force reflow of the viewport scrollbar.
-    return nsChangeHint_ScrollbarChange;
+    hint |= nsChangeHint_ScrollbarChange;
   }
 
-  return nsChangeHint(0);
+  return hint;
 }
 
 //-----------------------

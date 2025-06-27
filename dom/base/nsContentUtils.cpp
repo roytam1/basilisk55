@@ -9401,6 +9401,12 @@ private:
       case 0x00A0:
         aOut.AppendLiteral("&nbsp;");
         break;
+      case '<':
+        aOut.AppendLiteral("&lt;");
+        break;
+      case '>':
+        aOut.AppendLiteral("&gt;");
+        break;
       default:
         aOut.Append(*c);
         break;
@@ -9541,6 +9547,12 @@ AppendEncodedAttributeValue(nsAutoString* aValue, StringBuilder& aBuilder)
         break;
       case 0x00A0:
         extraSpaceNeeded += ArrayLength("&nbsp;") - 2;
+        break;
+      case '<':
+        extraSpaceNeeded += ArrayLength("&lt;") - 2;
+        break;
+      case '>':
+        extraSpaceNeeded += ArrayLength("&gt;") - 2;
         break;
       default:
         break;

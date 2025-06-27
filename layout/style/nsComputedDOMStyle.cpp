@@ -3459,7 +3459,7 @@ nsComputedDOMStyle::DoGetScrollbarWidth()
 {
   RefPtr<nsROCSSPrimitiveValue> val = new nsROCSSPrimitiveValue;
   val->SetIdent(
-    nsCSSProps::ValueToKeywordEnum(StyleUserInterface()->mScrollbarWidth,
+    nsCSSProps::ValueToKeywordEnum(StyleUIReset()->mScrollbarWidth,
                                    nsCSSProps::kScrollbarWidthKTable));
   return val.forget();
 }

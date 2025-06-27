@@ -3358,6 +3358,7 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleUIReset
   uint8_t                      mIMEMode;        // [reset]
   mozilla::StyleWindowDragging mWindowDragging; // [reset]
   uint8_t                      mWindowShadow;   // [reset]
+  mozilla::StyleScrollbarWidth mScrollbarWidth; // [reset]
 };
 
 struct nsCursorImage
@@ -3422,7 +3423,6 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleUserInterface
   uint8_t mCursor;                            // [inherited] See nsStyleConsts.h
   nsTArray<nsCursorImage> mCursorImages;      // [inherited] images and coords
   mozilla::StyleComplexColor mCaretColor;     // [inherited]
-  mozilla::StyleScrollbarWidth mScrollbarWidth;
 
   inline uint8_t GetEffectivePointerEvents(nsIFrame* aFrame) const;
 };

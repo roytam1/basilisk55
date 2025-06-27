@@ -1062,7 +1062,9 @@ nsHTMLScrollFrame::Reflow(nsPresContext* aPresContext,
     // This is only needed for root element because scrollbars of non-
     // root elements with "scrollbar-width: none" is already suppressed
     // in ScrollFrameHelper::CreateAnonymousContent.
-    if (this->StyleUIReset()->mScrollbarWidth == StyleScrollbarWidth::None) {
+    nsStyleContext* scrollbarStyle = nsLayoutUtils::GetNonAnonymousStyleContext(this);
+    auto scrollbarWidth = scrollbarStyle->StyleUIReset()->mScrollbarWidth;
+    if (scrollbarWidth == StyleScrollbarWidth::None) {
       state.mVScrollbar = ShowScrollbar::Never;
       state.mHScrollbar = ShowScrollbar::Never;
     }

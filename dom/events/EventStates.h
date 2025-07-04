@@ -212,11 +212,10 @@ private:
 #define NS_EVENT_STATE_INRANGE       NS_DEFINE_EVENT_STATE_MACRO(17)
 // Content value is out-of-range.
 #define NS_EVENT_STATE_OUTOFRANGE    NS_DEFINE_EVENT_STATE_MACRO(18)
-// These two are temporary (see bug 302188)
 // Content is read-only.
-#define NS_EVENT_STATE_MOZ_READONLY  NS_DEFINE_EVENT_STATE_MACRO(19)
+#define NS_EVENT_STATE_READONLY      NS_DEFINE_EVENT_STATE_MACRO(17)
 // Content is editable.
-#define NS_EVENT_STATE_MOZ_READWRITE NS_DEFINE_EVENT_STATE_MACRO(20)
+#define NS_EVENT_STATE_READWRITE     NS_DEFINE_EVENT_STATE_MACRO(18)
 // Content is the default one (meaning depends of the context).
 #define NS_EVENT_STATE_DEFAULT       NS_DEFINE_EVENT_STATE_MACRO(21)
 // Content could not be rendered (image/object/etc).

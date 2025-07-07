@@ -22,7 +22,7 @@ body {
 
 div.ancillary {
   margin: 0.5em 0;
-  -moz-user-select: none;
+  user-select: none;
 }
 
 div.section {
@@ -77,7 +77,7 @@ h3 {
 a.upDownArrow {
   font-size: 130%;
   text-decoration: none;
-  -moz-user-select: none;  /* no need to include this when cutting+pasting */
+  user-select: none;  /* no need to include this when cutting+pasting */
 }
 
 .accuracyWarning {
@@ -120,17 +120,17 @@ a.upDownArrow {
 }
 
 .noselect {
-  -moz-user-select: none;  /* no need to include this when cutting+pasting */
+  user-select: none;  /* no need to include this when cutting+pasting */
 }
 
 .option {
   font-size: 80%;
-  -moz-user-select: none;  /* no need to include this when cutting+pasting */
+  user-select: none;  /* no need to include this when cutting+pasting */
 }
 
 .legend {
   font-size: 80%;
-  -moz-user-select: none;  /* no need to include this when cutting+pasting */
+  user-select: none;  /* no need to include this when cutting+pasting */
 }
 
 .debug {

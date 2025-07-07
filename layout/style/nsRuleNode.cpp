@@ -2968,7 +2968,7 @@ nsRuleNode::SetDefaultOnRoot(const nsStyleStructID aSID, nsStyleContext* aContex
       }                                                                       \
     } else {                                                                  \
       data_ = new (mPresContext) nsStyle##type_(mPresContext);                \
-    }	                                                                      \
+    }                                                                         \
   }                                                                           \
                                                                               \
   if (!parentdata_) {                                                         \
@@ -3343,7 +3343,7 @@ nsRuleNode::FindNextSmallerFontSize(nscoord aFontSize, int32_t aBasePointSize,
         indexFontSize = CalcFontPointSize(index, aBasePointSize, aPresContext, aFontSizeType);
         if (indexFontSize < aFontSize) {
           break;
-	}
+        }
       }
       // set up points beyond table for interpolation purposes
       if (indexFontSize == smallestIndexFontSize) {
@@ -3409,7 +3409,7 @@ nsRuleNode::FindNextLargerFontSize(nscoord aFontSize, int32_t aBasePointSize,
         indexFontSize = CalcFontPointSize(index, aBasePointSize, aPresContext, aFontSizeType);
         if (indexFontSize > aFontSize) {
           break;
-	}
+        }
       }
       // set up points beyond table for interpolation purposes
       if (indexFontSize == smallestIndexFontSize) {
@@ -7923,7 +7923,7 @@ nsRuleNode::ComputeBorderData(void* aStartStruct,
         if (SetColor(list->mValue, unused, mPresContext,
                      aContext, borderColor, conditions)) {
           border->AppendBorderColor(side, borderColor);
-	} else {
+        } else {
           NS_NOTREACHED("unexpected item in -moz-border-*-colors list");
         }
         list = list->mNext;
@@ -10775,12 +10775,12 @@ nsRuleNode::HasAuthorSpecifiedRules(nsStyleContext* aStyleContext,
       for (uint32_t i = 0; i < nValues; ++i) {
         if (values[i]->GetUnit() == eCSSUnit_Null) {
           values[i]->SetDummyValue();
-	}
+        }
       }
       for (uint32_t i = 0; i < nValues; ++i) {
         if (values[i]->GetUnit() == eCSSUnit_DummyInherit) {
           values[i]->Reset();
-	}
+        }
       }
       styleContext = styleContext->GetParent();
     }

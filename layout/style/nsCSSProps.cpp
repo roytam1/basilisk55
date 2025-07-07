@@ -3134,6 +3134,12 @@ static const nsCSSPropertyID gSizeLogicalGroupTable[] = {
   eCSSProperty_UNKNOWN
 };
 
+static const nsCSSPropertyID gOverflowLogicalGroupTable[] = {
+  eCSSProperty_overflow_x,
+  eCSSProperty_overflow_y,
+  eCSSProperty_UNKNOWN
+};
+
 const nsCSSPropertyID* const
 nsCSSProps::kLogicalGroupTable[eCSSPropertyLogicalGroup_COUNT] = {
 #define CSS_PROP_LOGICAL_GROUP_SHORTHAND(id_) g##id_##SubpropTable,

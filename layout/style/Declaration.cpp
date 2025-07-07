@@ -563,9 +563,9 @@ Declaration::GetPropertyValueInternal(
   //   (1) Since a shorthand sets all sub-properties, if some of its
   //       subproperties were not specified, we must return the empty
   //       string.
-  //   (2) Since 'inherit', 'initial' and 'unset' can only be specified
-  //       as the values for entire properties, we need to return the
-  //       empty string if some but not all of the subproperties have one
+  //   (2) Since 'inherit', 'initial', 'unset', and 'revert' can only be
+  //       specified as the values for entire properties, we need to return
+  //       the empty string if some but not all of the subproperties have one
   //       of those values.
   //   (3) Since a single value only makes sense with or without
   //       !important, we return the empty string if some values are
@@ -580,7 +580,7 @@ Declaration::GetPropertyValueInternal(
   // assigned to the shorthand.
   const nsCSSValue* tokenStream = nullptr;
   uint32_t totalCount = 0, importantCount = 0,
-           initialCount = 0, inheritCount = 0, unsetCount = 0,
+           initialCount = 0, inheritCount = 0, unsetCount = 0, revertCount = 0,
            matchingTokenStreamCount = 0, nonMatchingTokenStreamCount = 0;
   CSSPROPS_FOR_SHORTHAND_SUBPROPERTIES(p, aProperty,
                                        CSSEnabledState::eForAllContent) {
@@ -606,6 +606,8 @@ Declaration::GetPropertyValueInternal(
       ++initialCount;
     } else if (val->GetUnit() == eCSSUnit_Unset) {
       ++unsetCount;
+    } else if (val->GetUnit() == eCSSUnit_Revert) {
+      ++revertCount;
     } else if (val->GetUnit() == eCSSUnit_TokenStream) {
       if (val->GetTokenStreamValue()->mShorthandPropertyID == aProperty) {
         tokenStream = val;
@@ -637,9 +639,15 @@ Declaration::GetPropertyValueInternal(
                                               nsCSSValue::eNormalized);
     return;
   }
-  if (initialCount != 0 || inheritCount != 0 ||
-      unsetCount != 0 || nonMatchingTokenStreamCount != 0) {
-    // Case (2): partially initial, inherit, unset or token stream.
+  if (revertCount == totalCount) {
+    // Simplify serialization below by serializing revert up-front.
+    nsCSSValue(eCSSUnit_Revert).AppendToString(eCSSProperty_UNKNOWN, aValue,
+                                              nsCSSValue::eNormalized);
+    return;
+  }
+  if (initialCount != 0 || inheritCount != 0 || unsetCount != 0 ||
+      revertCount != 0 || nonMatchingTokenStreamCount != 0) {
+    // Case (2): partially initial, inherit, unset, revert, or token stream.
     return;
   }
   if (tokenStream) {
@@ -1463,6 +1471,7 @@ Declaration::GetPropertyValueInternal(
           case eCSSUnit_Inherit:
           case eCSSUnit_Initial:
           case eCSSUnit_Unset:
+          case eCSSUnit_Revert:
             return true;
           case eCSSUnit_Enumerated:
             // return false if there is a fallback value or <overflow-position>
@@ -1571,10 +1580,10 @@ Declaration::GetPropertyValueInternal(
       break;
     }
     case eCSSProperty_all:
-      // If we got here, then we didn't have all "inherit" or "initial" or
-      // "unset" values for all of the longhand property components of 'all'.
-      // There is no other possible value that is valid for all properties,
-      // so serialize as the empty string.
+      // If we got here, then we didn't have all "inherit", "initial", "unset",
+      // or "revert" values for all of the longhand property components of
+      // 'all'. There is no other possible value that is valid for all
+      // properties, so serialize as the empty string.
       break;
     default:
       MOZ_ASSERT(false, "no other shorthands");
@@ -1677,6 +1686,10 @@ Declaration::AppendVariableAndValueToString(const nsAString& aName,
 
     case CSSVariableDeclarations::eUnset:
       aResult.AppendLiteral("unset");
+      break;
+
+    case CSSVariableDeclarations::eRevert:
+      aResult.AppendLiteral("revert");
       break;
 
     default:
@@ -1923,6 +1936,10 @@ Declaration::GetVariableValue(const nsAString& aName, nsAString& aValue) const
         aValue.AppendLiteral("unset");
         break;
 
+      case CSSVariableDeclarations::eRevert:
+        aValue.AppendLiteral("revert");
+        break;
+
       default:
         MOZ_ASSERT(false, "unexpected variable value type");
     }
@@ -1986,6 +2003,11 @@ Declaration::AddVariable(const nsAString& aName,
     case CSSVariableDeclarations::eUnset:
       MOZ_ASSERT(aValue.IsEmpty());
       variables->PutUnset(aName);
+      break;
+
+    case CSSVariableDeclarations::eRevert:
+      MOZ_ASSERT(aValue.IsEmpty());
+      variables->PutRevert(aName);
       break;
 
     default:

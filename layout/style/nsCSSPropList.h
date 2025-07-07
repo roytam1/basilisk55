@@ -4391,9 +4391,9 @@ CSS_PROP_USERINTERFACE(
     CSS_PROP_NO_OFFSET,
     eStyleAnimType_Discrete) // XXX bug 3935
 CSS_PROP_UIRESET(
-    -moz-user-select,
-    _moz_user_select,
-    CSS_PROP_DOMPROP_PREFIXED(UserSelect),
+    user-select,
+    user_select,
+    UserSelect,
     CSS_PROPERTY_PARSE_VALUE,
     "",
     VARIANT_HK,

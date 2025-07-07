@@ -2169,6 +2169,7 @@ const KTableEntry nsCSSProps::kUserSelectKTable[] = {
   { eCSSKeyword_auto,       StyleUserSelect::Auto },
   { eCSSKeyword_text,       StyleUserSelect::Text },
   { eCSSKeyword_element,    StyleUserSelect::Element },
+  { eCSSKeyword_contain,    StyleUserSelect::Contain },
   { eCSSKeyword_elements,   StyleUserSelect::Elements },
   { eCSSKeyword_all,        StyleUserSelect::All },
   { eCSSKeyword_toggle,     StyleUserSelect::Toggle },

@@ -15929,25 +15929,41 @@ CSSParserImpl::ParseOutline()
 bool
 CSSParserImpl::ParseOverflow()
 {
-  nsCSSValue overflow;
-  if (!ParseSingleTokenVariant(overflow, VARIANT_HK,
-                               nsCSSProps::kOverflowKTable)) {
+  nsCSSValue overflowX, overflowY;
+  // Parse the first value
+  if (!ParseSingleTokenVariant(overflowX, VARIANT_HK, nsCSSProps::kOverflowKTable)) {
     return false;
   }
 
-  nsCSSValue overflowX(overflow);
-  nsCSSValue overflowY(overflow);
-  if (eCSSUnit_Enumerated == overflow.GetUnit())
-    switch(overflow.GetIntValue()) {
-      case NS_STYLE_OVERFLOW_SCROLLBARS_HORIZONTAL:
-        overflowX.SetIntValue(NS_STYLE_OVERFLOW_SCROLL, eCSSUnit_Enumerated);
-        overflowY.SetIntValue(NS_STYLE_OVERFLOW_HIDDEN, eCSSUnit_Enumerated);
-        break;
-      case NS_STYLE_OVERFLOW_SCROLLBARS_VERTICAL:
-        overflowX.SetIntValue(NS_STYLE_OVERFLOW_HIDDEN, eCSSUnit_Enumerated);
-        overflowY.SetIntValue(NS_STYLE_OVERFLOW_SCROLL, eCSSUnit_Enumerated);
-        break;
+  // Try to parse a second value (optional)
+  bool haveSecond = ParseSingleTokenVariant(overflowY, VARIANT_HK, nsCSSProps::kOverflowKTable);
+  if (!haveSecond) {
+    overflowY = overflowX;
+  }
+
+  // Handle legacy scrollbars keywords for each axis
+  auto fix_legacy = [](nsCSSValue& v, bool isX) {
+    if (v.GetUnit() == eCSSUnit_Enumerated) {
+      switch (v.GetIntValue()) {
+        case NS_STYLE_OVERFLOW_SCROLLBARS_HORIZONTAL:
+          if (isX) {
+            v.SetIntValue(NS_STYLE_OVERFLOW_SCROLL, eCSSUnit_Enumerated);
+          } else {
+            v.SetIntValue(NS_STYLE_OVERFLOW_HIDDEN, eCSSUnit_Enumerated);
+          }
+          break;
+        case NS_STYLE_OVERFLOW_SCROLLBARS_VERTICAL:
+          if (isX) {
+            v.SetIntValue(NS_STYLE_OVERFLOW_HIDDEN, eCSSUnit_Enumerated);
+          } else {
+            v.SetIntValue(NS_STYLE_OVERFLOW_SCROLL, eCSSUnit_Enumerated);
+          }
+          break;
+      }
     }
+  };
+  fix_legacy(overflowX, true);
+  fix_legacy(overflowY, false);
   AppendValue(eCSSProperty_overflow_x, overflowX);
   AppendValue(eCSSProperty_overflow_y, overflowY);
   return true;

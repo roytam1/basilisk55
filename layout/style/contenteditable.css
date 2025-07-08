@@ -14,7 +14,7 @@
 }
 
 *|*:read-only > :read-write {
-  /* override the above -moz-user-select: all rule. */
+  /* override the above user-select: all rule. */
   user-select: -moz-text;
 }
 

@@ -2127,7 +2127,7 @@ var gCSSProperties = {
     invalid_values: []
   },
   "user-select": {
-    domProp: "MozUserSelect",
+    domProp: "UserSelect",
     inherited: false,
     type: CSS_TYPE_LONGHAND,
     initial_values: [ "auto" ],

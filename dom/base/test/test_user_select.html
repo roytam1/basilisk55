@@ -12,10 +12,10 @@
   src: url("Ahem.ttf");
 }
 body { font-family: Ahem; font-size: 20px; }
-s, .non-selectable { -moz-user-select: none; }
+s, .non-selectable { user-select: none; }
 n { display: none; }
 a { position:absolute; bottom: 0; right:0; }
-.text { -moz-user-select: text; }
+.text { user-select: text; }
 </style>
 
 </head>
@@ -48,7 +48,7 @@ bbbb</div>
 <div class="non-selectable">x</div><input>
 bbbbbbb</div>
 
-<iframe id="testD" src="data:text/html,<body>aaaa<span style='-moz-user-select:none'>bbbb</span>cccc"></iframe>
+<iframe id="testD" src="data:text/html,<body>aaaa<span style='user-select:none'>bbbb</span>cccc"></iframe>
 
 <pre id="test">
 <script class="testbody" type="text/javascript">

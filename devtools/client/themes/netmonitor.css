@@ -389,7 +389,7 @@
   padding: 0 2px;
   margin: 0;
   margin-inline-end: 3px;
-  -moz-user-select: none;
+  user-select: none;
 }
 
 .request-list-item.selected .requests-menu-transferred.theme-comment {

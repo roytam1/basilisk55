@@ -3235,7 +3235,7 @@ exports.CSS_PROPERTIES = {
       "-moz-grid-line",
       "-moz-groupbox",
       "-moz-gtk-info-bar",
-      "-moz-hidden-unscrollable",
+      "clip",
       "-moz-image-rect",
       "-moz-inline-box",
       "-moz-inline-grid",
@@ -8301,8 +8301,8 @@ exports.CSS_PROPERTIES = {
     ],
     "supports": [],
     "values": [
-      "-moz-hidden-unscrollable",
       "auto",
+      "clip",
       "hidden",
       "inherit",
       "initial",
@@ -8335,8 +8335,8 @@ exports.CSS_PROPERTIES = {
     ],
     "supports": [],
     "values": [
-      "-moz-hidden-unscrollable",
       "auto",
+      "clip",
       "hidden",
       "inherit",
       "initial",
@@ -8353,8 +8353,8 @@ exports.CSS_PROPERTIES = {
     ],
     "supports": [],
     "values": [
-      "-moz-hidden-unscrollable",
       "auto",
+      "clip",
       "hidden",
       "inherit",
       "initial",

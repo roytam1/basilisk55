@@ -1091,10 +1091,17 @@ Declaration::GetPropertyValueInternal(
         xValue->AppendToString(eCSSProperty_overflow_x, aValue, aSerialization);
       } else {
         // Check if either value is clip - if so, shorthand cannot be serialized
-        if (xValue->GetUnit() == eCSSUnit_Enumerated && yValue->GetUnit() == eCSSUnit_Enumerated) {
+        if (xValue->GetUnit() == eCSSUnit_Enumerated) {
           int32_t xVal = xValue->GetIntValue();
+          if (xVal == NS_STYLE_OVERFLOW_CLIP) {
+            // When clip is mixed with other values, shorthand cannot be serialized
+            aValue.Truncate();
+            break;
+          }
+        }
+        if (yValue->GetUnit() == eCSSUnit_Enumerated) {
           int32_t yVal = yValue->GetIntValue();
-          if (xVal == NS_STYLE_OVERFLOW_CLIP || yVal == NS_STYLE_OVERFLOW_CLIP) {
+          if (yVal == NS_STYLE_OVERFLOW_CLIP) {
             // When clip is mixed with other values, shorthand cannot be serialized
             aValue.Truncate();
             break;

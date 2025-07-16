@@ -1944,7 +1944,7 @@ var gCSSProperties = {
   "-moz-tab-size": {
     domProp: "MozTabSize",
     inherited: true,
-    type: CSS_TYPE_SHORTHAND_AND_LONGHAND
+    type: CSS_TYPE_SHORTHAND_AND_LONGHAND,
     alias_for: "tab-size",
     subproperties: [ "tab-size" ]
   },
@@ -3466,7 +3466,7 @@ var gCSSProperties = {
     inherited: false,
     type: CSS_TYPE_LONGHAND,
     initial_values: [ "1", "17", "397.376", "3e1", "3e+1", "3e0", "3e+0", "3e-0" ],
-    other_values: [ "0", "0.4", "0.0000", "-3", "3e-1" "-100%", "50%" ],
+    other_values: [ "0", "0.4", "0.0000", "-3", "3e-1", "-100%", "50%" ],
     invalid_values: [ "0px", "1px" ]
   },
   "-moz-orient": {
@@ -3542,7 +3542,7 @@ var gCSSProperties = {
     prerequisites: { "display": "block", "contain": "none" },
     subproperties: [ "overflow-x", "overflow-y" ],
     initial_values: [ "visible" ],
-    other_values: [ "auto", "scroll", "hidden", "-moz-hidden-unscrollable", "-moz-scrollbars-none" ],
+    other_values: [ "auto", "scroll", "hidden", "clip", "-moz-hidden-unscrollable", "-moz-scrollbars-none" ],
     invalid_values: []
   },
   "overflow-x": {
@@ -3551,7 +3551,7 @@ var gCSSProperties = {
     type: CSS_TYPE_LONGHAND,
     prerequisites: { "display": "block", "overflow-y": "visible", "contain": "none" },
     initial_values: [ "visible" ],
-    other_values: [ "auto", "scroll", "hidden", "-moz-hidden-unscrollable" ],
+    other_values: [ "auto", "scroll", "hidden", "clip", "-moz-hidden-unscrollable" ],
     invalid_values: []
   },
   "overflow-y": {
@@ -3560,7 +3560,7 @@ var gCSSProperties = {
     type: CSS_TYPE_LONGHAND,
     prerequisites: { "display": "block", "overflow-x": "visible", "contain": "none" },
     initial_values: [ "visible" ],
-    other_values: [ "auto", "scroll", "hidden", "-moz-hidden-unscrollable" ],
+    other_values: [ "auto", "scroll", "hidden", "clip", "-moz-hidden-unscrollable" ],
     invalid_values: []
   },
   "padding": {
@@ -4340,7 +4340,7 @@ var gCSSProperties = {
     inherited: true,
     type: CSS_TYPE_LONGHAND,
     initial_values: [ "1", "2.8", "1.000", "300%", "context-fill-opacity", "context-stroke-opacity" ],
-    other_values: [ "0", "0.3", "-7.3", "-100%", "50% ],
+    other_values: [ "0", "0.3", "-7.3", "-100%", "50%" ],
     invalid_values: []
   },
   "stroke-width": {

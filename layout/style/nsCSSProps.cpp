@@ -1824,6 +1824,7 @@ const KTableEntry nsCSSProps::kOverflowKTable[] = {
   { eCSSKeyword_visible, NS_STYLE_OVERFLOW_VISIBLE },
   { eCSSKeyword_hidden, NS_STYLE_OVERFLOW_HIDDEN },
   { eCSSKeyword_scroll, NS_STYLE_OVERFLOW_SCROLL },
+  { eCSSKeyword_clip, NS_STYLE_OVERFLOW_CLIP },
   // Deprecated:
   { eCSSKeyword__moz_scrollbars_none, NS_STYLE_OVERFLOW_HIDDEN },
   { eCSSKeyword__moz_scrollbars_horizontal, NS_STYLE_OVERFLOW_SCROLLBARS_HORIZONTAL },
@@ -1843,6 +1844,7 @@ const KTableEntry nsCSSProps::kOverflowSubKTable[] = {
   { eCSSKeyword_visible, NS_STYLE_OVERFLOW_VISIBLE },
   { eCSSKeyword_hidden, NS_STYLE_OVERFLOW_HIDDEN },
   { eCSSKeyword_scroll, NS_STYLE_OVERFLOW_SCROLL },
+  { eCSSKeyword_clip, NS_STYLE_OVERFLOW_CLIP },
   // Deprecated:
   { eCSSKeyword__moz_hidden_unscrollable, NS_STYLE_OVERFLOW_CLIP },
   { eCSSKeyword_UNKNOWN, -1 }

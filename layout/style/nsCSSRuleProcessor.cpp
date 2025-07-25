@@ -494,7 +494,7 @@ nsCSSRuleProcessor::ClearGroup()
 static bool
 GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
 {
-  CascadeEnumData* layer = (CascadeEnumData*)aData;
+  CascadeLayer* layer = (CascadeLayer*)aData;
   int32_t type = aRule->GetType();
 
   MOZ_ASSERT(layer->mMustGatherDocumentRules,
@@ -555,7 +555,7 @@ GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
 static bool
 CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
 {
-  CascadeEnumData* layer = (CascadeEnumData*)aData;
+  CascadeLayer* layer = (CascadeLayer*)aData;
   int32_t type = aRule->GetType();
 
   if (css::Rule::STYLE_RULE == type) {
@@ -588,9 +588,9 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
     layerRule->GetPath(path);
     nsString name;
     layerRule->GetName(name);
-    CascadeEnumData* targetLayer = name.IsEmpty()
-                                     ? layer->CreateAnonymousChildLayer()
-                                     : layer->CreateNamedChildLayer(path);
+    CascadeLayer* targetLayer = name.IsEmpty()
+                                  ? layer->CreateAnonymousChildLayer()
+                                  : layer->CreateNamedChildLayer(path);
     const bool use = layerRule->UseForPresentation(layer->mPresContext,
                                                    layer->mCacheKey);
     if (use || layer->mMustGatherDocumentRules) {
@@ -653,7 +653,7 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
 }
 
 /* static */ bool
-nsCSSRuleProcessor::CascadeSheet(CSSStyleSheet* aSheet, CascadeEnumData* aLayer)
+nsCSSRuleProcessor::CascadeSheet(CSSStyleSheet* aSheet, CascadeLayer* aLayer)
 {
   if (aSheet->IsApplicable() &&
       aSheet->UseForPresentation(aLayer->mPresContext,
@@ -698,7 +698,7 @@ nsCSSRuleProcessor::GetGroup(nsPresContext* aPresContext)
  * that the layers are encountered.
  */
 static void
-CreateChildProcessorsEnumFunc(CascadeEnumData* aLayer, void* aData)
+CreateChildProcessorsEnumFunc(CascadeLayer* aLayer, void* aData)
 {
   aLayer->AddRules();
   RuleProcessorGroup* data = static_cast<RuleProcessorGroup*>(aData);
@@ -734,16 +734,15 @@ nsCSSRuleProcessor::RefreshGroup(nsPresContext* aPresContext)
   if (mSheets.Length() != 0) {
     nsAutoPtr<RuleProcessorGroup> ruleProcessorSet(
       new RuleProcessorGroup(aPresContext->Medium()));
-    CascadeEnumData* unlayered(
-      new CascadeEnumData(aPresContext,
-                          mDocumentRules,
-                          mDocumentCacheKey,
-                          mSheetType,
-                          mMustGatherDocumentRules,
-                          ruleProcessorSet->mCacheKey));
-    if (unlayered->mData) {
+    CascadeLayer* implicitLayer(new CascadeLayer(aPresContext,
+                                                 mDocumentRules,
+                                                 mDocumentCacheKey,
+                                                 mSheetType,
+                                                 mMustGatherDocumentRules,
+                                                 ruleProcessorSet->mCacheKey));
+    if (implicitLayer->mData) {
       for (uint32_t i = 0; i < mSheets.Length(); ++i) {
-        if (!CascadeSheet(mSheets.ElementAt(i), unlayered)) {
+        if (!CascadeSheet(mSheets.ElementAt(i), implicitLayer)) {
           return; /* out of memory */
         }
       }
@@ -752,7 +751,7 @@ nsCSSRuleProcessor::RefreshGroup(nsPresContext* aPresContext)
       ruleProcessorSet->mNext = mGroup;
       mGroup = ruleProcessorSet.forget();
 
-      unlayered->EnumerateAllLayers(CreateChildProcessorsEnumFunc, mGroup);
+      implicitLayer->EnumerateAllLayers(CreateChildProcessorsEnumFunc, mGroup);
 
       // mMustGatherDocumentRules controls whether we build mDocumentRules
       // and mDocumentCacheKey so that they can be used as keys by the

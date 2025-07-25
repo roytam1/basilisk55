@@ -341,7 +341,9 @@ struct CascadeLayer
   nsPresContext* mPresContext;
   nsString mName;
   bool mIsAnonymous;
+#ifdef DEBUG
   bool mIsStrong;
+#endif
   bool mRulesAdded;
 
   RuleCascadeData* mData;
@@ -357,7 +359,9 @@ struct CascadeLayer
   CascadeLayer* mParent;
 #endif
   nsTArray<CascadeLayer*> mPreLayers;
+#ifdef DEBUG
   nsTArray<CascadeLayer*> mPostLayers;
+#endif
   nsDataHashtable<nsStringHashKey, CascadeLayer*> mLayers;
 
   CascadeLayer* CreateNamedChildLayer(const nsTArray<nsString>& aPath);

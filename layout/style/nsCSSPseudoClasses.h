@@ -96,6 +96,9 @@ public:
   static mozilla::Maybe<bool>
     MatchesElement(Type aType, const mozilla::dom::Element* aElement);
 
+  static const mozilla::EventStates sPseudoClassStateDependences[];
+  static const mozilla::EventStates sPseudoClassStates[];
+
 private:
   static const uint32_t kPseudoClassFlags[size_t(Type::Count)];
   static bool sPseudoClassEnabled[size_t(Type::Count)];

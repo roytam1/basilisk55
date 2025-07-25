@@ -25,11 +25,8 @@
 
 struct CascadeEnumData;
 struct ElementDependentRuleProcessorData;
-struct nsCSSSelector;
-struct nsCSSSelectorList;
 struct nsFontFaceRuleContainer;
 struct ResolvedRuleCascades;
-struct TreeMatchContext;
 class nsCSSKeyframesRule;
 class nsCSSPageRule;
 class nsCSSFontFeatureValuesRule;
@@ -78,59 +75,6 @@ public:
 
 public:
   nsresult ClearRuleCascades();
-
-  static void Startup();
-  static void Shutdown();
-  static void FreeSystemMetrics();
-  static bool HasSystemMetric(nsIAtom* aMetric);
-
-  /*
-   * Returns true if the given aElement matches one of the
-   * selectors in aSelectorList.  Note that this method will assume
-   * the given aElement is not a relevant link.  aSelectorList must not
-   * include any pseudo-element selectors.  aSelectorList is allowed
-   * to be null; in this case false will be returned.
-   */
-  static bool RestrictedSelectorListMatches(mozilla::dom::Element* aElement,
-                                            TreeMatchContext& aTreeMatchContext,
-                                            nsCSSSelectorList* aSelectorList);
-
-  /*
-   * Helper to get the content state for a content node.  This may be
-   * slightly adjusted from IntrinsicState().
-   */
-  static mozilla::EventStates GetContentState(
-                                mozilla::dom::Element* aElement,
-                                const TreeMatchContext& aTreeMatchContext);
-
-  /*
-   * Helper to get the content state for :visited handling for an element
-   */
-  static mozilla::EventStates GetContentStateForVisitedHandling(
-             mozilla::dom::Element* aElement,
-             const TreeMatchContext& aTreeMatchContext,
-             nsRuleWalker::VisitedHandlingType aVisitedHandling,
-             bool aIsRelevantLink);
-
-  /*
-   * Helper to test whether a node is a link
-   */
-  static bool IsLink(const mozilla::dom::Element* aElement);
-
-  /**
-   * Returns true if the given aElement matches aSelector.
-   * Like nsCSSRuleProcessor.cpp's SelectorMatches (and unlike
-   * SelectorMatchesTree), this does not check an entire selector list
-   * separated by combinators.
-   *
-   * :visited and :link will match both visited and non-visited links,
-   * as if aTreeMatchContext->mVisitedHandling were eLinksVisitedOrUnvisited.
-   *
-   * aSelector is restricted to not containing pseudo-elements.
-   */
-  static bool RestrictedSelectorMatches(mozilla::dom::Element* aElement,
-                                        nsCSSSelector* aSelector,
-                                        TreeMatchContext& aTreeMatchContext);
 
   // nsIStyleRuleProcessor
   virtual void RulesMatching(ElementRuleProcessorData* aData) override;
@@ -207,24 +151,6 @@ public:
   bool IsInRuleProcessorCache() const { return mInRuleProcessorCache; }
   bool IsUsedByMultipleStyleSets() const { return mStyleSetRefCnt > 1; }
 
-#ifdef XP_WIN
-  // Cached theme identifier for the moz-windows-theme media query.
-  static uint8_t GetWindowsThemeIdentifier();
-  static void SetWindowsThemeIdentifier(uint8_t aId) { 
-    sWinThemeId = aId;
-  }
-#endif
-
-  struct StateSelector {
-    StateSelector(mozilla::EventStates aStates, nsCSSSelector* aSelector)
-      : mStates(aStates),
-        mSelector(aSelector)
-    {}
-
-    mozilla::EventStates mStates;
-    nsCSSSelector* mSelector;
-  };
-
 protected:
   virtual ~nsCSSRuleProcessor();
 
@@ -281,10 +207,6 @@ private:
 
 #ifdef DEBUG
   bool mDocumentRulesAndCacheKeyValid;
-#endif
-
-#ifdef XP_WIN
-  static uint8_t sWinThemeId;
 #endif
 };
 

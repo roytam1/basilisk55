@@ -866,7 +866,6 @@ struct RuleCascadeData {
       mKeyframesRuleTable(),
       mCounterStyleRuleTable(),
       mCacheKey(aMedium),
-      mNext(nullptr),
       mQuirksMode(aQuirksMode)
   {
     memset(mPseudoElementRuleHashes, 0, sizeof(mPseudoElementRuleHashes));
@@ -910,7 +909,6 @@ struct RuleCascadeData {
   nsTArray<SelectorPair>* AttributeListFor(nsIAtom* aAttribute);
 
   nsMediaQueryResultCacheKey mCacheKey;
-  RuleCascadeData*  mNext; // for a different medium
 
   const bool mQuirksMode;
 };
@@ -979,6 +977,38 @@ RuleCascadeData::AttributeListFor(nsIAtom* aAttribute)
   if (!entry)
     return nullptr;
   return &entry->mSelectors;
+}
+
+struct ResolvedRuleCascades {
+  ResolvedRuleCascades()
+    : mUnlayered(nullptr)
+    , mNext(nullptr)
+  {
+  }
+
+  ~ResolvedRuleCascades()
+  {
+    for (RuleCascadeData* data : mOrderedData) {
+      delete data;
+    }
+  }
+
+  nsTArray<RuleCascadeData*> mOrderedData;
+  RuleCascadeData* mUnlayered;
+  ResolvedRuleCascades* mNext; // for a different medium
+
+  size_t SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const;
+};
+
+size_t
+ResolvedRuleCascades::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
+{
+  size_t n = aMallocSizeOf(this);
+  n += mOrderedData.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  for (RuleCascadeData* data : mOrderedData) {
+    n += data->SizeOfIncludingThis(aMallocSizeOf);
+  }
+  return n;
 }
 
 // -------------------------------
@@ -2902,12 +2932,15 @@ void ContentEnumFunc(const RuleValue& value, nsCSSSelector* aSelector,
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(ElementRuleProcessorData *aData)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
-  if (cascade) {
+  if (!resolvedCascade) {
+    return;
+  }
+  for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
     NodeMatchContext nodeContext(EventStates(),
-                                 nsCSSRuleProcessor::IsLink(aData->mElement),
-				 aData->mElementIsFeatureless);
+                                  nsCSSRuleProcessor::IsLink(aData->mElement),
+                                  aData->mElementIsFeatureless);
     // Test against the assigned slot rather than the slottable if we're
     // matching the ::slotted() pseudo.
     Element* targetElement = aData->mElement;
@@ -2921,14 +2954,18 @@ nsCSSRuleProcessor::RulesMatching(ElementRuleProcessorData *aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(PseudoElementRuleProcessorData* aData)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
-  if (cascade) {
-    RuleHash* ruleHash = cascade->mPseudoElementRuleHashes[
-      static_cast<CSSPseudoElementTypeBase>(aData->mPseudoType)];
+  if (!resolvedCascade) {
+    return;
+  }
+  for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+    RuleHash* ruleHash =
+      cascade->mPseudoElementRuleHashes[static_cast<CSSPseudoElementTypeBase>(
+        aData->mPseudoType)];
     if (ruleHash) {
-      NodeMatchContext nodeContext(EventStates(),
-                                   nsCSSRuleProcessor::IsLink(aData->mElement));
+      NodeMatchContext nodeContext(
+        EventStates(), nsCSSRuleProcessor::IsLink(aData->mElement));
       ruleHash->EnumerateAllRules(aData->mElement, aData, nodeContext);
     }
   }
@@ -2937,15 +2974,23 @@ nsCSSRuleProcessor::RulesMatching(PseudoElementRuleProcessorData* aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(AnonBoxRuleProcessorData* aData)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
-  if (cascade && cascade->mAnonBoxRules.EntryCount()) {
-    auto entry = static_cast<RuleHashTagTableEntry*>
-                            (cascade->mAnonBoxRules.Search(aData->mPseudoTag));
+  if (!resolvedCascade) {
+    return;
+  }
+  for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+    if (cascade->mAnonBoxRules.EntryCount() == 0) {
+      continue;
+    }
+    auto entry = static_cast<RuleHashTagTableEntry*>(
+      cascade->mAnonBoxRules.Search(aData->mPseudoTag));
     if (entry) {
       nsTArray<RuleValue>& rules = entry->mRules;
-      for (RuleValue *value = rules.Elements(), *end = value + rules.Length();
-           value != end; ++value) {
+      for (RuleValue *value = rules.Elements(),
+                      *end = value + rules.Length();
+            value != end;
+            ++value) {
         css::Declaration* declaration = value->mRule->GetDeclaration();
         declaration->SetImmutable();
         aData->mRuleWalker->Forward(declaration);
@@ -2958,20 +3003,27 @@ nsCSSRuleProcessor::RulesMatching(AnonBoxRuleProcessorData* aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(XULTreeRuleProcessorData* aData)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
-  if (cascade && cascade->mXULTreeRules.EntryCount()) {
-    auto entry = static_cast<RuleHashTagTableEntry*>
-                            (cascade->mXULTreeRules.Search(aData->mPseudoTag));
+  if (!resolvedCascade) {
+    return;
+  }
+  for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+    if (cascade->mXULTreeRules.EntryCount() == 0) {
+      continue;
+    }
+    auto entry = static_cast<RuleHashTagTableEntry*>(
+      cascade->mXULTreeRules.Search(aData->mPseudoTag));
     if (entry) {
-      NodeMatchContext nodeContext(EventStates(),
-                                   nsCSSRuleProcessor::IsLink(aData->mElement));
+      NodeMatchContext nodeContext(
+        EventStates(), nsCSSRuleProcessor::IsLink(aData->mElement));
       nsTArray<RuleValue>& rules = entry->mRules;
       for (RuleValue *value = rules.Elements(), *end = value + rules.Length();
-           value != end; ++value) {
+            value != end;
+            ++value) {
         if (aData->mComparator->PseudoMatches(value->mSelector)) {
-          ContentEnumFunc(*value, value->mSelector->mNext, aData, nodeContext,
-                          nullptr);
+          ContentEnumFunc(
+            *value, value->mSelector->mNext, aData, nodeContext, nullptr);
         }
       }
     }
@@ -3005,7 +3057,7 @@ nsCSSRuleProcessor::HasStateDependentStyle(ElementDependentRuleProcessorData* aD
   bool isPseudoElement =
     aPseudoType != CSSPseudoElementType::NotPseudo;
 
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
   // Look up the content node in the state rule list, which points to
   // any (CSS2 definition) simple selector (whether or not it is the
@@ -3016,36 +3068,38 @@ nsCSSRuleProcessor::HasStateDependentStyle(ElementDependentRuleProcessorData* aD
   // |ComputeSelectorStateDependence| below determines which selectors are in
   // |cascade->mStateSelectors|.
   nsRestyleHint hint = nsRestyleHint(0);
-  if (cascade) {
-    StateSelector *iter = cascade->mStateSelectors.Elements(),
-                  *end = iter + cascade->mStateSelectors.Length();
-    NodeMatchContext nodeContext(aStateMask, false);
-    for(; iter != end; ++iter) {
-      nsCSSSelector* selector = iter->mSelector;
-      EventStates states = iter->mStates;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      StateSelector *iter = cascade->mStateSelectors.Elements(),
+                    *end = iter + cascade->mStateSelectors.Length();
+      NodeMatchContext nodeContext(aStateMask, false);
+      for (; iter != end; ++iter) {
+        nsCSSSelector* selector = iter->mSelector;
+        EventStates states = iter->mStates;
 
-      if (selector->IsPseudoElement() != isPseudoElement) {
-        continue;
-      }
-
-      nsCSSSelector* selectorForPseudo;
-      if (isPseudoElement) {
-        if (selector->PseudoType() != aPseudoType) {
+        if (selector->IsPseudoElement() != isPseudoElement) {
           continue;
         }
-        selectorForPseudo = selector;
-        selector = selector->mNext;
-      }
 
-      nsRestyleHint possibleChange = RestyleHintForOp(selector->mOperator);
-      SelectorMatchesFlags selectorFlags = SelectorMatchesFlags::UNKNOWN;
+        nsCSSSelector* selectorForPseudo;
+        if (isPseudoElement) {
+          if (selector->PseudoType() != aPseudoType) {
+            continue;
+          }
+          selectorForPseudo = selector;
+          selector = selector->mNext;
+        }
 
-      // If hint already includes all the bits of possibleChange,
-      // don't bother calling SelectorMatches, since even if it returns false
-      // hint won't change.
-      // Also don't bother calling SelectorMatches if none of the
-      // states passed in are relevant here.
-      if ((possibleChange & ~hint) &&
+        nsRestyleHint possibleChange = RestyleHintForOp(selector->mOperator);
+        SelectorMatchesFlags selectorFlags = SelectorMatchesFlags::UNKNOWN;
+
+        // If hint already includes all the bits of possibleChange,
+        // don't bother calling SelectorMatches, since even if it returns false
+        // hint won't change.
+        // Also don't bother calling SelectorMatches if none of the
+        // states passed in are relevant here.
+        if (
+          (possibleChange & ~hint) &&
           states.HasAtLeastOneOfStates(aStateMask) &&
           // We can optimize away testing selectors that only involve :hover, a
           // namespace, and a tag name against nodes that don't have the
@@ -3056,26 +3110,32 @@ nsCSSRuleProcessor::HasStateDependentStyle(ElementDependentRuleProcessorData* aD
           // the element having the hover rules flag, or the selector having
           // some sort of non-namespace, non-tagname data in it.
           (states != NS_EVENT_STATE_HOVER ||
-           aStatefulElement->HasRelevantHoverRules() ||
-           selector->mIDList || selector->mClassList ||
+           aStatefulElement->HasRelevantHoverRules() || selector->mIDList ||
+           selector->mClassList ||
            // We generally expect an mPseudoClassList, since we have a :hover.
            // The question is whether we have anything else in there.
            (selector->mPseudoClassList &&
             (selector->mPseudoClassList->mNext ||
-             selector->mPseudoClassList->mType !=
-               CSSPseudoClassType::hover)) ||
+             selector->mPseudoClassList->mType != CSSPseudoClassType::hover)) ||
            selector->mAttrList || selector->mNegations) &&
-          (!isPseudoElement ||
-           StateSelectorMatches(aStatefulElement, selectorForPseudo,
-                                nodeContext, aData->mTreeMatchContext,
-                                selectorFlags, nullptr, aStateMask)) &&
-          SelectorMatches(aData->mElement, selector, nodeContext,
-                          aData->mTreeMatchContext, selectorFlags) &&
-          SelectorMatchesTree(aData->mElement, selector->mNext,
+          (!isPseudoElement || StateSelectorMatches(aStatefulElement,
+                                                    selectorForPseudo,
+                                                    nodeContext,
+                                                    aData->mTreeMatchContext,
+                                                    selectorFlags,
+                                                    nullptr,
+                                                    aStateMask)) &&
+          SelectorMatches(aData->mElement,
+                          selector,
+                          nodeContext,
+                          aData->mTreeMatchContext,
+                          selectorFlags) &&
+          SelectorMatchesTree(aData->mElement,
+                              selector->mNext,
                               aData->mTreeMatchContext,
-                              eMatchOnConditionalRestyleAncestor))
-      {
-        hint = nsRestyleHint(hint | possibleChange);
+                              eMatchOnConditionalRestyleAncestor)) {
+          hint = nsRestyleHint(hint | possibleChange);
+        }
       }
     }
   }
@@ -3103,9 +3163,18 @@ nsCSSRuleProcessor::HasStateDependentStyle(PseudoElementStateRuleProcessorData* 
 bool
 nsCSSRuleProcessor::HasDocumentStateDependentStyle(StateRuleProcessorData* aData)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
-  return cascade && cascade->mSelectorDocumentStates.HasAtLeastOneOfStates(aData->mStateMask);
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (cascade->mSelectorDocumentStates.HasAtLeastOneOfStates(
+            aData->mStateMask)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 struct AttributeEnumData {
@@ -3273,7 +3342,7 @@ nsCSSRuleProcessor::HasAttributeDependentStyle(
     }
   }
 
-  RuleCascadeData* cascade = GetRuleCascade(aData->mPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aData->mPresContext);
 
   // Since we get both before and after notifications for attributes, we
   // don't have to ignore aData->mAttribute while matching.  Just check
@@ -3281,66 +3350,66 @@ nsCSSRuleProcessor::HasAttributeDependentStyle(
   // match.  If this is the before change notification, that will catch
   // rules we might stop matching; if the after change notification, the
   // ones we might have started matching.
-  if (cascade) {
-    if (aData->mAttribute == nsGkAtoms::id) {
-      nsIAtom* id = aData->mElement->GetID();
-      if (id) {
-        auto entry =
-          static_cast<AtomSelectorEntry*>(cascade->mIdSelectors.Search(id));
-        if (entry) {
-          EnumerateSelectors(entry->mSelectors, &data);
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (aData->mAttribute == nsGkAtoms::id) {
+        nsIAtom* id = aData->mElement->GetID();
+        if (id) {
+          auto entry =
+            static_cast<AtomSelectorEntry*>(cascade->mIdSelectors.Search(id));
+          if (entry) {
+            EnumerateSelectors(entry->mSelectors, &data);
+          }
         }
+
+        EnumerateSelectors(cascade->mPossiblyNegatedIDSelectors, &data);
       }
 
-      EnumerateSelectors(cascade->mPossiblyNegatedIDSelectors, &data);
-    }
-
-    if (aData->mAttribute == nsGkAtoms::_class &&
-        aData->mNameSpaceID == kNameSpaceID_None) {
-      const nsAttrValue* otherClasses = aData->mOtherValue;
-      NS_ASSERTION(otherClasses ||
-                   aData->mModType == nsIDOMMutationEvent::REMOVAL,
-                   "All class values should be StoresOwnData and parsed"
-                   "via Element::BeforeSetAttr, so available here");
-      // For WillChange, enumerate classes that will be removed to see which
-      // rules apply before the change.
-      // For Changed, enumerate classes that have been added to see which rules
-      // apply after the change.
-      // In both cases we're interested in the classes that are currently on
-      // the element but not in mOtherValue.
-      const nsAttrValue* elementClasses = aData->mElement->GetClasses();
-      if (elementClasses) {
-        int32_t atomCount = elementClasses->GetAtomCount();
-        if (atomCount > 0) {
-          nsTHashtable<nsPtrHashKey<nsIAtom>> otherClassesTable;
-          if (otherClasses) {
-            int32_t otherClassesCount = otherClasses->GetAtomCount();
-            for (int32_t i = 0; i < otherClassesCount; ++i) {
-              otherClassesTable.PutEntry(otherClasses->AtomAt(i));
+      if (aData->mAttribute == nsGkAtoms::_class &&
+          aData->mNameSpaceID == kNameSpaceID_None) {
+        const nsAttrValue* otherClasses = aData->mOtherValue;
+        NS_ASSERTION(otherClasses ||
+                       aData->mModType == nsIDOMMutationEvent::REMOVAL,
+                     "All class values should be StoresOwnData and parsed"
+                     "via Element::BeforeSetAttr, so available here");
+        // For WillChange, enumerate classes that will be removed to see which
+        // rules apply before the change.
+        // For Changed, enumerate classes that have been added to see which rules
+        // apply after the change.
+        // In both cases we're interested in the classes that are currently on
+        // the element but not in mOtherValue.
+        const nsAttrValue* elementClasses = aData->mElement->GetClasses();
+        if (elementClasses) {
+          int32_t atomCount = elementClasses->GetAtomCount();
+          if (atomCount > 0) {
+            nsTHashtable<nsPtrHashKey<nsIAtom>> otherClassesTable;
+            if (otherClasses) {
+              int32_t otherClassesCount = otherClasses->GetAtomCount();
+              for (int32_t i = 0; i < otherClassesCount; ++i) {
+                otherClassesTable.PutEntry(otherClasses->AtomAt(i));
+              }
             }
-          }
-          for (int32_t i = 0; i < atomCount; ++i) {
-            nsIAtom* curClass = elementClasses->AtomAt(i);
-            if (!otherClassesTable.Contains(curClass)) {
-              auto entry =
-                static_cast<AtomSelectorEntry*>
-                           (cascade->mClassSelectors.Search(curClass));
-              if (entry) {
-                EnumerateSelectors(entry->mSelectors, &data);
+            for (int32_t i = 0; i < atomCount; ++i) {
+              nsIAtom* curClass = elementClasses->AtomAt(i);
+              if (!otherClassesTable.Contains(curClass)) {
+                auto entry = static_cast<AtomSelectorEntry*>(
+                  cascade->mClassSelectors.Search(curClass));
+                if (entry) {
+                  EnumerateSelectors(entry->mSelectors, &data);
+                }
               }
             }
           }
         }
+
+        EnumerateSelectors(cascade->mPossiblyNegatedClassSelectors, &data);
       }
 
-      EnumerateSelectors(cascade->mPossiblyNegatedClassSelectors, &data);
-    }
-
-    auto entry =
-      static_cast<AtomSelectorEntry*>
-                 (cascade->mAttributeSelectors.Search(aData->mAttribute));
-    if (entry) {
-      EnumerateSelectors(entry->mSelectors, &data);
+      auto entry = static_cast<AtomSelectorEntry*>(
+        cascade->mAttributeSelectors.Search(aData->mAttribute));
+      if (entry) {
+        EnumerateSelectors(entry->mSelectors, &data);
+      }
     }
   }
 
@@ -3358,8 +3427,8 @@ nsCSSRuleProcessor::MediumFeaturesChanged(nsPresContext* aPresContext)
   // cached a previous cache key to test against, instead of our current
   // rule cascades.  See bug 448281 and bug 1089417.
   MOZ_ASSERT(!(mRuleCascades && mPreviousCacheKey));
-  RuleCascadeData *old = mRuleCascades;
-  if (old) {
+  ResolvedRuleCascades* old = mRuleCascades;
+  if (old) {  
     RefreshRuleCascade(aPresContext);
     return (old != mRuleCascades);
   }
@@ -3379,7 +3448,7 @@ nsCSSRuleProcessor::MediumFeaturesChanged(nsPresContext* aPresContext)
     // order hasn't changed).  Other cases will do a restyle anyway, so
     // we shouldn't need to worry about posting a second.
     return !mRuleCascades || // all sheets gone, but we had sheets before
-           mRuleCascades->mCacheKey != *previousCacheKey;
+           mRuleCascades->mUnlayered->mCacheKey != *previousCacheKey;
   }
 
   return false;
@@ -3390,8 +3459,8 @@ nsCSSRuleProcessor::CloneMQCacheKey()
 {
   MOZ_ASSERT(!(mRuleCascades && mPreviousCacheKey));
 
-  RuleCascadeData* c = mRuleCascades;
-  if (!c) {
+  ResolvedRuleCascades* c = mRuleCascades;
+  if (!c || !c->mUnlayered) {
     // We might have an mPreviousCacheKey.  It already comes from a call
     // to CloneMQCacheKey, so don't bother checking
     // HasFeatureConditions().
@@ -3405,11 +3474,11 @@ nsCSSRuleProcessor::CloneMQCacheKey()
     return UniquePtr<nsMediaQueryResultCacheKey>();
   }
 
-  if (!c->mCacheKey.HasFeatureConditions()) {
+  if (!c->mUnlayered->mCacheKey.HasFeatureConditions()) {
     return UniquePtr<nsMediaQueryResultCacheKey>();
   }
 
-  return MakeUnique<nsMediaQueryResultCacheKey>(c->mCacheKey);
+  return MakeUnique<nsMediaQueryResultCacheKey>(c->mUnlayered->mCacheKey);
 }
 
 /* virtual */ size_t
@@ -3417,7 +3486,7 @@ nsCSSRuleProcessor::SizeOfExcludingThis(MallocSizeOf aMallocSizeOf) const
 {
   size_t n = 0;
   n += mSheets.ShallowSizeOfExcludingThis(aMallocSizeOf);
-  for (RuleCascadeData* cascade = mRuleCascades; cascade;
+  for (ResolvedRuleCascades* cascade = mRuleCascades; cascade;
        cascade = cascade->mNext) {
     n += cascade->SizeOfIncludingThis(aMallocSizeOf);
   }
@@ -3438,11 +3507,14 @@ nsCSSRuleProcessor::AppendFontFaceRules(
                               nsPresContext *aPresContext,
                               nsTArray<nsFontFaceRuleContainer>& aArray)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aPresContext);
 
-  if (cascade) {
-    if (!aArray.AppendElements(cascade->mFontFaceRules))
-      return false;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (!aArray.AppendElements(cascade->mFontFaceRules)) {
+        return false;
+      }
+    }
   }
   
   return true;
@@ -3452,26 +3524,38 @@ nsCSSKeyframesRule*
 nsCSSRuleProcessor::KeyframesRuleForName(nsPresContext* aPresContext,
                                          const nsString& aName)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aPresContext);
 
-  if (cascade) {
-    return cascade->mKeyframesRuleTable.Get(aName);
+  nsCSSKeyframesRule* rule = nullptr;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (nsCSSKeyframesRule* newRule =
+            cascade->mKeyframesRuleTable.Get(aName)) {
+        rule = newRule;
+      }
+    }
   }
 
-  return nullptr;
+  return rule;
 }
 
 nsCSSCounterStyleRule*
 nsCSSRuleProcessor::CounterStyleRuleForName(nsPresContext* aPresContext,
                                             const nsAString& aName)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aPresContext);
 
-  if (cascade) {
-    return cascade->mCounterStyleRuleTable.Get(aName);
+  nsCSSCounterStyleRule* rule = nullptr;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (nsCSSCounterStyleRule* newRule =
+            cascade->mCounterStyleRuleTable.Get(aName)) {
+        rule = newRule;
+      }
+    }
   }
 
-  return nullptr;
+  return rule;
 }
 
 // Append all the currently-active page rules to aArray.  Return
@@ -3481,11 +3565,13 @@ nsCSSRuleProcessor::AppendPageRules(
                               nsPresContext* aPresContext,
                               nsTArray<nsCSSPageRule*>& aArray)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aPresContext);
 
-  if (cascade) {
-    if (!aArray.AppendElements(cascade->mPageRules)) {
-      return false;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (!aArray.AppendElements(cascade->mPageRules)) {
+        return false;
+      }
     }
   }
   
@@ -3497,11 +3583,14 @@ nsCSSRuleProcessor::AppendFontFeatureValuesRules(
                               nsPresContext *aPresContext,
                               nsTArray<nsCSSFontFeatureValuesRule*>& aArray)
 {
-  RuleCascadeData* cascade = GetRuleCascade(aPresContext);
+  ResolvedRuleCascades* resolvedCascade = GetRuleCascade(aPresContext);
 
-  if (cascade) {
-    if (!aArray.AppendElements(cascade->mFontFeatureValuesRules))
-      return false;
+  if (resolvedCascade) {
+    for (RuleCascadeData* cascade : resolvedCascade->mOrderedData) {
+      if (!aArray.AppendElements(cascade->mFontFeatureValuesRules)) {
+        return false;
+      }
+    }
   }
 
   return true;
@@ -3535,10 +3624,10 @@ nsCSSRuleProcessor::ClearRuleCascades()
   // will rebuild style data and the user font set (either
   // nsIPresShell::RestyleForCSSRuleChanges or
   // nsPresContext::RebuildAllStyleData).
-  RuleCascadeData *data = mRuleCascades;
+  ResolvedRuleCascades* data = mRuleCascades;
   mRuleCascades = nullptr;
   while (data) {
-    RuleCascadeData *next = data->mNext;
+    ResolvedRuleCascades* next = data->mNext;
     delete data;
     data = next;
   }
@@ -3830,34 +3919,68 @@ static const PLDHashTableOps gRulesByWeightOps = {
     InitWeightEntry
 };
 
-struct CascadeEnumData {
+static int
+CompareWeightData(const void* aArg1, const void* aArg2, void* closure)
+{
+  const PerWeightData* arg1 = static_cast<const PerWeightData*>(aArg1);
+  const PerWeightData* arg2 = static_cast<const PerWeightData*>(aArg2);
+  return arg1->mWeight - arg2->mWeight; // put lower weight first
+}
+
+struct CascadeEnumData
+{
   CascadeEnumData(nsPresContext* aPresContext,
-                  nsTArray<nsFontFaceRuleContainer>& aFontFaceRules,
-                  nsTArray<nsCSSKeyframesRule*>& aKeyframesRules,
-                  nsTArray<nsCSSFontFeatureValuesRule*>& aFontFeatureValuesRules,
-                  nsTArray<nsCSSPageRule*>& aPageRules,
-                  nsTArray<nsCSSCounterStyleRule*>& aCounterStyleRules,
+                  nsString aName,
+#ifdef DEBUG
+                  CascadeEnumData* aParent,
+#endif
+                  nsAutoPtr<ResolvedRuleCascades>& aContainer,
+                  bool aIsWeak,
                   nsTArray<css::DocumentRule*>& aDocumentRules,
-                  nsMediaQueryResultCacheKey& aKey,
                   nsDocumentRuleResultCacheKey& aDocumentKey,
                   SheetType aSheetType,
                   bool aMustGatherDocumentRules)
-    : mPresContext(aPresContext),
-      mFontFaceRules(aFontFaceRules),
-      mKeyframesRules(aKeyframesRules),
-      mFontFeatureValuesRules(aFontFeatureValuesRules),
-      mPageRules(aPageRules),
-      mCounterStyleRules(aCounterStyleRules),
-      mDocumentRules(aDocumentRules),
-      mCacheKey(aKey),
-      mDocumentCacheKey(aDocumentKey),
-      mRulesByWeight(&gRulesByWeightOps, sizeof(RuleByWeightEntry), 32),
-      mSheetType(aSheetType),
-      mMustGatherDocumentRules(aMustGatherDocumentRules)
+    : mPresContext(aPresContext)
+    , mName(aName)
+    , mIsAnonymous(mName.IsEmpty())
+    , mIsWeak(aIsWeak)
+    , mWasFlattened(false)
+#ifdef DEBUG
+    , mParent(aParent)
+    , mIsRoot(false)
+#endif
+    , mContainer(aContainer)
+    , mDocumentRules(aDocumentRules)
+    , mDocumentCacheKey(aDocumentKey)
+    , mSheetType(aSheetType)
+    , mMustGatherDocumentRules(aMustGatherDocumentRules)
+    , mRulesByWeight(&gRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
   {
-    // Initialize our arena
-    PL_INIT_ARENA_POOL(&mArena, "CascadeEnumDataArena",
-                       NS_CASCADEENUMDATA_ARENA_BLOCK_SIZE);
+    Initialize();
+  }
+
+  CascadeEnumData(nsPresContext* aPresContext,
+                  nsAutoPtr<ResolvedRuleCascades>& aContainer,
+                  nsTArray<css::DocumentRule*>& aDocumentRules,
+                  nsDocumentRuleResultCacheKey& aDocumentKey,
+                  SheetType aSheetType,
+                  bool aMustGatherDocumentRules)
+    : mPresContext(aPresContext)
+    , mContainer(aContainer)
+    , mIsAnonymous(false)
+    , mIsWeak(false)
+    , mWasFlattened(false)
+#ifdef DEBUG
+    , mParent(nullptr)
+    , mIsRoot(true)
+#endif
+    , mDocumentRules(aDocumentRules)
+    , mDocumentCacheKey(aDocumentKey)
+    , mSheetType(aSheetType)
+    , mMustGatherDocumentRules(aMustGatherDocumentRules)
+    , mRulesByWeight(&gRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
+  {
+    Initialize();
   }
 
   ~CascadeEnumData()
@@ -3866,21 +3989,206 @@ struct CascadeEnumData {
   }
 
   nsPresContext* mPresContext;
-  nsTArray<nsFontFaceRuleContainer>& mFontFaceRules;
-  nsTArray<nsCSSKeyframesRule*>& mKeyframesRules;
-  nsTArray<nsCSSFontFeatureValuesRule*>& mFontFeatureValuesRules;
-  nsTArray<nsCSSPageRule*>& mPageRules;
-  nsTArray<nsCSSCounterStyleRule*>& mCounterStyleRules;
+  nsString mName;
+  bool mIsAnonymous;
+  bool mIsWeak;
+  bool mWasFlattened;
+
+  RuleCascadeData* mData;
+
+  nsTArray<css::StyleRule*> mStyleRules;
   nsTArray<css::DocumentRule*>& mDocumentRules;
-  nsMediaQueryResultCacheKey& mCacheKey;
   nsDocumentRuleResultCacheKey& mDocumentCacheKey;
+  SheetType mSheetType;
+  bool mMustGatherDocumentRules;
+
   PLArenaPool mArena;
   // Hooray, a manual PLDHashTable since nsClassHashtable doesn't
   // provide a getter that gives me a *reference* to the value.
   PLDHashTable mRulesByWeight; // of PerWeightDataListItem linked lists
-  SheetType mSheetType;
-  bool mMustGatherDocumentRules;
+
+#ifdef DEBUG
+  CascadeEnumData* mParent;
+  bool mIsRoot;
+#endif
+  nsAutoPtr<ResolvedRuleCascades>& mContainer;
+  nsTArray<CascadeEnumData*> mPreLayers;
+  nsTArray<CascadeEnumData*> mPostLayers;
+  nsDataHashtable<nsStringHashKey, CascadeEnumData*> mLayers;
+
+  CascadeEnumData* CreateNamedChildLayer(const nsTArray<nsString>& aPath);
+  CascadeEnumData* CreateAnonymousChildLayer();
+  void Flatten();
+
+private:
+  void Initialize();
+  void AddRules();
 };
+
+CascadeEnumData*
+CascadeEnumData::CreateNamedChildLayer(const nsTArray<nsString>& aPath)
+{
+  if (aPath.IsEmpty()) {
+    return this;
+  }
+
+  const nsString& name = aPath[0];
+  CascadeEnumData* childLayer = nullptr;
+
+  // Create new layer if it doesn't exist.
+  if (!mLayers.Get(name, &childLayer)) {
+    childLayer = new CascadeEnumData(mPresContext,
+                                     name,
+#ifdef DEBUG
+                                     this,
+#endif
+                                     mContainer,
+                                     false,
+                                     mDocumentRules,
+                                     mDocumentCacheKey,
+                                     mSheetType,
+                                     mMustGatherDocumentRules);
+    mPreLayers.AppendElement(childLayer);
+    mLayers.Put(name, childLayer);
+  }
+
+  // Final layer in the path.
+  if (aPath.Length() == 1) {
+    return childLayer;
+  }
+
+  // Continue with the tail of the path.
+  nsTArray<nsString> tail;
+  tail.AppendElements(aPath.Elements() + 1, aPath.Length() - 1);
+  return childLayer->CreateNamedChildLayer(tail);
+}
+
+CascadeEnumData*
+CascadeEnumData::CreateAnonymousChildLayer()
+{
+  nsString name;
+  CascadeEnumData* childLayer = new CascadeEnumData(mPresContext,
+                                                    name,
+#ifdef DEBUG
+                                                    this,
+#endif
+                                                    mContainer,
+                                                    false,
+                                                    mDocumentRules,
+                                                    mDocumentCacheKey,
+                                                    mSheetType,
+                                                    mMustGatherDocumentRules);
+  mPreLayers.AppendElement(childLayer);
+  return childLayer;
+}
+
+void
+CascadeEnumData::AddRules()
+{
+  for (css::StyleRule* styleRule : mStyleRules) {
+    for (nsCSSSelectorList* sel = styleRule->Selector(); sel;
+         sel = sel->mNext) {
+      int32_t weight = sel->mWeight;
+      auto entry = static_cast<RuleByWeightEntry*>(
+        mRulesByWeight.Add(NS_INT32_TO_PTR(weight), fallible));
+      if (!entry) {
+        return;
+      }
+      entry->data.mWeight = weight;
+      // entry->data.mRuleSelectorPairs should be linked in forward order;
+      // entry->data.mTail is the slot to write to.
+      auto* newItem =
+        new (mArena) PerWeightDataListItem(styleRule, sel->mSelectors);
+      if (newItem) {
+        *(entry->data.mTail) = newItem;
+        entry->data.mTail = &newItem->mNext;
+      }
+    }
+  }
+
+  // Sort the hash table of per-weight linked lists by weight.
+  uint32_t weightCount = mRulesByWeight.EntryCount();
+  auto weightArray = MakeUnique<PerWeightData[]>(weightCount);
+  int32_t j = 0;
+  for (auto iter = mRulesByWeight.Iter(); !iter.Done(); iter.Next()) {
+    auto entry = static_cast<const RuleByWeightEntry*>(iter.Get());
+    weightArray[j++] = entry->data;
+  }
+  NS_QuickSort(weightArray.get(),
+               weightCount,
+               sizeof(PerWeightData),
+               CompareWeightData,
+               nullptr);
+
+  // Put things into the rule hash.
+  // The primary sort is by weight...
+  for (uint32_t i = 0; i < weightCount; ++i) {
+    // and the secondary sort is by order.  mRuleSelectorPairs is already in
+    // the right order..
+    for (PerWeightDataListItem* cur = weightArray[i].mRuleSelectorPairs; cur;
+         cur = cur->mNext) {
+      if (!AddRule(cur, mData))
+        return; /* out of memory */
+    }
+  }
+
+  // Build mKeyframesRuleTable.
+  for (nsTArray<nsCSSKeyframesRule*>::size_type
+         i = 0,
+         iEnd = mData->mKeyframesRules.Length();
+       i < iEnd;
+       ++i) {
+    nsCSSKeyframesRule* rule = mData->mKeyframesRules[i];
+    mData->mKeyframesRuleTable.Put(rule->GetName(), rule);
+  }
+
+  // Build mCounterStyleRuleTable
+  for (nsTArray<nsCSSCounterStyleRule*>::size_type
+         i = 0,
+         iEnd = mData->mCounterStyleRules.Length();
+       i < iEnd;
+       ++i) {
+    nsCSSCounterStyleRule* rule = mData->mCounterStyleRules[i];
+    mData->mCounterStyleRuleTable.Put(rule->GetName(), rule);
+  }
+}
+
+void
+CascadeEnumData::Flatten()
+{
+  if (mWasFlattened) {
+    return;
+  }
+
+  if (mPreLayers.Length() > 0) {
+    for (CascadeEnumData* pre : mPreLayers) {
+      pre->Flatten();
+    }
+  }
+
+  mContainer->mOrderedData.AppendElement(mData);
+  AddRules();
+
+  if (mPostLayers.Length() > 0) {
+    for (CascadeEnumData* post : mPostLayers) {
+      post->Flatten();
+    }
+  }
+
+  mWasFlattened = true;
+}
+
+void
+CascadeEnumData::Initialize()
+{
+  mData = new RuleCascadeData(
+    mPresContext->Medium(),
+    eCompatibility_NavQuirks == mPresContext->CompatibilityMode());
+
+  // Initialize our arena
+  PL_INIT_ARENA_POOL(
+    &mArena, "CascadeEnumDataArena", NS_CASCADEENUMDATA_ARENA_BLOCK_SIZE);
+}
 
 /**
  * Recursively traverses rules in order to:
@@ -3895,10 +4203,10 @@ struct CascadeEnumData {
 static bool
 GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
 {
-  CascadeEnumData* data = (CascadeEnumData*)aData;
+  CascadeEnumData* layer = (CascadeEnumData*)aData;
   int32_t type = aRule->GetType();
 
-  MOZ_ASSERT(data->mMustGatherDocumentRules,
+  MOZ_ASSERT(layer->mMustGatherDocumentRules,
              "should only call GatherDocRuleEnumFunc if "
              "mMustGatherDocumentRules is true");
 
@@ -3912,11 +4220,11 @@ GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
   }
   else if (css::Rule::DOCUMENT_RULE == type) {
     css::DocumentRule* docRule = static_cast<css::DocumentRule*>(aRule);
-    if (!data->mDocumentRules.AppendElement(docRule)) {
+    if (!layer->mDocumentRules.AppendElement(docRule)) {
       return false;
     }
-    if (docRule->UseForPresentation(data->mPresContext)) {
-      if (!data->mDocumentCacheKey.AddMatchingRule(docRule)) {
+    if (docRule->UseForPresentation(layer->mPresContext)) {
+      if (!layer->mDocumentCacheKey.AddMatchingRule(docRule)) {
         return false;
       }
     }
@@ -3958,37 +4266,21 @@ GatherDocRuleEnumFunc(css::Rule* aRule, void* aData)
 static bool
 CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
 {
-  CascadeEnumData* data = (CascadeEnumData*)aData;
+  CascadeEnumData* layer = (CascadeEnumData*)aData;
   int32_t type = aRule->GetType();
 
   if (css::Rule::STYLE_RULE == type) {
     css::StyleRule* styleRule = static_cast<css::StyleRule*>(aRule);
-
-    for (nsCSSSelectorList *sel = styleRule->Selector();
-         sel; sel = sel->mNext) {
-      int32_t weight = sel->mWeight;
-      auto entry = static_cast<RuleByWeightEntry*>
-        (data->mRulesByWeight.Add(NS_INT32_TO_PTR(weight), fallible));
-      if (!entry)
-        return false;
-      entry->data.mWeight = weight;
-      // entry->data.mRuleSelectorPairs should be linked in forward order;
-      // entry->data.mTail is the slot to write to.
-      auto* newItem =
-        new (data->mArena) PerWeightDataListItem(styleRule, sel->mSelectors);
-      if (newItem) {
-        *(entry->data.mTail) = newItem;
-        entry->data.mTail = &newItem->mNext;
-      }
+    if (!layer->mStyleRules.AppendElement(styleRule)) {
+      return false;
     }
   }
   else if (css::Rule::MEDIA_RULE == type ||
-           css::Rule::SUPPORTS_RULE == type ||
-           css::Rule::LAYER_BLOCK_RULE == type) {
+           css::Rule::SUPPORTS_RULE == type) {
     css::GroupRule* groupRule = static_cast<css::GroupRule*>(aRule);
     const bool use =
-      groupRule->UseForPresentation(data->mPresContext, data->mCacheKey);
-    if (use || data->mMustGatherDocumentRules) {
+      groupRule->UseForPresentation(layer->mPresContext, layer->mData->mCacheKey);
+    if (use || layer->mMustGatherDocumentRules) {
       if (!groupRule->EnumerateRulesForwards(use ? CascadeRuleEnumFunc :
                                                    GatherDocRuleEnumFunc,
                                              aData)) {
@@ -3996,20 +4288,47 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
       }
     }
   }
+  else if (css::Rule::LAYER_STATEMENT_RULE == type) {
+    CSSLayerStatementRule* layerRule = static_cast<CSSLayerStatementRule*>(aRule);
+    nsTArray<nsTArray<nsString>> pathList;
+    layerRule->GetPathList(pathList);
+    for (const nsTArray<nsString>& path : pathList) {
+      layer->CreateNamedChildLayer(path);
+    }
+  }
+  else if (css::Rule::LAYER_BLOCK_RULE == type) {
+    CSSLayerBlockRule* layerRule = static_cast<CSSLayerBlockRule*>(aRule);
+    nsTArray<nsString> path;
+    layerRule->GetPath(path);
+    nsString name;
+    layerRule->GetName(name);
+    CascadeEnumData* targetLayer = name.IsEmpty()
+                                  ? layer->CreateAnonymousChildLayer()
+                                  : layer->CreateNamedChildLayer(path);
+    const bool use =
+      layerRule->UseForPresentation(layer->mPresContext, layer->mData->mCacheKey);
+    if (use || layer->mMustGatherDocumentRules) {
+      if (!layerRule->EnumerateRulesForwards(use ? CascadeRuleEnumFunc :
+                                                   GatherDocRuleEnumFunc,
+                                             targetLayer)) {
+        return false;
+      }
+    }
+  }
   else if (css::Rule::DOCUMENT_RULE == type) {
     css::DocumentRule* docRule = static_cast<css::DocumentRule*>(aRule);
-    if (data->mMustGatherDocumentRules) {
-      if (!data->mDocumentRules.AppendElement(docRule)) {
+    if (layer->mMustGatherDocumentRules) {
+      if (!layer->mDocumentRules.AppendElement(docRule)) {
         return false;
       }
     }
-    const bool use = docRule->UseForPresentation(data->mPresContext);
-    if (use && data->mMustGatherDocumentRules) {
-      if (!data->mDocumentCacheKey.AddMatchingRule(docRule)) {
+    const bool use = docRule->UseForPresentation(layer->mPresContext);
+    if (use && layer->mMustGatherDocumentRules) {
+      if (!layer->mDocumentCacheKey.AddMatchingRule(docRule)) {
         return false;
       }
     }
-    if (use || data->mMustGatherDocumentRules) {
+    if (use || layer->mMustGatherDocumentRules) {
       if (!docRule->EnumerateRulesForwards(use ? CascadeRuleEnumFunc
                                                : GatherDocRuleEnumFunc,
                                            aData)) {
@@ -4019,36 +4338,36 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
   }
   else if (css::Rule::FONT_FACE_RULE == type) {
     nsCSSFontFaceRule *fontFaceRule = static_cast<nsCSSFontFaceRule*>(aRule);
-    nsFontFaceRuleContainer *ptr = data->mFontFaceRules.AppendElement();
+    nsFontFaceRuleContainer *ptr = layer->mData->mFontFaceRules.AppendElement();
     if (!ptr)
       return false;
     ptr->mRule = fontFaceRule;
-    ptr->mSheetType = data->mSheetType;
+    ptr->mSheetType = layer->mSheetType;
   }
   else if (css::Rule::KEYFRAMES_RULE == type) {
     nsCSSKeyframesRule *keyframesRule =
       static_cast<nsCSSKeyframesRule*>(aRule);
-    if (!data->mKeyframesRules.AppendElement(keyframesRule)) {
+    if (!layer->mData->mKeyframesRules.AppendElement(keyframesRule)) {
       return false;
     }
   }
   else if (css::Rule::FONT_FEATURE_VALUES_RULE == type) {
     nsCSSFontFeatureValuesRule *fontFeatureValuesRule =
       static_cast<nsCSSFontFeatureValuesRule*>(aRule);
-    if (!data->mFontFeatureValuesRules.AppendElement(fontFeatureValuesRule)) {
+    if (!layer->mData->mFontFeatureValuesRules.AppendElement(fontFeatureValuesRule)) {
       return false;
     }
   }
   else if (css::Rule::PAGE_RULE == type) {
     nsCSSPageRule* pageRule = static_cast<nsCSSPageRule*>(aRule);
-    if (!data->mPageRules.AppendElement(pageRule)) {
+    if (!layer->mData->mPageRules.AppendElement(pageRule)) {
       return false;
     }
   }
   else if (css::Rule::COUNTER_STYLE_RULE == type) {
     nsCSSCounterStyleRule* counterStyleRule =
       static_cast<nsCSSCounterStyleRule*>(aRule);
-    if (!data->mCounterStyleRules.AppendElement(counterStyleRule)) {
+    if (!layer->mData->mCounterStyleRules.AppendElement(counterStyleRule)) {
       return false;
     }
   }
@@ -4056,33 +4375,26 @@ CascadeRuleEnumFunc(css::Rule* aRule, void* aData)
 }
 
 /* static */ bool
-nsCSSRuleProcessor::CascadeSheet(CSSStyleSheet* aSheet, CascadeEnumData* aData)
+nsCSSRuleProcessor::CascadeSheet(CSSStyleSheet* aSheet, CascadeEnumData* aLayer)
 {
   if (aSheet->IsApplicable() &&
-      aSheet->UseForPresentation(aData->mPresContext, aData->mCacheKey) &&
+      aSheet->UseForPresentation(aLayer->mPresContext,
+                                 aLayer->mData->mCacheKey) &&
       aSheet->mInner) {
     CSSStyleSheet* child = aSheet->mInner->mFirstChild;
     while (child) {
-      CascadeSheet(child, aData);
+      CascadeSheet(child, aLayer);
       child = child->mNext;
     }
 
     if (!aSheet->mInner->mOrderedRules.EnumerateForwards(CascadeRuleEnumFunc,
-                                                         aData))
+                                                         aLayer))
       return false;
   }
   return true;
 }
 
-static int CompareWeightData(const void* aArg1, const void* aArg2,
-                             void* closure)
-{
-  const PerWeightData* arg1 = static_cast<const PerWeightData*>(aArg1);
-  const PerWeightData* arg2 = static_cast<const PerWeightData*>(aArg2);
-  return arg1->mWeight - arg2->mWeight; // put lower weight first
-}
-
-RuleCascadeData*
+ResolvedRuleCascades*
 nsCSSRuleProcessor::GetRuleCascade(nsPresContext* aPresContext)
 {
   // FIXME:  Make this infallible!
@@ -4110,10 +4422,10 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
   // since nsCSSRuleProcessor objects are per-document.  (For a given
   // set of stylesheets they can vary based on medium (@media) or
   // document (@-moz-document).)
-
-  for (RuleCascadeData **cascadep = &mRuleCascades, *cascade;
-       (cascade = *cascadep); cascadep = &cascade->mNext) {
-    if (cascade->mCacheKey.Matches(aPresContext)) {
+  for (ResolvedRuleCascades** cascadep = &mRuleCascades, *cascade;
+        (cascade = *cascadep);
+        cascadep = &cascade->mNext) {
+    if (cascade->mUnlayered->mCacheKey.Matches(aPresContext)) {
       // Ensure that the current one is always mRuleCascades.
       *cascadep = cascade->mNext;
       cascade->mNext = mRuleCascades;
@@ -4129,63 +4441,23 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
   mPreviousCacheKey = nullptr;
 
   if (mSheets.Length() != 0) {
-    nsAutoPtr<RuleCascadeData> newCascade(
-      new RuleCascadeData(aPresContext->Medium(),
-                          eCompatibility_NavQuirks == aPresContext->CompatibilityMode()));
-    if (newCascade) {
-      CascadeEnumData data(aPresContext, newCascade->mFontFaceRules,
-                           newCascade->mKeyframesRules,
-                           newCascade->mFontFeatureValuesRules,
-                           newCascade->mPageRules,
-                           newCascade->mCounterStyleRules,
-                           mDocumentRules,
-                           newCascade->mCacheKey,
-                           mDocumentCacheKey,
-                           mSheetType,
-                           mMustGatherDocumentRules);
-
+    nsAutoPtr<ResolvedRuleCascades> resolvedCascade =
+      new ResolvedRuleCascades();
+    CascadeEnumData unlayered(aPresContext,
+                              resolvedCascade,
+                              mDocumentRules,
+                              mDocumentCacheKey,
+                              mSheetType,
+                              mMustGatherDocumentRules);
+    if (unlayered.mData) {
       for (uint32_t i = 0; i < mSheets.Length(); ++i) {
-        if (!CascadeSheet(mSheets.ElementAt(i), &data))
+        if (!CascadeSheet(mSheets.ElementAt(i), &unlayered)) {
           return; /* out of memory */
-      }
-
-      // Sort the hash table of per-weight linked lists by weight.
-      uint32_t weightCount = data.mRulesByWeight.EntryCount();
-      auto weightArray = MakeUnique<PerWeightData[]>(weightCount);
-      int32_t j = 0;
-      for (auto iter = data.mRulesByWeight.Iter(); !iter.Done(); iter.Next()) {
-        auto entry = static_cast<const RuleByWeightEntry*>(iter.Get());
-        weightArray[j++] = entry->data;
-      }
-      NS_QuickSort(weightArray.get(), weightCount, sizeof(PerWeightData),
-                   CompareWeightData, nullptr);
-
-      // Put things into the rule hash.
-      // The primary sort is by weight...
-      for (uint32_t i = 0; i < weightCount; ++i) {
-        // and the secondary sort is by order.  mRuleSelectorPairs is already in
-        // the right order..
-        for (PerWeightDataListItem *cur = weightArray[i].mRuleSelectorPairs;
-             cur;
-             cur = cur->mNext) {
-          if (!AddRule(cur, newCascade))
-            return; /* out of memory */
         }
       }
 
-      // Build mKeyframesRuleTable.
-      for (nsTArray<nsCSSKeyframesRule*>::size_type i = 0,
-             iEnd = newCascade->mKeyframesRules.Length(); i < iEnd; ++i) {
-        nsCSSKeyframesRule* rule = newCascade->mKeyframesRules[i];
-        newCascade->mKeyframesRuleTable.Put(rule->GetName(), rule);
-      }
-
-      // Build mCounterStyleRuleTable
-      for (nsTArray<nsCSSCounterStyleRule*>::size_type i = 0,
-           iEnd = newCascade->mCounterStyleRules.Length(); i < iEnd; ++i) {
-        nsCSSCounterStyleRule* rule = newCascade->mCounterStyleRules[i];
-        newCascade->mCounterStyleRuleTable.Put(rule->GetName(), rule);
-      }
+      unlayered.Flatten();
+      resolvedCascade->mUnlayered = unlayered.mData;
 
       // mMustGatherDocumentRules controls whether we build mDocumentRules
       // and mDocumentCacheKey so that they can be used as keys by the
@@ -4222,8 +4494,8 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
       }
 
       // Ensure that the current one is always mRuleCascades.
-      newCascade->mNext = mRuleCascades;
-      mRuleCascades = newCascade.forget();
+      resolvedCascade->mNext = mRuleCascades;
+      mRuleCascades = resolvedCascade.forget();
     }
   }
   return;

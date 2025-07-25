@@ -254,7 +254,7 @@ struct AttributeEnumData
 
 struct RuleCascadeData
 {
-  RuleCascadeData(nsIAtom* aMedium, bool aQuirksMode);
+  RuleCascadeData(bool aQuirksMode);
   ~RuleCascadeData();
 
   size_t SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const;
@@ -285,8 +285,6 @@ struct RuleCascadeData
   // Looks up or creates the appropriate list in |mAttributeSelectors|.
   // Returns null only on allocation failure.
   nsTArray<SelectorPair>* AttributeListFor(nsIAtom* aAttribute);
-
-  nsMediaQueryResultCacheKey mCacheKey;
 
   const bool mQuirksMode;
 
@@ -326,8 +324,9 @@ private:
 
 struct ResolvedRuleCascades
 {
-  ResolvedRuleCascades()
+  ResolvedRuleCascades(nsIAtom* aMedium)
     : mUnlayered(nullptr)
+    , mCacheKey(aMedium)
     , mNext(nullptr)
   {
   }
@@ -341,6 +340,7 @@ struct ResolvedRuleCascades
 
   nsTArray<RuleCascadeData*> mOrderedData;
   RuleCascadeData* mUnlayered;
+  nsMediaQueryResultCacheKey mCacheKey;
   ResolvedRuleCascades* mNext; // for a different medium
 
   size_t SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const;
@@ -358,14 +358,16 @@ struct CascadeEnumData
                   nsTArray<css::DocumentRule*>& aDocumentRules,
                   nsDocumentRuleResultCacheKey& aDocumentKey,
                   SheetType aSheetType,
-                  bool aMustGatherDocumentRules);
+                  bool aMustGatherDocumentRules,
+                  nsMediaQueryResultCacheKey& aCacheKey);
 
   CascadeEnumData(nsPresContext* aPresContext,
                   nsAutoPtr<ResolvedRuleCascades>& aContainer,
                   nsTArray<css::DocumentRule*>& aDocumentRules,
                   nsDocumentRuleResultCacheKey& aDocumentKey,
                   SheetType aSheetType,
-                  bool aMustGatherDocumentRules);
+                  bool aMustGatherDocumentRules,
+                  nsMediaQueryResultCacheKey& aCacheKey);
 
   ~CascadeEnumData();
 
@@ -380,6 +382,7 @@ struct CascadeEnumData
   nsTArray<css::StyleRule*> mStyleRules;
   nsTArray<css::DocumentRule*>& mDocumentRules;
   nsDocumentRuleResultCacheKey& mDocumentCacheKey;
+  nsMediaQueryResultCacheKey& mCacheKey;
   SheetType mSheetType;
   bool mMustGatherDocumentRules;
 

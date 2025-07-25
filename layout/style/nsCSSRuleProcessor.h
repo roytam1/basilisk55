@@ -26,7 +26,7 @@
 struct CascadeEnumData;
 struct ElementDependentRuleProcessorData;
 struct nsFontFaceRuleContainer;
-struct ResolvedRuleCascades;
+struct RuleProcessorGroup;
 class nsCSSKeyframesRule;
 class nsCSSPageRule;
 class nsCSSFontFeatureValuesRule;
@@ -74,7 +74,7 @@ public:
   NS_DECL_CYCLE_COLLECTION_CLASS(nsCSSRuleProcessor)
 
 public:
-  nsresult ClearRuleCascades();
+  nsresult ClearGroup();
 
   // nsIStyleRuleProcessor
   virtual void RulesMatching(ElementRuleProcessorData* aData) override;
@@ -161,8 +161,8 @@ private:
   static bool CascadeSheet(mozilla::CSSStyleSheet* aSheet,
                            CascadeEnumData* aData);
 
-  ResolvedRuleCascades* GetRuleCascade(nsPresContext* aPresContext);
-  void RefreshRuleCascade(nsPresContext* aPresContext);
+  RuleProcessorGroup* GetGroup(nsPresContext* aPresContext);
+  void RefreshGroup(nsPresContext* aPresContext);
 
   nsRestyleHint HasStateDependentStyle(ElementDependentRuleProcessorData* aData,
                                        mozilla::dom::Element* aStatefulElement,
@@ -175,14 +175,14 @@ private:
   sheet_array_type mSheets;
 
   // active first, then cached (most recent first)
-  ResolvedRuleCascades* mRuleCascades;
+  RuleProcessorGroup* mGroup;
 
-  // If we cleared our mRuleCascades or replaced a previous rule
+  // If we cleared our mGroup or replaced a previous rule
   // processor, this is the media query result cache key that was used
-  // before we lost the old rule cascades.
+  // before we lost the old group.
   mozilla::UniquePtr<nsMediaQueryResultCacheKey> mPreviousCacheKey;
 
-  // The last pres context for which GetRuleCascades was called.
+  // The last pres context for which GetGroup was called.
   nsPresContext *mLastPresContext;
 
   // The scope element for this rule processor's scoped style sheets.
@@ -201,9 +201,9 @@ private:
   const bool mIsShared;
 
   // Whether we need to build up mDocumentCacheKey and mDocumentRules as
-  // we build ResolvedRuleCascades.  Is true only for shared rule processors
-  // and only before we build the first ResolvedRuleCascades.  See comment in
-  // RefreshRuleCascade for why.
+  // we build RuleProcessorGroup.  Is true only for shared rule processors
+  // and only before we build the first RuleProcessorGroup.  See comment in
+  // RefreshGroup for why.
   bool mMustGatherDocumentRules;
 
   bool mInRuleProcessorCache;

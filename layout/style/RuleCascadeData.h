@@ -322,26 +322,6 @@ private:
   static const PLDHashTableOps AtomSelector_CIOps;
 };
 
-struct ResolvedRuleCascades
-{
-  ResolvedRuleCascades(nsIAtom* aMedium)
-    : mCacheKey(aMedium)
-    , mNext(nullptr)
-  {
-  }
-
-  ~ResolvedRuleCascades()
-  {
-    mProcessors.Clear();
-  }
-
-  nsTArray<nsCOMPtr<nsIStyleRuleProcessor>> mProcessors;
-  nsMediaQueryResultCacheKey mCacheKey;
-  ResolvedRuleCascades* mNext; // for a different medium
-
-  size_t SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const;
-};
-
 struct CascadeEnumData
 {
   CascadeEnumData(nsPresContext* aPresContext,

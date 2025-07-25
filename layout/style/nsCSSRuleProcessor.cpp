@@ -55,6 +55,7 @@
 #include "RuleCascadeData.h"
 #include "nsCSSRuleUtils.h"
 #include "CascadeLayerRuleProcessor.h"
+#include "RuleProcessorGroup.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -81,7 +82,7 @@ nsCSSRuleProcessor::nsCSSRuleProcessor(sheet_array_type&& aSheets,
                                          aPreviousCSSRuleProcessor,
                                        bool aIsShared)
   : mSheets(aSheets)
-  , mRuleCascades(nullptr)
+  , mGroup(nullptr)
   , mPreviousCacheKey(aPreviousCSSRuleProcessor
                        ? aPreviousCSSRuleProcessor->CloneMQCacheKey()
                        : UniquePtr<nsMediaQueryResultCacheKey>())
@@ -112,7 +113,7 @@ nsCSSRuleProcessor::~nsCSSRuleProcessor()
   MOZ_ASSERT(!mExpirationState.IsTracked());
   MOZ_ASSERT(mStyleSetRefCnt == 0);
   ClearSheets();
-  ClearRuleCascades();
+  ClearGroup();
 }
 
 NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(nsCSSRuleProcessor)
@@ -146,8 +147,8 @@ nsCSSRuleProcessor::ClearSheets()
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(ElementRuleProcessorData *aData)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       processor->RulesMatching(aData);
     }
   }
@@ -156,8 +157,8 @@ nsCSSRuleProcessor::RulesMatching(ElementRuleProcessorData *aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(PseudoElementRuleProcessorData* aData)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       processor->RulesMatching(aData);
     }
   }
@@ -166,8 +167,8 @@ nsCSSRuleProcessor::RulesMatching(PseudoElementRuleProcessorData* aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(AnonBoxRuleProcessorData* aData)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       processor->RulesMatching(aData);
     }
   }
@@ -177,8 +178,8 @@ nsCSSRuleProcessor::RulesMatching(AnonBoxRuleProcessorData* aData)
 /* virtual */ void
 nsCSSRuleProcessor::RulesMatching(XULTreeRuleProcessorData* aData)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       processor->RulesMatching(aData);
     }
   }
@@ -196,8 +197,8 @@ nsCSSRuleProcessor::HasStateDependentStyle(ElementDependentRuleProcessorData* aD
              "SelectorMatchesTree call");
 
   nsRestyleHint hint = nsRestyleHint(0);
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       layerProcessor->HasStateDependentStyle(
@@ -228,8 +229,8 @@ nsCSSRuleProcessor::HasStateDependentStyle(PseudoElementStateRuleProcessorData* 
 /* virtual */ bool
 nsCSSRuleProcessor::HasDocumentStateDependentStyle(StateRuleProcessorData* aData)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       if (processor->HasDocumentStateDependentStyle(aData)) {
         return true;
       }
@@ -245,8 +246,8 @@ nsCSSRuleProcessor::HasAttributeDependentStyle(
     RestyleHintData& aRestyleHintDataResult)
 {
   AttributeEnumData data(aData, aRestyleHintDataResult);
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aData->mPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aData->mPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       layerProcessor->HasAttributeDependentStyle(
@@ -266,29 +267,29 @@ nsCSSRuleProcessor::MediumFeaturesChanged(nsPresContext* aPresContext)
   // anything changed.  But in the cases where it does matter, we've
   // cached a previous cache key to test against, instead of our current
   // rule cascades.  See bug 448281 and bug 1089417.
-  MOZ_ASSERT(!(mRuleCascades && mPreviousCacheKey));
-  ResolvedRuleCascades* old = mRuleCascades;
+  MOZ_ASSERT(!(mGroup && mPreviousCacheKey));
+  RuleProcessorGroup* old = mGroup;
   if (old) {  
-    RefreshRuleCascade(aPresContext);
-    return (old != mRuleCascades);
+    RefreshGroup(aPresContext);
+    return (old != mGroup);
   }
 
   if (mPreviousCacheKey) {
-    // RefreshRuleCascade will get rid of mPreviousCacheKey anyway to
-    // maintain the invariant that we can't have both an mRuleCascades
+    // RefreshGroup will get rid of mPreviousCacheKey anyway to
+    // maintain the invariant that we can't have both an mGroup
     // and an mPreviousCacheKey.  But we need to hold it a little
     // longer.
     UniquePtr<nsMediaQueryResultCacheKey> previousCacheKey(
       Move(mPreviousCacheKey));
-    RefreshRuleCascade(aPresContext);
+    RefreshGroup(aPresContext);
 
     // This test is a bit pessimistic since the cache key's operator==
     // just does list comparison rather than set comparison, but it
     // should catch all the cases we care about (i.e., where the cascade
     // order hasn't changed).  Other cases will do a restyle anyway, so
     // we shouldn't need to worry about posting a second.
-    return !mRuleCascades || // all sheets gone, but we had sheets before
-           mRuleCascades->mCacheKey != *previousCacheKey;
+    return !mGroup || // all sheets gone, but we had sheets before
+           mGroup->mCacheKey != *previousCacheKey;
   }
 
   return false;
@@ -297,17 +298,17 @@ nsCSSRuleProcessor::MediumFeaturesChanged(nsPresContext* aPresContext)
 /* virtual */ nsTArray<nsCOMPtr<nsIStyleRuleProcessor>>*
 nsCSSRuleProcessor::GetChildRuleProcessors()
 {
-  return mRuleCascades
-    ? &mRuleCascades->mProcessors
+  return mGroup
+    ? &mGroup->mItems
     : nullptr;
 }
 
 UniquePtr<nsMediaQueryResultCacheKey>
 nsCSSRuleProcessor::CloneMQCacheKey()
 {
-  MOZ_ASSERT(!(mRuleCascades && mPreviousCacheKey));
+  MOZ_ASSERT(!(mGroup && mPreviousCacheKey));
 
-  ResolvedRuleCascades* c = mRuleCascades;
+  RuleProcessorGroup* c = mGroup;
   if (!c) {
     // We might have an mPreviousCacheKey.  It already comes from a call
     // to CloneMQCacheKey, so don't bother checking
@@ -334,9 +335,9 @@ nsCSSRuleProcessor::SizeOfExcludingThis(MallocSizeOf aMallocSizeOf) const
 {
   size_t n = 0;
   n += mSheets.ShallowSizeOfExcludingThis(aMallocSizeOf);
-  for (ResolvedRuleCascades* cascades = mRuleCascades; cascades;
-       cascades = cascades->mNext) {
-    n += cascades->SizeOfIncludingThis(aMallocSizeOf);
+  for (RuleProcessorGroup* group = mGroup; group;
+       group = group->mNext) {
+    n += group->SizeOfIncludingThis(aMallocSizeOf);
   }
 
   return n;
@@ -353,8 +354,8 @@ nsCSSRuleProcessor::AppendFontFaceRules(
                               nsPresContext *aPresContext,
                               nsTArray<nsFontFaceRuleContainer>& aArray)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       if (!layerProcessor->AppendFontFaceRules(aPresContext, aArray)) {
@@ -372,8 +373,8 @@ nsCSSRuleProcessor::KeyframesRuleForName(nsPresContext* aPresContext,
 {
   nsCSSKeyframesRule* rule = nullptr;
 
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       if (nsCSSKeyframesRule* newRule =
@@ -391,8 +392,8 @@ nsCSSRuleProcessor::CounterStyleRuleForName(nsPresContext* aPresContext,
                                             const nsAString& aName)
 {
   nsCSSCounterStyleRule* rule = nullptr;
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       if (nsCSSCounterStyleRule* newRule =
@@ -410,8 +411,8 @@ nsCSSRuleProcessor::AppendPageRules(
                               nsPresContext* aPresContext,
                               nsTArray<nsCSSPageRule*>& aArray)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       if (!layerProcessor->AppendPageRules(aPresContext, aArray)) {
@@ -428,8 +429,8 @@ nsCSSRuleProcessor::AppendFontFeatureValuesRules(
                               nsPresContext *aPresContext,
                               nsTArray<nsCSSFontFeatureValuesRule*>& aArray)
 {
-  if (ResolvedRuleCascades* cascades = GetRuleCascade(aPresContext)) {
-    for (nsCOMPtr<nsIStyleRuleProcessor> processor : cascades->mProcessors) {
+  if (RuleProcessorGroup* group = GetGroup(aPresContext)) {
+    for (nsCOMPtr<nsIStyleRuleProcessor> processor : group->mItems) {
       CascadeLayerRuleProcessor* layerProcessor =
         static_cast<CascadeLayerRuleProcessor*>(processor.get());
       if (!layerProcessor->AppendFontFeatureValuesRules(aPresContext, aArray)) {
@@ -442,14 +443,14 @@ nsCSSRuleProcessor::AppendFontFeatureValuesRules(
 }
 
 nsresult
-nsCSSRuleProcessor::ClearRuleCascades()
+nsCSSRuleProcessor::ClearGroup()
 {
   if (!mPreviousCacheKey) {
     mPreviousCacheKey = CloneMQCacheKey();
   }
 
   // No need to remove the rule processor from the RuleProcessorCache here,
-  // since CSSStyleSheet::ClearRuleCascades will have called
+  // since CSSStyleSheet::ClearGroup will have called
   // RuleProcessorCache::RemoveSheet() passing itself, which will catch
   // this rule processor (and any others for different @-moz-document
   // cache key results).
@@ -458,7 +459,7 @@ nsCSSRuleProcessor::ClearRuleCascades()
 #ifdef DEBUG
   // For shared rule processors, if we've already gathered document
   // rules, then they will now be out of date.  We don't actually need
-  // them to be up-to-date (see the comment in RefreshRuleCascade), so
+  // them to be up-to-date (see the comment in RefreshGroup), so
   // record their invalidity so we can assert if we try to use them.
   if (!mMustGatherDocumentRules) {
     mDocumentRulesAndCacheKeyValid = false;
@@ -469,10 +470,10 @@ nsCSSRuleProcessor::ClearRuleCascades()
   // will rebuild style data and the user font set (either
   // nsIPresShell::RestyleForCSSRuleChanges or
   // nsPresContext::RebuildAllStyleData).
-  ResolvedRuleCascades* data = mRuleCascades;
-  mRuleCascades = nullptr;
+  RuleProcessorGroup* data = mGroup;
+  mGroup = nullptr;
   while (data) {
-    ResolvedRuleCascades* next = data->mNext;
+    RuleProcessorGroup* next = data->mNext;
     delete data;
     data = next;
   }
@@ -671,8 +672,8 @@ nsCSSRuleProcessor::CascadeSheet(CSSStyleSheet* aSheet, CascadeEnumData* aLayer)
   return true;
 }
 
-ResolvedRuleCascades*
-nsCSSRuleProcessor::GetRuleCascade(nsPresContext* aPresContext)
+RuleProcessorGroup*
+nsCSSRuleProcessor::GetGroup(nsPresContext* aPresContext)
 {
   // FIXME:  Make this infallible!
 
@@ -683,12 +684,12 @@ nsCSSRuleProcessor::GetRuleCascade(nsPresContext* aPresContext)
   // likely to have @media rules, and thus the cache is pretty likely to
   // hit instantly even when we're switching between pres contexts.)
 
-  if (!mRuleCascades || aPresContext != mLastPresContext) {
-    RefreshRuleCascade(aPresContext);
+  if (!mGroup || aPresContext != mLastPresContext) {
+    RefreshGroup(aPresContext);
   }
   mLastPresContext = aPresContext;
 
-  return mRuleCascades;
+  return mGroup;
 }
 
 /**
@@ -700,26 +701,26 @@ static void
 CreateChildProcessorsEnumFunc(CascadeEnumData* aLayer, void* aData)
 {
   aLayer->AddRules();
-  ResolvedRuleCascades* data = static_cast<ResolvedRuleCascades*>(aData);
-  data->mProcessors.AppendElement(new CascadeLayerRuleProcessor(aLayer));
+  RuleProcessorGroup* data = static_cast<RuleProcessorGroup*>(aData);
+  data->mItems.AppendElement(new CascadeLayerRuleProcessor(aLayer));
 }
 
 void
-nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
+nsCSSRuleProcessor::RefreshGroup(nsPresContext* aPresContext)
 {
   // Having RuleCascadeData objects be per-medium (over all variation
   // caused by media queries, handled through mCacheKey) works for now
   // since nsCSSRuleProcessor objects are per-document.  (For a given
   // set of stylesheets they can vary based on medium (@media) or
   // document (@-moz-document).)
-  for (ResolvedRuleCascades** cascadep = &mRuleCascades, *cascade;
-        (cascade = *cascadep);
-        cascadep = &cascade->mNext) {
-    if (cascade->mCacheKey.Matches(aPresContext)) {
-      // Ensure that the current one is always mRuleCascades.
-      *cascadep = cascade->mNext;
-      cascade->mNext = mRuleCascades;
-      mRuleCascades = cascade;
+  for (RuleProcessorGroup **groupPointer = &mGroup, *group;
+       (group = *groupPointer);
+       groupPointer = &group->mNext) {
+    if (group->mCacheKey.Matches(aPresContext)) {
+      // Ensure that the current one is always mGroup.
+      *groupPointer = group->mNext;
+      group->mNext = mGroup;
+      mGroup = group;
 
       return;
     }
@@ -731,14 +732,15 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
   mPreviousCacheKey = nullptr;
 
   if (mSheets.Length() != 0) {
-    nsAutoPtr<ResolvedRuleCascades> cascades(
-      new ResolvedRuleCascades(aPresContext->Medium()));
-    CascadeEnumData* unlayered(new CascadeEnumData(aPresContext,
-                                                   mDocumentRules,
-                                                   mDocumentCacheKey,
-                                                   mSheetType,
-                                                   mMustGatherDocumentRules,
-                                                   cascades->mCacheKey));
+    nsAutoPtr<RuleProcessorGroup> ruleProcessorSet(
+      new RuleProcessorGroup(aPresContext->Medium()));
+    CascadeEnumData* unlayered(
+      new CascadeEnumData(aPresContext,
+                          mDocumentRules,
+                          mDocumentCacheKey,
+                          mSheetType,
+                          mMustGatherDocumentRules,
+                          ruleProcessorSet->mCacheKey));
     if (unlayered->mData) {
       for (uint32_t i = 0; i < mSheets.Length(); ++i) {
         if (!CascadeSheet(mSheets.ElementAt(i), unlayered)) {
@@ -746,11 +748,11 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
         }
       }
 
-      // Ensure that the current one is always mRuleCascades.
-      cascades->mNext = mRuleCascades;
-      mRuleCascades = cascades.forget();
+      // Ensure that the current one is always mGroup.
+      ruleProcessorSet->mNext = mGroup;
+      mGroup = ruleProcessorSet.forget();
 
-      unlayered->EnumerateAllLayers(CreateChildProcessorsEnumFunc, mRuleCascades);
+      unlayered->EnumerateAllLayers(CreateChildProcessorsEnumFunc, mGroup);
 
       // mMustGatherDocumentRules controls whether we build mDocumentRules
       // and mDocumentCacheKey so that they can be used as keys by the
@@ -766,8 +768,8 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
       // is called, which is immediately after the rule processor is created
       // (by nsStyleSet).
       //
-      // Note that when nsCSSRuleProcessor::ClearRuleCascades is called,
-      // by CSSStyleSheet::ClearRuleCascades, we will have called
+      // Note that when nsCSSRuleProcessor::ClearGroup is called,
+      // by CSSStyleSheet::ClearGroup, we will have called
       // RuleProcessorCache::RemoveSheet, which will remove the rule
       // processor from the cache.  (This is because the list of document
       // rules now may not match the one used as they key in the
@@ -776,7 +778,7 @@ nsCSSRuleProcessor::RefreshRuleCascade(nsPresContext* aPresContext)
       // Thus, as we'll no longer be in the RuleProcessorCache, and we won't
       // have TakeDocumentRulesAndCacheKey called on us, we don't need to ensure
       // mDocumentCacheKey and mDocumentRules are up-to-date after the
-      // first time GetRuleCascade is called.
+      // first time GetGroup is called.
       if (mMustGatherDocumentRules) {
         mDocumentRules.Sort();
         mDocumentCacheKey.Finalize();
@@ -798,7 +800,7 @@ nsCSSRuleProcessor::TakeDocumentRulesAndCacheKey(
 {
   MOZ_ASSERT(mIsShared);
 
-  GetRuleCascade(aPresContext);
+  GetGroup(aPresContext);
   MOZ_ASSERT(mDocumentRulesAndCacheKeyValid);
 
   aDocumentRules.Clear();

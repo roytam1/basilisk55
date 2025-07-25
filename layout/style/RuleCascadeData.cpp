@@ -1478,17 +1478,6 @@ RuleCascadeData::AddRule(RuleSelectorPair* aRuleInfo)
   return true;
 }
 
-size_t
-ResolvedRuleCascades::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
-{
-  size_t n = aMallocSizeOf(this);
-  for (uint32_t i = 0; i < mProcessors.Length(); i++) {
-    n += mProcessors[i]->SizeOfIncludingThis(aMallocSizeOf);
-  }
-  n += mProcessors.ShallowSizeOfExcludingThis(aMallocSizeOf);
-  return n;
-}
-
 struct PerWeightDataListItem : public RuleSelectorPair
 {
   PerWeightDataListItem(css::StyleRule* aRule, nsCSSSelector* aSelector)

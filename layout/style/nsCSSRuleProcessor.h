@@ -51,7 +51,7 @@ class DocumentRule;
  * is told when the rule processor is going away (via DropRuleProcessor).
  */
 
-class nsCSSRuleProcessor: public nsIStyleRuleProcessor {
+class nsCSSRuleProcessor : public nsIStyleRuleProcessor {
 public:
   typedef nsTArray<RefPtr<mozilla::CSSStyleSheet>> sheet_array_type;
 
@@ -98,6 +98,9 @@ public:
                                  override;
 
   virtual bool MediumFeaturesChanged(nsPresContext* aPresContext) override;
+
+  virtual nsTArray<nsCOMPtr<nsIStyleRuleProcessor>>* GetChildRuleProcessors()
+    override;
 
   /**
    * If this rule processor currently has a substantive media query

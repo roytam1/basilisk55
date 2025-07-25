@@ -25,6 +25,7 @@ TEST_DIRS += ['test']
 EXPORTS += [
     '!nsStyleStructList.h',
     'AnimationCommon.h',
+    'CascadeLayerRuleProcessor.h',
     'CounterStyleManager.h',
     'nsAnimationManager.h',
     'nsComputedDOMStylePropertyList.h',
@@ -125,6 +126,7 @@ EXPORTS.mozilla.css += [
 UNIFIED_SOURCES += [
     'AnimationCollection.cpp',
     'AnimationCommon.cpp',
+    'CascadeLayerRuleProcessor.cpp',
     'CounterStyleManager.cpp',
     'CSS.cpp',
     'CSSLexer.cpp',

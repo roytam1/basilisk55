@@ -7,7 +7,7 @@
 // We want page-sized arenas so there's no fragmentation involved.
 // Including plarena.h must come first to avoid it being included by some
 // header file thereby making PL_ARENA_CONST_ALIGN_MASK ineffective.
-#define NS_CASCADELAYER_ARENA_BLOCK_SIZE (4096)
+#define NS_WEIGHTEDRULEDATA_ARENA_BLOCK_SIZE (4096)
 #include "plarena.h"
 
 #include "RuleCascadeData.h"
@@ -1536,13 +1536,80 @@ InitWeightEntry(PLDHashEntryHdr* hdr, const void* key)
   new (KnownNotNull, entry) RuleByWeightEntry();
 }
 
-/* static */ const PLDHashTableOps CascadeLayer::sRulesByWeightOps = {
+/* static */ const PLDHashTableOps
+CascadeLayer::WeightedRuleData::sRulesByWeightOps = {
   HashIntKey,
   MatchWeightEntry,
   PLDHashTable::MoveEntryStub,
   PLDHashTable::ClearEntryStub,
   InitWeightEntry
 };
+
+CascadeLayer::WeightedRuleData::WeightedRuleData()
+  : mRulesByWeight(&sRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
+{
+  // Initialize our arena
+  PL_INIT_ARENA_POOL(
+    &mArena, "WeightedRuleDataArena", NS_WEIGHTEDRULEDATA_ARENA_BLOCK_SIZE);
+}
+
+CascadeLayer::WeightedRuleData::~WeightedRuleData()
+{
+  PL_FinishArenaPool(&mArena);
+}
+
+static int
+CompareWeightData(const void* aArg1, const void* aArg2, void* closure)
+{
+  const PerWeightData* arg1 = static_cast<const PerWeightData*>(aArg1);
+  const PerWeightData* arg2 = static_cast<const PerWeightData*>(aArg2);
+  return arg1->mWeight - arg2->mWeight; // put lower weight first
+}
+
+UniquePtr<PerWeightData[]>
+CascadeLayer::WeightedRuleData::Consume(nsTArray<css::StyleRule*>& aStyleRules)
+{
+  for (css::StyleRule* styleRule : aStyleRules) {
+    for (nsCSSSelectorList* sel = styleRule->Selector(); sel;
+         sel = sel->mNext) {
+      int32_t weight = sel->mWeight;
+      auto entry = static_cast<RuleByWeightEntry*>(
+        mRulesByWeight.Add(NS_INT32_TO_PTR(weight), fallible));
+      if (!entry) {
+        return nullptr;
+      }
+      entry->data.mWeight = weight;
+      // entry->data.mRuleSelectorPairs should be linked in forward order;
+      // entry->data.mTail is the slot to write to.
+      auto* newItem =
+        new (mArena) PerWeightDataListItem(styleRule, sel->mSelectors);
+      if (newItem) {
+        *(entry->data.mTail) = newItem;
+        entry->data.mTail = &newItem->mNext;
+      }
+    }
+  }
+
+  // There's no point in keeping pointers to the style rules around
+  // after we've consumed them, so clear the array.
+  aStyleRules.Clear();
+
+  // Sort the hash table of per-weight linked lists by weight.
+  uint32_t weightCount = mRulesByWeight.EntryCount();
+  auto weightArray = MakeUnique<PerWeightData[]>(weightCount);
+  int32_t j = 0;
+  for (auto iter = mRulesByWeight.Iter(); !iter.Done(); iter.Next()) {
+    auto entry = static_cast<const RuleByWeightEntry*>(iter.Get());
+    weightArray[j++] = entry->data;
+  }
+  NS_QuickSort(weightArray.get(),
+               weightCount,
+               sizeof(PerWeightData),
+               CompareWeightData,
+               nullptr);
+
+  return weightArray;
+}
 
 CascadeLayer::CascadeLayer(nsPresContext* aPresContext,
 #ifdef DEBUG
@@ -1564,21 +1631,15 @@ CascadeLayer::CascadeLayer(nsPresContext* aPresContext,
   , mDocumentCacheKey(aDocumentKey)
   , mSheetType(aSheetType)
   , mMustGatherDocumentRules(aMustGatherDocumentRules)
-  , mRulesByWeight(&sRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
   , mCacheKey(aCacheKey)
 {
   mData = new RuleCascadeData(eCompatibility_NavQuirks ==
                               mPresContext->CompatibilityMode());
-
-  // Initialize our arena
-  PL_INIT_ARENA_POOL(
-    &mArena, "CascadeLayerArena", NS_CASCADELAYER_ARENA_BLOCK_SIZE);
 }
 
 CascadeLayer::~CascadeLayer()
 {
   delete mData;
-  PL_FinishArenaPool(&mArena);
 }
 
 CascadeLayer*
@@ -1635,57 +1696,17 @@ CascadeLayer::CreateAnonymousChildLayer()
   return childLayer;
 }
 
-static int
-CompareWeightData(const void* aArg1, const void* aArg2, void* closure)
-{
-  const PerWeightData* arg1 = static_cast<const PerWeightData*>(aArg1);
-  const PerWeightData* arg2 = static_cast<const PerWeightData*>(aArg2);
-  return arg1->mWeight - arg2->mWeight; // put lower weight first
-}
-
 void
 CascadeLayer::AddRules()
 {
   MOZ_ASSERT(!mRulesAdded, "Rule cascade data already filled");
 
-  for (css::StyleRule* styleRule : mStyleRules) {
-    for (nsCSSSelectorList* sel = styleRule->Selector(); sel;
-         sel = sel->mNext) {
-      int32_t weight = sel->mWeight;
-      auto entry = static_cast<RuleByWeightEntry*>(
-        mRulesByWeight.Add(NS_INT32_TO_PTR(weight), fallible));
-      if (!entry) {
-        return;
-      }
-      entry->data.mWeight = weight;
-      // entry->data.mRuleSelectorPairs should be linked in forward order;
-      // entry->data.mTail is the slot to write to.
-      auto* newItem =
-        new (mArena) PerWeightDataListItem(styleRule, sel->mSelectors);
-      if (newItem) {
-        *(entry->data.mTail) = newItem;
-        entry->data.mTail = &newItem->mNext;
-      }
-    }
-  }
-
-  // Sort the hash table of per-weight linked lists by weight.
-  uint32_t weightCount = mRulesByWeight.EntryCount();
-  auto weightArray = MakeUnique<PerWeightData[]>(weightCount);
-  int32_t j = 0;
-  for (auto iter = mRulesByWeight.Iter(); !iter.Done(); iter.Next()) {
-    auto entry = static_cast<const RuleByWeightEntry*>(iter.Get());
-    weightArray[j++] = entry->data;
-  }
-  NS_QuickSort(weightArray.get(),
-               weightCount,
-               sizeof(PerWeightData),
-               CompareWeightData,
-               nullptr);
+  WeightedRuleData ruleData;
+  auto weightArray = ruleData.Consume(mStyleRules);
 
   // Put things into the rule hash.
   // The primary sort is by weight...
-  for (uint32_t i = 0; i < weightCount; ++i) {
+  for (uint32_t i = 0; i < ruleData.mRulesByWeight.EntryCount(); ++i) {
     // and the secondary sort is by order.  mRuleSelectorPairs is already in
     // the right order..
     for (PerWeightDataListItem* cur = weightArray[i].mRuleSelectorPairs; cur;

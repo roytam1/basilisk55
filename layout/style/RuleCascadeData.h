@@ -369,7 +369,7 @@ struct CascadeEnumData
   nsString mName;
   bool mIsAnonymous;
   bool mIsWeak;
-  bool mWasFlattened;
+  bool mRulesAdded;
 
   RuleCascadeData* mData;
 

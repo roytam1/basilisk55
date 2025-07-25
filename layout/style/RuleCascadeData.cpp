@@ -1642,6 +1642,34 @@ CascadeLayer::~CascadeLayer()
   delete mData;
 }
 
+size_t
+CascadeLayer::SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const
+{
+  size_t n = aMallocSizeOf(this);
+  if (mData) {
+    n += mData->SizeOfIncludingThis(aMallocSizeOf);
+  }
+  n += mName.SizeOfExcludingThisIfUnshared(aMallocSizeOf);
+  n += mStyleRules.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  // While we do create the child layers, they are not owned by us, so we
+  // don't count them. Their ownership is managed by the rule processor
+  // to which they are eventually attached (see nsCSSRuleProcessor).
+  n += mPreLayers.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  n += mPostLayers.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  n += mLayers.ShallowSizeOfExcludingThis(aMallocSizeOf);
+  for (auto iter = mLayers.ConstIter(); !iter.Done(); iter.Next()) {
+    // We don't own the CascadeLayer objects so we don't count them. We
+    // do care about the size of the keys' nsAString members' buffers though.
+    //
+    // Note that we depend on nsStringHashKey::GetKey() returning a reference,
+    // since otherwise aKey would be a copy of the string key and we would not
+    // be measuring the right object here.
+    n += iter.Key().SizeOfExcludingThisIfUnshared(aMallocSizeOf);
+  }
+
+  return n;
+}
+
 CascadeLayer*
 CascadeLayer::CreateNamedChildLayer(const nsTArray<nsString>& aPath)
 {

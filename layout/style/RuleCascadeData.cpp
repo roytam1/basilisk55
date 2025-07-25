@@ -1545,24 +1545,20 @@ InitWeightEntry(PLDHashEntryHdr* hdr, const void* key)
 };
 
 CascadeLayer::CascadeLayer(nsPresContext* aPresContext,
-                           nsString aName,
 #ifdef DEBUG
                            CascadeLayer* aParent,
 #endif
-                           bool aIsWeak,
                            nsTArray<css::DocumentRule*>& aDocumentRules,
                            nsDocumentRuleResultCacheKey& aDocumentKey,
                            SheetType aSheetType,
                            bool aMustGatherDocumentRules,
                            nsMediaQueryResultCacheKey& aCacheKey)
   : mPresContext(aPresContext)
-  , mName(aName)
-  , mIsAnonymous(mName.IsEmpty())
-  , mIsWeak(aIsWeak)
+  , mIsAnonymous(true)
+  , mIsStrong(false)
   , mRulesAdded(false)
 #ifdef DEBUG
   , mParent(aParent)
-  , mIsRoot(false)
 #endif
   , mDocumentRules(aDocumentRules)
   , mDocumentCacheKey(aDocumentKey)
@@ -1571,31 +1567,12 @@ CascadeLayer::CascadeLayer(nsPresContext* aPresContext,
   , mRulesByWeight(&sRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
   , mCacheKey(aCacheKey)
 {
-  Initialize();
-}
+  mData = new RuleCascadeData(eCompatibility_NavQuirks ==
+                              mPresContext->CompatibilityMode());
 
-CascadeLayer::CascadeLayer(nsPresContext* aPresContext,
-                           nsTArray<css::DocumentRule*>& aDocumentRules,
-                           nsDocumentRuleResultCacheKey& aDocumentKey,
-                           SheetType aSheetType,
-                           bool aMustGatherDocumentRules,
-                           nsMediaQueryResultCacheKey& aCacheKey)
-  : mPresContext(aPresContext)
-  , mIsAnonymous(false)
-  , mIsWeak(false)
-  , mRulesAdded(false)
-#ifdef DEBUG
-  , mParent(nullptr)
-  , mIsRoot(true)
-#endif
-  , mDocumentRules(aDocumentRules)
-  , mDocumentCacheKey(aDocumentKey)
-  , mSheetType(aSheetType)
-  , mMustGatherDocumentRules(aMustGatherDocumentRules)
-  , mRulesByWeight(&sRulesByWeightOps, sizeof(RuleByWeightEntry), 32)
-  , mCacheKey(aCacheKey)
-{
-  Initialize();
+  // Initialize our arena
+  PL_INIT_ARENA_POOL(
+    &mArena, "CascadeLayerArena", NS_CASCADELAYER_ARENA_BLOCK_SIZE);
 }
 
 CascadeLayer::~CascadeLayer()
@@ -1617,16 +1594,16 @@ CascadeLayer::CreateNamedChildLayer(const nsTArray<nsString>& aPath)
   // Create new layer if it doesn't exist.
   if (!mLayers.Get(name, &childLayer)) {
     childLayer = new CascadeLayer(mPresContext,
-                                  name,
 #ifdef DEBUG
                                   this,
 #endif
-                                  false,
                                   mDocumentRules,
                                   mDocumentCacheKey,
                                   mSheetType,
                                   mMustGatherDocumentRules,
                                   mCacheKey);
+    childLayer->mName = name;
+    childLayer->mIsAnonymous = false;
     mPreLayers.AppendElement(childLayer);
     mLayers.Put(name, childLayer);
   }
@@ -1645,13 +1622,10 @@ CascadeLayer::CreateNamedChildLayer(const nsTArray<nsString>& aPath)
 CascadeLayer*
 CascadeLayer::CreateAnonymousChildLayer()
 {
-  nsString name;
   CascadeLayer* childLayer = new CascadeLayer(mPresContext,
-                                              name,
 #ifdef DEBUG
                                               this,
 #endif
-                                              false,
                                               mDocumentRules,
                                               mDocumentCacheKey,
                                               mSheetType,
@@ -1761,15 +1735,4 @@ CascadeLayer::EnumerateAllLayers(nsLayerEnumFunc aFunc, void* aData)
       post->EnumerateAllLayers(aFunc, aData);
     }
   }
-}
-
-void
-CascadeLayer::Initialize()
-{
-  mData = new RuleCascadeData(eCompatibility_NavQuirks ==
-                                mPresContext->CompatibilityMode());
-
-  // Initialize our arena
-  PL_INIT_ARENA_POOL(
-    &mArena, "CascadeLayerArena", NS_CASCADELAYER_ARENA_BLOCK_SIZE);
 }

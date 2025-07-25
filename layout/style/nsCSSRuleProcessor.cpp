@@ -735,6 +735,9 @@ nsCSSRuleProcessor::RefreshGroup(nsPresContext* aPresContext)
     nsAutoPtr<RuleProcessorGroup> ruleProcessorSet(
       new RuleProcessorGroup(aPresContext->Medium()));
     CascadeLayer* implicitLayer(new CascadeLayer(aPresContext,
+#if DEBUG
+                                                 nullptr,
+#endif
                                                  mDocumentRules,
                                                  mDocumentCacheKey,
                                                  mSheetType,

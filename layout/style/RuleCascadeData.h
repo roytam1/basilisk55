@@ -325,30 +325,20 @@ private:
 struct CascadeLayer
 {
   CascadeLayer(nsPresContext* aPresContext,
-               nsString aName,
 #ifdef DEBUG
                CascadeLayer* aParent,
 #endif
-               bool aIsWeak,
                nsTArray<css::DocumentRule*>& aDocumentRules,
                nsDocumentRuleResultCacheKey& aDocumentKey,
                SheetType aSheetType,
                bool aMustGatherDocumentRules,
                nsMediaQueryResultCacheKey& aCacheKey);
-
-  CascadeLayer(nsPresContext* aPresContext,
-               nsTArray<css::DocumentRule*>& aDocumentRules,
-               nsDocumentRuleResultCacheKey& aDocumentKey,
-               SheetType aSheetType,
-               bool aMustGatherDocumentRules,
-               nsMediaQueryResultCacheKey& aCacheKey);
-
   ~CascadeLayer();
 
   nsPresContext* mPresContext;
   nsString mName;
   bool mIsAnonymous;
-  bool mIsWeak;
+  bool mIsStrong;
   bool mRulesAdded;
 
   RuleCascadeData* mData;
@@ -367,7 +357,6 @@ struct CascadeLayer
 
 #ifdef DEBUG
   CascadeLayer* mParent;
-  bool mIsRoot;
 #endif
   nsTArray<CascadeLayer*> mPreLayers;
   nsTArray<CascadeLayer*> mPostLayers;
@@ -381,8 +370,6 @@ struct CascadeLayer
   void AddRules();
 
 private:
-  void Initialize();
-
   static const PLDHashTableOps sRulesByWeightOps;
 };
 

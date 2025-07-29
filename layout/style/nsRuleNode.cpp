@@ -1135,13 +1135,53 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
       nscolor color1, color2;
       if (SetColor(colorMix->mColor1, aParentColor, aPresContext, aContext, color1, aConditions) &&
           SetColor(colorMix->mColor2, aParentColor, aPresContext, aContext, color2, aConditions)) {
-        // simple linear interpolation (50/50 sRGB mix)
-        uint8_t r = (NS_GET_R(color1) + NS_GET_R(color2)) / 2;
-        uint8_t g = (NS_GET_G(color1) + NS_GET_G(color2)) / 2;
-        uint8_t b = (NS_GET_B(color1) + NS_GET_B(color2)) / 2;
-        uint8_t a = (NS_GET_A(color1) + NS_GET_A(color2)) / 2;
-        aResult = NS_RGBA(r, g, b, a);
-        result = true;
+        
+        // interpolate each RGBA component with proper percentage handling
+        float w1 = colorMix->mWeight1;
+        float w2 = colorMix->mWeight2;
+
+        // edge case: if both weights are zero, return transparent black
+        if (w1 <= 0.0f && w2 <= 0.0f) {
+          aResult = NS_RGBA(0, 0, 0, 0);
+          result = true;
+        } else {
+          // extracts RGBA components from both colors
+          float r1 = NS_GET_R(color1);
+          float g1 = NS_GET_G(color1);
+          float b1 = NS_GET_B(color1);
+          float a1 = NS_GET_A(color1);
+          
+          float r2 = NS_GET_R(color2);
+          float g2 = NS_GET_G(color2);
+          float b2 = NS_GET_B(color2);
+          float a2 = NS_GET_A(color2);
+          
+          // normalize weights
+          float sum = w1 + w2;
+          if (sum <= 0.0f) {
+            // both weights zero - use equal weighting
+            w1 = w2 = 0.5f;
+            sum = 1.0f;
+          }
+          
+          float norm1 = w1 / sum;
+          float norm2 = w2 / sum;
+          
+          // perform linear interpolation
+          float r = r1 * norm1 + r2 * norm2;
+          float g = g1 * norm1 + g2 * norm2;
+          float b = b1 * norm1 + b2 * norm2;
+          float a = a1 * norm1 + a2 * norm2;
+          
+          // convert to integers with rounding
+          uint8_t rInt = (uint8_t)mozilla::clamped(r + 0.5f, 0.0f, 255.0f);
+          uint8_t gInt = (uint8_t)mozilla::clamped(g + 0.5f, 0.0f, 255.0f);
+          uint8_t bInt = (uint8_t)mozilla::clamped(b + 0.5f, 0.0f, 255.0f);
+          uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
+          
+          aResult = NS_RGBA(rInt, gInt, bInt, aInt);
+          result = true;
+        }
       }
     }
   } else if (eCSSUnit_Enumerated == unit &&

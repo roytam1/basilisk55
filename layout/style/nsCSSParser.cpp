@@ -7455,6 +7455,62 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
       break;
     }
     case eCSSToken_Function: {
+      // check for color-mix function
+      if (mToken.mIdent.LowerCaseEqualsLiteral("color-mix")) {
+        // parse color-mix function
+        RefPtr<mozilla::css::ColorMixValue> colorMix = new mozilla::css::ColorMixValue(
+          mozilla::css::ColorMixColorSpace::sRGB, nsCSSValue(), nsCSSValue());
+        
+        if (!GetToken(true)) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        if (mToken.mType != eCSSToken_Ident || !mToken.mIdent.LowerCaseEqualsLiteral("in")) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        if (!GetToken(true) || mToken.mType != eCSSToken_Ident || !mToken.mIdent.LowerCaseEqualsLiteral("srgb")) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        colorMix->mColorSpace = mozilla::css::ColorMixColorSpace::sRGB;
+        
+        if (!ExpectSymbol(',', true)) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        nsCSSValue color1;
+        if (ParseColor(color1) != CSSParseResult::Ok) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        colorMix->mColor1 = color1;
+        
+        if (!ExpectSymbol(',', true)) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        nsCSSValue color2;
+        if (ParseColor(color2) != CSSParseResult::Ok) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        colorMix->mColor2 = color2;
+        
+        if (!ExpectSymbol(')', true)) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        aValue.SetColorMixValue(colorMix.forget());
+        return CSSParseResult::Ok;
+      }
+
       bool isRGB;
       bool isHSL;
       if ((isRGB = mToken.mIdent.LowerCaseEqualsLiteral("rgb")) ||

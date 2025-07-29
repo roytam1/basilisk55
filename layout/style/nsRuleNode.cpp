@@ -1211,28 +1211,46 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
             aResult = NS_RGBA(NS_GET_R(hslResult), NS_GET_G(hslResult), NS_GET_B(hslResult), aInt);
             result = true;
           } else {
-            // sRGB color space mixing (existing logic)
+            // sRGB color space mixing with proper alpha premultiplication
             float r1 = NS_GET_R(color1);
             float g1 = NS_GET_G(color1);
             float b1 = NS_GET_B(color1);
-            float a1 = NS_GET_A(color1);
+            float a1 = NS_GET_A(color1) / 255.0f;
             
             float r2 = NS_GET_R(color2);
             float g2 = NS_GET_G(color2);
             float b2 = NS_GET_B(color2);
-            float a2 = NS_GET_A(color2);
+            float a2 = NS_GET_A(color2) / 255.0f;
             
-            // perform linear interpolation
-            float r = r1 * norm1 + r2 * norm2;
-            float g = g1 * norm1 + g2 * norm2;
-            float b = b1 * norm1 + b2 * norm2;
-            float a = a1 * norm1 + a2 * norm2;
+            // handle alpha premultiplication for RGB components
+            float alpha1_weight = norm1 * a1;
+            float alpha2_weight = norm2 * a2;
+            float total_alpha_weight = alpha1_weight + alpha2_weight;
+            
+            float r, g, b, a;
+            
+            if (total_alpha_weight <= 0.0f) {
+              // both colors are fully transparent
+              r = g = b = a = 0.0f;
+            } else {
+              // normalize alpha-weighted contributions
+              float norm_alpha1 = alpha1_weight / total_alpha_weight;
+              float norm_alpha2 = alpha2_weight / total_alpha_weight;
+              
+              // interpolate RGB components with alpha weighting
+              r = r1 * norm_alpha1 + r2 * norm_alpha2;
+              g = g1 * norm_alpha1 + g2 * norm_alpha2;
+              b = b1 * norm_alpha1 + b2 * norm_alpha2;
+
+              // interpolate alpha normally (without premultiplication)
+              a = a1 * norm1 + a2 * norm2;
+            }
             
             // convert to integers with rounding
             uint8_t rInt = (uint8_t)mozilla::clamped(r + 0.5f, 0.0f, 255.0f);
             uint8_t gInt = (uint8_t)mozilla::clamped(g + 0.5f, 0.0f, 255.0f);
             uint8_t bInt = (uint8_t)mozilla::clamped(b + 0.5f, 0.0f, 255.0f);
-            uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
+            uint8_t aInt = (uint8_t)mozilla::clamped(a * 255.0f + 0.5f, 0.0f, 255.0f);
             
             aResult = NS_RGBA(rInt, gInt, bInt, aInt);
             result = true;

@@ -7468,7 +7468,18 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           return CSSParseResult::Error;
         }
         
-        if (!GetToken(true) || mToken.mType != eCSSToken_Ident || !mToken.mIdent.LowerCaseEqualsLiteral("srgb")) {
+        // Check for supported color spaces: srgb or hsl
+        if (!GetToken(true) || mToken.mType != eCSSToken_Ident) {
+          SkipUntil(')');
+          return CSSParseResult::Error;
+        }
+        
+        mozilla::css::ColorMixColorSpace colorSpace;
+        if (mToken.mIdent.LowerCaseEqualsLiteral("srgb")) {
+          colorSpace = mozilla::css::ColorMixColorSpace::sRGB;
+        } else if (mToken.mIdent.LowerCaseEqualsLiteral("hsl")) {
+          colorSpace = mozilla::css::ColorMixColorSpace::HSL;
+        } else {
           SkipUntil(')');
           return CSSParseResult::Error;
         }
@@ -7539,7 +7550,7 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
         }
         
         RefPtr<mozilla::css::ColorMixValue> colorMix = new mozilla::css::ColorMixValue(
-          mozilla::css::ColorMixColorSpace::sRGB, color1, color2, w1, w2);
+          colorSpace, color1, color2, w1, w2);
         aValue.SetColorMixValue(colorMix.forget());
         return CSSParseResult::Ok;
       }

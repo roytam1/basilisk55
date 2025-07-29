@@ -1145,17 +1145,6 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
           aResult = NS_RGBA(0, 0, 0, 0);
           result = true;
         } else {
-          // extracts RGBA components from both colors
-          float r1 = NS_GET_R(color1);
-          float g1 = NS_GET_G(color1);
-          float b1 = NS_GET_B(color1);
-          float a1 = NS_GET_A(color1);
-          
-          float r2 = NS_GET_R(color2);
-          float g2 = NS_GET_G(color2);
-          float b2 = NS_GET_B(color2);
-          float a2 = NS_GET_A(color2);
-          
           // normalize weights
           float sum = w1 + w2;
           if (sum <= 0.0f) {
@@ -1167,20 +1156,72 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
           float norm1 = w1 / sum;
           float norm2 = w2 / sum;
           
-          // perform linear interpolation
-          float r = r1 * norm1 + r2 * norm2;
-          float g = g1 * norm1 + g2 * norm2;
-          float b = b1 * norm1 + b2 * norm2;
-          float a = a1 * norm1 + a2 * norm2;
-          
-          // convert to integers with rounding
-          uint8_t rInt = (uint8_t)mozilla::clamped(r + 0.5f, 0.0f, 255.0f);
-          uint8_t gInt = (uint8_t)mozilla::clamped(g + 0.5f, 0.0f, 255.0f);
-          uint8_t bInt = (uint8_t)mozilla::clamped(b + 0.5f, 0.0f, 255.0f);
-          uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
-          
-          aResult = NS_RGBA(rInt, gInt, bInt, aInt);
-          result = true;
+          if (colorMix->mColorSpace == mozilla::css::ColorMixColorSpace::HSL) {
+            // HSL color space mixing
+            float h1, s1, l1, h2, s2, l2;
+            
+            // Convert RGB colors to HSL
+            NS_RGB2HSL(NS_GET_R(color1), NS_GET_G(color1), NS_GET_B(color1), &h1, &s1, &l1);
+            NS_RGB2HSL(NS_GET_R(color2), NS_GET_G(color2), NS_GET_B(color2), &h2, &s2, &l2);
+            
+            // Handle hue interpolation (circular)
+            float h;
+            if (s1 == 0.0f || s2 == 0.0f) {
+              // If either color is achromatic, use the hue from the chromatic color
+              h = (s1 == 0.0f) ? h2 : h1;
+            } else {
+              float hue_diff = h2 - h1;
+              if (hue_diff > 0.5f) {
+                h1 += 1.0f;
+              } else if (hue_diff < -0.5f) {
+                h2 += 1.0f;
+              }
+              h = h1 * norm1 + h2 * norm2;
+              if (h >= 1.0f) h -= 1.0f;
+            }
+            
+            // Interpolate saturation and lightness linearly
+            float s = s1 * norm1 + s2 * norm2;
+            float l = l1 * norm1 + l2 * norm2;
+            
+            // Interpolate alpha in RGB space
+            float a1 = NS_GET_A(color1);
+            float a2 = NS_GET_A(color2);
+            float a = a1 * norm1 + a2 * norm2;
+            
+            // Convert back to RGB
+            nscolor hslResult = NS_HSL2RGB(h, s, l);
+            uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
+            
+            aResult = NS_RGBA(NS_GET_R(hslResult), NS_GET_G(hslResult), NS_GET_B(hslResult), aInt);
+            result = true;
+          } else {
+            // sRGB color space mixing (existing logic)
+            float r1 = NS_GET_R(color1);
+            float g1 = NS_GET_G(color1);
+            float b1 = NS_GET_B(color1);
+            float a1 = NS_GET_A(color1);
+            
+            float r2 = NS_GET_R(color2);
+            float g2 = NS_GET_G(color2);
+            float b2 = NS_GET_B(color2);
+            float a2 = NS_GET_A(color2);
+            
+            // perform linear interpolation
+            float r = r1 * norm1 + r2 * norm2;
+            float g = g1 * norm1 + g2 * norm2;
+            float b = b1 * norm1 + b2 * norm2;
+            float a = a1 * norm1 + a2 * norm2;
+            
+            // convert to integers with rounding
+            uint8_t rInt = (uint8_t)mozilla::clamped(r + 0.5f, 0.0f, 255.0f);
+            uint8_t gInt = (uint8_t)mozilla::clamped(g + 0.5f, 0.0f, 255.0f);
+            uint8_t bInt = (uint8_t)mozilla::clamped(b + 0.5f, 0.0f, 255.0f);
+            uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
+            
+            aResult = NS_RGBA(rInt, gInt, bInt, aInt);
+            result = true;
+          }
         }
       }
     }

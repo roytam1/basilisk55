@@ -511,6 +511,7 @@ enum nsCSSUnit {
   eCSSUnit_HSLColor            = 89,   // (nsCSSValueFloatColor*)
   eCSSUnit_HSLAColor           = 90,   // (nsCSSValueFloatColor*)
   eCSSUnit_ComplexColor        = 91,   // (ComplexColorValue*)
+  eCSSUnit_ColorMix            = 92,   // (ColorMixValue*)
 
   eCSSUnit_Percent      = 100,     // (float) 1.0 == 100%) value is percentage of something
   eCSSUnit_Number       = 101,     // (float) value is numeric (usually multiplier, different behavior than percent)
@@ -595,6 +596,13 @@ struct nsCSSValuePairList_heap;
 struct nsCSSValueTriplet;
 struct nsCSSValueTriplet_heap;
 class nsCSSValueFloatColor;
+
+namespace mozilla {
+namespace css {
+enum class ColorMixColorSpace;
+struct ColorMixValue;
+} // namespace css
+} // namespace mozilla
 
 class nsCSSValue {
 public:
@@ -794,6 +802,12 @@ public:
     MOZ_ASSERT(mUnit == eCSSUnit_ComplexColor);
     return mValue.mComplexColor->ToComplexColor();
   }
+  
+  mozilla::css::ColorMixValue* GetColorMixValue() const
+  {
+    MOZ_ASSERT(mUnit == eCSSUnit_ColorMix);
+    return mValue.mColorMix;
+  }
 
   Array* GetArrayValue() const
   {
@@ -940,6 +954,8 @@ public:
   void SetRGBAColorValue(const mozilla::css::RGBAColorData& aValue);
   void SetComplexColorValue(
     already_AddRefed<mozilla::css::ComplexColorValue> aValue);
+  void SetColorMixValue(
+    already_AddRefed<mozilla::css::ColorMixValue> aValue);
   void SetCascadeOriginValue(mozilla::SheetType aValue, nsCSSUnit aUnit);
   void SetArrayValue(nsCSSValue::Array* aArray, nsCSSUnit aUnit);
   void SetURLValue(mozilla::css::URLValue* aURI);
@@ -1053,6 +1069,7 @@ protected:
     nsCSSValueFloatColor* MOZ_OWNING_REF mFloatColor;
     mozilla::css::FontFamilyListRefCnt* MOZ_OWNING_REF mFontFamilyList;
     mozilla::css::ComplexColorValue* MOZ_OWNING_REF mComplexColor;
+    mozilla::css::ColorMixValue* MOZ_OWNING_REF mColorMix;
     mozilla::SheetType mCascadeOrigin;
   } mValue;
 };
@@ -1953,6 +1970,42 @@ protected:
   typedef nsCSSValue nsCSSCornerSizes::*corner_type;
   static const corner_type corners[4];
 };
+
+namespace mozilla {
+namespace css {
+
+enum class ColorMixColorSpace {
+  sRGB,
+  HSL
+};
+
+struct ColorMixValue final
+{
+  ColorMixColorSpace mColorSpace;
+  nsCSSValue mColor1;
+  nsCSSValue mColor2;
+  float mWeight1;
+  float mWeight2;
+
+  ColorMixValue(ColorMixColorSpace aColorSpace, const nsCSSValue& aColor1, const nsCSSValue& aColor2)
+    : mColorSpace(aColorSpace), mColor1(aColor1), mColor2(aColor2), mWeight1(0.5f), mWeight2(0.5f) {}
+
+  ColorMixValue(ColorMixColorSpace aColorSpace, const nsCSSValue& aColor1, const nsCSSValue& aColor2, 
+                float aWeight1, float aWeight2)
+    : mColorSpace(aColorSpace), mColor1(aColor1), mColor2(aColor2), mWeight1(aWeight1), mWeight2(aWeight2) {}
+
+  ColorMixValue(const ColorMixValue&) = delete;
+
+  NS_INLINE_DECL_REFCOUNTING(ColorMixValue)
+
+  size_t SizeOfIncludingThis(MallocSizeOf aMallocSizeOf) const;
+
+private:
+  ~ColorMixValue() {}
+};
+
+} // namespace css
+} // namespace mozilla
 
 #endif /* nsCSSValue_h___ */
 

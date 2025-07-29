@@ -1129,6 +1129,21 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
     aResult = aParentColor;
     result = true;
     aConditions.SetUncacheable();
+  } else if (eCSSUnit_ColorMix == unit) {
+    const mozilla::css::ColorMixValue* colorMix = aValue.GetColorMixValue();
+    if (colorMix) {
+      nscolor color1, color2;
+      if (SetColor(colorMix->mColor1, aParentColor, aPresContext, aContext, color1, aConditions) &&
+          SetColor(colorMix->mColor2, aParentColor, aPresContext, aContext, color2, aConditions)) {
+        // simple linear interpolation (50/50 sRGB mix)
+        uint8_t r = (NS_GET_R(color1) + NS_GET_R(color2)) / 2;
+        uint8_t g = (NS_GET_G(color1) + NS_GET_G(color2)) / 2;
+        uint8_t b = (NS_GET_B(color1) + NS_GET_B(color2)) / 2;
+        uint8_t a = (NS_GET_A(color1) + NS_GET_A(color2)) / 2;
+        aResult = NS_RGBA(r, g, b, a);
+        result = true;
+      }
+    }
   } else if (eCSSUnit_Enumerated == unit &&
            aValue.GetIntValue() == NS_STYLE_COLOR_INHERIT_FROM_BODY) {
     NS_ASSERTION(aPresContext->CompatibilityMode() == eCompatibility_NavQuirks,

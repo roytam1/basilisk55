@@ -381,11 +381,6 @@ HTMLTextAreaElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange
 {
   nsAutoString value;
   GetValueInternal(value, true);
-  // printf("[TextArea] OnValueChanged: aWasInteractiveUserChange=%d, value='%s', autofilled='%s', autofill state=%d\n",
-  //        aWasInteractiveUserChange,
-  //        NS_ConvertUTF16toUTF8(value).get(),
-  //        NS_ConvertUTF16toUTF8(mAutofilledValue).get(),
-  //        State().HasState(NS_EVENT_STATE_AUTOFILL));
 
   // Only remove autofilled state if the value actually changed from autofilled value
   if (State().HasState(NS_EVENT_STATE_AUTOFILL) || !mAutofilledValue.IsEmpty()) {
@@ -393,7 +388,6 @@ HTMLTextAreaElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange
       RemoveStates(NS_EVENT_STATE_AUTOFILL);
       mAutofilledValue.Truncate();
     } else if (aWasInteractiveUserChange && mAutofilledValue == value) {
-      // Defensive: re-add the autofill state if it was removed by something else
       AddStates(NS_EVENT_STATE_AUTOFILL);
     }
   }
@@ -1246,7 +1240,6 @@ HTMLTextAreaElement::IntrinsicState() const
 {
   EventStates state = nsGenericHTMLFormElementWithState::IntrinsicState();
 
-  // PATCH: Persist autofill state if autofilled
   if (!mAutofilledValue.IsEmpty()) {
     state |= NS_EVENT_STATE_AUTOFILL;
   }
@@ -1292,8 +1285,6 @@ HTMLTextAreaElement::IntrinsicState() const
       IsValueEmpty()) {
     state |= NS_EVENT_STATE_PLACEHOLDERSHOWN;
   }
-
-  state |= NS_EVENT_STATE_AUTOFILL;
 
   return state;
 }

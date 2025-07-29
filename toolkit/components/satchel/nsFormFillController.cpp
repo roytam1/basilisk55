@@ -581,6 +581,9 @@ nsFormFillController::SetTextValue(const nsAString & aTextValue)
         mozilla::dom::HTMLInputElement* htmlInput = mozilla::dom::HTMLInputElement::FromContentOrNull(content);
         if (htmlInput) {
           htmlInput->SetAutofilled(true);
+          nsAutoString value;
+          htmlInput->GetValue(value, CallerType::System);
+          htmlInput->SetAutofilledValue(value);
         }
       }
     }
@@ -1385,10 +1388,6 @@ nsFormFillController::StopControllingInput()
     nsresult rv;
     nsCOMPtr <nsIFormAutoComplete> formAutoComplete =
       do_GetService("@mozilla.org/satchel/form-autocomplete;1", &rv);
-    if (formAutoComplete) {
-      // PATCH: Do NOT call StopControllingInput here, so autofill state is NOT cleared on blur/focus.
-      // formAutoComplete->StopControllingInput(mFocusedInput);
-    }
 
     mFocusedInputNode = nullptr;
     mFocusedInput = nullptr;

@@ -858,9 +858,8 @@ public:
 
   /**
    * Sets or clears the autofilled state of this input element.
-   * This is used by the browser's autofill system to indicate when
-   * a value has been automatically filled (e.g., from saved passwords
-   * or form data).
+   * When setting, also stores the autofilled value for persistence.
+   * When clearing, clears the stored autofilled value.
    *
    * @param aAutofilled Whether the element should be marked as autofilled
    */
@@ -880,6 +879,8 @@ public:
   static Decimal StringToDecimal(const nsAString& aValue);
 
   void UpdateEntries(const nsTArray<OwningFileOrDirectory>& aFilesOrDirectories);
+
+  void SetAutofilledValue(const nsAString& aValue) { mAutofilledValue = aValue; }
 
 protected:
   virtual ~HTMLInputElement();
@@ -1661,6 +1662,10 @@ protected:
   bool                     mNumberControlSpinnerSpinsUp : 1;
   bool                     mPickerRunning : 1;
   bool                     mSelectionCached : 1;
+  /**
+   * The value that was autofilled by the browser. Used to persist the autofill
+   * highlight as long as the value matches, regardless of focus/blur.
+   */
   nsString mAutofilledValue;
 
 private:
@@ -1805,6 +1810,8 @@ private:
     nsCOMPtr<nsIFilePicker> mFilePicker;
     RefPtr<HTMLInputElement> mInput;
   };
+
+  void EnsureAutofillState();
 };
 
 } // namespace dom

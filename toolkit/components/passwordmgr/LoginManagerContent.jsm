@@ -1243,7 +1243,7 @@ var LoginManagerContent = {
         };
         log("Saving autoFilledLogin", autoFilledLogin.guid, "for", form.rootElement);
         this.stateForDocument(doc).fillsByRootElement.set(form.rootElement, autoFilledLogin);
-        // Patch: Set autofilled state if value is present
+        // Set autofilled state if value is present
         if (typeof passwordField.setAutofilled === "function" && passwordField.value) {
           passwordField.setAutofilled(true);
         }

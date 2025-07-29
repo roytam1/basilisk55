@@ -235,9 +235,7 @@ FormHandler.prototype = {
    *        }
    */
   autofillFormFields(aAutofillResult) {
-    
     for (let field of aAutofillResult.fields) {
-      
       // Get the field details, if it was processed by the user interface.
       let fieldDetail = this.fieldDetails
                             .find(f => f.section == field.section &&
@@ -249,30 +247,6 @@ FormHandler.prototype = {
         continue;
       }
       fieldDetail.element.value = field.value;
-      
-      // Add event listeners for debugging
-      // try {
-      //   fieldDetail.element.addEventListener('focus', () => console.log('[JS] input focused'));
-      //   fieldDetail.element.addEventListener('blur', () => console.log('[JS] input blurred'));
-      //   fieldDetail.element.addEventListener('input', () => console.log('[JS] input event, value:', fieldDetail.element.value));
-      // } catch (e) {
-      //   console.log('[JS] Could not add event listeners:', e);
-      // }
-      
-      // if (typeof fieldDetail.element.setAutofilled === 'function') {
-      //   if (field.value) {
-      //     console.log('AUTOFILL: Calling setAutofilled(true) on element');
-      //     fieldDetail.element.setAutofilled(true);
-      //     console.log('AUTOFILL: setAutofilled(true) called successfully');
-      //   } else {
-      //     console.log('AUTOFILL: Calling setAutofilled(false) on element (empty value)');
-      //     fieldDetail.element.setAutofilled(false);
-      //   }
-      // } else {
-      //   console.log('AUTOFILL: setAutofilled is not a function on this element');
-      // }
-
-      // Highlight: Set autofilled state for all autofilled fields
       if (typeof fieldDetail.element.setAutofilled === 'function') {
         fieldDetail.element.setAutofilled(!!field.value);
       }

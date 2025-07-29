@@ -71,6 +71,15 @@ public:
   }
   NS_IMETHOD SetUserInput(const nsAString& aInput) override;
 
+  /**
+   * Sets or clears the autofilled state of this textarea element.
+   * This is used by the browser's autofill system to indicate when
+   * a value has been automatically filled (e.g., from saved form data).
+   *
+   * @param aAutofilled Whether the element should be marked as autofilled
+   */
+  void SetAutofilled(bool aAutofilled);
+
   // nsIFormControl
   NS_IMETHOD_(uint32_t) GetType() const override { return NS_FORM_TEXTAREA; }
   NS_IMETHOD Reset() override;

@@ -238,6 +238,11 @@ FormHandler.prototype = {
       }
 
       fieldDetail.element.value = field.value;
+      
+      // Set the autofilled state on the element
+      if (typeof fieldDetail.element.setAutofilled === 'function') {
+        fieldDetail.element.setAutofilled(true);
+      }
     }
   },
 

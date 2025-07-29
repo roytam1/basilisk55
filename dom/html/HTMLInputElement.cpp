@@ -2777,6 +2777,16 @@ HTMLInputElement::SetUserInput(const nsAString& aValue)
   return NS_OK;
 }
 
+void
+HTMLInputElement::SetAutofilled(bool aAutofilled)
+{
+  if (aAutofilled) {
+    AddStates(NS_EVENT_STATE_AUTOFILL);
+  } else {
+    RemoveStates(NS_EVENT_STATE_AUTOFILL);
+  }
+}
+
 nsIEditor*
 HTMLInputElement::GetEditor()
 {
@@ -8449,6 +8459,11 @@ NS_IMETHODIMP_(void)
 HTMLInputElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange)
 {
   mLastValueChangeWasInteractive = aWasInteractiveUserChange;
+
+  // Clear autofilled state if this was an interactive user change
+  if (aWasInteractiveUserChange && State().HasState(NS_EVENT_STATE_AUTOFILL)) {
+    RemoveStates(NS_EVENT_STATE_AUTOFILL);
+  }
 
   UpdateAllValidityStates(aNotify);
 

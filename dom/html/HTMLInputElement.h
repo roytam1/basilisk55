@@ -854,6 +854,16 @@ public:
   void SetUserInput(const nsAString& aInput,
                     nsIPrincipal& aSubjectPrincipal);
 
+  /**
+   * Sets or clears the autofilled state of this input element.
+   * This is used by the browser's autofill system to indicate when
+   * a value has been automatically filled (e.g., from saved passwords
+   * or form data).
+   *
+   * @param aAutofilled Whether the element should be marked as autofilled
+   */
+  void SetAutofilled(bool aAutofilled);
+
   // XPCOM GetPhonetic() is OK
 
   /**

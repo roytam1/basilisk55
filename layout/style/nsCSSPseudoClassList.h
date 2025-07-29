@@ -191,6 +191,9 @@ CSS_STATE_PSEUDO_CLASS(mozFullScreen, ":-moz-full-screen", 0, "", NS_EVENT_STATE
 CSS_STATE_PSEUDO_CLASS(modal, ":modal", 0, "", NS_EVENT_STATE_MODAL_DIALOG)
 CSS_STATE_PSEUDO_CLASS(mozModalDialog, ":-moz-modal-dialog", 0, "", NS_EVENT_STATE_MODAL_DIALOG)
 
+// Matches autofilled input elements
+CSS_STATE_PSEUDO_CLASS(autofill, ":autofill", 0, "", NS_EVENT_STATE_AUTOFILL)
+
 // Matches if the element is focused and should show a focus ring
 CSS_STATE_PSEUDO_CLASS(mozFocusRing, ":-moz-focusring", 0, "", NS_EVENT_STATE_FOCUSRING)
 

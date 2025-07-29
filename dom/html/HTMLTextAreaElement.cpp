@@ -364,6 +364,16 @@ HTMLTextAreaElement::SetUserInput(const nsAString& aValue)
   return SetValueInternal(aValue, nsTextEditorState::eSetValue_BySetUserInput);
 }
 
+void
+HTMLTextAreaElement::SetAutofilled(bool aAutofilled)
+{
+  if (aAutofilled) {
+    AddStates(NS_EVENT_STATE_AUTOFILL);
+  } else {
+    RemoveStates(NS_EVENT_STATE_AUTOFILL);
+  }
+}
+
 NS_IMETHODIMP
 HTMLTextAreaElement::SetValueChanged(bool aValueChanged)
 {
@@ -1630,6 +1640,11 @@ NS_IMETHODIMP_(void)
 HTMLTextAreaElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange)
 {
   mLastValueChangeWasInteractive = aWasInteractiveUserChange;
+
+  // Clear autofilled state if this was an interactive user change
+  if (aWasInteractiveUserChange && State().HasState(NS_EVENT_STATE_AUTOFILL)) {
+    RemoveStates(NS_EVENT_STATE_AUTOFILL);
+  }
 
   // Update the validity state
   bool validBefore = IsValid();

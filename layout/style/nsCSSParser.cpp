@@ -7458,9 +7458,6 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
       // check for color-mix function
       if (mToken.mIdent.LowerCaseEqualsLiteral("color-mix")) {
         // parse color-mix function
-        RefPtr<mozilla::css::ColorMixValue> colorMix = new mozilla::css::ColorMixValue(
-          mozilla::css::ColorMixColorSpace::sRGB, nsCSSValue(), nsCSSValue());
-        
         if (!GetToken(true)) {
           SkipUntil(')');
           return CSSParseResult::Error;
@@ -7476,8 +7473,6 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           return CSSParseResult::Error;
         }
         
-        colorMix->mColorSpace = mozilla::css::ColorMixColorSpace::sRGB;
-        
         if (!ExpectSymbol(',', true)) {
           SkipUntil(')');
           return CSSParseResult::Error;
@@ -7488,7 +7483,21 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           SkipUntil(')');
           return CSSParseResult::Error;
         }
-        colorMix->mColor1 = color1;
+        
+        // parse optional weight for first color
+        bool w1_specified = false;
+        float w1 = 0.5f; // Default to 50%
+        if (GetToken(true)) {
+          if (mToken.mType == eCSSToken_Percentage) {
+            w1 = mToken.mNumber; // percentage tokens are already normalized (0.0-1.0)
+            w1_specified = true;
+            // clamp to valid range [0, 1]
+            if (w1 < 0.0f) w1 = 0.0f;
+            if (w1 > 1.0f) w1 = 1.0f;
+          } else {
+            UngetToken();
+          }
+        }
         
         if (!ExpectSymbol(',', true)) {
           SkipUntil(')');
@@ -7500,13 +7509,37 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           SkipUntil(')');
           return CSSParseResult::Error;
         }
-        colorMix->mColor2 = color2;
+        
+        // parse optional weight for second color
+        bool w2_specified = false;
+        float w2 = 0.5f; // default to 50%
+        if (GetToken(true)) {
+          if (mToken.mType == eCSSToken_Percentage) {
+            w2 = mToken.mNumber; // percentage tokens are already normalized (0.0-1.0)
+            w2_specified = true;
+            // Clamp to valid range [0, 1]
+            if (w2 < 0.0f) w2 = 0.0f;
+            if (w2 > 1.0f) w2 = 1.0f;
+          } else {
+            UngetToken();
+          }
+        }
+        
+        if (w1_specified && !w2_specified) {
+          // first specified, second should be complement
+          w2 = 1.0f - w1;
+        } else if (!w1_specified && w2_specified) {
+          // second specified, first should be complement
+          w1 = 1.0f - w2;
+        }
         
         if (!ExpectSymbol(')', true)) {
           SkipUntil(')');
           return CSSParseResult::Error;
         }
         
+        RefPtr<mozilla::css::ColorMixValue> colorMix = new mozilla::css::ColorMixValue(
+          mozilla::css::ColorMixColorSpace::sRGB, color1, color2, w1, w2);
         aValue.SetColorMixValue(colorMix.forget());
         return CSSParseResult::Ok;
       }

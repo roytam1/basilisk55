@@ -1157,3 +1157,9 @@ input[type="date"],
 input[type="time"] {
   overflow: hidden !important;
 }
+
+/* Autofill highlight for internal-only pseudo-class */
+input:-moz-autofill-highlight,
+textarea:-moz-autofill-highlight {
+  background-color: #ffff99 !important;
+}

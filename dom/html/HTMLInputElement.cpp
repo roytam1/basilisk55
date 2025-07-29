@@ -2780,10 +2780,16 @@ HTMLInputElement::SetUserInput(const nsAString& aValue)
 void
 HTMLInputElement::SetAutofilled(bool aAutofilled)
 {
+  printf("🔍 AUTOFILL C++: SetAutofilled called with aAutofilled=%s\n", aAutofilled ? "true" : "false");
+  
   if (aAutofilled) {
+    printf("🔍 AUTOFILL C++: Adding NS_EVENT_STATE_AUTOFILL state\n");
     AddStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: State added successfully\n");
   } else {
+    printf("🔍 AUTOFILL C++: Removing NS_EVENT_STATE_AUTOFILL state\n");
     RemoveStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: State removed successfully\n");
   }
 }
 
@@ -8462,7 +8468,9 @@ HTMLInputElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange)
 
   // Clear autofilled state if this was an interactive user change
   if (aWasInteractiveUserChange && State().HasState(NS_EVENT_STATE_AUTOFILL)) {
+    printf("🔍 AUTOFILL C++: User changed autofilled input, clearing state\n");
     RemoveStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: Autofill state cleared from input\n");
   }
 
   UpdateAllValidityStates(aNotify);

@@ -367,10 +367,16 @@ HTMLTextAreaElement::SetUserInput(const nsAString& aValue)
 void
 HTMLTextAreaElement::SetAutofilled(bool aAutofilled)
 {
+  printf("🔍 AUTOFILL C++: HTMLTextAreaElement::SetAutofilled called with aAutofilled=%s\n", aAutofilled ? "true" : "false");
+  
   if (aAutofilled) {
+    printf("🔍 AUTOFILL C++: Adding NS_EVENT_STATE_AUTOFILL state to textarea\n");
     AddStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: State added successfully to textarea\n");
   } else {
+    printf("🔍 AUTOFILL C++: Removing NS_EVENT_STATE_AUTOFILL state from textarea\n");
     RemoveStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: State removed successfully from textarea\n");
   }
 }
 
@@ -1643,7 +1649,9 @@ HTMLTextAreaElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange
 
   // Clear autofilled state if this was an interactive user change
   if (aWasInteractiveUserChange && State().HasState(NS_EVENT_STATE_AUTOFILL)) {
+    printf("🔍 AUTOFILL C++: User changed autofilled textarea, clearing state\n");
     RemoveStates(NS_EVENT_STATE_AUTOFILL);
+    printf("🔍 AUTOFILL C++: Autofill state cleared from textarea\n");
   }
 
   // Update the validity state

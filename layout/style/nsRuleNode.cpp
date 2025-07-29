@@ -1159,39 +1159,54 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
           if (colorMix->mColorSpace == mozilla::css::ColorMixColorSpace::HSL) {
             // HSL color space mixing
             float h1, s1, l1, h2, s2, l2;
+            float a1 = NS_GET_A(color1) / 255.0f;
+            float a2 = NS_GET_A(color2) / 255.0f;
             
             // Convert RGB colors to HSL
             NS_RGB2HSL(NS_GET_R(color1), NS_GET_G(color1), NS_GET_B(color1), &h1, &s1, &l1);
             NS_RGB2HSL(NS_GET_R(color2), NS_GET_G(color2), NS_GET_B(color2), &h2, &s2, &l2);
             
-            // Handle hue interpolation (circular)
-            float h;
-            if (s1 == 0.0f || s2 == 0.0f) {
-              // If either color is achromatic, use the hue from the chromatic color
-              h = (s1 == 0.0f) ? h2 : h1;
+            // handle alpha premultiplication for HSL components
+            float alpha1_weight = norm1 * a1;
+            float alpha2_weight = norm2 * a2;
+            float total_alpha_weight = alpha1_weight + alpha2_weight;
+            
+            float h, s, l, a;
+            
+            if (total_alpha_weight <= 0.0f) {
+              // both colors are fully transparent
+              h = s = l = 0.0f;
+              a = 0.0f;
             } else {
-              float hue_diff = h2 - h1;
-              if (hue_diff > 0.5f) {
-                h1 += 1.0f;
-              } else if (hue_diff < -0.5f) {
-                h2 += 1.0f;
+              // normalize alpha-weighted contributions
+              float norm_alpha1 = alpha1_weight / total_alpha_weight;
+              float norm_alpha2 = alpha2_weight / total_alpha_weight;
+              
+              // handle hue interpolation (circular)
+              if (s1 == 0.0f || s2 == 0.0f) {
+                h = (s1 == 0.0f) ? h2 : h1;
+              } else {
+                float hue_diff = h2 - h1;
+                if (hue_diff > 0.5f) {
+                  h1 += 1.0f;
+                } else if (hue_diff < -0.5f) {
+                  h2 += 1.0f;
+                }
+                h = h1 * norm_alpha1 + h2 * norm_alpha2;
+                if (h >= 1.0f) h -= 1.0f;
               }
-              h = h1 * norm1 + h2 * norm2;
-              if (h >= 1.0f) h -= 1.0f;
+              
+              // interpolate saturation and lightness with alpha weighting
+              s = s1 * norm_alpha1 + s2 * norm_alpha2;
+              l = l1 * norm_alpha1 + l2 * norm_alpha2;
+              
+              // interpolate alpha normally (without premultiplication)
+              a = a1 * norm1 + a2 * norm2;
             }
-            
-            // Interpolate saturation and lightness linearly
-            float s = s1 * norm1 + s2 * norm2;
-            float l = l1 * norm1 + l2 * norm2;
-            
-            // Interpolate alpha in RGB space
-            float a1 = NS_GET_A(color1);
-            float a2 = NS_GET_A(color2);
-            float a = a1 * norm1 + a2 * norm2;
             
             // Convert back to RGB
             nscolor hslResult = NS_HSL2RGB(h, s, l);
-            uint8_t aInt = (uint8_t)mozilla::clamped(a + 0.5f, 0.0f, 255.0f);
+            uint8_t aInt = (uint8_t)mozilla::clamped(a * 255.0f + 0.5f, 0.0f, 255.0f);
             
             aResult = NS_RGBA(NS_GET_R(hslResult), NS_GET_G(hslResult), NS_GET_B(hslResult), aInt);
             result = true;

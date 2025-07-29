@@ -19,6 +19,7 @@ using namespace mozilla::dom;
 #define VISITED_PSEUDO_PREF "layout.css.visited_links_enabled"
 
 static bool gSupportVisitedPseudo = true;
+static bool gLoadImportedSheetsInOrder = true;
 
 static nsTArray<nsCOMPtr<nsIAtom>>* sSystemMetrics = 0;
 
@@ -31,6 +32,9 @@ nsCSSRuleUtils::Startup()
 {
   Preferences::AddBoolVarCache(
     &gSupportVisitedPseudo, VISITED_PSEUDO_PREF, true);
+  Preferences::AddBoolVarCache(&gLoadImportedSheetsInOrder,
+                               "layout.css.load-imported-sheets-in-order",
+                               true);
 }
 
 static bool
@@ -199,6 +203,12 @@ nsCSSRuleUtils::HasSystemMetric(nsIAtom* aMetric)
     return false;
   }
   return sSystemMetrics->IndexOf(aMetric) != sSystemMetrics->NoIndex;
+}
+
+/* static */ bool
+nsCSSRuleUtils::LoadImportedSheetsInOrderEnabled()
+{
+  return gLoadImportedSheetsInOrder;
 }
 
 #ifdef XP_WIN

@@ -162,6 +162,8 @@ public:
   }
 
   NS_IMETHOD SetUserInput(const nsAString& aInput) override;
+  NS_IMETHOD BeginProgrammaticValueSet() override;
+  NS_IMETHOD EndProgrammaticValueSet() override;
 
   // Overriden nsIFormControl methods
   NS_IMETHOD_(uint32_t) GetType() const override { return mType; }
@@ -1133,7 +1135,7 @@ protected:
   bool MinOrMaxLengthApplies() const { return IsSingleLineTextControl(false, mType); }
 
   void FreeData();
-  nsTextEditorState *GetEditorState() const;
+  nsTextEditorState* GetEditorState() const;
 
   /**
    * Manages the internal data storage across type changes.
@@ -1659,6 +1661,7 @@ protected:
   bool                     mNumberControlSpinnerSpinsUp : 1;
   bool                     mPickerRunning : 1;
   bool                     mSelectionCached : 1;
+  nsString mAutofilledValue;
 
 private:
   static void MapAttributesIntoRule(const nsMappedAttributes* aAttributes,

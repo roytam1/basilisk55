@@ -2780,16 +2780,11 @@ HTMLInputElement::SetUserInput(const nsAString& aValue)
 void
 HTMLInputElement::SetAutofilled(bool aAutofilled)
 {
-  printf("🔍 AUTOFILL C++: SetAutofilled called with aAutofilled=%s\n", aAutofilled ? "true" : "false");
-  
+
   if (aAutofilled) {
-    printf("🔍 AUTOFILL C++: Adding NS_EVENT_STATE_AUTOFILL state\n");
     AddStates(NS_EVENT_STATE_AUTOFILL);
-    printf("🔍 AUTOFILL C++: State added successfully\n");
   } else {
-    printf("🔍 AUTOFILL C++: Removing NS_EVENT_STATE_AUTOFILL state\n");
     RemoveStates(NS_EVENT_STATE_AUTOFILL);
-    printf("🔍 AUTOFILL C++: State removed successfully\n");
   }
 }
 
@@ -3525,7 +3520,18 @@ HTMLInputElement::Blur(ErrorResult& aError)
   }
 
   nsGenericHTMLElement::Blur(aError);
-}
+
+  if (State().HasState(NS_EVENT_STATE_AUTOFILL)) {
+    // Force a complete restyle to ensure autofill pseudo-classes are processed
+    if (nsIDocument* doc = GetComposedDoc()) {
+      if (nsIPresShell* shell = doc->GetShell()) {
+        if (nsIFrame* frame = GetPrimaryFrame()) {
+          shell->FrameNeedsReflow(frame, nsIPresShell::eStyleChange, NS_FRAME_IS_DIRTY);
+        }
+      }
+    }
+  }
+} 
 
 void
 HTMLInputElement::Focus(ErrorResult& aError)
@@ -8464,13 +8470,16 @@ HTMLInputElement::InitializeKeyboardEventListeners()
 NS_IMETHODIMP_(void)
 HTMLInputElement::OnValueChanged(bool aNotify, bool aWasInteractiveUserChange)
 {
+  nsAutoString value;
+  GetValueInternal(value, CallerType::System);
   mLastValueChangeWasInteractive = aWasInteractiveUserChange;
 
-  // Clear autofilled state if this was an interactive user change
+  // Only remove autofilled state if the value actually changed from autofilled value
   if (aWasInteractiveUserChange && State().HasState(NS_EVENT_STATE_AUTOFILL)) {
-    printf("🔍 AUTOFILL C++: User changed autofilled input, clearing state\n");
-    RemoveStates(NS_EVENT_STATE_AUTOFILL);
-    printf("🔍 AUTOFILL C++: Autofill state cleared from input\n");
+    if (mAutofilledValue != value) {
+      RemoveStates(NS_EVENT_STATE_AUTOFILL);
+      mAutofilledValue.Truncate();
+    }
   }
 
   UpdateAllValidityStates(aNotify);
@@ -8501,6 +8510,24 @@ HTMLInputElement::HasCachedSelection()
     }
   }
   return isCached;
+}
+
+NS_IMETHODIMP
+HTMLInputElement::BeginProgrammaticValueSet() {
+  nsTextEditorState* state = GetEditorState();
+  if (state) {
+    state->SettingValue(true);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+HTMLInputElement::EndProgrammaticValueSet() {
+  nsTextEditorState* state = GetEditorState();
+  if (state) {
+    state->SettingValue(false);
+  }
+  return NS_OK;
 }
 
 void

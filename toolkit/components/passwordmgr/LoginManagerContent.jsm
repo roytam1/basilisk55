@@ -1212,7 +1212,7 @@ var LoginManagerContent = {
       // Fill the form
 
       if (usernameField) {
-      // Don't modify the username field if it's disabled or readOnly so we preserve its case.
+        // Don't modify the username field if it's disabled or readOnly so we preserve its case.
         let disabledOrReadOnly = usernameField.disabled || usernameField.readOnly;
 
         let userNameDiffers = selectedLogin.username != usernameField.value;
@@ -1224,6 +1224,10 @@ var LoginManagerContent = {
 
         if (!disabledOrReadOnly && !userEnteredDifferentCase && userNameDiffers) {
           usernameField.setUserInput(selectedLogin.username);
+        }
+        //Set autofilled state if value is present
+        if (typeof usernameField.setAutofilled === "function" && usernameField.value) {
+          usernameField.setAutofilled(true);
         }
       }
 
@@ -1239,6 +1243,10 @@ var LoginManagerContent = {
         };
         log("Saving autoFilledLogin", autoFilledLogin.guid, "for", form.rootElement);
         this.stateForDocument(doc).fillsByRootElement.set(form.rootElement, autoFilledLogin);
+        // Patch: Set autofilled state if value is present
+        if (typeof passwordField.setAutofilled === "function" && passwordField.value) {
+          passwordField.setAutofilled(true);
+        }
       }
 
       log("_fillForm succeeded");

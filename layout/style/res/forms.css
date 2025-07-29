@@ -1160,6 +1160,11 @@ input[type="time"] {
 
 /* Autofill highlight for internal-only pseudo-class */
 input:-moz-autofill-highlight,
+select:-moz-autofill-highlight,
 textarea:-moz-autofill-highlight {
   background-color: #ffff99 !important;
+}
+
+.custom-autofill-highlight {
+  background: yellow !important;
 }

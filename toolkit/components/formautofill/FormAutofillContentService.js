@@ -9,9 +9,7 @@
  * See the nsIFormAutofillContentService documentation for details.
  */
 
-"use strict";
-
-console.log('🔍 AUTOFILL: FormAutofillContentService.js loaded');
+"use strict"
 
 const { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
 
@@ -34,15 +32,11 @@ function FormHandler(aForm, aWindow) {
 
   // Add a reset event listener to clear autofill state
   this.form.addEventListener("reset", () => {
-    console.log('Form reset detected, clearing autofill state');
     for (let element of this.form.elements) {
       if (typeof element.setAutofilled === "function") {
         element.setAutofilled(false);
-        console.log('setAutofilled(false) called on', element);
       }
     }
-    // Optionally, clear fieldDetails if you want to force re-collection
-    // this.fieldDetails = [];
   });
 }
 
@@ -145,9 +139,7 @@ FormHandler.prototype = {
       return "cancel";
     }
 
-    console.log('🔍 AUTOFILL: About to call autofillFormFields with result:', result);
     this.autofillFormFields(result);
-    console.log('🔍 AUTOFILL: autofillFormFields completed');
 
     return "success";
   }),
@@ -243,10 +235,8 @@ FormHandler.prototype = {
    *        }
    */
   autofillFormFields(aAutofillResult) {
-    console.log('🔍 AUTOFILL: autofillFormFields called with', aAutofillResult);
     
     for (let field of aAutofillResult.fields) {
-      console.log('🔍 AUTOFILL: Processing field', field);
       
       // Get the field details, if it was processed by the user interface.
       let fieldDetail = this.fieldDetails
@@ -255,26 +245,36 @@ FormHandler.prototype = {
                                        f.contactType == field.contactType &&
                                        f.fieldName == field.fieldName);
       
-      console.log('🔍 AUTOFILL: Found fieldDetail?', !!fieldDetail, fieldDetail);
-      
       if (!fieldDetail) {
-        console.log('🔍 AUTOFILL: No fieldDetail found, skipping');
         continue;
       }
-
-      console.log('🔍 AUTOFILL: Setting value on element', fieldDetail.element);
       fieldDetail.element.value = field.value;
       
-      // Set the autofilled state on the element
-      console.log('🔍 AUTOFILL: Checking if setAutofilled exists on element');
-      console.log('🔍 AUTOFILL: setAutofilled type:', typeof fieldDetail.element.setAutofilled);
+      // Add event listeners for debugging
+      // try {
+      //   fieldDetail.element.addEventListener('focus', () => console.log('[JS] input focused'));
+      //   fieldDetail.element.addEventListener('blur', () => console.log('[JS] input blurred'));
+      //   fieldDetail.element.addEventListener('input', () => console.log('[JS] input event, value:', fieldDetail.element.value));
+      // } catch (e) {
+      //   console.log('[JS] Could not add event listeners:', e);
+      // }
       
+      // if (typeof fieldDetail.element.setAutofilled === 'function') {
+      //   if (field.value) {
+      //     console.log('AUTOFILL: Calling setAutofilled(true) on element');
+      //     fieldDetail.element.setAutofilled(true);
+      //     console.log('AUTOFILL: setAutofilled(true) called successfully');
+      //   } else {
+      //     console.log('AUTOFILL: Calling setAutofilled(false) on element (empty value)');
+      //     fieldDetail.element.setAutofilled(false);
+      //   }
+      // } else {
+      //   console.log('AUTOFILL: setAutofilled is not a function on this element');
+      // }
+
+      // Highlight: Set autofilled state for all autofilled fields
       if (typeof fieldDetail.element.setAutofilled === 'function') {
-        console.log('🔍 AUTOFILL: Calling setAutofilled(true) on element');
-        fieldDetail.element.setAutofilled(true);
-        console.log('🔍 AUTOFILL: setAutofilled(true) called successfully');
-      } else {
-        console.log('🔍 AUTOFILL: setAutofilled is not a function on this element');
+        fieldDetail.element.setAutofilled(!!field.value);
       }
     }
   },

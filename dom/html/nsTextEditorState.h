@@ -164,6 +164,7 @@ public:
   // or reconsider fixing bug 597525 to remove these.
   void EmptyValue() { if (mValue) mValue->Truncate(); }
   bool IsEmpty() const { return mValue ? mValue->IsEmpty() : true; }
+  void SettingValue(bool aValue) { mSettingValue = aValue; }
 
   nsresult CreatePlaceholderNode();
 
@@ -349,6 +350,7 @@ private:
   mutable bool mSelectionRestoreEagerInit; // Whether we're eager initing because of selection restore
   bool mPlaceholderVisibility;
   bool mIsCommittingComposition;
+  bool mSettingValue;
 };
 
 inline void

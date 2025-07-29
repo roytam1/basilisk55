@@ -1166,23 +1166,10 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
             NS_RGB2HSL(NS_GET_R(color1), NS_GET_G(color1), NS_GET_B(color1), &h1, &s1, &l1);
             NS_RGB2HSL(NS_GET_R(color2), NS_GET_G(color2), NS_GET_B(color2), &h2, &s2, &l2);
             
-            // handle alpha premultiplication for HSL components
-            float alpha1_weight = norm1 * a1;
-            float alpha2_weight = norm2 * a2;
-            float total_alpha_weight = alpha1_weight + alpha2_weight;
-            
             float h, s, l, a;
             
-            if (total_alpha_weight <= 0.0f) {
-              // both colors are fully transparent
-              h = s = l = 0.0f;
-              a = 0.0f;
-            } else {
-              // normalize alpha-weighted contributions
-              float norm_alpha1 = alpha1_weight / total_alpha_weight;
-              float norm_alpha2 = alpha2_weight / total_alpha_weight;
-              
-              // handle hue interpolation (circular)
+            // check if both are opaque
+            if (a1 >= 1.0f && a2 >= 1.0f) {
               if (s1 == 0.0f || s2 == 0.0f) {
                 h = (s1 == 0.0f) ? h2 : h1;
               } else {
@@ -1192,16 +1179,50 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
                 } else if (hue_diff < -0.5f) {
                   h2 += 1.0f;
                 }
-                h = h1 * norm_alpha1 + h2 * norm_alpha2;
+                h = h1 * norm1 + h2 * norm2;
                 if (h >= 1.0f) h -= 1.0f;
               }
               
-              // interpolate saturation and lightness with alpha weighting
-              s = s1 * norm_alpha1 + s2 * norm_alpha2;
-              l = l1 * norm_alpha1 + l2 * norm_alpha2;
+              // interpolate saturation and lightness normally
+              s = s1 * norm1 + s2 * norm2;
+              l = l1 * norm1 + l2 * norm2;
+              a = 1.0f; // Result is opaque
+            } else {
+              // handle alpha premultiplication for HSL components when transparency is involved
+              float alpha1_weight = norm1 * a1;
+              float alpha2_weight = norm2 * a2;
+              float total_alpha_weight = alpha1_weight + alpha2_weight;
               
-              // interpolate alpha normally (without premultiplication)
-              a = a1 * norm1 + a2 * norm2;
+              if (total_alpha_weight <= 0.0f) {
+                // both colors are fully transparent
+                h = s = l = 0.0f;
+                a = 0.0f;
+              } else {
+                // normalize alpha-weighted contributions
+                float norm_alpha1 = alpha1_weight / total_alpha_weight;
+                float norm_alpha2 = alpha2_weight / total_alpha_weight;
+                
+                // handle hue interpolation (circular)
+                if (s1 == 0.0f || s2 == 0.0f) {
+                  h = (s1 == 0.0f) ? h2 : h1;
+                } else {
+                  float hue_diff = h2 - h1;
+                  if (hue_diff > 0.5f) {
+                    h1 += 1.0f;
+                  } else if (hue_diff < -0.5f) {
+                    h2 += 1.0f;
+                  }
+                  h = h1 * norm_alpha1 + h2 * norm_alpha2;
+                  if (h >= 1.0f) h -= 1.0f;
+                }
+                
+                // interpolate saturation and lightness with alpha weighting
+                s = s1 * norm_alpha1 + s2 * norm_alpha2;
+                l = l1 * norm_alpha1 + l2 * norm_alpha2;
+                
+                // interpolate alpha normally (without premultiplication)
+                a = a1 * norm1 + a2 * norm2;
+              }
             }
             
             // Convert back to RGB
@@ -1222,28 +1243,37 @@ static bool SetColor(const nsCSSValue& aValue, const nscolor aParentColor,
             float b2 = NS_GET_B(color2);
             float a2 = NS_GET_A(color2) / 255.0f;
             
-            // handle alpha premultiplication for RGB components
-            float alpha1_weight = norm1 * a1;
-            float alpha2_weight = norm2 * a2;
-            float total_alpha_weight = alpha1_weight + alpha2_weight;
-            
             float r, g, b, a;
             
-            if (total_alpha_weight <= 0.0f) {
-              // both colors are fully transparent
-              r = g = b = a = 0.0f;
+            // Check if both colors are opaque - use simple interpolation
+            if (a1 >= 1.0f && a2 >= 1.0f) {
+              // Simple linear interpolation for opaque colors
+              r = r1 * norm1 + r2 * norm2;
+              g = g1 * norm1 + g2 * norm2;
+              b = b1 * norm1 + b2 * norm2;
+              a = 1.0f; // Result is opaque
             } else {
-              // normalize alpha-weighted contributions
-              float norm_alpha1 = alpha1_weight / total_alpha_weight;
-              float norm_alpha2 = alpha2_weight / total_alpha_weight;
+              // handle alpha premultiplication for RGB components when transparency is involved
+              float alpha1_weight = norm1 * a1;
+              float alpha2_weight = norm2 * a2;
+              float total_alpha_weight = alpha1_weight + alpha2_weight;
               
-              // interpolate RGB components with alpha weighting
-              r = r1 * norm_alpha1 + r2 * norm_alpha2;
-              g = g1 * norm_alpha1 + g2 * norm_alpha2;
-              b = b1 * norm_alpha1 + b2 * norm_alpha2;
+              if (total_alpha_weight <= 0.0f) {
+                // both colors are fully transparent
+                r = g = b = a = 0.0f;
+              } else {
+                // normalize alpha-weighted contributions
+                float norm_alpha1 = alpha1_weight / total_alpha_weight;
+                float norm_alpha2 = alpha2_weight / total_alpha_weight;
+                
+                // interpolate RGB components with alpha weighting
+                r = r1 * norm_alpha1 + r2 * norm_alpha2;
+                g = g1 * norm_alpha1 + g2 * norm_alpha2;
+                b = b1 * norm_alpha1 + b2 * norm_alpha2;
 
-              // interpolate alpha normally (without premultiplication)
-              a = a1 * norm1 + a2 * norm2;
+                // interpolate alpha normally (without premultiplication)
+                a = a1 * norm1 + a2 * norm2;
+              }
             }
             
             // convert to integers with rounding

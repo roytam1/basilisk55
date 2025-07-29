@@ -7502,9 +7502,11 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           if (mToken.mType == eCSSToken_Percentage) {
             w1 = mToken.mNumber; // percentage tokens are already normalized (0.0-1.0)
             w1_specified = true;
-            // clamp to valid range [0, 1]
-            if (w1 < 0.0f) w1 = 0.0f;
-            if (w1 > 1.0f) w1 = 1.0f;
+            // Reject invalid percentages (outside 0-100% range)
+            if (w1 < 0.0f || w1 > 1.0f) {
+              SkipUntil(')');
+              return CSSParseResult::Error;
+            }
           } else {
             UngetToken();
           }
@@ -7528,9 +7530,11 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           if (mToken.mType == eCSSToken_Percentage) {
             w2 = mToken.mNumber; // percentage tokens are already normalized (0.0-1.0)
             w2_specified = true;
-            // Clamp to valid range [0, 1]
-            if (w2 < 0.0f) w2 = 0.0f;
-            if (w2 > 1.0f) w2 = 1.0f;
+            // Reject invalid percentages (outside 0-100% range)
+            if (w2 < 0.0f || w2 > 1.0f) {
+              SkipUntil(')');
+              return CSSParseResult::Error;
+            }
           } else {
             UngetToken();
           }

@@ -906,7 +906,7 @@ nsContentSink::PrefetchOrPreloadHref(const nsAString &aHref,
       nsCOMPtr<nsIDOMNode> domNode = do_QueryInterface(aSource);
       if (aLinkTypes & nsStyleLinkElement::ePRELOAD) {
         nsContentPolicyType policyType;
-        bool isPreloadValid = Link::CheckPreloadAttrs(policyType,
+        bool isPreloadValid = dom::Link::CheckPreloadAttrs(policyType,
                                                       aDestination,
                                                       aType,
                                                       aMedia,

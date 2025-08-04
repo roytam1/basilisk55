@@ -136,6 +136,7 @@ class SpeechSynthesis;
 class TabGroup;
 class Timeout;
 class U2F;
+class VisualViewport;
 class VRDisplay;
 class VREventObserver;
 class WakeLock;
@@ -1009,6 +1010,7 @@ public:
   already_AddRefed<nsICSSDeclaration>
     GetComputedStyle(mozilla::dom::Element& aElt, const nsAString& aPseudoElt,
                      mozilla::ErrorResult& aError) override;
+  mozilla::dom::VisualViewport* VisualViewport();
   already_AddRefed<mozilla::dom::MediaQueryList> MatchMediaOuter(const nsAString& aQuery);
   already_AddRefed<mozilla::dom::MediaQueryList> MatchMedia(const nsAString& aQuery,
                                                             mozilla::ErrorResult& aError);
@@ -1935,6 +1937,8 @@ protected:
   RefPtr<mozilla::dom::Location> mLocation;
   RefPtr<nsHistory>           mHistory;
   RefPtr<mozilla::dom::CustomElementRegistry> mCustomElements;
+
+  RefPtr<mozilla::dom::VisualViewport> mVisualViewport;
 
   // These member variables are used on both inner and the outer windows.
   nsCOMPtr<nsIPrincipal> mDocumentPrincipal;

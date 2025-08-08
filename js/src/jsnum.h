@@ -292,8 +292,7 @@ ToInteger(JSContext* cx, HandleValue v, double* dp)
 template<typename T>
 MOZ_MUST_USE bool ToLengthClamped(T* cx, HandleValue v, uint32_t* out, bool* overflow);
 
-/* Non-standard convert and range check an index value as for SIMD, and Atomics
- * operations, eg ES7 24.2.1.1, DataView's GetViewValue():
+/* Convert and range check an index value for Atomics
  *
  *   1. numericIndex = ToNumber(argument)            (may throw TypeError)
  *   2. intIndex = ToInteger(numericIndex)
@@ -319,6 +318,7 @@ MOZ_MUST_USE bool NonStandardToIndex(JSContext* cx, JS::HandleValue v, uint64_t*
  *
  * The returned index will always be in the range 0 <= *index <= 2^53-1.
  */
+MOZ_MUST_USE bool ToIndex(JSContext* cx, JS::HandleValue v, const unsigned errorNumber, uint64_t* index);
 MOZ_MUST_USE bool ToIndex(JSContext* cx, JS::HandleValue v, uint64_t* index);
 
 MOZ_MUST_USE inline bool

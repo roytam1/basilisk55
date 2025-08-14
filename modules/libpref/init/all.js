@@ -256,6 +256,11 @@ pref("browser.sessionhistory.max_total_viewers", -1);
 pref("ui.color_scheme", 1);
 
 pref("ui.use_native_colors", true);
+
+// Whether websites should use reduced animation styles.
+// Used for CSS @media query.
+pref("ui.prefersReducedMotion", 0);
+
 pref("ui.click_hold_context_menus", false);
 // Duration of timeout of incremental search in menus (ms).  0 means infinite.
 pref("ui.menu.incremental_search.timeout", 1000);

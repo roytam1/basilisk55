@@ -19,7 +19,6 @@ const {
 } = require("devtools/client/inspector/shared/node-types");
 const { getColor } = require("devtools/client/shared/theme");
 const { getCssProperties } = require("devtools/shared/fronts/css-properties");
-const CssDocsTooltip = require("devtools/client/shared/widgets/tooltip/CssDocsTooltip");
 const { HTMLTooltip } = require("devtools/client/shared/widgets/tooltip/HTMLTooltip");
 const {
   getImageDimensions,
@@ -83,9 +82,6 @@ TooltipsOverlay.prototype = {
     this.previewTooltip.startTogglingOnHover(this.view.element,
       this._onPreviewTooltipTargetHover.bind(this));
 
-    // MDN CSS help tooltip
-    this.cssDocs = new CssDocsTooltip(toolbox.doc);
-
     if (this.isRuleView) {
       // Color picker tooltip
       this.colorPicker = new SwatchColorPickerTooltip(toolbox.doc,
@@ -119,10 +115,6 @@ TooltipsOverlay.prototype = {
 
     if (this.cubicBezier) {
       this.cubicBezier.destroy();
-    }
-
-    if (this.cssDocs) {
-      this.cssDocs.destroy();
     }
 
     if (this.filterEditor) {
@@ -190,10 +182,6 @@ TooltipsOverlay.prototype = {
     if (this.isRuleView && this.cubicBezier.tooltip.isVisible()) {
       this.cubicBezier.revert();
       this.cubicBezier.hide();
-    }
-
-    if (this.isRuleView && this.cssDocs.tooltip.isVisible()) {
-      this.cssDocs.hide();
     }
 
     if (this.isRuleView && this.filterEditor.tooltip.isVisible()) {
@@ -294,10 +282,6 @@ TooltipsOverlay.prototype = {
 
     if (this.cubicBezier) {
       this.cubicBezier.hide();
-    }
-
-    if (this.cssDocs) {
-      this.cssDocs.hide();
     }
 
     if (this.filterEditor) {

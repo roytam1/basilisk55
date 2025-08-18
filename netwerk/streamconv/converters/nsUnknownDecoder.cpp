@@ -562,8 +562,6 @@ bool nsUnknownDecoder::SniffForXML(nsIRequest* aRequest)
 
 bool nsUnknownDecoder::SniffURI(nsIRequest* aRequest)
 {
-  nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
-  nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
   nsCOMPtr<nsIMIMEService> mimeService(do_GetService("@mozilla.org/mime;1"));
   if (mimeService) {
     nsCOMPtr<nsIChannel> channel = do_QueryInterface(aRequest);

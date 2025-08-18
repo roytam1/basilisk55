@@ -108,6 +108,7 @@ private:
            bool aForcePreflight,
            bool aIsPreflight,
            bool aLoadTriggeredFromExternal,
+           bool aSkipContentSniffing,
            bool aForceHSTSPriming,
            bool aMixedContentWouldBlock);
   LoadInfo(const LoadInfo& rhs);
@@ -155,6 +156,7 @@ private:
   bool                             mForcePreflight;
   bool                             mIsPreflight;
   bool                             mLoadTriggeredFromExternal;
+  bool                             mSkipContentSniffing;
 
   // Is true if this load was triggered by processing the attributes of the
   // browsing context container.

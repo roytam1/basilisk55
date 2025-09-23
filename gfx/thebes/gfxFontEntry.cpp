@@ -592,7 +592,8 @@ gfxFontEntry::ShareFontTableAndGetBlob(uint32_t aTag,
     }
 
     FontTableHashEntry *entry = mFontTableCache->PutEntry(aTag);
-    if (MOZ_UNLIKELY(!entry)) { // OOM
+    if (MOZ_UNLIKELY(!entry)) { 
+        // OOM or other issue storing the entry. 
         return nullptr;
     }
 

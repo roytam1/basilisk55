@@ -2366,7 +2366,9 @@ gfxPlatform::GetAzureBackendInfo(mozilla::widget::InfoObject& aObj)
     aObj.DefineProperty("AzureContentBackend", GetBackendName(mContentBackend));
   }
 
-  aObj.DefineProperty("AzureCanvasAccelerated", AllowOpenGLCanvas());
+  if (mPreferredCanvasBackend == mozilla::gfx::BackendType::SKIA) {
+    aObj.DefineProperty("AzureCanvasSkiaOpenGL", AllowOpenGLCanvas());
+  }
 }
 
 void

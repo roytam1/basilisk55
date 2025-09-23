@@ -633,7 +633,7 @@ nsHttpResponseHead::ParseHeaderLine_locked(const nsACString &line, bool original
                              mContentType, mContentCharset, &dummy);
     }
     else if (hdr == nsHttp::Cache_Control)
-        ParseCacheControl(val.get());
+        ParseCacheControl(mHeaders.PeekHeader(hdr));
     else if (hdr == nsHttp::Pragma)
         ParsePragma(val.get());
     return NS_OK;

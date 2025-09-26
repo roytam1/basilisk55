@@ -330,7 +330,6 @@ LoadInfoToLoadInfoArgs(nsILoadInfo *aLoadInfo,
       aLoadInfo->GetForcePreflight(),
       aLoadInfo->GetIsPreflight(),
       aLoadInfo->GetLoadTriggeredFromExternal(),
-      aLoadInfo->GetSkipContentSniffing(),
       aLoadInfo->GetIsFromProcessingFrameAttributes(),
       aLoadInfo->GetForceHSTSPriming(),
       aLoadInfo->GetMixedContentWouldBlock());
@@ -410,7 +409,6 @@ LoadInfoArgsToLoadInfo(const OptionalLoadInfoArgs& aOptionalLoadInfoArgs,
                           loadInfoArgs.forcePreflight(),
                           loadInfoArgs.isPreflight(),
                           loadInfoArgs.loadTriggeredFromExternal(),
-                          loadInfoArgs.skipContentSniffing(),
                           loadInfoArgs.forceHSTSPriming(),
                           loadInfoArgs.mixedContentWouldBlock()
                           );

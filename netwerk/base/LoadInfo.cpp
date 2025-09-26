@@ -66,7 +66,6 @@ LoadInfo::LoadInfo(nsIPrincipal* aLoadingPrincipal,
   , mForcePreflight(false)
   , mIsPreflight(false)
   , mLoadTriggeredFromExternal(false)
-  , mSkipContentSniffing(false)
   , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming(false)
   , mMixedContentWouldBlock(false)
@@ -245,7 +244,6 @@ LoadInfo::LoadInfo(nsPIDOMWindowOuter* aOuterWindow,
   , mForcePreflight(false)
   , mIsPreflight(false)
   , mLoadTriggeredFromExternal(false)
-  , mSkipContentSniffing(false)
   , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming(false)
   , mMixedContentWouldBlock(false)
@@ -313,7 +311,6 @@ LoadInfo::LoadInfo(const LoadInfo& rhs)
   , mForcePreflight(rhs.mForcePreflight)
   , mIsPreflight(rhs.mIsPreflight)
   , mLoadTriggeredFromExternal(rhs.mLoadTriggeredFromExternal)
-  , mSkipContentSniffing(rhs.mSkipContentSniffing)
   , mIsFromProcessingFrameAttributes(rhs.mIsFromProcessingFrameAttributes)
   , mForceHSTSPriming(rhs.mForceHSTSPriming)
   , mMixedContentWouldBlock(rhs.mMixedContentWouldBlock)
@@ -345,7 +342,6 @@ LoadInfo::LoadInfo(nsIPrincipal* aLoadingPrincipal,
                    bool aForcePreflight,
                    bool aIsPreflight,
                    bool aLoadTriggeredFromExternal,
-                   bool aSkipContentSniffing,
                    bool aForceHSTSPriming,
                    bool aMixedContentWouldBlock)
   : mLoadingPrincipal(aLoadingPrincipal)
@@ -371,7 +367,6 @@ LoadInfo::LoadInfo(nsIPrincipal* aLoadingPrincipal,
   , mForcePreflight(aForcePreflight)
   , mIsPreflight(aIsPreflight)
   , mLoadTriggeredFromExternal(aLoadTriggeredFromExternal)
-  , mSkipContentSniffing(aSkipContentSniffing)
   , mIsFromProcessingFrameAttributes(false)
   , mForceHSTSPriming (aForceHSTSPriming)
   , mMixedContentWouldBlock(aMixedContentWouldBlock)
@@ -1010,17 +1005,6 @@ LoadInfo::MaybeIncreaseTainting(uint32_t aTainting)
   return NS_OK;
 }
 
-NS_IMETHODIMP
-LoadInfo::GetSkipContentSniffing(bool* aSkipContentSniffing) {
-  *aSkipContentSniffing = mSkipContentSniffing;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-LoadInfo::SetSkipContentSniffing(bool aSkipContentSniffing) {
-  mSkipContentSniffing = aSkipContentSniffing;
-  return NS_OK;
-}
 NS_IMETHODIMP
 LoadInfo::GetIsTopLevelLoad(bool *aResult)
 {

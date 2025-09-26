@@ -2130,16 +2130,6 @@ NS_SniffContent(const char *aSnifferType, nsIRequest *aRequest,
                 const uint8_t *aData, uint32_t aLength,
                 nsACString &aSniffedType)
 {
-  // In case XCTO nosniff was present, we could just skip sniffing here
-  nsCOMPtr<nsIChannel> channel = do_QueryInterface(aRequest);
-  if (channel) {
-    nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
-    if (loadInfo->GetSkipContentSniffing()) {
-      aSniffedType.Truncate();
-      return;
-    }
-  }
-
   typedef nsCategoryCache<nsIContentSniffer> ContentSnifferCache;
   extern ContentSnifferCache* gNetSniffers;
   extern ContentSnifferCache* gDataSniffers;

@@ -56,7 +56,6 @@ struct LoadInfoArgs
   bool                  forcePreflight;
   bool                  isPreflight;
   bool                  loadTriggeredFromExternal;
-  bool                  skipContentSniffing;
   bool                  isFromProcessingFrameAttributes;
   bool                  forceHSTSPriming;
   bool                  mixedContentWouldBlock;

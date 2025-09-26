@@ -317,11 +317,9 @@ nsUnknownDecoder::GetMIMETypeFromContent(nsIRequest* aRequest,
 {
   // Note: This is only used by sniffer, therefore we do not need to lock anything here.
   nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
-  if (channel) {
-    nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
-    if (loadInfo->GetSkipContentSniffing()) {
-      return NS_ERROR_NOT_AVAILABLE;
-    }
+  nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+  if (loadInfo->GetSkipContentSniffing()) {
+    return NS_OK;
   }
   mBuffer = const_cast<char*>(reinterpret_cast<const char*>(aData));
   mBufferLen = aLength;

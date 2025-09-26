@@ -2502,6 +2502,13 @@ imgLoader::GetMIMETypeFromContent(nsIRequest* aRequest,
                                   uint32_t aLength,
                                   nsACString& aContentType)
 {
+  nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
+  if (channel) {
+    nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+    if (loadInfo->GetSkipContentSniffing()) {
+      return NS_ERROR_NOT_AVAILABLE;
+    }
+  }
   return GetMimeTypeFromContent((const char*)aContents, aLength, aContentType);
 }
 

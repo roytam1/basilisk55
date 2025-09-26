@@ -316,6 +316,13 @@ nsUnknownDecoder::GetMIMETypeFromContent(nsIRequest* aRequest,
                                          nsACString& type)
 {
   // Note: This is only used by sniffer, therefore we do not need to lock anything here.
+  nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
+  if (channel) {
+    nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+    if (loadInfo->GetSkipContentSniffing()) {
+      return NS_ERROR_NOT_AVAILABLE;
+    }
+  }
   mBuffer = const_cast<char*>(reinterpret_cast<const char*>(aData));
   mBufferLen = aLength;
   DetermineContentType(aRequest);
@@ -343,6 +350,11 @@ bool nsUnknownDecoder::AllowSniffing(nsIRequest* aRequest)
 
   nsCOMPtr<nsIURI> uri;
   if (NS_FAILED(channel->GetURI(getter_AddRefs(uri))) || !uri) {
+    return false;
+  }
+  
+  nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+  if (loadInfo->GetSkipContentSniffing()) {
     return false;
   }
   
@@ -393,6 +405,13 @@ void nsUnknownDecoder::DetermineContentType(nsIRequest* aRequest)
   if (!mContentType.IsEmpty()) return;
 
   nsCOMPtr<nsIHttpChannel> channel(do_QueryInterface(aRequest));
+  if (channel) {
+    nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+    if (loadInfo->GetSkipContentSniffing()) {
+      return;
+    }
+  }
+
   const char* testData = mBuffer;
   uint32_t testDataLen = mBufferLen;
   // Check if data are compressed.
@@ -564,6 +583,9 @@ bool nsUnknownDecoder::SniffURI(nsIRequest* aRequest)
 {
   nsCOMPtr<nsIChannel> channel(do_QueryInterface(aRequest));
   nsCOMPtr<nsILoadInfo> loadInfo = channel->GetLoadInfo();
+  if (loadInfo->GetSkipContentSniffing()) {
+    return false;
+  }
   nsCOMPtr<nsIMIMEService> mimeService(do_GetService("@mozilla.org/mime;1"));
   if (mimeService) {
     nsCOMPtr<nsIChannel> channel = do_QueryInterface(aRequest);

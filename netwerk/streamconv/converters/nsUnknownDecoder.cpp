@@ -805,11 +805,14 @@ nsBinaryDetector::DetermineContentType(nsIRequest* aRequest)
   // FC7, RHEL4, and Ubuntu Feisty send charset=UTF-8.  Don't do general
   // case-insensitive comparison, since we really want to apply this crap as
   // rarely as we can.
+  // Bail only if the Content-Type header isn't empty, to catch
+  // empty/unspecified MIME type headers webmaster error.
   if (!contentType.EqualsLiteral("text/plain") ||
       (!contentTypeHdr.EqualsLiteral("text/plain") &&
        !contentTypeHdr.EqualsLiteral("text/plain; charset=ISO-8859-1") &&
        !contentTypeHdr.EqualsLiteral("text/plain; charset=iso-8859-1") &&
-       !contentTypeHdr.EqualsLiteral("text/plain; charset=UTF-8"))) {
+       !contentTypeHdr.EqualsLiteral("text/plain; charset=UTF-8") &&
+       !contentTypeHdr.IsEmpty())) {
     return;
   }
 

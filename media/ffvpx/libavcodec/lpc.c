@@ -188,7 +188,7 @@ double ff_lpc_calc_ref_coefs_f(LPCContext *s, const float *samples, int len,
     compute_ref_coefs(autoc, order, ref, error);
     for (i = 0; i < order; i++)
         avg_err = (avg_err + error[i])/2.0f;
-    return signal/avg_err;
+    return avg_err ? signal/avg_err : NAN;
 }
 
 /**
@@ -243,8 +243,10 @@ int ff_lpc_calc_coefs(LPCContext *s,
         double av_uninit(weight);
         memset(var, 0, FFALIGN(MAX_LPC_ORDER+1,4)*sizeof(*var));
 
-        for(j=0; j<max_order; j++)
-            m[0].coeff[max_order-1][j] = -lpc[max_order-1][j];
+        /* Avoids initializing with an unused value when lpc_passes == 1 */
+        if (lpc_passes > 1)
+            for(j=0; j<max_order; j++)
+                m[0].coeff[max_order-1][j] = -lpc[max_order-1][j];
 
         for(; pass<lpc_passes; pass++){
             avpriv_init_lls(&m[pass&1], max_order);

@@ -186,11 +186,6 @@ if CONFIG['MOZ_DIRECTSHOW']:
         'msdmo',
     ]
 
-if CONFIG['OS_ARCH'] == 'FreeBSD':
-    OS_LIBS += [
-        'util',
-    ]
-
 if CONFIG['OS_ARCH'] == 'WINNT':
     OS_LIBS += [
         'crypt32',
@@ -311,11 +306,6 @@ if CONFIG['OS_ARCH'] == 'SunOS':
     OS_LIBS += [
         'elf',
         'sendfile',
-    ]
-
-if CONFIG['OS_ARCH'] == 'FreeBSD':
-    OS_LIBS += [
-        'util',
     ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':

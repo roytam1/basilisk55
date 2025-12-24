@@ -10,7 +10,7 @@ FINAL_TARGET = 'dist/bin/gmp-clearkey/0.1'
 
 FINAL_TARGET_PP_FILES += ['manifest.json.in']
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'ClearKeyBase64.cpp',
     'ClearKeyCDM.cpp',
     'ClearKeyDecryptionManager.cpp',
@@ -27,7 +27,7 @@ SOURCES += [
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'VideoDecoder.cpp',
         'WMFH264Decoder.cpp',
     ]

@@ -1012,7 +1012,6 @@ class JS_PUBLIC_API(ContextOptions) {
         strictMode_(false),
         extraWarnings_(false),
         arrayProtoValues_(true),
-        streams_(true),
         weakRefs_(false),
 #ifdef NIGHTLY_BUILD
         forEachStatement_(false)

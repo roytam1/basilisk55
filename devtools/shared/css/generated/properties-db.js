@@ -6994,6 +6994,26 @@ exports.CSS_PROPERTIES = {
       "unset"
     ]
   },
+  "inset-block": {
+    "isInherited": false,
+    "subproperties": [
+      "inset-block-start",
+      "inset-block-end"
+    ],
+    "supports": [
+      6,
+      8
+    ],
+    "values": [
+      "-moz-calc",
+      "auto",
+      "calc",
+      "inherit",
+      "initial",
+      "revert",
+      "unset"
+    ]
+  },
   "inset-block-end": {
     "isInherited": false,
     "subproperties": [
@@ -7017,6 +7037,26 @@ exports.CSS_PROPERTIES = {
     "isInherited": false,
     "subproperties": [
       "inset-block-start"
+    ],
+    "supports": [
+      6,
+      8
+    ],
+    "values": [
+      "-moz-calc",
+      "auto",
+      "calc",
+      "inherit",
+      "initial",
+      "revert",
+      "unset"
+    ]
+  },
+  "inset-inline": {
+    "isInherited": false,
+    "subproperties": [
+      "inset-inline-start",
+      "inset-inline-end"
     ],
     "supports": [
       6,

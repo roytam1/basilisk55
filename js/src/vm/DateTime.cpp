@@ -344,8 +344,10 @@ js::ResyncICUDefaultTimeZone()
 #if defined(ICU_TZ_HAS_RECREATE_DEFAULT)
     auto guard = IcuTimeZoneState->lock();
     if (guard.get() == IcuTimeZoneStatus::NeedsUpdate) {
-        icu::TimeZone::recreateDefault();
-        guard.get() = IcuTimeZoneStatus::Valid;
+        if (icu::TimeZone *defaultZone = icu::TimeZone::detectHostTimeZone()) {
+            icu::TimeZone::adoptDefault(defaultZone);
+            guard.get() = IcuTimeZoneStatus::Valid;
+        }
     }
 #endif
 }

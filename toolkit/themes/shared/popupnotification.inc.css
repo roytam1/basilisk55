@@ -40,7 +40,7 @@
 }
 
 .popup-notification-button-container > toolbarseparator {
-  -moz-appearance: none;
+  appearance: none;
   border: 0;
   border-left: 1px solid var(--panel-separator-color);
   margin: 7px 0 7px;
@@ -53,7 +53,7 @@
 
 .popup-notification-button {
   flex: 1;
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent;
   color: inherit;
   margin: 0;
@@ -120,7 +120,7 @@
 
 .popup-notification-dropmarker > .button-box > .button-menu-dropmarker {
   /* This is to override the linux !important */
-  -moz-appearance: none !important;
+  appearance: none !important;
   display: -moz-box;
   padding: 0;
   margin: 0;

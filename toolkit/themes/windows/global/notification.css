@@ -57,7 +57,7 @@ notification[type="critical"] {
 }
 
 .messageCloseButton {
-  -moz-appearance: none;
+  appearance: none;
   padding: 4px 2px;
   border: none !important;
 }

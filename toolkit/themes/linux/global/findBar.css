@@ -34,7 +34,7 @@ findbar[noanim] {
 }
 
 .findbar-closebutton {
-  -moz-appearance: none;
+  appearance: none;
   width: 16px;
   height: 16px;
   margin: 0 8px;
@@ -43,7 +43,7 @@ findbar[noanim] {
 /* Search field */
 
 .findbar-textbox {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid ThreeDShadow;
   box-shadow: 0 0 1px 0 ThreeDShadow inset;
   margin: 0;
@@ -84,7 +84,7 @@ findbar[noanim] {
 .findbar-find-previous,
 .findbar-find-next {
   margin-inline-start: 0;
-  -moz-appearance: none;
+  appearance: none;
   background: linear-gradient(rgba(255,255,255,.8) 1px, rgba(255,255,255,.4) 1px, rgba(255,255,255,.1));
   border: 1px solid ThreeDShadow;
   padding: 5px 9px;

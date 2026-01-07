@@ -29,7 +29,7 @@ findbar[noanim] {
 }
 
 findbar:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
   background: none;
   border-style: none;
 }
@@ -73,7 +73,7 @@ label.findbar-find-fast:-moz-lwtheme,
 .findbar-highlight,
 .findbar-case-sensitive,
 .findbar-entire-word {
-  -moz-appearance: none;
+  appearance: none;
   border-radius: 10000px;
   border: @roundButtonBorder@;
   color: @roundButtonColor@;
@@ -149,7 +149,7 @@ label.findbar-find-fast:-moz-lwtheme,
 
 .findbar-textbox {
   position: relative;
-  -moz-appearance: none;
+  appearance: none;
   border: @roundButtonBorder@;
   border-radius: 10000px 0 0 10000px;
   box-shadow: @roundButtonShadow@;

@@ -70,7 +70,7 @@ html|button, html|select {
 }
 
 .devtools-autocomplete-listbox {
-  -moz-appearance: none !important;
+  appearance: none !important;
   background-color: transparent;
   border-width: 0px !important;
   margin: 0;
@@ -243,7 +243,7 @@ checkbox:-moz-focusring {
 .devtools-menulist,
 .devtools-toolbarbutton,
 .devtools-button {
-  -moz-appearance: none;
+  appearance: none;
   background: transparent;
   min-height: 18px;
   text-shadow: none;
@@ -331,7 +331,7 @@ checkbox:-moz-focusring {
 
 /* Menu button styles (eg. web console filters) */
 .devtools-toolbarbutton[type=menu-button] > .toolbarbutton-menubutton-button {
-  -moz-appearance: none;
+  appearance: none;
   color: inherit;
   border-width: 0;
   -moz-box-orient: horizontal;
@@ -348,7 +348,7 @@ checkbox:-moz-focusring {
 }
 
 .devtools-menulist > .menulist-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   display: -moz-box;
   list-style-image: url("chrome://devtools/skin/images/dropmarker.svg");
   -moz-box-align: center;
@@ -357,7 +357,7 @@ checkbox:-moz-focusring {
 
 .devtools-toolbarbutton[type=menu] > .toolbarbutton-menu-dropmarker,
 .devtools-toolbarbutton[type=menu-button] > .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none !important;
+  appearance: none !important;
   list-style-image: url("chrome://devtools/skin/images/dropmarker.svg");
   -moz-box-align: center;
   padding: 0 3px;
@@ -488,7 +488,7 @@ checkbox:-moz-focusring {
  * @TODO : Fix when https://bugzilla.mozilla.org/show_bug.cgi?id=1255116 lands
  */
 .menu-filter-button {
-  -moz-appearance: none;
+  appearance: none;
   background: var(--toolbarbutton-background);
   border: var(--toolbarbutton-border);
   border-radius: 2px;
@@ -518,7 +518,7 @@ checkbox:-moz-focusring {
 .devtools-textinput,
 .devtools-searchinput,
 .devtools-filterinput {
-  -moz-appearance: none;
+  appearance: none;
   margin: 1px 3px;
   border: 1px solid;
   border-radius: 2px;

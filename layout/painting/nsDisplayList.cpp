@@ -2631,7 +2631,7 @@ static nsStyleContext* GetBackgroundStyleContext(nsIFrame* aFrame)
 {
   nsStyleContext *sc;
   if (!nsCSSRendering::FindBackground(aFrame, &sc)) {
-    // We don't want to bail out if moz-appearance is set on a root
+    // We don't want to bail out if appearance is set on a root
     // node. If it has a parent content node, bail because it's not
     // a root, other wise keep going in order to let the theme stuff
     // draw the background. The canvas really should be drawing the

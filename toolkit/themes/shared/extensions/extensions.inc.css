@@ -264,7 +264,7 @@ button.warning {
 }
 
 .header-button {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid;
   border-radius: 2px;
 }
@@ -308,7 +308,7 @@ button.warning {
 /*** sorters ***/
 
 .sort-controls {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .sorter {
@@ -375,7 +375,7 @@ button.warning {
 /*** list ***/
 
 .list {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   border-width: 0 !important;
   background-color: transparent;
@@ -552,7 +552,7 @@ button.warning {
 }
 
 .addon .relnotes-toggle {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   background: transparent;
   font-weight: bold;
@@ -890,7 +890,7 @@ setting[type="radio"] > radiogroup {
 .download-progress[complete] .end-cap,
 .download-progress[mode="undetermined"] .end-cap,
 .download-progress .progress .progress-bar {
-  -moz-appearance: none;
+  appearance: none;
   background-color: #0095dd;
 }
 
@@ -899,7 +899,7 @@ setting[type="radio"] > radiogroup {
 }
 
 .download-progress .progress {
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent;
   padding: 0;
   margin: 0;
@@ -922,7 +922,7 @@ setting[type="radio"] > radiogroup {
 }
 
 .download-progress .cancel {
-  -moz-appearance: none;
+  appearance: none;
   padding: 3px;
   min-width: 0;
   width: 20px;
@@ -997,7 +997,7 @@ setting[type="radio"] > radiogroup {
 }
 
 button.button-link {
-  -moz-appearance: none;
+  appearance: none;
   background: transparent;
   border: none;
   box-shadow: none;

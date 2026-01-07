@@ -276,7 +276,7 @@ COMPUTED_STYLE_PROP(z_index,                       ZIndex)
  * Implementations of -moz- styles *
 \* ******************************* */
 
-COMPUTED_STYLE_PROP(_moz_appearance,               Appearance)
+COMPUTED_STYLE_PROP(appearance,                    Appearance)
 COMPUTED_STYLE_PROP(_moz_binding,                  Binding)
 COMPUTED_STYLE_PROP(_moz_border_bottom_colors,     BorderBottomColors)
 COMPUTED_STYLE_PROP(_moz_border_left_colors,       BorderLeftColors)

@@ -251,6 +251,10 @@ CSS_PROP_ALIAS(-moz-tab-size,
 	       tab_size,
 	       MozTabSize,
 	       "")
+CSS_PROP_ALIAS(-moz-appearance,
+               appearance,
+               MozAppearance,
+               "layout.css.prefixes.appearance")
 
 CSS_PROP_ALIAS(-moz-user-select,
                user_select,
@@ -298,7 +302,7 @@ CSS_PROP_ALIAS(-webkit-animation-timing-function,
                WEBKIT_PREFIX_PREF)
 
 CSS_PROP_ALIAS(-webkit-appearance,
-               _moz_appearance,
+               appearance,
                WebkitAppearance,
                WEBKIT_PREFIX_PREF)
 

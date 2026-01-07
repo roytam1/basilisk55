@@ -1296,6 +1296,10 @@ pref("privacy.popups.disable_from_plugins", 2);
 
 // Send "Sec-GPC" HTTP header, disabled by default
 pref("privacy.GPCheader.enabled",    false);
+
+// By default, do not clear domain passwords for "Forget about site"
+pref("privacy.forgetaboutsite.clearPasswords", false);
+
 // If true, close buton will be shown on permission prompts
 // and for all PopupNotifications, the secondary action of
 // the popup will be called when the popup is dismissed.

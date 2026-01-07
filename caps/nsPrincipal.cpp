@@ -478,7 +478,7 @@ nsPrincipal::Write(nsIObjectOutputStream* aStream)
   // TODO: figure out exactly why this happens and fix the root cause.
   nsCSPContext* CSPContext = static_cast<nsCSPContext*>(mCSP.get());
   if(CSPContext) {
-    int8_t CSPDepth = CSPContext->AddRef();
+    auto CSPDepth = CSPContext->AddRef();
     CSPContext->Release();
     if(CSPDepth > 10) return NS_OK;
   }

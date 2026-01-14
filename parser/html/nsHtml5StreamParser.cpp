@@ -20,7 +20,7 @@
 #include "mozilla/UniquePtrExtensions.h"
 #include "nsHtml5Highlighter.h"
 #include "expat_config.h"
-#include "expat.h"
+#include "moz_expat.h"
 #include "nsINestedURI.h"
 #include "nsCharsetSource.h"
 #include "nsIWyciwygChannel.h"
@@ -433,7 +433,7 @@ HandleXMLDeclaration(void* aUserData,
   UserData* ud = static_cast<UserData*>(aUserData);
   ud->mStreamParser->SetEncodingFromExpat(
       reinterpret_cast<const char16_t*>(aEncoding));
-  XML_StopParser(ud->mExpat, false);
+  MOZ_XML_StopParser(ud->mExpat, false);
 }
 
 static void
@@ -442,7 +442,7 @@ HandleStartElement(void* aUserData,
                    const XML_Char **aAtts)
 {
   UserData* ud = static_cast<UserData*>(aUserData);
-  XML_StopParser(ud->mExpat, false);
+  MOZ_XML_StopParser(ud->mExpat, false);
 }
 
 static void
@@ -450,7 +450,7 @@ HandleEndElement(void* aUserData,
                  const XML_Char* aName)
 {
   UserData* ud = static_cast<UserData*>(aUserData);
-  XML_StopParser(ud->mExpat, false);
+  MOZ_XML_StopParser(ud->mExpat, false);
 }
 
 static void
@@ -458,7 +458,7 @@ HandleComment(void* aUserData,
               const XML_Char* aName)
 {
   UserData* ud = static_cast<UserData*>(aUserData);
-  XML_StopParser(ud->mExpat, false);
+  MOZ_XML_StopParser(ud->mExpat, false);
 }
 
 static void
@@ -467,7 +467,7 @@ HandleProcessingInstruction(void* aUserData,
                             const XML_Char* aData)
 {
   UserData* ud = static_cast<UserData*>(aUserData);
-  XML_StopParser(ud->mExpat, false);
+  MOZ_XML_StopParser(ud->mExpat, false);
 }
 
 nsresult
@@ -503,12 +503,12 @@ nsHtml5StreamParser::FinalizeSniffing(const uint8_t* aFromSegment, // can be nul
     // and without triggering expat's unknown encoding code paths. This is
     // enough to be able to use expat to parse the XML declaration in order
     // to extract the encoding name from it.
-    ud.mExpat = XML_ParserCreate_MM(kISO88591, &memsuite, kExpatSeparator);
-    XML_SetXmlDeclHandler(ud.mExpat, HandleXMLDeclaration);
-    XML_SetElementHandler(ud.mExpat, HandleStartElement, HandleEndElement);
-    XML_SetCommentHandler(ud.mExpat, HandleComment);
-    XML_SetProcessingInstructionHandler(ud.mExpat, HandleProcessingInstruction);
-    XML_SetUserData(ud.mExpat, static_cast<void*>(&ud));
+    ud.mExpat = MOZ_XML_ParserCreate_MM(kISO88591, &memsuite, kExpatSeparator);
+    MOZ_XML_SetXmlDeclHandler(ud.mExpat, HandleXMLDeclaration);
+    MOZ_XML_SetElementHandler(ud.mExpat, HandleStartElement, HandleEndElement);
+    MOZ_XML_SetCommentHandler(ud.mExpat, HandleComment);
+    MOZ_XML_SetProcessingInstructionHandler(ud.mExpat, HandleProcessingInstruction);
+    MOZ_XML_SetUserData(ud.mExpat, static_cast<void*>(&ud));
 
     XML_Status status = XML_STATUS_OK;
 
@@ -520,20 +520,20 @@ nsHtml5StreamParser::FinalizeSniffing(const uint8_t* aFromSegment, // can be nul
     // 1024 bytes long or shorter). Thus, we parse both buffers, but if the
     // first call succeeds already, we skip parsing the second buffer.
     if (mSniffingBuffer) {
-      status = XML_Parse(ud.mExpat,
-                         reinterpret_cast<const char*>(mSniffingBuffer.get()),
-                         mSniffingLength,
-                         false);
+      status = MOZ_XML_Parse(ud.mExpat,
+                             reinterpret_cast<const char*>(mSniffingBuffer.get()),
+                             mSniffingLength,
+                             false);
     }
     if (status == XML_STATUS_OK &&
         mCharsetSource < kCharsetFromMetaTag &&
         aFromSegment) {
-      status = XML_Parse(ud.mExpat,
-                         reinterpret_cast<const char*>(aFromSegment),
-                         aCountToSniffingLimit,
-                         false);
+      status = MOZ_XML_Parse(ud.mExpat,
+                             reinterpret_cast<const char*>(aFromSegment),
+                             aCountToSniffingLimit,
+                             false);
     }
-    XML_ParserFree(ud.mExpat);
+    MOZ_XML_ParserFree(ud.mExpat);
 
     if (mCharsetSource < kCharsetFromMetaTag) {
       // Failed to get an encoding from the XML declaration. XML defaults

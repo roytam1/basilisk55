@@ -366,6 +366,11 @@ IsDebuggerGlobal(JSObject* global);
 bool
 IsDebuggerSandbox(JSObject* object);
 
+inline size_t GetWorkerScriptMaxSizeInBytes() {
+  // This is the max size that any of our worker scripts can be.
+  return (INT32_MAX - 1) / 4;
+}
+
 END_WORKERS_NAMESPACE
 
 #endif // mozilla_dom_workers_workers_h__

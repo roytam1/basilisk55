@@ -176,6 +176,7 @@ public:
     , mAddTimestamp(false)
     , mIsSync(false)
     , mRotate(0)
+    , mDefaultLogLevel(LogLevel::Disabled)
   {
   }
 
@@ -194,6 +195,7 @@ public:
     bool addTimestamp = false;
     bool isSync = false;
     int32_t rotate = 0;
+    LogLevel defaultLogLevel = LogLevel::Disabled;
     const char* modules = PR_GetEnv("MOZ_LOG");
     if (!modules || !modules[0]) {
       modules = PR_GetEnv("MOZ_LOG_MODULES");
@@ -211,7 +213,7 @@ public:
     }
 
     NSPRLogModulesParser(modules,
-        [&shouldAppend, &addTimestamp, &isSync, &rotate]
+        [&shouldAppend, &addTimestamp, &isSync, &rotate, &defaultLogLevel]
             (const char* aName, LogLevel aLevel, int32_t aValue) mutable {
           if (strcmp(aName, "append") == 0) {
             shouldAppend = true;
@@ -221,6 +223,8 @@ public:
             isSync = true;
           } else if (strcmp(aName, "rotate") == 0) {
             rotate = (aValue << 20) / kRotateFilesNumber;
+          } else if (strcmp(aName, "all") == 0) {
+            defaultLogLevel = aLevel;
           } else {
             LogModule::Get(aName)->SetLevel(aLevel);
           }
@@ -230,6 +234,7 @@ public:
     mAddTimestamp = addTimestamp || rotate > 0;
     mIsSync = isSync;
     mRotate = rotate;
+    mDefaultLogLevel = defaultLogLevel;
 
     if (rotate > 0 && shouldAppend) {
       NS_WARNING("MOZ_LOG: when you rotate the log, you cannot use append!");
@@ -350,7 +355,7 @@ public:
     OffTheBooksMutexAutoLock guard(mModulesLock);
     LogModule* module = nullptr;
     if (!mModules.Get(aName, &module)) {
-      module = new LogModule(aName, LogLevel::Disabled);
+      module = new LogModule(aName, mDefaultLogLevel);
       mModules.Put(aName, module);
     }
 
@@ -503,6 +508,8 @@ private:
   Atomic<bool, Relaxed> mAddTimestamp;
   Atomic<bool, Relaxed> mIsSync;
   int32_t mRotate;
+
+  Atomic<LogLevel, Relaxed> mDefaultLogLevel;
 };
 
 StaticAutoPtr<LogModuleManager> sLogModuleManager;

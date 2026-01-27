@@ -12302,6 +12302,8 @@ CodeGenerator::visitRandom(LRandom* ins)
     masm.Pop(tempReg);
 #endif
     masm.add64(s0Reg, imrReg);
+    
+    // Store the result in mState[2], freeing up the intermediate register again.
     masm.store64(imrReg, state2Addr);
     
     // s1 ^= s0;
@@ -12319,10 +12321,10 @@ CodeGenerator::visitRandom(LRandom* ins)
 
     // mState[0] = rotl(s0, 49) ^ s1 ^ (s1 << 21); // a, b
 #ifdef JS_PUNBOX64
-    masm.rotateLeft64(Imm32(49), s0Reg, s0Reg);    // imr = s0 rotl 49
+    masm.rotateLeft64(Imm32(49), s0Reg, s0Reg);    // s0 rotl 49
 #else
     masm.Push(tempReg);
-    masm.rotateLeft64(Imm32(49), s0Reg, s0Reg, tempReg);   // imr = s0 rotl 49
+    masm.rotateLeft64(Imm32(49), s0Reg, s0Reg, tempReg);   // s0 rotl 49
     masm.Pop(tempReg);
 #endif
     masm.move64(s1Reg, imrReg);                    // imr = s1
@@ -12331,6 +12333,7 @@ CodeGenerator::visitRandom(LRandom* ins)
     masm.xor64(s1Reg, s0Reg);                      // s0 ^= s1
     masm.store64(s0Reg, state0Addr);
 
+    // Recall the result from mState[2]
     masm.load64(state2Addr, s1Reg);
 
     // See comment in Xoroshiro128PlusPlusRNG::nextDouble().

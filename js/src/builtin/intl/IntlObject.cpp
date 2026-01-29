@@ -364,7 +364,7 @@ ComputeSingleDisplayName(JSContext* cx, UDateFormat* fmt, UDateTimePatternGenera
         MOZ_ASSERT(resultSize >= 0);
         return CallICU(cx, [fmt, symbolType, index](UChar* chars, int32_t size, UErrorCode* status) {
                 return udat_getSymbols(fmt, symbolType, index, chars, size, status);
-            });
+            }, true);
     }
 
     ReportBadKey(cx, pattern);

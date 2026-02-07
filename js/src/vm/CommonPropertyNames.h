@@ -426,6 +426,7 @@
     macro(toJSON, toJSON, "toJSON") \
     macro(toLocaleString, toLocaleString, "toLocaleString") \
     macro(toSource, toSource, "toSource") \
+    macro(toSorted, toSorted, "toSorted") \
     macro(toString, toString, "toString") \
     macro(toUTCString, toUTCString, "toUTCString") \
     macro(true, true_, "true") \

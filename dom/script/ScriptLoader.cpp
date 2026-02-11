@@ -1170,8 +1170,20 @@ public:
 };
 
 void ScriptLoader::RunScriptWhenSafe(ScriptLoadRequest* aRequest) {
-  auto runnable = new ScriptRequestProcessor(this, aRequest);
-  nsContentUtils::AddScriptRunner(runnable);
+  // Queue for processing through the normal script execution pipeline so that
+  // dynamic imports are blocked during sync XHR just like async scripts.
+  if (!aRequest->IsModuleRequest() ||
+      !aRequest->AsModuleRequest()->IsDynamicImport()) {
+    auto runnable = new ScriptRequestProcessor(this, aRequest);
+    nsContentUtils::AddScriptRunner(runnable);
+    return;
+  }
+
+  MOZ_ASSERT(!aRequest->isInList());
+  MOZ_ASSERT(!aRequest->mInAsyncList);
+  aRequest->mInAsyncList = true;
+  mLoadedAsyncRequests.AppendElement(aRequest);
+  ProcessPendingRequests();
 }
 
 void
@@ -2481,7 +2493,11 @@ ScriptLoader::ProcessPendingRequests()
   while (ReadyToExecuteScripts() && !mLoadedAsyncRequests.isEmpty()) {
     request = mLoadedAsyncRequests.StealFirst();
     if (request->IsModuleRequest()) {
-      ProcessRequest(request);
+      if (request->AsModuleRequest()->IsDynamicImport()) {
+        ProcessDynamicImport(request->AsModuleRequest());
+      } else {
+        ProcessRequest(request);
+      }
     } else {
       CompileOffThreadOrProcessRequest(request);
     }

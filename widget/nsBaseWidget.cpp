@@ -1587,6 +1587,17 @@ uint32_t nsBaseWidget::GetMaxTouchPoints() const
   return 0;
 }
 
+void
+nsBaseWidget::GetPointerCapabilities(PointerCapabilities& aCaps) const
+{
+  // Assume a mouse.
+  aCaps.haveCoarsePointer = false;
+  aCaps.haveFinePointer = true;
+  aCaps.haveHoverCapablePointer = true;
+  aCaps.haveHoverIncapablePointer = false;
+  aCaps.haveTouchscreen = false;
+}
+
 bool
 nsBaseWidget::HasPendingInputEvent()
 {

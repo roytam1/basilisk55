@@ -1290,6 +1290,12 @@ uint32_t PuppetWidget::GetMaxTouchPoints() const
 }
 
 void
+PuppetWidget::GetPointerCapabilities(PointerCapabilities& aCaps) const
+{
+  WidgetUtils::GetPointerCapabilities(aCaps);
+}
+
+void
 PuppetWidget::StartAsyncScrollbarDrag(const AsyncDragMetrics& aDragMetrics)
 {
   mTabChild->StartScrollbarDrag(aDragMetrics);

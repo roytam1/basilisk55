@@ -1679,6 +1679,9 @@ MediaFormatReader::Update(TrackType aTrack)
       return;
     } else if (aTrack == TrackType::kAudioTrack) {
       decoder.Flush();
+    } else {
+      // We can't recover from this error.
+      NotifyError(aTrack, NS_ERROR_DOM_MEDIA_FATAL_ERR);
     }
   }
 

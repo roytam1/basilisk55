@@ -230,6 +230,7 @@ private:
       , mIsHardwareAccelerated(false)
       , mLastStreamSourceID(UINT32_MAX)
       , mIsBlankDecode(false)
+      , mHardwareDecodingDisabled(false)
     {}
 
     MediaFormatReader* mOwner;
@@ -424,6 +425,7 @@ private:
     Maybe<media::TimeUnit> mFirstDemuxedSampleTime;
     // Use BlankDecoderModule or not.
     bool mIsBlankDecode;
+    bool mHardwareDecodingDisabled;
 
   };
 

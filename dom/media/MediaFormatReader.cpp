@@ -377,6 +377,9 @@ MediaFormatReader::DecoderFactory::DoCreateDecoder(TrackType aTrack)
     case TrackType::kVideoTrack: {
       // Decoders use the layers backend to decide if they can use hardware decoding,
       // so specify LAYERS_NONE if we want to forcibly disable it.
+      using Option = CreateDecoderParams::Option;
+      using OptionSet = CreateDecoderParams::OptionSet;
+
       data.mDecoder = mOwner->mPlatform->CreateDecoder({
         ownerData.mInfo
         ? *ownerData.mInfo->GetAsVideoInfo()
@@ -387,7 +390,10 @@ MediaFormatReader::DecoderFactory::DoCreateDecoder(TrackType aTrack)
         mOwner->GetImageContainer(),
         mOwner->mCrashHelper,
         ownerData.mIsBlankDecode,
-        &result
+        &result,
+        OptionSet(ownerData.mHardwareDecodingDisabled
+                    ? Option::HardwareDecoderNotAllowed
+                    : Option::Default)
       });
       break;
     }
@@ -1633,10 +1639,21 @@ MediaFormatReader::Update(TrackType aTrack)
 
   if (decoder.mError && !decoder.HasFatalError()) {
     decoder.mDecodePending = false;
-    bool needsNewDecoder = decoder.mError.ref() == NS_ERROR_DOM_MEDIA_NEED_NEW_DECODER;
+
+    nsCString error;
+    bool decodingFailedWithHardware =
+      decoder.mError.ref() == NS_ERROR_DOM_MEDIA_DECODE_ERR &&
+      decoder.mDecoder && decoder.mDecoder->IsHardwareAccelerated(error) &&
+      !decoder.mHardwareDecodingDisabled;
+    bool needsNewDecoder =
+      decoder.mError.ref() == NS_ERROR_DOM_MEDIA_NEED_NEW_DECODER ||
+      decodingFailedWithHardware;
     if (!needsNewDecoder && ++decoder.mNumOfConsecutiveError > decoder.mMaxConsecutiveError) {
       NotifyError(aTrack, decoder.mError.ref());
       return;
+    }
+    if (decodingFailedWithHardware) {
+      decoder.mHardwareDecodingDisabled = true;
     }
     decoder.mError.reset();
     LOG("%s decoded error count %d", TrackTypeToStr(aTrack),

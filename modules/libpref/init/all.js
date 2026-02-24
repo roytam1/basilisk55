@@ -1252,6 +1252,9 @@ pref("dom.forms.autocomplete.experimental", false);
 // Enables requestAutocomplete DOM API on forms.
 pref("dom.forms.requestAutocomplete", false);
 
+// Enables requestSubmit DOM API on forms.
+pref("dom.forms.requestsubmit.enabled", true);
+
 // Enable search in <select> dropdowns (more than 40 options)
 pref("dom.forms.selectSearch", false);
 

@@ -201,6 +201,13 @@ nsHtml5TreeOperation::Append(nsIContent* aNode,
 {
   MOZ_ASSERT(aBuilder);
   MOZ_ASSERT(aBuilder->IsInDocUpdate());
+  if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+    Detach(aNode, aBuilder);
+    if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+      // Can this happen? If it can, give up.
+      return NS_OK;
+    }
+  }
   nsresult rv = NS_OK;
   nsHtml5OtherDocUpdate update(aParent->OwnerDoc(),
                                aBuilder->GetDocument());
@@ -220,6 +227,13 @@ nsHtml5TreeOperation::AppendToDocument(nsIContent* aNode,
   MOZ_ASSERT(aBuilder);
   MOZ_ASSERT(aBuilder->GetDocument() == aNode->OwnerDoc());
   MOZ_ASSERT(aBuilder->IsInDocUpdate());
+  if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+    Detach(aNode, aBuilder);
+    if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+      // Can this happen? If it can, give up.
+      return NS_OK;
+    }
+  }
   nsresult rv = NS_OK;
 
   nsIDocument* doc = aBuilder->GetDocument();
@@ -309,6 +323,14 @@ nsHtml5TreeOperation::FosterParent(nsIContent* aNode,
 {
   MOZ_ASSERT(aBuilder);
   MOZ_ASSERT(aBuilder->IsInDocUpdate());
+  if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+    Detach(aNode, aBuilder);
+    if (MOZ_UNLIKELY(aNode->GetParentNode())) {
+      // Can this happen? If it can, give up.
+      return NS_OK;
+    }
+  }
+
   nsIContent* foster = aTable->GetParent();
 
   if (IsElementOrTemplateContent(foster)) {

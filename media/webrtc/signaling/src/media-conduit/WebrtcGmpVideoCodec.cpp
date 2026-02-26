@@ -821,7 +821,9 @@ WebrtcGmpVideoDecoder::Decode_g(const webrtc::EncodedImage& aInputImage,
   }
   MOZ_ASSERT(mHost);
 
-  if (!aInputImage._length) {
+  uint32_t dataSize=static_cast<uint32_t>(aInputImage._length);
+  if (dataSize < 4) {
+    LOGD(("GMP Decode: bad input size (%zu)!", aInputImage._length));
     return WEBRTC_VIDEO_CODEC_ERROR;
   }
 
@@ -832,7 +834,7 @@ WebrtcGmpVideoDecoder::Decode_g(const webrtc::EncodedImage& aInputImage,
   }
 
   GMPUniquePtr<GMPVideoEncodedFrame> frame(static_cast<GMPVideoEncodedFrame*>(ftmp));
-  err = frame->CreateEmptyFrame(aInputImage._length);
+  err = frame->CreateEmptyFrame(dataSize);
   if (err != GMPNoErr) {
     return WEBRTC_VIDEO_CODEC_ERROR;
   }
@@ -864,7 +866,7 @@ WebrtcGmpVideoDecoder::Decode_g(const webrtc::EncodedImage& aInputImage,
   nsTArray<uint8_t> codecSpecificInfo;
   codecSpecificInfo.AppendElements((uint8_t*)&info, sizeof(GMPCodecSpecificInfo));
 
-  LOGD(("GMP Decode: %llu, len %d", frame->TimeStamp(), aInputImage._length));
+  LOGD(("GMP Decode: %llu, len %d", frame->TimeStamp(), dataSize));
   nsresult rv = mGMP->Decode(Move(frame),
                              aMissingFrames,
                              codecSpecificInfo,

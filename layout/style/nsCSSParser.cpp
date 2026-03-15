@@ -19,6 +19,7 @@
 #include <regex>     // for std::regex and std::regex_match
 
 #include "nsCSSParser.h"
+#include "CSSNestingFlattener.h"
 #include "nsAlgorithm.h"
 #include "nsCSSProps.h"
 #include "nsCSSKeywords.h"
@@ -75,6 +76,7 @@ static bool sControlCharVisibility;
 static bool sLegacyNegationPseudoClassEnabled;
 static bool sMozDocumentEnabledInContent;
 static bool sCascadeLayersEnabled;
+static bool sNestingEnabled;
 
 const uint32_t
 nsCSSProps::kParserVariantTable[eCSSProperty_COUNT_no_shorthands] = {
@@ -1820,7 +1822,14 @@ CSSParserImpl::ParseSheet(const nsAString& aInput,
                "Sheet principal does not match passed principal");
 #endif
 
-  nsCSSScanner scanner(aInput, aLineNumber);
+  nsAutoString flattenedInput;
+  const nsAString* input = &aInput;
+  if (sNestingEnabled &&
+      mozilla::css::FlattenBasicCSSNesting(aInput, flattenedInput)) {
+    input = &flattenedInput;
+  }
+
+  nsCSSScanner scanner(*input, aLineNumber);
   css::ErrorReporter reporter(scanner, mSheet, mChildLoader, aSheetURI);
   InitScanner(scanner, reporter, aSheetURI, aBaseURI, aSheetPrincipal);
 
@@ -19108,6 +19117,8 @@ nsCSSParser::Startup()
                                "layout.css.moz-document.content.enabled");
   Preferences::AddBoolVarCache(&sCascadeLayersEnabled,
                                "layout.css.cascade-layers.enabled");
+  Preferences::AddBoolVarCache(&sNestingEnabled,
+                               "layout.css.nesting.enabled");
 }
 
 nsCSSParser::nsCSSParser(mozilla::css::Loader* aLoader,

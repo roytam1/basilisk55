@@ -336,7 +336,9 @@ class ScriptLoader final : public nsISupports
       : mOldScript(aScriptLoader->mCurrentScript)
       , mScriptLoader(aScriptLoader)
     {
-      mScriptLoader->mCurrentScript = aCurrentScript;
+      nsCOMPtr<nsINode> node = do_QueryInterface(aCurrentScript);
+      mScriptLoader->mCurrentScript =
+        node && !node->IsInShadowTree() ? aCurrentScript : nullptr;
     }
     ~AutoCurrentScriptUpdater()
     {

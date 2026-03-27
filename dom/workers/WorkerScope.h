@@ -31,6 +31,7 @@ class RequestOrUSVString;
 class ServiceWorkerRegistration;
 class WorkerLocation;
 class WorkerNavigator;
+enum class CallerType : uint32_t;
 
 namespace cache {
 
@@ -166,7 +167,8 @@ public:
   }
 
   already_AddRefed<Promise>
-  Fetch(const RequestOrUSVString& aInput, const RequestInit& aInit, ErrorResult& aRv);
+  Fetch(const RequestOrUSVString& aInput, const RequestInit& aInit,
+        CallerType aCallerType, ErrorResult& aRv);
 
   already_AddRefed<IDBFactory>
   GetIndexedDB(ErrorResult& aErrorResult);

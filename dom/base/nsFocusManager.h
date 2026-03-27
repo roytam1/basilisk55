@@ -27,6 +27,7 @@ class nsIMessageBroadcaster;
 
 namespace mozilla {
 namespace dom {
+struct FocusOptions;
 class TabParent;
 }
 }
@@ -110,6 +111,9 @@ public:
    */
   static nsIContent* GetFocusedDescendant(nsPIDOMWindowOuter* aWindow, bool aDeep,
                                           nsPIDOMWindowOuter** aFocusedWindow);
+
+  static uint32_t FocusOptionsToFocusManagerFlags(
+      const mozilla::dom::FocusOptions& aOptions);
 
   /**
    * Returns the content node that focus will be redirected to if aContent was

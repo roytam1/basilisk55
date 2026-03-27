@@ -26,18 +26,17 @@
 interface Navigator {
   // objects implementing this interface also implement the interfaces given below
 };
-Navigator implements NavigatorID;
-Navigator implements NavigatorLanguage;
-Navigator implements NavigatorOnLine;
-Navigator implements NavigatorContentUtils;
-Navigator implements NavigatorStorageUtils;
-Navigator implements NavigatorConcurrentHardware;
-Navigator implements NavigatorStorage;
-Navigator implements NavigatorGlobalPrivacyControl;
-Navigator implements NavigatorAutomationInformation;
+Navigator includes NavigatorID;
+Navigator includes NavigatorLanguage;
+Navigator includes NavigatorOnLine;
+Navigator includes NavigatorContentUtils;
+Navigator includes NavigatorStorageUtils;
+Navigator includes NavigatorConcurrentHardware;
+Navigator includes NavigatorStorage;
+Navigator includes NavigatorGlobalPrivacyControl;
+Navigator includes NavigatorAutomationInformation;
 
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorID {
+interface mixin NavigatorID {
   // WebKit/Blink/Trident/Presto support this (hardcoded "Mozilla").
   [Constant, Cached]
   readonly attribute DOMString appCodeName; // constant "Mozilla"
@@ -57,8 +56,7 @@ interface NavigatorID {
   boolean taintEnabled(); // constant false
 };
 
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorLanguage {
+interface mixin NavigatorLanguage {
 
   // These two attributes are cached because this interface is also implemented
   // by Workernavigator and this way we don't have to go back to the
@@ -71,13 +69,11 @@ interface NavigatorLanguage {
   readonly attribute sequence<DOMString> languages;
 };
 
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorOnLine {
+interface mixin NavigatorOnLine {
   readonly attribute boolean onLine;
 };
 
-[NoInterfaceObject]
-interface NavigatorContentUtils {
+interface mixin NavigatorContentUtils {
   // content handler registration
   [Throws]
   void registerProtocolHandler(DOMString scheme, DOMString url, DOMString title);
@@ -90,14 +86,13 @@ interface NavigatorContentUtils {
   //void unregisterContentHandler(DOMString mimeType, DOMString url);
 };
 
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorStorage {
+[SecureContext]
+interface mixin NavigatorStorage {
   [Func="mozilla::dom::StorageManager::PrefEnabled"]
   readonly attribute StorageManager storage;
 };
 
-[NoInterfaceObject]
-interface NavigatorStorageUtils {
+interface mixin NavigatorStorageUtils {
   // NOT IMPLEMENTED
   //void yieldForStorageUpdates();
 };
@@ -117,18 +112,17 @@ partial interface Navigator {
 };
 
 // https://globalprivacycontrol.github.io/gpc-spec/
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorGlobalPrivacyControl {
+[Exposed=(Window,Worker)]
+interface mixin NavigatorGlobalPrivacyControl {
   readonly attribute boolean globalPrivacyControl;
 };
 
 // http://www.w3.org/TR/geolocation-API/#geolocation_interface
-[NoInterfaceObject]
-interface NavigatorGeolocation {
+interface mixin NavigatorGeolocation {
   [Throws, Pref="geo.enabled"]
   readonly attribute Geolocation geolocation;
 };
-Navigator implements NavigatorGeolocation;
+Navigator includes NavigatorGeolocation;
 
 // http://www.w3.org/TR/battery-status/#navigatorbattery-interface
 partial interface Navigator {
@@ -371,8 +365,7 @@ partial interface Navigator {
 };
 #endif
 
-[NoInterfaceObject, Exposed=(Window,Worker)]
-interface NavigatorConcurrentHardware {
+interface mixin NavigatorConcurrentHardware {
   readonly attribute unsigned long long hardwareConcurrency;
 };
 
@@ -388,8 +381,7 @@ partial interface Navigator {
 };
 
 // https://w3c.github.io/webdriver/webdriver-spec.html#interface
-[NoInterfaceObject, Exposed=Window]
-interface NavigatorAutomationInformation {
+interface mixin NavigatorAutomationInformation {
   [Pref="dom.webdriver.enabled"]
   readonly attribute boolean webdriver;
 };

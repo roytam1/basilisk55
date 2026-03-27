@@ -139,9 +139,9 @@ CanvasRenderingContext2D implements CanvasUserInterface;
 CanvasRenderingContext2D implements CanvasText;
 CanvasRenderingContext2D implements CanvasDrawImage;
 CanvasRenderingContext2D implements CanvasImageData;
-CanvasRenderingContext2D implements CanvasPathDrawingStyles;
+CanvasRenderingContext2D includes CanvasPathDrawingStyles;
 CanvasRenderingContext2D implements CanvasTextDrawingStyles;
-CanvasRenderingContext2D implements CanvasPathMethods;
+CanvasRenderingContext2D includes CanvasPathMethods;
 CanvasRenderingContext2D implements CanvasHitRegions;
 
 
@@ -169,7 +169,7 @@ interface CanvasTransform {
   DOMMatrix getTransform();
   [Throws, LenientFloat]
   void setTransform(double a, double b, double c, double d, double e, double f);
-  [Throws, LenientFloat]
+  [Throws]
   void setTransform(optional DOMMatrix2DInit transform);
   [Throws]
   void resetTransform();
@@ -291,8 +291,7 @@ interface CanvasImageData {
   void putImageData(ImageData imagedata, double dx, double dy, double dirtyX, double dirtyY, double dirtyWidth, double dirtyHeight);
 };
 
-[NoInterfaceObject]
-interface CanvasPathDrawingStyles {
+interface mixin CanvasPathDrawingStyles {
   // line caps/joins
   [LenientFloat]
   attribute double lineWidth; // (default 1)
@@ -317,8 +316,7 @@ interface CanvasTextDrawingStyles {
   attribute DOMString textBaseline; // "top", "hanging", "middle", "alphabetic", "ideographic", "bottom" (default: "alphabetic")
 };
 
-[NoInterfaceObject]
-interface CanvasPathMethods {
+interface mixin CanvasPathMethods {
   // shared path API methods
   void closePath();
   [LenientFloat]
@@ -402,4 +400,4 @@ interface Path2D
 {
   [Throws] void addPath(Path2D path, optional DOMMatrix2DInit transformation);
 };
-Path2D implements CanvasPathMethods;
+Path2D includes CanvasPathMethods;

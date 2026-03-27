@@ -432,8 +432,9 @@ public:
     return rv.StealNSResult();
   }
   NS_IMETHOD Focus() final override {
+    mozilla::dom::FocusOptions options;
     mozilla::ErrorResult rv;
-    Focus(rv);
+    Focus(options, rv);
     return rv.StealNSResult();
   }
   NS_IMETHOD GetDraggable(bool* aDraggable) final override {

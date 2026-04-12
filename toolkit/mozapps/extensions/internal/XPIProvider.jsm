@@ -6987,11 +6987,15 @@ AddonInternal.prototype = {
 
     let version;
     if (app.id == Services.appinfo.ID) {
-      version = aAppVersion;
+      if (this.type == "webextension")
+        // For WebExtensions, don't use the GRE version
+        version = "128.0";
+      else
+        version = aAppVersion;
     } else if (app.id == TOOLKIT_ID) {
       if (this.type == "webextension")
         // For WebExtensions, don't use the GRE version
-        version = aAppVersion;
+        version = "128.0";
       else
         version = aPlatformVersion;
     }

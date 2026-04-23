@@ -401,6 +401,7 @@ ImageEncoder::ExtractDataInternal(const nsAString& aType,
       layers::PlanarYCbCrImage* ycbcrImage = static_cast<layers::PlanarYCbCrImage*> (aImage);
       gfxImageFormat format = SurfaceFormat::A8R8G8B8_UINT32;
       uint32_t stride = GetAlignedStride<16>(aSize.width, 4);
+      auto size = stride * aSize.height;
       size_t length = BufferSizeFromStrideAndHeight(stride, aSize.height);
       if (length == 0) {
         return NS_ERROR_INVALID_ARG;
@@ -414,10 +415,10 @@ ImageEncoder::ExtractDataInternal(const nsAString& aType,
                         stride);
 
       rv = aEncoder->InitFromData(data.Elements(),
-                                  aSize.width * aSize.height * 4,
+                                  size,
                                   aSize.width,
                                   aSize.height,
-                                  aSize.width * 4,
+                                  stride,
                                   imgIEncoder::INPUT_FORMAT_HOSTARGB,
                                   aOptions);
     } else {
@@ -434,10 +435,10 @@ ImageEncoder::ExtractDataInternal(const nsAString& aType,
         return NS_ERROR_INVALID_ARG;
       }
       rv = aEncoder->InitFromData(map.mData,
-                                  aSize.width * aSize.height * 4,
+                                  map.mStride * aSize.height,
                                   aSize.width,
                                   aSize.height,
-                                  aSize.width * 4,
+                                  map.mStride,
                                   imgIEncoder::INPUT_FORMAT_HOSTARGB,
                                   aOptions);
       dataSurface->Unmap();
@@ -468,10 +469,10 @@ ImageEncoder::ExtractDataInternal(const nsAString& aType,
       return NS_ERROR_INVALID_ARG;
     }
     rv = aEncoder->InitFromData(map.mData,
-                                aSize.width * aSize.height * 4,
+                                map.mStride * aSize.height,
                                 aSize.width,
                                 aSize.height,
-                                aSize.width * 4,
+                                map.mStride,
                                 imgIEncoder::INPUT_FORMAT_HOSTARGB,
                                 aOptions);
     emptyCanvas->Unmap();

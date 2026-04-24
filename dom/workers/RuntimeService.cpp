@@ -1636,6 +1636,8 @@ RuntimeService::RegisterWorker(WorkerPrivate* aWorkerPrivate)
   }
   else {
     if (!mNavigatorPropertiesLoaded) {
+      MutexAutoLock lock(mMutex);
+      
       Navigator::AppName(mNavigatorProperties.mAppName,
                          false /* aUsePrefOverriddenValue */);
       if (NS_FAILED(Navigator::GetAppVersion(mNavigatorProperties.mAppVersion,
@@ -2564,6 +2566,7 @@ void
 RuntimeService::UpdateAppVersionOverridePreference(const nsAString& aValue)
 {
   AssertIsOnMainThread();
+  MutexAutoLock lock(mMutex);
   mNavigatorProperties.mAppVersionOverridden = aValue;
 }
 
@@ -2571,6 +2574,7 @@ void
 RuntimeService::UpdatePlatformOverridePreference(const nsAString& aValue)
 {
   AssertIsOnMainThread();
+  MutexAutoLock lock(mMutex);
   mNavigatorProperties.mPlatformOverridden = aValue;
 }
 
@@ -2585,7 +2589,10 @@ RuntimeService::UpdateAllWorkerLanguages(const nsTArray<nsString>& aLanguages)
 {
   MOZ_ASSERT(NS_IsMainThread());
 
-  mNavigatorProperties.mLanguages = aLanguages;
+  { 
+    MutexAutoLock lock(mMutex);
+    mNavigatorProperties.mLanguages = aLanguages;
+  }
   BROADCAST_ALL_WORKERS(UpdateLanguages, aLanguages);
 }
 

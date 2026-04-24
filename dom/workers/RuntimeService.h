@@ -75,7 +75,7 @@ class RuntimeService final : public nsIObserver
 
   struct IdleThreadInfo;
 
-  mozilla::Mutex mMutex;
+  mutable mozilla::Mutex mMutex;
 
   // Protected by mMutex.
   nsClassHashtable<nsCStringHashKey, WorkerDomainInfo> mDomainMap;
@@ -157,9 +157,10 @@ public:
   void
   ForgetSharedWorker(WorkerPrivate* aWorkerPrivate);
 
-  const NavigatorProperties&
+  NavigatorProperties
   GetNavigatorProperties() const
   {
+    MutexAutoLock lock(mMutex);
     return mNavigatorProperties;
   }
 

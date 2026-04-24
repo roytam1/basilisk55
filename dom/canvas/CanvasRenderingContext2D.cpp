@@ -4410,6 +4410,9 @@ CanvasRenderingContext2D::DrawOrMeasureText(const nsAString& aRawText,
     textToDraw.Truncate();
   }
 
+  // This is only needed to know if we can know the drawing bounding box easily.
+  const bool doCalculateBounds = NeedToCalculateBounds();
+  
   // for now, default to ltr if not in doc
   bool isRTL = false;
 
@@ -4430,8 +4433,6 @@ CanvasRenderingContext2D::DrawOrMeasureText(const nsAString& aRawText,
     isRTL = GET_BIDI_OPTION_DIRECTION(document->GetBidiOptions()) == IBMBIDI_TEXTDIRECTION_RTL;
   }
 
-  // This is only needed to know if we can know the drawing bounding box easily.
-  const bool doCalculateBounds = NeedToCalculateBounds();
   if (presShell->IsDestroying()) {
     return NS_ERROR_FAILURE;
   }

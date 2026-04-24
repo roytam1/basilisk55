@@ -2266,6 +2266,7 @@ XMLHttpRequestMainThread::MatchCharsetAndDecoderToResponseDocument()
 void
 XMLHttpRequestMainThread::ChangeStateToDone()
 {
+  RefPtr<XMLHttpRequestMainThread> kungfuDeathGrip(this);
   StopProgressEventTimer();
 
   MOZ_ASSERT(!mFlagParseBody,

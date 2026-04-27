@@ -1016,6 +1016,9 @@ nsHtml5TreeOperation::Perform(nsHtml5TreeOpExecutor* aBuilder,
       nsIContent* table = *(mOne.node);
       nsIContent* stackParent = *(mTwo.node);
       nsIContent* fosterParent = GetFosterParent(table, stackParent);
+      if (fosterParent) {
+        aBuilder->HoldElement(do_AddRef(fosterParent));
+      }
       *mThree.node = fosterParent;
       return NS_OK;
     }

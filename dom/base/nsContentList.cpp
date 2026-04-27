@@ -524,7 +524,8 @@ nsContentList::NamedItem(const nsAString& aName, bool aDoFlush)
 }
 
 void
-nsContentList::GetSupportedNames(nsTArray<nsString>& aNames)
+nsContentList::GetSupportedNames(nsTArray<nsString>& aNames,
+                                 FilterElementWithName aFilter)
 {
   BringSelfUpToDate(true);
 
@@ -547,7 +548,8 @@ nsContentList::GetSupportedNames(nsTArray<nsString>& aNames)
       // Note: nsINode::HasName means the name is exposed on the document,
       // which is false for options, so we don't check it here.
       const nsAttrValue* val = el->GetParsedAttr(nsGkAtoms::name);
-      if (val && val->Type() == nsAttrValue::eAtom) {
+      if (val && val->Type() == nsAttrValue::eAtom &&
+          (!aFilter || aFilter(el))) {
         nsIAtom* name = val->GetAtomValue();
         MOZ_ASSERT(name != nsGkAtoms::_empty,
                    "Empty names don't get atomized");

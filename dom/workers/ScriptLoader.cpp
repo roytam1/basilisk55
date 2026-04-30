@@ -1474,6 +1474,10 @@ CachePromiseHandler::ResolvedCallback(JSContext* aCx,
                                       JS::Handle<JS::Value> aValue)
 {
   AssertIsOnMainThread();
+  // If execution is already schuled, bail.
+  if (mLoadInfo.mExecutionScheduled) {
+    return;
+  }
   // May already have been canceled by CacheScriptLoader::Fail from
   // CancelMainThread.
   MOZ_ASSERT(mLoadInfo.mCacheStatus == ScriptLoadInfo::WritingToCache ||
@@ -1492,6 +1496,10 @@ CachePromiseHandler::RejectedCallback(JSContext* aCx,
                                       JS::Handle<JS::Value> aValue)
 {
   AssertIsOnMainThread();
+  // If execution is already schuled, bail.
+  if (mLoadInfo.mExecutionScheduled) {
+    return;
+  }
   // May already have been canceled by CacheScriptLoader::Fail from
   // CancelMainThread.
   MOZ_ASSERT(mLoadInfo.mCacheStatus == ScriptLoadInfo::WritingToCache ||

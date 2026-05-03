@@ -113,19 +113,10 @@ class MIRGenerator
 
     // Whether the main thread is trying to cancel this build.
     bool shouldCancel(const char* why) {
-        maybePause();
         return cancelBuild_;
     }
     void cancel() {
         cancelBuild_ = true;
-    }
-
-    void maybePause() {
-        if (pauseBuild_ && *pauseBuild_)
-            PauseCurrentHelperThread();
-    }
-    void setPauseFlag(mozilla::Atomic<bool, mozilla::Relaxed>* pauseBuild) {
-        pauseBuild_ = pauseBuild;
     }
 
     bool compilingWasm() const {
@@ -173,7 +164,6 @@ class MIRGenerator
     MIRGraph* graph_;
     AbortReasonOr<Ok> offThreadStatus_;
     ObjectGroupVector abortedPreliminaryGroups_;
-    mozilla::Atomic<bool, mozilla::Relaxed>* pauseBuild_;
     mozilla::Atomic<bool, mozilla::Relaxed> cancelBuild_;
 
     uint32_t wasmMaxStackArgBytes_;

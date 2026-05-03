@@ -26,7 +26,6 @@ MIRGenerator::MIRGenerator(CompileCompartment* compartment, const JitCompileOpti
     graph_(graph),
     offThreadStatus_(Ok()),
     abortedPreliminaryGroups_(*alloc_),
-    pauseBuild_(nullptr),
     cancelBuild_(false),
     wasmMaxStackArgBytes_(0),
     performsCall_(false),

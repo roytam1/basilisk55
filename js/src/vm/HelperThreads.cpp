@@ -110,6 +110,18 @@ js::StartOffThreadIonCompile(JSContext* cx, jit::IonBuilder* builder)
     return true;
 }
 
+bool
+js::StartOffThreadIonFree(jit::IonBuilder* builder, const AutoLockHelperThreadState& lock)
+{
+    MOZ_ASSERT(CanUseExtraThreads());
+
+    if (!HelperThreadState().ionFreeList(lock).append(builder))
+        return false;
+
+    HelperThreadState().notifyOne(GlobalHelperThreadState::PRODUCER, lock);
+    return true;
+}
+
 /*
  * Move an IonBuilder for which compilation has either finished, failed, or
  * been cancelled into the global finished compilation list. All off thread
@@ -784,6 +796,14 @@ void
 GlobalHelperThreadState::finish()
 {
     finishThreads();
+
+    // Make sure there are no Ion free tasks left. We check this here because,
+    // unlike the other tasks, we don't explicitly block on this when
+    // destroying a runtime.
+    AutoLockHelperThreadState lock;
+    auto& freeList = ionFreeList(lock);
+    while (!freeList.empty())
+        jit::FreeIonBuilder(freeList.popCopy());
 }
 
 void
@@ -992,6 +1012,12 @@ GlobalHelperThreadState::canStartIonCompile(const AutoLockHelperThreadState& loc
 {
     return !ionWorklist(lock).empty() &&
            checkTaskThreadLimit<jit::IonBuilder*>(maxIonCompilationThreads());
+}
+
+bool
+GlobalHelperThreadState::canStartIonFreeTask(const AutoLockHelperThreadState& lock)
+{
+    return !ionFreeList(lock).empty();
 }
 
 jit::IonBuilder*
@@ -1611,6 +1637,21 @@ CurrentHelperThread()
 }
 
 void
+HelperThread::handleIonFreeWorkload(AutoLockHelperThreadState& locked)
+{
+    MOZ_ASSERT(idle());
+    MOZ_ASSERT(HelperThreadState().canStartIonFreeTask(locked));
+
+    auto& freeList = HelperThreadState().ionFreeList(locked);
+
+    jit::IonBuilder* builder = freeList.popCopy();
+    {
+        AutoUnlockHelperThreadState unlock(locked);
+        FreeIonBuilder(builder);
+    }
+}
+
+void
 js::PauseCurrentHelperThread()
 {
     TraceLoggerThread* logger = TraceLoggerForCurrentThread();
@@ -1925,6 +1966,8 @@ HelperThread::threadLoop()
                 task = js::oom::THREAD_TYPE_PARSE;
             else if (HelperThreadState().canStartCompressionTask(lock))
                 task = js::oom::THREAD_TYPE_COMPRESS;
+            else if (HelperThreadState().canStartIonFreeTask(lock))
+                task = js::oom::THREAD_TYPE_ION_FREE;
             else
                 task = js::oom::THREAD_TYPE_NONE;
 
@@ -1956,6 +1999,9 @@ HelperThread::threadLoop()
             break;
           case js::oom::THREAD_TYPE_COMPRESS:
             handleCompressionWorkload(lock);
+            break;
+          case js::oom::THREAD_TYPE_ION_FREE:
+            handleIonFreeWorkload(lock);
             break;
           default:
             MOZ_CRASH("No task to perform");

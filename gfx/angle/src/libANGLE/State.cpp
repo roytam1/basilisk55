@@ -957,7 +957,7 @@ bool State::removeReadFramebufferBinding(GLuint framebuffer)
 
 bool State::removeDrawFramebufferBinding(GLuint framebuffer)
 {
-    if (mReadFramebuffer != nullptr &&
+    if (mDrawFramebuffer != nullptr &&
         mDrawFramebuffer->id() == framebuffer)
     {
         setDrawFramebufferBinding(nullptr);

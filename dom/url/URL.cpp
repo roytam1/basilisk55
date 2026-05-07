@@ -1792,11 +1792,11 @@ URL::CanParse(const GlobalObject& aGlobal, const nsAString& aURL,
   return true;
 }
 
-URLSearchParams*
+already_AddRefed<URLSearchParams>
 URL::SearchParams()
 {
   CreateSearchParamsIfNeeded();
-  return mSearchParams;
+  return do_AddRef(mSearchParams);
 }
 
 bool IsChromeURI(nsIURI* aURI)

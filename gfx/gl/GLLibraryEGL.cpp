@@ -355,7 +355,6 @@ GLLibraryEGL::EnsureInitialized(bool forceAccel, nsACString* const out_failureId
 #endif
 
     if (!mEGLLibrary) {
-        printf_stderr("Attempting load of libEGL.so\n");
         mEGLLibrary = PR_LoadLibrary("libEGL.so");
     }
 #if defined(XP_UNIX)
@@ -786,4 +785,3 @@ GLLibraryEGL::AfterGLCall(const char* glFunction)
 
 } /* namespace gl */
 } /* namespace mozilla */
-

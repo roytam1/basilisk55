@@ -4068,7 +4068,6 @@ HTMLInputElement::StartRangeThumbDrag(WidgetGUIEvent* aEvent)
   // of the thumb.
   nsIPresShell::SetCapturingContent(this, CAPTURE_IGNOREALLOWED);
   nsRangeFrame* rangeFrame = do_QueryFrame(GetPrimaryFrame());
-  if(!rangeFrame) return;
 
   // Before we change the value, record the current value so that we'll
   // correctly send a 'change' event if appropriate. We need to do this here
@@ -4077,7 +4076,9 @@ HTMLInputElement::StartRangeThumbDrag(WidgetGUIEvent* aEvent)
   // have changed it by then).
   GetValue(mFocusedValue, CallerType::System);
 
-  SetValueOfRangeForUserEvent(rangeFrame->GetValueAtEventPoint(aEvent));
+  if (rangeFrame) {
+    SetValueOfRangeForUserEvent(rangeFrame->GetValueAtEventPoint(aEvent));
+  }
 }
 
 void
@@ -4090,7 +4091,9 @@ HTMLInputElement::FinishRangeThumbDrag(WidgetGUIEvent* aEvent)
   }
   if (aEvent) {
     nsRangeFrame* rangeFrame = do_QueryFrame(GetPrimaryFrame());
-    SetValueOfRangeForUserEvent(rangeFrame->GetValueAtEventPoint(aEvent));
+    if (rangeFrame) {
+      SetValueOfRangeForUserEvent(rangeFrame->GetValueAtEventPoint(aEvent));
+    }
   }
   mIsDraggingRange = false;
   FireChangeEventIfNeeded();

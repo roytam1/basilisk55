@@ -1487,8 +1487,9 @@ protected:
   bool ParseHSLColor(float& aHue, float& aSaturation, float& aLightness,
                      float& aOpacity);
   bool ParseLCHColor(nscolor& aColor);
-  bool ParseOKLabColor(nscolor& aColor);
-  bool ParseOKLCHColor(nscolor& aColor);
+  bool ParseOKLabColor(float& aL, float& aA, float& aB, float& aAlpha);
+  bool ParseOKLCHColor(float& aL, float& aChroma, float& aHue,
+                       float& aAlpha);
   bool ParseOKLabComponent(float& aComponent, float aPercentScale,
                            Maybe<char> aSeparator);
 
@@ -7763,7 +7764,7 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           return CSSParseResult::Error;
         }
         
-        // Check for supported color spaces: srgb or hsl
+        // Check for supported color spaces.
         if (!GetToken(true) || mToken.mType != eCSSToken_Ident) {
           SkipUntil(')');
           return CSSParseResult::Error;
@@ -7774,6 +7775,10 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
           colorSpace = mozilla::css::ColorMixColorSpace::sRGB;
         } else if (mToken.mIdent.LowerCaseEqualsLiteral("hsl")) {
           colorSpace = mozilla::css::ColorMixColorSpace::HSL;
+        } else if (mToken.mIdent.LowerCaseEqualsLiteral("oklab")) {
+          colorSpace = mozilla::css::ColorMixColorSpace::Oklab;
+        } else if (mToken.mIdent.LowerCaseEqualsLiteral("oklch")) {
+          colorSpace = mozilla::css::ColorMixColorSpace::Oklch;
         } else {
           SkipUntil(')');
           return CSSParseResult::Error;
@@ -7922,16 +7927,19 @@ CSSParserImpl::ParseColor(nsCSSValue& aValue)
         return CSSParseResult::Error;
       }
       else if (mToken.mIdent.LowerCaseEqualsLiteral("oklab")) {
-        if (ParseOKLabColor(rgba)) {
-          aValue.SetColorValue(rgba);
+        float l, a, b, alpha;
+        if (ParseOKLabColor(l, a, b, alpha)) {
+          aValue.SetFloatColorValue(l, a, b, alpha, eCSSUnit_OklabColor);
           return CSSParseResult::Ok;
         }
         SkipUntil(')');
         return CSSParseResult::Error;
       }
       else if (mToken.mIdent.LowerCaseEqualsLiteral("oklch")) {
-        if (ParseOKLCHColor(rgba)) {
-          aValue.SetColorValue(rgba);
+        float l, chroma, hue, alpha;
+        if (ParseOKLCHColor(l, chroma, hue, alpha)) {
+          aValue.SetFloatColorValue(l, chroma, hue, alpha,
+                                    eCSSUnit_OklchColor);
           return CSSParseResult::Ok;
         }
         SkipUntil(')');
@@ -8183,7 +8191,8 @@ CSSParserImpl::ParseLCHColor(nscolor& aColor)
 }
 
 bool
-CSSParserImpl::ParseOKLabColor(nscolor& aColor)
+CSSParserImpl::ParseOKLabColor(float& aL, float& aA, float& aB,
+                               float& aAlpha)
 {
   const char commaSeparator = ',';
   float l, a, b, alpha;
@@ -8201,12 +8210,16 @@ CSSParserImpl::ParseOKLabColor(nscolor& aColor)
     return false;
   }
 
-  aColor = OklabToSRGBColor(l, a, b, alpha);
+  aL = mozilla::clamped(l, 0.0f, 1.0f);
+  aA = a;
+  aB = b;
+  aAlpha = alpha;
   return true;
 }
 
 bool
-CSSParserImpl::ParseOKLCHColor(nscolor& aColor)
+CSSParserImpl::ParseOKLCHColor(float& aL, float& aChroma, float& aHue,
+                               float& aAlpha)
 {
   const char commaSeparator = ',';
   float l, chroma, hue, alpha;
@@ -8224,7 +8237,10 @@ CSSParserImpl::ParseOKLCHColor(nscolor& aColor)
     return false;
   }
 
-  aColor = OklchToSRGBColor(l, chroma, hue, alpha);
+  aL = mozilla::clamped(l, 0.0f, 1.0f);
+  aChroma = std::max(chroma, 0.0f);
+  aHue = NormalizeHue(hue);
+  aAlpha = alpha;
   return true;
 }
 

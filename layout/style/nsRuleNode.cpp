@@ -16,6 +16,7 @@
 #include "mozilla/Assertions.h"
 #include "mozilla/DebugOnly.h"
 #include "mozilla/dom/AnimationEffectReadOnlyBinding.h" // for PlaybackDirection
+#include "mozilla/FloatingPoint.h"
 #include "mozilla/Likely.h"
 #include "mozilla/LookAndFeel.h"
 #include "mozilla/Maybe.h"
@@ -1905,6 +1906,22 @@ SetValue(const nsCSSValue& aValue, FieldT& aField,
 #define SETFCT_UNSET_INHERIT  0x00400000
 #define SETFCT_UNSET_INITIAL  0x00800000
 
+struct RuleNodeReduceNumberCalcOps : public css::BasicFloatCalcOps,
+                                     public css::CSSValueInputCalcOps
+{
+  coeff_type ComputeCoefficient(const nsCSSValue& aValue)
+  {
+    MOZ_ASSERT(aValue.GetUnit() == eCSSUnit_Number, "unexpected unit");
+    return aValue.GetFloatValue();
+  }
+
+  result_type ComputeLeafValue(const nsCSSValue& aValue)
+  {
+    MOZ_ASSERT(aValue.GetUnit() == eCSSUnit_Number, "unexpected unit");
+    return aValue.GetFloatValue();
+  }
+};
+
 static void
 SetFactor(const nsCSSValue& aValue, float& aField, RuleNodeCacheConditions& aConditions,
           float aParentValue, float aInitialValue, uint32_t aFlags = 0)
@@ -1915,6 +1932,9 @@ SetFactor(const nsCSSValue& aValue, float& aField, RuleNodeCacheConditions& aCon
 
   case eCSSUnit_Number:
     aField = aValue.GetFloatValue();
+    if (mozilla::IsNaN(aField)) {
+      aField = 0.0f;
+    }
     if (aFlags & SETFCT_POSITIVE) {
       NS_ASSERTION(aField >= 0.0f, "negative value for positive-only property");
       if (aField < 0.0f) {
@@ -1930,6 +1950,29 @@ SetFactor(const nsCSSValue& aValue, float& aField, RuleNodeCacheConditions& aCon
       }
     }
     return;
+
+  case eCSSUnit_Calc: {
+    RuleNodeReduceNumberCalcOps ops;
+    aField = css::ComputeCalc(aValue, ops);
+    if (mozilla::IsNaN(aField)) {
+      aField = 0.0f;
+    }
+    if (aFlags & SETFCT_POSITIVE) {
+      NS_ASSERTION(aField >= 0.0f, "negative value for positive-only property");
+      if (aField < 0.0f) {
+        aField = 0.0f;
+      }
+    }
+    if (aFlags & SETFCT_OPACITY) {
+      if (aField < 0.0f) {
+        aField = 0.0f;
+      }
+      if (aField > 1.0f) {
+        aField = 1.0f;
+      }
+    }
+    return;
+  }
 
   case eCSSUnit_Inherit:
     aConditions.SetUncacheable();

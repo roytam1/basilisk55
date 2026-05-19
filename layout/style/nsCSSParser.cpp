@@ -245,6 +245,49 @@ RoundFloatToCSSInteger(float aValue)
 }
 
 static bool
+IsCalcSpecialNumberIdent(const nsAString& aIdent, float& aValue)
+{
+  if (aIdent.LowerCaseEqualsLiteral("nan")) {
+    aValue = std::numeric_limits<float>::quiet_NaN();
+    return true;
+  }
+
+  if (aIdent.LowerCaseEqualsLiteral("infinity")) {
+    aValue = std::numeric_limits<float>::infinity();
+    return true;
+  }
+
+  if (aIdent.LowerCaseEqualsLiteral("-infinity")) {
+    aValue = -std::numeric_limits<float>::infinity();
+    return true;
+  }
+
+  return false;
+}
+
+static bool
+IsCalcNumberFunctionName(const nsAString& aIdent)
+{
+  return aIdent.LowerCaseEqualsLiteral("min") ||
+         aIdent.LowerCaseEqualsLiteral("max") ||
+         aIdent.LowerCaseEqualsLiteral("clamp");
+}
+
+static void
+WrapCalcNumberValue(nsCSSValue& aValue, float aNumber)
+{
+  RefPtr<nsCSSValue::Array> arr = nsCSSValue::Array::Create(1);
+  arr->Item(0).SetFloatValue(aNumber, eCSSUnit_Number);
+  aValue.SetArrayValue(arr, eCSSUnit_Calc);
+}
+
+static bool
+IsFiniteCalcNumber(float aValue)
+{
+  return !std::isnan(aValue) && !std::isinf(aValue);
+}
+
+static bool
 GetCalcLengthTypedArithmeticExponent(const nsCSSValue& aValue,
                                      int32_t& aExponent)
 {
@@ -306,7 +349,8 @@ GetCalcLengthTypedArithmeticExponent(const nsCSSValue& aValue,
 static bool
 NormalizeCalcForVariant(nsCSSValue& aValue,
                         uint32_t aPropertyVariantMask,
-                        uint32_t aResultVariantMask)
+                        uint32_t aResultVariantMask,
+                        bool aSawSpecialNumericValues = false)
 {
   if (ShouldPreserveCalcValue(aPropertyVariantMask)) {
     return true;
@@ -317,7 +361,13 @@ NormalizeCalcForVariant(nsCSSValue& aValue,
     float value = mozilla::css::ComputeCalc(aValue, ops);
 
     if (aPropertyVariantMask & VARIANT_INTEGER) {
+      if (!IsFiniteCalcNumber(value)) {
+        return false;
+      }
       aValue.SetIntValue(RoundFloatToCSSInteger(value), eCSSUnit_Integer);
+    } else if ((aPropertyVariantMask & VARIANT_OPACITY) &&
+               aSawSpecialNumericValues) {
+      WrapCalcNumberValue(aValue, value);
     } else {
       aValue.SetFloatValue(value, eCSSUnit_Number);
     }
@@ -329,7 +379,11 @@ NormalizeCalcForVariant(nsCSSValue& aValue,
     float value = mozilla::css::ComputeCalc(aValue, ops);
 
     if (aPropertyVariantMask & VARIANT_OPACITY) {
-      aValue.SetFloatValue(value, eCSSUnit_Number);
+      if (aSawSpecialNumericValues) {
+        WrapCalcNumberValue(aValue, value);
+      } else {
+        aValue.SetFloatValue(value, eCSSUnit_Number);
+      }
     } else {
       aValue.SetPercentValue(value);
     }
@@ -1170,13 +1224,16 @@ protected:
   bool ParseBorderWidth();
 
   bool ParseCalc(nsCSSValue& aValue, uint32_t aVariantMask,
-                 uint32_t* aResultVariantMask = nullptr);
+                 uint32_t* aResultVariantMask = nullptr,
+                 bool* aSawSpecialNumericValues = nullptr);
   bool ParseCalcAdditiveExpression(nsCSSValue& aValue,
                                    uint32_t& aVariantMask);
   bool ParseCalcMultiplicativeExpression(nsCSSValue& aValue,
                                          uint32_t& aVariantMask,
                                          bool *aHadFinalWS);
   bool ParseCalcTerm(nsCSSValue& aValue, uint32_t& aVariantMask);
+  bool ParseCalcNumberExpressionValue(float& aValue);
+  bool ParseCalcNumberFunction(nsCSSValue& aValue, uint32_t& aVariantMask);
   bool RequireWhitespace();
 
   // For "flex" shorthand property, defined in CSS Flexbox spec
@@ -1767,6 +1824,7 @@ protected:
   // out of the parser.
   bool mSheetPrincipalRequired;
   bool mCalcAllowsTypedArithmetic;
+  bool mCalcHasSpecialNumericValues;
 
   // This enum helps us track whether we've unprefixed "display: -webkit-box"
   // (treating it as "display: flex") in an earlier declaration within a series
@@ -1871,6 +1929,7 @@ CSSParserImpl::CSSParserImpl()
     mSuppressErrors(false),
     mSheetPrincipalRequired(true),
     mCalcAllowsTypedArithmetic(false),
+    mCalcHasSpecialNumericValues(false),
     mWebkitBoxUnprefixState(eNotParsingDecls),
     mNextFree(nullptr)
 {
@@ -9187,8 +9246,11 @@ CSSParserImpl::ParseVariant(nsCSSValue& aValue,
        !ShouldPreserveCalcValue(calcVariantMask)) &&
       IsCalcFunctionToken(*tk)) {
     uint32_t calcResultVariantMask = calcVariantMask;
-    if (!ParseCalc(aValue, calcVariantMask, &calcResultVariantMask) ||
-        !NormalizeCalcForVariant(aValue, aVariantMask, calcResultVariantMask)) {
+    bool sawSpecialNumericValues = false;
+    if (!ParseCalc(aValue, calcVariantMask, &calcResultVariantMask,
+                   &sawSpecialNumericValues) ||
+        !NormalizeCalcForVariant(aValue, aVariantMask, calcResultVariantMask,
+                                 sawSpecialNumericValues)) {
       return CSSParseResult::Error;
     }
     return CSSParseResult::Ok;
@@ -14886,7 +14948,8 @@ CSSParserImpl::ParseBorderColors(nsCSSPropertyID aProperty)
 // Parse the top level of a calc() expression.
 bool
 CSSParserImpl::ParseCalc(nsCSSValue& aValue, uint32_t aVariantMask,
-                         uint32_t* aResultVariantMask)
+                         uint32_t* aResultVariantMask,
+                         bool* aSawSpecialNumericValues)
 {
   // Parsing calc expressions requires, in a number of cases, looking
   // for a token that is *either* a value of the property or a number.
@@ -14898,7 +14961,9 @@ CSSParserImpl::ParseCalc(nsCSSValue& aValue, uint32_t aVariantMask,
              "or VARIANT_INTEGER");
 
   bool oldUnitlessLengthQuirk = mUnitlessLengthQuirk;
+  bool oldCalcHasSpecialNumericValues = mCalcHasSpecialNumericValues;
   mUnitlessLengthQuirk = false;
+  mCalcHasSpecialNumericValues = false;
 
   // One-iteration loop so we can break to the error-handling case.
   do {
@@ -14935,11 +15000,21 @@ CSSParserImpl::ParseCalc(nsCSSValue& aValue, uint32_t aVariantMask,
     if (aResultVariantMask) {
       *aResultVariantMask = resultVariantMask;
     }
+    if (aSawSpecialNumericValues) {
+      *aSawSpecialNumericValues = mCalcHasSpecialNumericValues;
+    }
+    mCalcHasSpecialNumericValues =
+      oldCalcHasSpecialNumericValues || mCalcHasSpecialNumericValues;
     mUnitlessLengthQuirk = oldUnitlessLengthQuirk;
     return true;
   } while (false);
 
   SkipUntil(')');
+  if (aSawSpecialNumericValues) {
+    *aSawSpecialNumericValues = mCalcHasSpecialNumericValues;
+  }
+  mCalcHasSpecialNumericValues =
+    oldCalcHasSpecialNumericValues || mCalcHasSpecialNumericValues;
   mUnitlessLengthQuirk = oldUnitlessLengthQuirk;
   return false;
 }
@@ -15159,6 +15234,24 @@ CSSParserImpl::ParseCalcTerm(nsCSSValue& aValue, uint32_t& aVariantMask)
     }
     return true;
   }
+  if (mToken.mType == eCSSToken_Function &&
+      IsCalcNumberFunctionName(mToken.mIdent)) {
+    if (!ParseCalcNumberFunction(aValue, aVariantMask)) {
+      SkipUntil(')');
+      return false;
+    }
+    return true;
+  }
+  if ((aVariantMask & VARIANT_NUMBER) != 0 &&
+      mToken.mType == eCSSToken_Ident) {
+    float specialValue;
+    if (IsCalcSpecialNumberIdent(mToken.mIdent, specialValue)) {
+      mCalcHasSpecialNumericValues = true;
+      aValue.SetFloatValue(specialValue, eCSSUnit_Number);
+      aVariantMask = VARIANT_NUMBER;
+      return true;
+    }
+  }
   // ... or just a value
   UngetToken();
   if (aVariantMask & VARIANT_INTEGER) {
@@ -15189,6 +15282,82 @@ CSSParserImpl::ParseCalcTerm(nsCSSValue& aValue, uint32_t& aVariantMask)
       aVariantMask &= ~int32_t(VARIANT_NUMBER);
     }
   }
+  return true;
+}
+
+bool
+CSSParserImpl::ParseCalcNumberExpressionValue(float& aValue)
+{
+  nsCSSValue expression;
+  uint32_t variantMask = VARIANT_NUMBER;
+  if (!ParseCalcAdditiveExpression(expression, variantMask) ||
+      variantMask != VARIANT_NUMBER) {
+    return false;
+  }
+
+  ReduceNumberCalcOps ops;
+  aValue = mozilla::css::ComputeCalc(expression, ops);
+  return true;
+}
+
+bool
+CSSParserImpl::ParseCalcNumberFunction(nsCSSValue& aValue,
+                                       uint32_t& aVariantMask)
+{
+  MOZ_ASSERT(mToken.mType == eCSSToken_Function, "expected function token");
+  MOZ_ASSERT(IsCalcNumberFunctionName(mToken.mIdent),
+             "unexpected calc() number function");
+
+  float result;
+
+  if (mToken.mIdent.LowerCaseEqualsLiteral("clamp")) {
+    float minValue;
+    float centerValue;
+    float maxValue;
+    if (!ParseCalcNumberExpressionValue(minValue) ||
+        !ExpectSymbol(',', true) ||
+        !ParseCalcNumberExpressionValue(centerValue) ||
+        !ExpectSymbol(',', true) ||
+        !ParseCalcNumberExpressionValue(maxValue) ||
+        !ExpectSymbol(')', true)) {
+      return false;
+    }
+
+    if (std::isnan(minValue) || std::isnan(centerValue) ||
+        std::isnan(maxValue)) {
+      result = std::numeric_limits<float>::quiet_NaN();
+    } else {
+      result = std::max(minValue, std::min(centerValue, maxValue));
+    }
+  } else {
+    const bool isMax = mToken.mIdent.LowerCaseEqualsLiteral("max");
+    bool sawComma = false;
+
+    if (!ParseCalcNumberExpressionValue(result)) {
+      return false;
+    }
+
+    while (ExpectSymbol(',', true)) {
+      sawComma = true;
+      float candidate;
+      if (!ParseCalcNumberExpressionValue(candidate)) {
+        return false;
+      }
+      if (std::isnan(result) || std::isnan(candidate)) {
+        result = std::numeric_limits<float>::quiet_NaN();
+      } else {
+        result = isMax ? std::max(result, candidate)
+                       : std::min(result, candidate);
+      }
+    }
+
+    if (!sawComma || !ExpectSymbol(')', true)) {
+      return false;
+    }
+  }
+
+  aValue.SetFloatValue(result, eCSSUnit_Number);
+  aVariantMask = VARIANT_NUMBER;
   return true;
 }
 

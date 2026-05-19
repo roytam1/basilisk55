@@ -4435,7 +4435,9 @@ MAKE_GC_SWEEP_TASK(SweepBaseShapesTask);
 MAKE_GC_SWEEP_TASK(SweepInitialShapesTask);
 MAKE_GC_SWEEP_TASK(SweepObjectGroupsTask);
 MAKE_GC_SWEEP_TASK(SweepRegExpsTask);
-MAKE_GC_SWEEP_TASK(SweepMiscTask);
+MAKE_GC_SWEEP_TASK(SweepSavedStacksTask);
+MAKE_GC_SWEEP_TASK(SweepSelfHostingScriptSourceTask);
+MAKE_GC_SWEEP_TASK(SweepNativeIteratorsTask);
 #undef MAKE_GC_SWEEP_TASK
 
 /* virtual */ void
@@ -4468,13 +4470,25 @@ SweepRegExpsTask::run()
 }
 
 /* virtual */ void
-SweepMiscTask::run()
+SweepSavedStacksTask::run()
 {
     for (GCCompartmentGroupIter c(runtime); !c.done(); c.next()) {
         c->sweepSavedStacks();
-        c->sweepSelfHostingScriptSource();
-        c->sweepNativeIterators();
     }
+}
+
+/* virtual */ void
+SweepSelfHostingScriptSourceTask::run()
+{
+    for (GCCompartmentGroupIter c(runtime); !c.done(); c.next())
+        c->sweepSelfHostingScriptSource();
+}
+
+/* virtual */ void
+SweepNativeIteratorsTask::run()
+{
+    for (GCCompartmentGroupIter c(runtime); !c.done(); c.next())
+        c->sweepNativeIterators();
 }
 
 void
@@ -4557,7 +4571,9 @@ GCRuntime::beginSweepingZoneGroup(AutoLockForExclusiveAccess& lock)
     SweepCCWrappersTask sweepCCWrappersTask(rt);
     SweepObjectGroupsTask sweepObjectGroupsTask(rt);
     SweepRegExpsTask sweepRegExpsTask(rt);
-    SweepMiscTask sweepMiscTask(rt);
+    SweepSavedStacksTask sweepSavedStacksTask(rt);
+    SweepSelfHostingScriptSourceTask sweepSelfHostingScriptSourceTask(rt);
+    SweepNativeIteratorsTask sweepNativeIteratorsTask(rt);
     WeakCacheTaskVector sweepCacheTasks = PrepareWeakCacheTasks(rt);
 
     for (GCZoneGroupIter zone(rt); !zone.done(); zone.next()) {
@@ -4605,7 +4621,9 @@ GCRuntime::beginSweepingZoneGroup(AutoLockForExclusiveAccess& lock)
             startTask(sweepCCWrappersTask, gcstats::PHASE_SWEEP_CC_WRAPPER, helperLock);
             startTask(sweepObjectGroupsTask, gcstats::PHASE_SWEEP_TYPE_OBJECT, helperLock);
             startTask(sweepRegExpsTask, gcstats::PHASE_SWEEP_REGEXP, helperLock);
-            startTask(sweepMiscTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+            startTask(sweepSavedStacksTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+            startTask(sweepSelfHostingScriptSourceTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+            startTask(sweepNativeIteratorsTask, gcstats::PHASE_SWEEP_MISC, helperLock);
             for (auto& task : sweepCacheTasks)
                 startTask(task, gcstats::PHASE_SWEEP_MISC, helperLock);
         }
@@ -4684,7 +4702,9 @@ GCRuntime::beginSweepingZoneGroup(AutoLockForExclusiveAccess& lock)
         joinTask(sweepCCWrappersTask, gcstats::PHASE_SWEEP_CC_WRAPPER, helperLock);
         joinTask(sweepObjectGroupsTask, gcstats::PHASE_SWEEP_TYPE_OBJECT, helperLock);
         joinTask(sweepRegExpsTask, gcstats::PHASE_SWEEP_REGEXP, helperLock);
-        joinTask(sweepMiscTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+        joinTask(sweepSavedStacksTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+        joinTask(sweepSelfHostingScriptSourceTask, gcstats::PHASE_SWEEP_MISC, helperLock);
+        joinTask(sweepNativeIteratorsTask, gcstats::PHASE_SWEEP_MISC, helperLock);
         for (auto& task : sweepCacheTasks)
             joinTask(task, gcstats::PHASE_SWEEP_MISC, helperLock);
     }

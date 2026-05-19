@@ -303,6 +303,11 @@ nsRuleNode::EnsureInlineDisplay(StyleDisplay& display)
   }
 }
 
+enum class AppUnitRounding {
+  Default,
+  TowardZero
+};
+
 static nscoord CalcLengthWith(const nsCSSValue& aValue,
                               nscoord aFontSize,
                               const nsStyleFont* aStyleFont,
@@ -310,7 +315,9 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
                               nsPresContext* aPresContext,
                               bool aUseProvidedRootEmSize,
                               bool aUseUserFontSet,
-                              RuleNodeCacheConditions& aConditions);
+                              RuleNodeCacheConditions& aConditions,
+                              AppUnitRounding aRounding =
+                                AppUnitRounding::Default);
 
 struct CalcLengthCalcOps : public css::BasicCoordCalcOps,
                            public css::FloatCoeffsAlreadyNormalizedOps
@@ -328,18 +335,21 @@ struct CalcLengthCalcOps : public css::BasicCoordCalcOps,
   const bool mUseProvidedRootEmSize;
   const bool mUseUserFontSet;
   RuleNodeCacheConditions& mConditions;
+  const AppUnitRounding mRounding;
 
   CalcLengthCalcOps(nscoord aFontSize, const nsStyleFont* aStyleFont,
                     nsStyleContext* aStyleContext, nsPresContext* aPresContext,
                     bool aUseProvidedRootEmSize, bool aUseUserFontSet,
-                    RuleNodeCacheConditions& aConditions)
+                    RuleNodeCacheConditions& aConditions,
+                    AppUnitRounding aRounding)
     : mFontSize(aFontSize),
       mStyleFont(aStyleFont),
       mStyleContext(aStyleContext),
       mPresContext(aPresContext),
       mUseProvidedRootEmSize(aUseProvidedRootEmSize),
       mUseUserFontSet(aUseUserFontSet),
-      mConditions(aConditions)
+      mConditions(aConditions),
+      mRounding(aRounding)
   {
   }
 
@@ -347,13 +357,82 @@ struct CalcLengthCalcOps : public css::BasicCoordCalcOps,
   {
     return CalcLengthWith(aValue, mFontSize, mStyleFont,
                           mStyleContext, mPresContext, mUseProvidedRootEmSize,
-                          mUseUserFontSet, mConditions);
+                          mUseUserFontSet, mConditions, mRounding);
   }
 };
 
-static inline nscoord ScaleCoordRound(const nsCSSValue& aValue, float aFactor)
+static inline nscoord
+ScaleCoordWithRounding(const nsCSSValue& aValue, float aFactor,
+                       AppUnitRounding aRounding)
 {
+  if (aRounding == AppUnitRounding::TowardZero) {
+    return NSToCoordTruncClamped(aValue.GetFloatValue() * aFactor);
+  }
   return NSToCoordRoundWithClamp(aValue.GetFloatValue() * aFactor);
+}
+
+static inline nscoord
+CSSPixelsToAppUnitsWithRounding(float aPixels, AppUnitRounding aRounding)
+{
+  if (aRounding == AppUnitRounding::TowardZero) {
+    return NSToCoordTruncClamped(double(aPixels) *
+                                 nsPresContext::AppUnitsPerCSSPixel());
+  }
+  return nsPresContext::CSSPixelsToAppUnits(aPixels);
+}
+
+static nscoord
+GetFixedLengthWithRounding(const nsCSSValue& aValue,
+                           nsPresContext* aPresContext,
+                           AppUnitRounding aRounding)
+{
+  if (aRounding == AppUnitRounding::Default) {
+    return aValue.GetFixedLength(aPresContext);
+  }
+
+  MOZ_ASSERT(aValue.GetUnit() == eCSSUnit_PhysicalMillimeter,
+             "not a fixed length unit");
+  double inches = double(aValue.GetFloatValue()) / MM_PER_INCH_FLOAT;
+  return NSToCoordTruncClamped(
+    inches * aPresContext->DeviceContext()->AppUnitsPerPhysicalInch());
+}
+
+static nscoord
+GetPixelLengthWithRounding(const nsCSSValue& aValue,
+                           AppUnitRounding aRounding)
+{
+  MOZ_ASSERT(aValue.IsPixelLengthUnit(), "not a pixel length unit");
+
+  double scaleFactor;
+  switch (aValue.GetUnit()) {
+    case eCSSUnit_Pixel:
+      return CSSPixelsToAppUnitsWithRounding(aValue.GetFloatValue(),
+                                             aRounding);
+    case eCSSUnit_Pica:
+      scaleFactor = 16.0;
+      break;
+    case eCSSUnit_Point:
+      scaleFactor = 4.0 / 3.0;
+      break;
+    case eCSSUnit_Inch:
+      scaleFactor = 96.0;
+      break;
+    case eCSSUnit_Millimeter:
+      scaleFactor = 96.0 / 25.4;
+      break;
+    case eCSSUnit_Centimeter:
+      scaleFactor = 96.0 / 2.54;
+      break;
+    case eCSSUnit_Quarter:
+      scaleFactor = 96.0 / 101.6;
+      break;
+    default:
+      NS_ERROR("should never get here");
+      return 0;
+  }
+
+  return CSSPixelsToAppUnitsWithRounding(
+    float(double(aValue.GetFloatValue()) * scaleFactor), aRounding);
 }
 
 static inline nscoord ScaleViewportCoordTrunc(const nsCSSValue& aValue,
@@ -454,7 +533,8 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
                               // except when called from
                               // CalcLengthWithInitialFont.
                               bool aUseUserFontSet,
-                              RuleNodeCacheConditions& aConditions)
+                              RuleNodeCacheConditions& aConditions,
+                              AppUnitRounding aRounding)
 {
   NS_ASSERTION(aValue.IsLengthUnit() || aValue.IsCalcUnit(),
                "not a length or calc unit");
@@ -465,10 +545,10 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
   NS_ASSERTION(aPresContext, "Must have prescontext");
 
   if (aValue.IsFixedLengthUnit()) {
-    return aValue.GetFixedLength(aPresContext);
+    return GetFixedLengthWithRounding(aValue, aPresContext, aRounding);
   }
   if (aValue.IsPixelLengthUnit()) {
-    return aValue.GetPixelLength();
+    return GetPixelLengthWithRounding(aValue, aRounding);
   }
   if (aValue.IsCalcUnit()) {
     // For properties for which lengths are the *only* units accepted in
@@ -479,7 +559,7 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
     CalcLengthCalcOps ops(aFontSize, aStyleFont,
                           aStyleContext, aPresContext,
                           aUseProvidedRootEmSize, aUseUserFontSet,
-                          aConditions);
+                          aConditions, aRounding);
     return css::ComputeCalc(aValue, ops);
   }
   switch (aValue.GetUnit()) {
@@ -614,7 +694,7 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
         rootFontSize = rootStyleFont->mFont.size;
       }
 
-      return ScaleCoordRound(aValue, float(rootFontSize));
+      return ScaleCoordWithRounding(aValue, float(rootFontSize), aRounding);
     }
     default:
       // Fall through to the code for units that can't be stored in the
@@ -639,7 +719,7 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
       // CSS2.1 specifies that this unit scales to the computed font
       // size, not the em-width in the font metrics, despite the name.
       aConditions.SetFontSizeDependency(aFontSize);
-      return ScaleCoordRound(aValue, float(aFontSize));
+      return ScaleCoordWithRounding(aValue, float(aFontSize), aRounding);
     }
     case eCSSUnit_XHeight: {
       aPresContext->SetUsesExChUnits(true);
@@ -647,7 +727,7 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
         GetMetricsFor(aPresContext, aStyleContext, styleFont,
                       aFontSize, aUseUserFontSet);
       aConditions.SetUncacheable();
-      return ScaleCoordRound(aValue, float(fm->XHeight()));
+      return ScaleCoordWithRounding(aValue, float(fm->XHeight()), aRounding);
     }
     case eCSSUnit_Char: {
       aPresContext->SetUsesExChUnits(true);
@@ -659,8 +739,9 @@ static nscoord CalcLengthWith(const nsCSSValue& aValue,
           GetMetrics(fm->Orientation()).zeroOrAveCharWidth;
 
       aConditions.SetUncacheable();
-      return ScaleCoordRound(aValue, ceil(aPresContext->AppUnitsPerDevPixel() *
-                                          zeroWidth));
+      return ScaleCoordWithRounding(
+        aValue, ceil(aPresContext->AppUnitsPerDevPixel() * zeroWidth),
+        aRounding);
     }
     default:
       NS_NOTREACHED("unexpected unit");
@@ -690,6 +771,20 @@ static inline nscoord CalcLength(const nsCSSValue& aValue,
 {
   return nsRuleNode::CalcLength(aValue, aStyleContext,
                                 aPresContext, aConditions);
+}
+
+static inline nscoord
+CalcLengthTowardZero(const nsCSSValue& aValue,
+                     nsStyleContext* aStyleContext,
+                     nsPresContext* aPresContext,
+                     RuleNodeCacheConditions& aConditions)
+{
+  NS_ASSERTION(aStyleContext, "Must have style data");
+
+  return CalcLengthWith(aValue, -1, nullptr,
+                        aStyleContext, aPresContext,
+                        false, true, aConditions,
+                        AppUnitRounding::TowardZero);
 }
 
 /* static */ nscoord
@@ -8392,7 +8487,13 @@ nsRuleNode::ComputeOutlineData(void* aStartStruct,
   // outline-offset: length, inherit
   nsStyleCoord tempCoord;
   const nsCSSValue* outlineOffsetValue = aRuleData->ValueForOutlineOffset();
-  if (SetCoord(*outlineOffsetValue, tempCoord,
+  if (outlineOffsetValue->IsLengthUnit() || outlineOffsetValue->IsCalcUnit()) {
+    outline->mOutlineOffset =
+      NS_ROUND_OFFSET_TO_PIXELS(
+        CalcLengthTowardZero(*outlineOffsetValue, aContext, mPresContext,
+                             conditions),
+        mPresContext->AppUnitsPerDevPixel());
+  } else if (SetCoord(*outlineOffsetValue, tempCoord,
                nsStyleCoord(parentOutline->mOutlineOffset,
                             nsStyleCoord::CoordConstructor),
                SETCOORD_LH | SETCOORD_INITIAL_ZERO | SETCOORD_CALC_LENGTH_ONLY |

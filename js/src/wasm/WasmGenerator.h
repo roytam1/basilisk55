@@ -142,6 +142,8 @@ class CompileTask
     Maybe<jit::MacroAssembler> masm_;
     FuncCompileUnitVector      units_;
     bool                       debugEnabled_;
+    CompileTaskPtrVector*      finishedList_;
+    bool                       failed_;
 
     CompileTask(const CompileTask&) = delete;
     CompileTask& operator=(const CompileTask&) = delete;
@@ -156,9 +158,27 @@ class CompileTask
     CompileTask(const ModuleEnvironment& env, CompileMode mode, size_t defaultChunkSize)
       : env_(env),
         mode_(mode),
-        lifo_(defaultChunkSize)
+        lifo_(defaultChunkSize),
+        finishedList_(nullptr),
+        failed_(false)
     {
         init();
+    }
+    void setFinishedList(CompileTaskPtrVector* finishedList) {
+        finishedList_ = finishedList;
+    }
+
+    CompileTaskPtrVector* finishedList() const {
+        MOZ_ASSERT(finishedList_);
+        return finishedList_;
+    }
+
+    void setFailed() {
+        failed_ = true;
+    }
+
+    bool failed() const {
+        return failed_;
     }
     LifoAlloc& lifo() {
         return lifo_;
@@ -194,6 +214,7 @@ class CompileTask
         masm_.reset();
         alloc_.reset();
         lifo_.releaseAll();
+        failed_ = false;
 
         init();
         return true;
@@ -238,9 +259,11 @@ class MOZ_STACK_CLASS ModuleGenerator
 
     // Parallel compilation
     bool                            parallel_;
+    bool                            parallelCompilationInProgressOnHelperThread_;
     uint32_t                        outstanding_;
     CompileTaskVector               tasks_;
     CompileTaskPtrVector            freeTasks_;
+    CompileTaskPtrVector            finishedTasks_;
     UniqueFuncBytesVector           freeFuncBytes_;
     CompileTask*                    currentTask_;
     uint32_t                        batchedBytecode_;

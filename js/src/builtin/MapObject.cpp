@@ -310,7 +310,7 @@ const ClassOps MapObject::classOps_ = {
 const ClassSpec MapObject::classSpec_ = {
     GenericCreateConstructor<MapObject::construct, 0, gc::AllocKind::FUNCTION>,
     CreateMapPrototype,
-    nullptr,
+    MapObject::staticMethods,
     MapObject::staticProperties,
     MapObject::methods,
     MapObject::properties,
@@ -358,6 +358,11 @@ const JSFunctionSpec MapObject::methods[] = {
 const JSPropertySpec MapObject::staticProperties[] = {
     JS_SELF_HOSTED_SYM_GET(species, "MapSpecies", 0),
     JS_PS_END
+};
+
+const JSFunctionSpec MapObject::staticMethods[] = {
+    JS_SELF_HOSTED_FN("groupBy", "MapGroupBy", 2, 0),
+    JS_FS_END
 };
 
 template <class Range>

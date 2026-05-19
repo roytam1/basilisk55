@@ -126,7 +126,8 @@ nsCSSPseudoClasses::HasStringArg(Type aType)
          aType == Type::mozEmptyExceptChildrenWithLocalname ||
          aType == Type::mozSystemMetric ||
          aType == Type::mozLocaleDir ||
-         aType == Type::dir;
+         aType == Type::dir ||
+         aType == Type::part;
 }
 
 bool
@@ -211,7 +212,8 @@ nsCSSPseudoClasses::IsUserActionPseudoClass(Type aType)
 /* static */ bool
 nsCSSPseudoClasses::IsHybridPseudoElement(Type aType)
 {
-  return aType == Type::slotted;
+  return aType == Type::slotted ||
+         aType == Type::part;
 }
 
 /* static */ Maybe<bool>

@@ -334,6 +334,7 @@ nsCSSSelector::Clone(bool aDeepNext, bool aDeepNegations) const
   result->mCasedTag = mCasedTag;
   result->mOperator = mOperator;
   result->mPseudoType = mPseudoType;
+  result->mHybridPseudoType = mHybridPseudoType;
 
   NS_IF_CLONE(mIDList);
   NS_IF_CLONE(mClassList);

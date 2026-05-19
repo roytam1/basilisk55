@@ -13,6 +13,8 @@
 #include "mozilla/EnumTypeTraits.h"
 #include "nsCoord.h"
 #include "nsStyleConsts.h"
+#include "nsTArray.h"
+#include "mozilla/RefPtr.h"
 
 namespace mozilla {
 
@@ -109,7 +111,44 @@ public:
 
     // If this returns true the value is definitely zero. It it returns false
     // it might be zero. So it's best used for conservative optimization.
-    bool IsDefinitelyZero() const { return mLength == 0 && mPercent == 0; }
+    bool IsDefinitelyZero() const {
+      return mLength == 0 && mPercent == 0 && !mHasPercent;
+    }
+  };
+
+  struct CalcNode final {
+    NS_INLINE_DECL_THREADSAFE_REFCOUNTING(CalcNode)
+
+    enum class Type : uint8_t {
+      Leaf,
+      Add,
+      Subtract,
+      Multiply,
+      Divide,
+      Min,
+      Max,
+      Clamp
+    };
+
+    static already_AddRefed<CalcNode> CreateLeaf(nscoord aLength,
+                                                 float aPercent,
+                                                 bool aHasPercent);
+    static already_AddRefed<CalcNode> Create(Type aType);
+
+    bool HasPercent() const;
+    bool Equals(const CalcNode& aOther) const;
+    uint32_t HashValue(uint32_t aHash) const;
+
+    Type mType;
+    nscoord mLength;
+    float mPercent;
+    float mNumber;
+    bool mHasPercent;
+    nsTArray<RefPtr<CalcNode>> mChildren;
+
+  private:
+    explicit CalcNode(Type aType);
+    ~CalcNode() {}
   };
 
   // Reference counted calc() value.  This is the type that is used to store
@@ -117,6 +156,11 @@ public:
   struct Calc final : public CalcValue {
     NS_INLINE_DECL_THREADSAFE_REFCOUNTING(Calc)
     Calc() {}
+
+    bool HasCalcNode() const { return !!mNode; }
+    nscoord Resolve(nscoord aPercentageBasis) const;
+
+    RefPtr<CalcNode> mNode;
 
   private:
     Calc(const Calc&) = delete;

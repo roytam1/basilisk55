@@ -1109,6 +1109,22 @@ nsComputedDOMStyle::DoGetBinding()
 }
 
 already_AddRefed<CSSValue>
+nsComputedDOMStyle::DoGetAspectRatio()
+{
+  RefPtr<nsROCSSPrimitiveValue> val = new nsROCSSPrimitiveValue;
+  float ratio = StylePosition()->mAspectRatio;
+  if (ratio == 0.0f) {
+    val->SetIdent(eCSSKeyword_auto);
+  } else {
+    nsAutoString ratioString;
+    nsStyleUtil::AppendCSSNumber(ratio, ratioString);
+    ratioString.AppendLiteral(" / 1");
+    val->SetString(ratioString);
+  }
+  return val.forget();
+}
+
+already_AddRefed<CSSValue>
 nsComputedDOMStyle::DoGetClear()
 {
   RefPtr<nsROCSSPrimitiveValue> val = new nsROCSSPrimitiveValue;
@@ -7054,4 +7070,3 @@ nsComputedDOMStyle::DoGetOverflowBlockEnd()
 {
   return DoGetOverflowBlock();
 }
-

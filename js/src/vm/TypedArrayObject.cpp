@@ -1885,7 +1885,18 @@ DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
 
     MOZ_ASSERT(byteOffset <= INT32_MAX);
     MOZ_ASSERT(byteLength <= INT32_MAX);
-    MOZ_ASSERT(byteOffset + byteLength < UINT32_MAX);
+
+    uint32_t bufferByteLength = arrayBuffer->byteLength();
+    if (byteOffset > bufferByteLength ||
+        (!lengthTracking && byteLength > bufferByteLength - byteOffset))
+    {
+        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_ARG_INDEX_OUT_OF_RANGE,
+                                  "1");
+        return nullptr;
+    }
+
+    if (lengthTracking)
+        byteLength = bufferByteLength - byteOffset;
 
     RootedObject proto(cx, protoArg);
     RootedObject obj(cx);
@@ -1909,9 +1920,6 @@ DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
         }
     }
 
-    // Caller should have established these preconditions, and no
-    // (non-self-hosted) JS code has had an opportunity to run so nothing can
-    // have invalidated them.
     MOZ_ASSERT(byteOffset <= arrayBuffer->byteLength());
     MOZ_ASSERT(byteOffset + byteLength <= arrayBuffer->byteLength());
 
@@ -2171,6 +2179,11 @@ template <typename NativeType>
 DataViewObject::getDataPointer(JSContext* cx, Handle<DataViewObject*> obj, uint64_t offset,
                                bool* isSharedMemory)
 {
+    if (obj->isOutOfBounds()) {
+        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_DATA_VIEW_OUT_OF_BOUNDS);
+        return SharedMem<uint8_t*>::unshared(nullptr);
+    }
+
     const size_t TypeSize = sizeof(NativeType);
     if (offset > UINT32_MAX - TypeSize || offset + TypeSize > obj->byteLength()) {
         JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_ARG_INDEX_OUT_OF_RANGE,
@@ -3208,7 +3221,13 @@ template<Value ValueGetter(DataViewObject* view)>
 bool
 DataViewObject::getterImpl(JSContext* cx, const CallArgs& args)
 {
-    args.rval().set(ValueGetter(&args.thisv().toObject().as<DataViewObject>()));
+    Rooted<DataViewObject*> view(cx, &args.thisv().toObject().as<DataViewObject>());
+    if (ValueGetter != bufferValue && view->isOutOfBounds()) {
+        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_DATA_VIEW_OUT_OF_BOUNDS);
+        return false;
+    }
+
+    args.rval().set(ValueGetter(view));
     return true;
 }
 

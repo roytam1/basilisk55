@@ -41,10 +41,21 @@ function TypedArrayContentTypeIsBigIntMethod() {
     return IsBigInt64TypedArray(this) || IsBigUint64TypedArray(this);
 }
 
+function ThrowIfTypedArrayOutOfBounds(tarray) {
+    if (TypedArrayIsOutOfBounds(tarray))
+        ThrowTypeError(JSMSG_TYPED_ARRAY_OUT_OF_BOUNDS);
+}
+
+function ThrowIfPossiblyWrappedTypedArrayOutOfBounds(tarray) {
+    if (PossiblyWrappedTypedArrayIsOutOfBounds(tarray))
+        ThrowTypeError(JSMSG_TYPED_ARRAY_OUT_OF_BOUNDS);
+}
+
 function GetAttachedArrayBuffer(tarray) {
     var buffer = ViewedArrayBufferIfReified(tarray);
     if (IsDetachedBuffer(buffer))
         ThrowTypeError(JSMSG_TYPED_ARRAY_DETACHED);
+    ThrowIfTypedArrayOutOfBounds(tarray);
     return buffer;
 }
 
@@ -63,6 +74,7 @@ function IsTypedArrayEnsuringArrayBuffer(arg) {
     if (IsObject(arg) && IsPossiblyWrappedTypedArray(arg)) {
         if (PossiblyWrappedTypedArrayHasDetachedBuffer(arg))
             ThrowTypeError(JSMSG_TYPED_ARRAY_DETACHED);
+        ThrowIfPossiblyWrappedTypedArrayOutOfBounds(arg);
         return false;
     }
 
@@ -88,6 +100,7 @@ function ValidateTypedArray(obj, error) {
         if (IsPossiblyWrappedTypedArray(obj)) {
             if (PossiblyWrappedTypedArrayHasDetachedBuffer(obj))
                 ThrowTypeError(JSMSG_TYPED_ARRAY_DETACHED);
+            ThrowIfPossiblyWrappedTypedArrayOutOfBounds(obj);
             return false;
         }
     }
@@ -1484,6 +1497,8 @@ function TypedArraySubarray(begin, end) {
         return callFunction(CallTypedArrayMethodIfWrapped, this, begin, end,
                             "TypedArraySubarray");
     }
+
+    GetAttachedArrayBuffer(obj);
 
     // Steps 4-6.
     var buffer = TypedArrayBuffer(obj);

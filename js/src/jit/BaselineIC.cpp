@@ -1338,6 +1338,12 @@ DoSetElemFallback(JSContext* cx, BaselineFrame* frame, ICSetElem_Fallback* stub_
         index.isNumber() &&
         rhs.isNumber())
     {
+        if (obj->is<TypedArrayObject>() &&
+            obj->as<TypedArrayObject>().hasResizableOrGrowableBuffer())
+        {
+            return true;
+        }
+
         if (!cx->runtime()->jitSupportsFloatingPoint &&
             (TypedThingRequiresFloatingPoint(obj) || index.isDouble()))
         {
@@ -1347,6 +1353,9 @@ DoSetElemFallback(JSContext* cx, BaselineFrame* frame, ICSetElem_Fallback* stub_
         bool expectOutOfBounds;
         double idx = index.toNumber();
         if (obj->is<TypedArrayObject>()) {
+            if (obj->as<TypedArrayObject>().hasResizableOrGrowableBuffer())
+                return true;
+
             expectOutOfBounds = (idx < 0 || idx >= double(obj->as<TypedArrayObject>().length()));
         } else {
             // Typed objects throw on out of bounds accesses. Don't attach
@@ -1944,6 +1953,8 @@ ICSetElem_TypedArray::Compiler::generateStubCode(MacroAssembler& masm)
     Register obj = masm.extractObject(R0, ExtractTemp0);
     masm.loadPtr(Address(ICStubReg, ICSetElem_TypedArray::offsetOfShape()), scratchReg);
     masm.branchTestObjShape(Assembler::NotEqual, obj, scratchReg, &failure);
+    if (layout_ == Layout_TypedArray)
+        GuardResizableOrGrowableTypedArray(masm, obj, scratchReg, &failure);
 
     // Ensure the index is an integer.
     if (cx->runtime()->jitSupportsFloatingPoint) {

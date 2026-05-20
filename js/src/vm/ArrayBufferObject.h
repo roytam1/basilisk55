@@ -82,7 +82,7 @@ ArrayBufferObjectMaybeShared& AsAnyArrayBuffer(HandleValue val);
 class ArrayBufferObjectMaybeShared : public NativeObject
 {
   public:
-    uint32_t byteLength() {
+    uint32_t byteLength() const {
         return AnyArrayBufferByteLength(this);
     }
 
@@ -320,7 +320,8 @@ class ArrayBufferObject : public ArrayBufferObjectMaybeShared
 
   private:
     void changeViewContents(JSContext* cx, ArrayBufferViewObject* view,
-                            uint8_t* oldDataPointer, BufferContents newContents);
+                            uint8_t* oldDataPointer, BufferContents newContents,
+                            uint32_t newByteLength);
     void setFirstView(ArrayBufferViewObject* view);
 
     uint8_t* inlineDataPointer() const;

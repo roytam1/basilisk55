@@ -483,8 +483,9 @@ class TypedArrayObjectTemplate : public TypedArrayObject
     }
 
     static TypedArrayObject*
-    makeInstance(JSContext* cx, Handle<ArrayBufferObjectMaybeShared*> buffer, uint32_t byteOffset, uint32_t len,
-                 HandleObject proto)
+    makeInstance(JSContext* cx, Handle<ArrayBufferObjectMaybeShared*> buffer,
+                 uint32_t byteOffset, uint32_t len, HandleObject proto,
+                 bool lengthTracking = false)
     {
         MOZ_ASSERT_IF(!buffer, byteOffset == 0);
 
@@ -509,12 +510,19 @@ class TypedArrayObjectTemplate : public TypedArrayObject
             return nullptr;
 
         bool isSharedMemory = buffer && IsSharedArrayBuffer(buffer.get());
+        bool hasResizableOrGrowableBuffer =
+            buffer &&
+            ((buffer->is<ArrayBufferObject>() && buffer->as<ArrayBufferObject>().isResizable()) ||
+             (buffer->is<SharedArrayBufferObject>() &&
+              buffer->as<SharedArrayBufferObject>().isGrowable()));
 
         obj->setFixedSlot(TypedArrayObject::BUFFER_SLOT, ObjectOrNullValue(buffer));
         // This is invariant.  Self-hosting code that sets BUFFER_SLOT
         // (if it does) must maintain it, should it need to.
         if (isSharedMemory)
             obj->setIsSharedMemory();
+        if (hasResizableOrGrowableBuffer)
+            obj->setHasResizableOrGrowableBuffer();
 
         if (buffer) {
             obj->initViewData(buffer->dataPointerEither() + byteOffset);
@@ -548,7 +556,9 @@ class TypedArrayObjectTemplate : public TypedArrayObject
 #endif
         }
 
-        obj->setFixedSlot(TypedArrayObject::LENGTH_SLOT, Int32Value(len));
+        obj->setFixedSlot(TypedArrayObject::LENGTH_SLOT,
+                          Int32Value(lengthTracking ? TypedArrayObject::LENGTH_TRACKING
+                                                    : int32_t(len)));
         obj->setFixedSlot(TypedArrayObject::BYTEOFFSET_SLOT, Int32Value(byteOffset));
 
 #ifdef DEBUG
@@ -897,6 +907,7 @@ class TypedArrayObjectTemplate : public TypedArrayObject
             return nullptr; // invalid byteOffset
         }
 
+        bool lengthTracking = false;
         uint32_t len;
         if (lengthInt == -1) {
             len = (buffer->byteLength() - byteOffset) / sizeof(NativeType);
@@ -904,6 +915,12 @@ class TypedArrayObjectTemplate : public TypedArrayObject
                 JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr,
                                           JSMSG_TYPED_ARRAY_CONSTRUCT_BOUNDS);
                 return nullptr; // given byte array doesn't map exactly to sizeof(NativeType) * N
+            }
+            if ((buffer->is<ArrayBufferObject>() && buffer->as<ArrayBufferObject>().isResizable()) ||
+                (buffer->is<SharedArrayBufferObject>() &&
+                 buffer->as<SharedArrayBufferObject>().isGrowable()))
+            {
+                lengthTracking = true;
             }
         } else {
             len = uint32_t(lengthInt);
@@ -923,7 +940,7 @@ class TypedArrayObjectTemplate : public TypedArrayObject
             return nullptr; // byteOffset + len is too big for the arraybuffer
         }
 
-        return makeInstance(cx, buffer, byteOffset, len, proto);
+        return makeInstance(cx, buffer, byteOffset, len, proto, lengthTracking);
     }
 
     static bool
@@ -1858,7 +1875,8 @@ DataViewNewObjectKind(JSContext* cx, uint32_t byteLength, JSObject* proto)
 
 DataViewObject*
 DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
-                       Handle<ArrayBufferObjectMaybeShared*> arrayBuffer, JSObject* protoArg)
+                       Handle<ArrayBufferObjectMaybeShared*> arrayBuffer, JSObject* protoArg,
+                       bool lengthTracking)
 {
     if (arrayBuffer->isDetached()) {
         JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_TYPED_ARRAY_DETACHED);
@@ -1907,7 +1925,9 @@ DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
         dvobj.setIsSharedMemory();
 
     dvobj.setFixedSlot(TypedArrayObject::BYTEOFFSET_SLOT, Int32Value(byteOffset));
-    dvobj.setFixedSlot(TypedArrayObject::LENGTH_SLOT, Int32Value(byteLength));
+    dvobj.setFixedSlot(TypedArrayObject::LENGTH_SLOT,
+                       Int32Value(lengthTracking ? TypedArrayObject::LENGTH_TRACKING
+                                                 : int32_t(byteLength)));
     dvobj.setFixedSlot(TypedArrayObject::BUFFER_SLOT, ObjectValue(*arrayBuffer));
 
     SharedMem<uint8_t*> ptr = arrayBuffer->dataPointerEither();
@@ -1918,7 +1938,9 @@ DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
 
     // Include a barrier if the data view's data pointer is in the nursery, as
     // is done for typed arrays.
-    if (!IsInsideNursery(obj) && cx->runtime()->gc.nursery.isInside(ptr)) {
+    if (arrayBuffer->is<ArrayBufferObject>() &&
+        !IsInsideNursery(obj) &&
+        cx->runtime()->gc.nursery.isInside(ptr)) {
         // Shared buffer data should never be nursery-allocated, so we
         // need to fail here if isSharedMemory.  However, mmap() can
         // place a SharedArrayRawBuffer up against the bottom end of a
@@ -1945,29 +1967,38 @@ DataViewObject::create(JSContext* cx, uint32_t byteOffset, uint32_t byteLength,
 
 bool
 DataViewObject::getAndCheckConstructorArgs(JSContext* cx, HandleObject bufobj, const CallArgs& args,
-                                           uint32_t* byteOffsetPtr, uint32_t* byteLengthPtr)
+                                           uint32_t* byteOffsetPtr, uint32_t* byteLengthPtr,
+                                           bool* lengthTrackingPtr)
 {
-    if (!IsArrayBufferMaybeShared(bufobj)) {
+    if (!IsAnyArrayBuffer(bufobj)) {
         JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_NOT_EXPECTED_TYPE,
-                                  "DataView", "ArrayBuffer", bufobj->getClass()->name);
+                                  "DataView", "ArrayBuffer or SharedArrayBuffer",
+                                  bufobj->getClass()->name);
         return false;
     }
 
     Rooted<ArrayBufferObjectMaybeShared*> buffer(cx, &AsArrayBufferMaybeShared(bufobj));
     uint32_t byteOffset = 0;
     uint32_t byteLength = buffer->byteLength();
+    bool isResizableOrGrowable =
+        (buffer->is<ArrayBufferObject>() && buffer->as<ArrayBufferObject>().isResizable()) ||
+        (buffer->is<SharedArrayBufferObject>() &&
+         buffer->as<SharedArrayBufferObject>().isGrowable());
+    bool lengthTracking = isResizableOrGrowable && !args.hasDefined(2);
 
     if (args.length() > 1) {
-        if (!ToUint32(cx, args[1], &byteOffset))
+        uint64_t offset;
+        if (!ToIndex(cx, args[1], &offset))
             return false;
-        if (byteOffset > INT32_MAX) {
+        if (offset > INT32_MAX) {
             JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_ARG_INDEX_OUT_OF_RANGE,
                                       "1");
             return false;
         }
+        byteOffset = uint32_t(offset);
     }
 
-    if (buffer->isDetached()) {
+    if (buffer->is<ArrayBufferObject>() && buffer->as<ArrayBufferObject>().isDetached()) {
         JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_TYPED_ARRAY_DETACHED);
         return false;
     }
@@ -1981,14 +2012,18 @@ DataViewObject::getAndCheckConstructorArgs(JSContext* cx, HandleObject bufobj, c
 
         if (args.get(2).isUndefined()) {
             byteLength -= byteOffset;
+            lengthTracking = isResizableOrGrowable;
         } else {
-            if (!ToUint32(cx, args[2], &byteLength))
+            uint64_t viewByteLength;
+            if (!ToIndex(cx, args[2], &viewByteLength))
                 return false;
-            if (byteLength > INT32_MAX) {
+            lengthTracking = false;
+            if (viewByteLength > INT32_MAX) {
                 JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr,
                                           JSMSG_ARG_INDEX_OUT_OF_RANGE, "2");
                 return false;
             }
+            byteLength = uint32_t(viewByteLength);
 
             MOZ_ASSERT(byteOffset + byteLength >= byteOffset,
                        "can't overflow: both numbers are less than INT32_MAX");
@@ -2007,6 +2042,7 @@ DataViewObject::getAndCheckConstructorArgs(JSContext* cx, HandleObject bufobj, c
 
     *byteOffsetPtr = byteOffset;
     *byteLengthPtr = byteLength;
+    *lengthTrackingPtr = lengthTracking;
 
     return true;
 }
@@ -2018,7 +2054,8 @@ DataViewObject::constructSameCompartment(JSContext* cx, HandleObject bufobj, con
     assertSameCompartment(cx, bufobj);
 
     uint32_t byteOffset, byteLength;
-    if (!getAndCheckConstructorArgs(cx, bufobj, args, &byteOffset, &byteLength))
+    bool lengthTracking;
+    if (!getAndCheckConstructorArgs(cx, bufobj, args, &byteOffset, &byteLength, &lengthTracking))
         return false;
 
     RootedObject proto(cx);
@@ -2026,8 +2063,9 @@ DataViewObject::constructSameCompartment(JSContext* cx, HandleObject bufobj, con
     if (!GetPrototypeFromConstructor(cx, newTarget, &proto))
         return false;
 
-    Rooted<ArrayBufferObjectMaybeShared*> buffer(cx, &AsArrayBufferMaybeShared(bufobj));
-    JSObject* obj = DataViewObject::create(cx, byteOffset, byteLength, buffer, proto);
+    Rooted<ArrayBufferObjectMaybeShared*> buffer(cx, &bufobj->as<ArrayBufferObjectMaybeShared>());
+    JSObject* obj = DataViewObject::create(cx, byteOffset, byteLength, buffer, proto,
+                                           lengthTracking);
     if (!obj)
         return false;
     args.rval().setObject(*obj);
@@ -2067,8 +2105,12 @@ DataViewObject::constructWrapped(JSContext* cx, HandleObject bufobj, const CallA
 
     // NB: This entails the IsArrayBuffer check
     uint32_t byteOffset, byteLength;
-    if (!getAndCheckConstructorArgs(cx, unwrapped, args, &byteOffset, &byteLength))
+    bool lengthTracking;
+    if (!getAndCheckConstructorArgs(cx, unwrapped, args, &byteOffset, &byteLength,
+                                    &lengthTracking))
+    {
         return false;
+    }
 
     // Make sure to get the [[Prototype]] for the created view from this
     // compartment.
@@ -2095,7 +2137,7 @@ DataViewObject::constructWrapped(JSContext* cx, HandleObject bufobj, const CallA
         if (!cx->compartment()->wrap(cx, &wrappedProto))
             return false;
 
-        dv = DataViewObject::create(cx, byteOffset, byteLength, buffer, wrappedProto);
+        dv = DataViewObject::create(cx, byteOffset, byteLength, buffer, wrappedProto, lengthTracking);
         if (!dv)
             return false;
     }

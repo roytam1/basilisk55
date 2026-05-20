@@ -2298,6 +2298,10 @@ void
 CheckForTypedObjectWithDetachedStorage(JSContext* cx, MacroAssembler& masm, Label* failure);
 
 void
+GuardResizableOrGrowableTypedArray(MacroAssembler& masm, Register obj, Register scratch,
+                                   Label* failure);
+
+void
 LoadTypedThingData(MacroAssembler& masm, TypedThingLayout layout, Register obj, Register result);
 
 bool

@@ -433,8 +433,12 @@ ArrayBufferViewFits(ArrayBufferViewObject* view, uint32_t newByteLength)
 {
     if (view->is<DataViewObject>()) {
         DataViewObject& dataView = view->as<DataViewObject>();
-        uint32_t byteOffset = dataView.byteOffset();
-        uint32_t byteLength = dataView.byteLength();
+        uint32_t byteOffset = dataView.byteOffsetMaybeOutOfBounds();
+        if (byteOffset > newByteLength)
+            return false;
+        uint32_t byteLength = dataView.isLengthTracking()
+                              ? newByteLength - byteOffset
+                              : dataView.fixedByteLengthMaybeOutOfBounds();
         return byteOffset <= newByteLength && byteLength <= newByteLength - byteOffset;
     }
 
@@ -442,8 +446,13 @@ ArrayBufferViewFits(ArrayBufferViewObject* view, uint32_t newByteLength)
         TypedArrayObject& typedArray = view->as<TypedArrayObject>();
         if (typedArray.isSharedMemory())
             return true;
-        uint32_t byteOffset = typedArray.byteOffset();
-        uint32_t byteLength = typedArray.byteLength();
+        uint32_t byteOffset = typedArray.byteOffsetMaybeOutOfBounds();
+        if (byteOffset > newByteLength)
+            return false;
+        uint32_t byteLength = typedArray.isLengthTracking()
+                              ? newByteLength - byteOffset
+                              : typedArray.fixedLengthMaybeOutOfBounds() *
+                                typedArray.bytesPerElement();
         return byteOffset <= newByteLength && byteLength <= newByteLength - byteOffset;
     }
 
@@ -533,7 +542,8 @@ ArrayBufferObject::setNewData(FreeOp* fop, BufferContents newContents, OwnsState
 
 void
 ArrayBufferObject::changeViewContents(JSContext* cx, ArrayBufferViewObject* view,
-                                      uint8_t* oldDataPointer, BufferContents newContents)
+                                      uint8_t* oldDataPointer, BufferContents newContents,
+                                      uint32_t newByteLength)
 {
     MOZ_ASSERT(!view->isSharedMemory());
 
@@ -544,7 +554,18 @@ ArrayBufferObject::changeViewContents(JSContext* cx, ArrayBufferViewObject* view
     uint8_t* viewDataPointer = view->dataPointerUnshared(nogc);
     if (viewDataPointer) {
         MOZ_ASSERT(newContents);
-        ptrdiff_t offset = viewDataPointer - oldDataPointer;
+        uint32_t offset;
+        if (view->is<DataViewObject>()) {
+            offset = view->as<DataViewObject>().byteOffsetMaybeOutOfBounds();
+        } else if (view->is<TypedArrayObject>()) {
+            offset = view->as<TypedArrayObject>().byteOffsetMaybeOutOfBounds();
+        } else {
+            ptrdiff_t oldOffset = viewDataPointer - oldDataPointer;
+            MOZ_ASSERT(oldOffset >= 0);
+            offset = uint32_t(oldOffset);
+        }
+        if (offset > newByteLength)
+            offset = 0;
         viewDataPointer = static_cast<uint8_t*>(newContents.data()) + offset;
         view->setDataPointerUnshared(viewDataPointer);
     }
@@ -570,10 +591,10 @@ ArrayBufferObject::changeContents(JSContext* cx, BufferContents newContents,
     auto& innerViews = cx->compartment()->innerViews.get();
     if (InnerViewTable::ViewVector* views = innerViews.maybeViewsUnbarriered(this)) {
         for (size_t i = 0; i < views->length(); i++)
-            changeViewContents(cx, (*views)[i], oldDataPointer, newContents);
+            changeViewContents(cx, (*views)[i], oldDataPointer, newContents, byteLength());
     }
     if (firstView())
-        changeViewContents(cx, firstView(), oldDataPointer, newContents);
+        changeViewContents(cx, firstView(), oldDataPointer, newContents, byteLength());
 }
 
 void
@@ -585,26 +606,29 @@ ArrayBufferObject::changeContentsForResize(JSContext* cx, BufferContents newCont
 
     uint8_t* oldDataPointer = dataPointer();
     setNewData(cx->runtime()->defaultFreeOp(), newContents, ownsState);
+    setByteLength(newByteLength);
 
     auto& innerViews = cx->compartment()->innerViews.get();
     if (InnerViewTable::ViewVector* views = innerViews.maybeViewsUnbarriered(this)) {
         for (size_t i = 0; i < views->length(); i++) {
             ArrayBufferViewObject* view = (*views)[i];
-            if (ArrayBufferViewFits(view, newByteLength))
-                changeViewContents(cx, view, oldDataPointer, newContents);
+            if (view->is<DataViewObject>() || view->is<TypedArrayObject>())
+                changeViewContents(cx, view, oldDataPointer, newContents, newByteLength);
+            else if (ArrayBufferViewFits(view, newByteLength))
+                changeViewContents(cx, view, oldDataPointer, newContents, newByteLength);
             else
                 NoteViewBufferWasDetached(view, newContents, cx);
         }
     }
 
     if (firstView()) {
-        if (ArrayBufferViewFits(firstView(), newByteLength))
-            changeViewContents(cx, firstView(), oldDataPointer, newContents);
+        if (firstView()->is<DataViewObject>() || firstView()->is<TypedArrayObject>())
+            changeViewContents(cx, firstView(), oldDataPointer, newContents, newByteLength);
+        else if (ArrayBufferViewFits(firstView(), newByteLength))
+            changeViewContents(cx, firstView(), oldDataPointer, newContents, newByteLength);
         else
             NoteViewBufferWasDetached(firstView(), newContents, cx);
     }
-
-    setByteLength(newByteLength);
 }
 
 static bool
@@ -1814,6 +1838,8 @@ ArrayBufferViewObject::trace(JSTracer* trc, JSObject* objArg)
                 // The data may or may not be inline with the buffer. The buffer
                 // can only move during a compacting GC, in which case its
                 // objectMoved hook has already updated the buffer's data pointer.
+                if (offset > buf.byteLength())
+                    offset = 0;
                 obj->initPrivate(buf.dataPointer() + offset);
             }
         }
@@ -1868,6 +1894,8 @@ ArrayBufferViewObject::dataPointerUnshared(const JS::AutoRequireNoGC& nogc)
 bool
 ArrayBufferViewObject::isSharedMemory()
 {
+    if (is<DataViewObject>())
+        return as<DataViewObject>().isSharedMemory();
     if (is<TypedArrayObject>())
         return as<TypedArrayObject>().isSharedMemory();
     return false;

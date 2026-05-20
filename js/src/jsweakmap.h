@@ -16,11 +16,25 @@
 #include "gc/Marking.h"
 #include "gc/StoreBuffer.h"
 #include "js/HashTable.h"
+#include "vm/Symbol.h"
 
 namespace js {
 
 class GCMarker;
 class WeakMapBase;
+
+template <>
+struct MovableCellHasher<JS::Symbol*>
+{
+    using Key = JS::Symbol*;
+    using Lookup = JS::Symbol*;
+
+    static bool hasHash(const Lookup& l) { return true; }
+    static bool ensureHash(const Lookup& l) { return true; }
+    static HashNumber hash(const Lookup& l) { return l->hash(); }
+    static bool match(const Key& k, const Lookup& l) { return k == l; }
+    static void rekey(Key& k, const Key& newKey) { k = newKey; }
+};
 
 // A subclass template of js::HashMap whose keys and values may be garbage-collected. When
 // a key is collected, the table entry disappears, dropping its reference to the value.
@@ -292,9 +306,16 @@ class WeakMap : public HashMap<Key, Value, HashPolicy, RuntimeAllocPolicy>,
         return nullptr;
     }
 
+    JSObject* getDelegate(JS::Symbol* sym) const {
+        return nullptr;
+    }
+
   private:
     void exposeGCThingToActiveJS(const JS::Value& v) const { JS::ExposeValueToActiveJS(v); }
     void exposeGCThingToActiveJS(JSObject* obj) const { JS::ExposeObjectToActiveJS(obj); }
+    void exposeGCThingToActiveJS(JS::Symbol* sym) const {
+        gc::ExposeGCThingToActiveJS(JS::GCCellPtr(sym));
+    }
 
     bool keyNeedsMark(JSObject* key) const {
         JSObject* delegate = getDelegate(key);
@@ -306,6 +327,10 @@ class WeakMap : public HashMap<Key, Value, HashPolicy, RuntimeAllocPolicy>,
     }
 
     bool keyNeedsMark(JSScript* script) const {
+        return false;
+    }
+
+    bool keyNeedsMark(JS::Symbol* sym) const {
         return false;
     }
 
@@ -374,6 +399,9 @@ WeakMap_set(JSContext* cx, unsigned argc, Value* vp);
 extern bool
 WeakMap_delete(JSContext* cx, unsigned argc, Value* vp);
 
+extern bool
+SetWeakMapEntryValue(JSContext* cx, HandleObject mapObj, HandleValue key, HandleValue val);
+
 extern JSObject*
 InitWeakMapClass(JSContext* cx, HandleObject obj);
 
@@ -388,6 +416,16 @@ class ObjectValueMap : public WeakMap<HeapPtr<JSObject*>, HeapPtr<Value>,
     {}
 
     virtual bool findZoneEdges();
+};
+
+class SymbolValueMap : public WeakMap<HeapPtr<JS::Symbol*>, HeapPtr<Value>,
+                                      MovableCellHasher<HeapPtr<JS::Symbol*>>>
+{
+  public:
+    SymbolValueMap(JSContext* cx, JSObject* obj)
+      : WeakMap<HeapPtr<JS::Symbol*>, HeapPtr<Value>,
+                MovableCellHasher<HeapPtr<JS::Symbol*>>>(cx, obj)
+    {}
 };
 
 

@@ -37,7 +37,7 @@ function WeakSet_add(value) {
         ThrowTypeError(JSMSG_INCOMPATIBLE_PROTO, "WeakSet", "add", typeof S);
 
     // Step 5.
-    if (!IsObject(value))
+    if (!CanBeHeldWeakly(value))
         ThrowTypeError(JSMSG_NOT_NONNULL_OBJECT, DecompileArg(0, value));
 
     // Steps 7-8.
@@ -60,7 +60,7 @@ function WeakSet_delete(value) {
         ThrowTypeError(JSMSG_INCOMPATIBLE_PROTO, "WeakSet", "delete", typeof S);
 
     // Step 5.
-    if (!IsObject(value))
+    if (!CanBeHeldWeakly(value))
         return false;
 
     // Steps 7-8.
@@ -80,7 +80,7 @@ function WeakSet_has(value) {
         ThrowTypeError(JSMSG_INCOMPATIBLE_PROTO, "WeakSet", "has", typeof S);
 
     // Step 6.
-    if (!IsObject(value))
+    if (!CanBeHeldWeakly(value))
         return false;
 
     // Steps 7-8.

@@ -1336,6 +1336,10 @@ TypedArrayObjectTemplate<T>::fromTypedArray(JSContext* cx, HandleObject other, b
         JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_TYPED_ARRAY_DETACHED);
         return nullptr;
     }
+    if (srcArray->isOutOfBounds()) {
+        JS_ReportErrorNumberASCII(cx, GetErrorMessage, nullptr, JSMSG_TYPED_ARRAY_OUT_OF_BOUNDS);
+        return nullptr;
+    }
 
     // Step 9.
     uint32_t elementLength = srcArray->length();

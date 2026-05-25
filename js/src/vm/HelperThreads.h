@@ -90,8 +90,8 @@ class GlobalHelperThreadState
     wasm::CompileTaskPtrVector wasmWorklist_, wasmFinishedList_;
 
   public:
-    // Helper-thread initiated wasm compilations are serialized to avoid the
-    // deadlock scenario described in WasmGenerator.cpp.
+    // For now, only allow a single parallel wasm compilation to happen at a
+    // time. This avoids race conditions on wasmWorklist/wasmFinishedList/etc.
     mozilla::Atomic<bool> wasmCompilationInProgress;
 
   private:

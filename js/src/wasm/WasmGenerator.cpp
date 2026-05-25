@@ -55,7 +55,6 @@ ModuleGenerator::ModuleGenerator(UniqueChars* error)
     lastPatchedCallsite_(0),
     startOfUnpatchedCallsites_(0),
     parallel_(false),
-    parallelCompilationInProgressOnHelperThread_(false),
     outstanding_(0),
     currentTask_(nullptr),
     batchedBytecode_(0),
@@ -75,21 +74,18 @@ ModuleGenerator::~ModuleGenerator()
             AutoLockHelperThreadState lock;
             while (true) {
                 CompileTaskPtrVector& worklist = HelperThreadState().wasmWorklist(lock);
-                for (size_t i = worklist.length(); i > 0;) {
-                    if (worklist[i - 1]->finishedList() == &finishedTasks_) {
-                        HelperThreadState().remove(worklist, &i);
-                        MOZ_ASSERT(outstanding_ > 0);
-                        outstanding_--;
-                    } else {
-                        i--;
-                    }
-                }
+                MOZ_ASSERT(outstanding_ >= worklist.length());
+                outstanding_ -= worklist.length();
+                worklist.clear();
 
-                for (size_t i = finishedTasks_.length(); i > 0;) {
-                    HelperThreadState().remove(finishedTasks_, &i);
-                    MOZ_ASSERT(outstanding_ > 0);
-                    outstanding_--;
-                }
+                CompileTaskPtrVector& finished = HelperThreadState().wasmFinishedList(lock);
+                MOZ_ASSERT(outstanding_ >= finished.length());
+                outstanding_ -= finished.length();
+                finished.clear();
+
+                uint32_t numFailed = HelperThreadState().harvestFailedWasmJobs(lock);
+                MOZ_ASSERT(outstanding_ >= numFailed);
+                outstanding_ -= numFailed;
 
                 if (!outstanding_)
                     break;
@@ -98,10 +94,8 @@ ModuleGenerator::~ModuleGenerator()
             }
         }
 
-        if (parallelCompilationInProgressOnHelperThread_) {
-            MOZ_ASSERT(HelperThreadState().wasmCompilationInProgress);
-            HelperThreadState().wasmCompilationInProgress = false;
-        }
+        MOZ_ASSERT(HelperThreadState().wasmCompilationInProgress);
+        HelperThreadState().wasmCompilationInProgress = false;
     } else {
         MOZ_ASSERT(!outstanding_);
     }
@@ -258,18 +252,23 @@ ModuleGenerator::finishOutstandingTask()
         while (true) {
             MOZ_ASSERT(outstanding_ > 0);
 
-            if (!finishedTasks_.empty()) {
+            if (HelperThreadState().wasmFailed(lock)) {
+                if (error_) {
+                    MOZ_ASSERT(!*error_, "Should have stopped earlier");
+                    *error_ = Move(HelperThreadState().harvestWasmError(lock));
+                }
+                return false;
+            }
+
+            if (!HelperThreadState().wasmFinishedList(lock).empty()) {
                 outstanding_--;
-                task = finishedTasks_.popCopy();
+                task = HelperThreadState().wasmFinishedList(lock).popCopy();
                 break;
             }
 
             HelperThreadState().wait(lock, GlobalHelperThreadState::CONSUMER);
         }
     }
-
-    if (task->failed())
-        return false;
 
     return finishTask(task);
 }
@@ -436,9 +435,6 @@ ModuleGenerator::patchFarJumps(const TrapExitOffsetArray& trapExits, const Offse
 bool
 ModuleGenerator::finishTask(CompileTask* task)
 {
-    if (task->failed())
-        return false;
-
     masm_.haltingAlign(CodeAlignment);
 
     // Before merging in the new function's code, if calls in a prior function
@@ -869,25 +865,34 @@ ModuleGenerator::startFuncDefs()
     MOZ_ASSERT(!startedFuncDefs_);
     MOZ_ASSERT(!finishedFuncDefs_);
 
-    // Helper-thread initiated wasm compilations stay serialized so that we do
-    // not end up with multiple helper threads blocking on other helper threads.
-    // Main-thread compilations can still overlap because they drain their own
-    // finished-task queue and do not steal tasks from other generators.
+    // The wasmCompilationInProgress atomic ensures that there is only one
+    // parallel compilation in progress at a time. In the special case of
+    // asm.js, where the ModuleGenerator itself can be on a helper thread, this
+    // avoids the possibility of deadlock since at most 1 helper thread will be
+    // blocking on other helper threads and there are always >1 helper threads.
+    // With wasm, this restriction could be relaxed by moving the worklist state
+    // out of HelperThreadState since each independent compilation needs its own
+    // worklist pair. Alternatively, the deadlock could be avoided by having the
+    // ModuleGenerator thread make progress (on compile tasks) instead of
+    // blocking.
 
     GlobalHelperThreadState& threads = HelperThreadState();
     MOZ_ASSERT(threads.threadCount > 1);
 
     uint32_t numTasks;
-    if (CanUseExtraThreads() && (!CurrentHelperThread() ||
-        threads.wasmCompilationInProgress.compareExchange(false, true))) {
+    if (CanUseExtraThreads() &&
+        threads.cpuCount > 1 &&
+        threads.wasmCompilationInProgress.compareExchange(false, true))
+    {
 #ifdef DEBUG
         {
             AutoLockHelperThreadState lock;
+            MOZ_ASSERT(!HelperThreadState().wasmFailed(lock));
             MOZ_ASSERT(HelperThreadState().wasmWorklist(lock).empty());
+            MOZ_ASSERT(HelperThreadState().wasmFinishedList(lock).empty());
         }
 #endif
         parallel_ = true;
-        parallelCompilationInProgressOnHelperThread_ = !!CurrentHelperThread();
         numTasks = 2 * threads.maxWasmCompilationThreads();
     } else {
         numTasks = 1;
@@ -897,9 +902,6 @@ ModuleGenerator::startFuncDefs()
         return false;
     for (size_t i = 0; i < numTasks; i++)
         tasks_.infallibleEmplaceBack(*env_, compileMode_, COMPILATION_LIFO_DEFAULT_CHUNK_SIZE);
-
-    for (auto& task : tasks_)
-        task.setFinishedList(&finishedTasks_);
 
     if (!freeTasks_.reserve(numTasks))
         return false;

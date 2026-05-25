@@ -278,7 +278,7 @@ UDPSocketParent::DoConnect(nsCOMPtr<nsIUDPSocket>& aSocket,
                            const UDPAddressInfo& aAddressInfo)
 {
   UDPSOCKET_LOG(("%s: %s:%u", __FUNCTION__, aAddressInfo.addr().get(), aAddressInfo.port()));
-  if (NS_FAILED(ConnectInternal(aAddressInfo.addr(), aAddressInfo.port()))) {
+  if (NS_FAILED(ConnectInternal(aSocket, aAddressInfo.addr(), aAddressInfo.port()))) {
     SendInternalError(aReturnThread, __LINE__);
     return;
   }
@@ -304,13 +304,15 @@ UDPSocketParent::DoConnect(nsCOMPtr<nsIUDPSocket>& aSocket,
 }
 
 nsresult
-UDPSocketParent::ConnectInternal(const nsCString& aHost, const uint16_t& aPort)
+UDPSocketParent::ConnectInternal(const nsCOMPtr<nsIUDPSocket>& aSocket,
+                                 const nsCString& aHost,
+                                 const uint16_t& aPort)
 {
   nsresult rv;
 
   UDPSOCKET_LOG(("%s: %s:%u", __FUNCTION__, nsCString(aHost).get(), aPort));
 
-  if (!mSocket) {
+  if (!aSocket) {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
@@ -324,7 +326,7 @@ UDPSocketParent::ConnectInternal(const nsCString& aHost, const uint16_t& aPort)
   mozilla::net::NetAddr addr;
   PRNetAddrToNetAddr(&prAddr, &addr);
 
-  rv = mSocket->Connect(&addr);
+  rv = aSocket->Connect(&addr);
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return rv;
   }

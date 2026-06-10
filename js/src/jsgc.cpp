@@ -4768,11 +4768,14 @@ GCRuntime::sweepFinalizationRegistries()
             if (!obj || !obj->is<FinalizationRegistryObject>()) {
                 zone->finalizationRegistries.erase(zone->finalizationRegistries.begin() + i);
                 continue;
-            }
-
-            obj->as<FinalizationRegistryObject>().sweepAfterGC(rt);
+            } 
             i++;
         }
+        for (size_t i = 0; i < zone->finalizationRegistries.length(); i++) {
+            JSObject* obj = zone->finalizationRegistries[i].unbarrieredGet();
+            obj->as<FinalizationRegistryObject>().sweepAfterGC(rt);
+        }
+        zone->finalizationRegistries.clear();
     }
 }
 

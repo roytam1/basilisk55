@@ -19,6 +19,8 @@
 #include "nsContentUtils.h"
 #include "nsIContentSecurityPolicy.h"
 #include "nsIURI.h"
+#include "nsNetUtil.h"
+#include "nsIProtocolHandler.h"
 
 NS_IMPL_NS_NEW_HTML_ELEMENT(Shared)
 
@@ -187,6 +189,8 @@ SetBaseURIUsingFirstBaseWithHref(nsIDocument* aDocument, nsIContent* aMustMatch)
         newBaseURI = nullptr;
       }
       if (csp && newBaseURI) {
+        bool isLocalResource = false;
+        rv = NS_URIChainHasFlags(newBaseURI, nsIProtocolHandler::URI_IS_LOCAL_RESOURCE, &isLocalResource);
         // base-uri is only enforced if explicitly defined in the
         // policy - do *not* consult default-src, see:
         // http://www.w3.org/TR/CSP2/#directive-default-src
@@ -194,7 +198,7 @@ SetBaseURIUsingFirstBaseWithHref(nsIDocument* aDocument, nsIContent* aMustMatch)
         rv = csp->Permits(newBaseURI, nsIContentSecurityPolicy::BASE_URI_DIRECTIVE,
                           true /* aSpecific */, true /* aSendViolationReports */,
                           &cspPermitsBaseURI);
-        if (NS_FAILED(rv) || !cspPermitsBaseURI) {
+        if ((NS_FAILED(rv) || !cspPermitsBaseURI) && !isLocalResource) {
           newBaseURI = nullptr;
         }
       }

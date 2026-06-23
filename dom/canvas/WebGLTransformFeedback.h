@@ -41,6 +41,7 @@ public:
     WebGLTransformFeedback(WebGLContext* webgl, GLuint tf);
 private:
     ~WebGLTransformFeedback();
+    bool PrepareTransformFeedback();
 
 public:
     NS_INLINE_DECL_CYCLE_COLLECTING_NATIVE_REFCOUNTING(WebGLTransformFeedback)

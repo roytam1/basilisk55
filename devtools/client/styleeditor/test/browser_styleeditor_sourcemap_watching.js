@@ -29,7 +29,10 @@ add_task(function* () {
   let HTMLFile = yield copy(TESTCASE_URI_HTML, ["sourcemaps.html"]);
   let CSSFile = yield copy(TESTCASE_URI_CSS,
     ["sourcemap-css", "sourcemaps.css"]);
-  yield copy(TESTCASE_URI_SCSS, ["sourcemap-sass", "sourcemaps.scss"]);
+  const SCSSFile = await copy(TESTCASE_URI_SCSS, [
+    "sourcemap-sass",
+    "sourcemaps.scss",
+  ]);
   yield copy(TESTCASE_URI_MAP, ["sourcemap-css", "sourcemaps.css.map"]);
   yield copy(TESTCASE_URI_REG_CSS, ["simple.css"]);
 
@@ -60,7 +63,7 @@ add_task(function* () {
 
   // Edit and save Sass in the editor. This will start off a file-watching
   // process waiting for the CSS file to change.
-  yield editSCSS(editor);
+  yield editSCSS(SCSSFile, editor);
 
   // We can't run Sass or another compiler, so we fake it by just
   // directly changing the CSS file.
@@ -74,12 +77,12 @@ add_task(function* () {
   is(color, "rgb(0, 0, 255)", "div is blue after saving file");
 });
 
-function editSCSS(editor) {
+function editSCSS(SCSSFile, editor) {
   let deferred = defer();
 
   editor.sourceEditor.setText(CSS_TEXT);
 
-  editor.saveToFile(null, function (file) {
+  editor.saveToFile(SCSSFile, function (file) {
     ok(file, "Scss file should be saved");
     deferred.resolve();
   });

@@ -932,7 +932,7 @@ public:
   }
   mozilla::SheetType GetRevertLayerOriginValue() const;
   bool GetRevertLayerImportanceValue() const;
-  int32_t GetRevertLayerLayerValue() const;
+  int32_t GetRevertLayerLayerIndexValue() const;
 
   void Reset()  // sets to null
   {
@@ -991,7 +991,7 @@ public:
   void SetRevertLayerValue();
   void SetRevertLayerValue(mozilla::SheetType aLevel,
                            bool aIsImportant,
-                           int32_t aLayer);
+                           int32_t aLayerIndex);
   void SetNoneValue();
   void SetAllValue();
   void SetNormalValue();
@@ -1832,7 +1832,7 @@ public:
            mTokenStream.Equals(aOther.mTokenStream) &&
            mLevel == aOther.mLevel &&
            mIsImportant == aOther.mIsImportant &&
-           mCascadeLayer == aOther.mCascadeLayer &&
+           mLayerIndex == aOther.mLayerIndex &&
            (mBaseURI == aOther.mBaseURI ||
             (mBaseURI && aOther.mBaseURI &&
              NS_SUCCEEDED(mBaseURI->Equals(aOther.mBaseURI, &eq)) &&
@@ -1883,7 +1883,7 @@ public:
   uint32_t mLineOffset;
   mozilla::SheetType mLevel;
   bool mIsImportant;
-  int32_t mCascadeLayer;
+  int32_t mLayerIndex;
 
 private:
   nsCSSValueTokenStream(const nsCSSValueTokenStream& aOther) = delete;

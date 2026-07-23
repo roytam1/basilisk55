@@ -478,7 +478,7 @@ public:
   void SetNoneValue();
   void SetIntValue(int32_t aInt, Unit aUnit);
   template<typename T,
-           typename = typename std::enable_if<std::is_enum<T>::value>::type>
+           typename = typename std::enable_if_t<std::is_enum_v<T>>>
   void SetEnumValue(T aInt)
   {
     static_assert(mozilla::EnumTypeFitsWithin<T, int32_t>::value,

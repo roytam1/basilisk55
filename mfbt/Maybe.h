@@ -116,7 +116,7 @@ public:
    */
   template<typename U,
            typename =
-             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+             typename std::enable_if_t<std::is_convertible_v<U, T>>>
   MOZ_IMPLICIT
   Maybe(const Maybe<U>& aOther)
     : mIsSome(false)
@@ -140,7 +140,7 @@ public:
    */
   template<typename U,
            typename =
-             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+             typename std::enable_if_t<std::is_convertible_v<U, T>>>
   MOZ_IMPLICIT
   Maybe(Maybe<U>&& aOther)
     : mIsSome(false)
@@ -169,7 +169,7 @@ public:
 
   template<typename U,
            typename =
-             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+             typename std::enable_if_t<std::is_convertible_v<U, T>>>
   Maybe& operator=(const Maybe<U>& aOther)
   {
     if (aOther.isSome()) {
@@ -204,7 +204,7 @@ public:
 
   template<typename U,
            typename =
-             typename std::enable_if<std::is_convertible<U, T>::value>::type>
+             typename std::enable_if_t<std::is_convertible_v<U, T>>>
   Maybe& operator=(Maybe<U>&& aOther)
   {
     if (aOther.isSome()) {
@@ -540,8 +540,8 @@ class Maybe<T&> {
  * reference value, you need to use emplace() instead.
  */
 template<typename T,
-         typename U = typename std::remove_cv<
-           typename std::remove_reference<T>::type>::type>
+         typename U = typename std::remove_cv_t<
+           typename std::remove_reference_t<T>>>
 Maybe<U>
 Some(T&& aValue)
 {
@@ -575,7 +575,7 @@ ToMaybe(T* aPtr)
 template<typename T> bool
 operator==(const Maybe<T>& aLHS, const Maybe<T>& aRHS)
 {
-  static_assert(!std::is_reference<T>::value,
+  static_assert(!std::is_reference_v<T>,
                 "operator== is not defined for Maybe<T&>, compare values or "
                 "addresses explicitly instead");
   if (aLHS.isNothing() != aRHS.isNothing()) {

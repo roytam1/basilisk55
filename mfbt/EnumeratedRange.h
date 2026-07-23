@@ -32,7 +32,7 @@ template<typename EnumTypeT>
 class EnumeratedIterator
 {
 public:
-  typedef typename std::underlying_type<EnumTypeT>::type IntTypeT;
+  typedef typename std::underlying_type_t<EnumTypeT> IntTypeT;
 
   template<typename EnumType>
   explicit EnumeratedIterator(EnumType aCurrent)

@@ -232,6 +232,7 @@ protected:
   uint32_t InsertRuleInternal(const nsAString& aRule,
                               uint32_t aIndex, ErrorResult& aRv);
   void DeleteRuleInternal(uint32_t aIndex, ErrorResult& aRv);
+  void ReplaceSyncInternal(const nsAString& aText, ErrorResult& aRv);
 
   void EnabledStateChangedInternal();
 

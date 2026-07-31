@@ -136,23 +136,6 @@ enum CacheDisposition {
     kCacheMissed = 4
 };
 
-void
-AccumulateCacheHitTelemetry(CacheDisposition hitOrMiss)
-{
-    if (!CacheObserver::UseNewCache()) {
-        Telemetry::Accumulate(Telemetry::HTTP_CACHE_DISPOSITION_2, hitOrMiss);
-    }
-    else {
-        Telemetry::Accumulate(Telemetry::HTTP_CACHE_DISPOSITION_2_V2, hitOrMiss);
-
-        int32_t experiment = CacheObserver::HalfLifeExperiment();
-        if (experiment > 0 && hitOrMiss == kCacheMissed) {
-            Telemetry::Accumulate(Telemetry::HTTP_CACHE_MISS_HALFLIFE_EXPERIMENT_2,
-                                  experiment - 1);
-        }
-    }
-}
-
 // Computes and returns a SHA1 hash of the input buffer. The input buffer
 // must be a null-terminated string.
 nsresult
@@ -555,11 +538,6 @@ nsHttpChannel::ContinueConnect()
             nsresult rv = ReadFromCache(true);
             if (NS_FAILED(rv) && event) {
                 event->Revoke();
-            }
-
-            // Don't accumulate the cache hit telemetry for intercepted channels.
-            if (mInterceptCache != INTERCEPTED) {
-                AccumulateCacheHitTelemetry(kCacheHit);
             }
 
             return rv;
@@ -2300,33 +2278,6 @@ nsHttpChannel::ContinueProcessResponse2(nsresult rv)
         break;
     }
 
-    if (gHttpHandler->IsTelemetryEnabled()) {
-        CacheDisposition cacheDisposition;
-        if (!mDidReval) {
-            cacheDisposition = kCacheMissed;
-        } else if (successfulReval) {
-            cacheDisposition = kCacheHitViaReval;
-        } else {
-            cacheDisposition = kCacheMissedViaReval;
-        }
-        AccumulateCacheHitTelemetry(cacheDisposition);
-
-        Telemetry::Accumulate(Telemetry::HTTP_RESPONSE_VERSION,
-                              mResponseHead->Version());
-
-        if (mResponseHead->Version() == NS_HTTP_VERSION_0_9) {
-            // DefaultPortTopLevel = 0, DefaultPortSubResource = 1,
-            // NonDefaultPortTopLevel = 2, NonDefaultPortSubResource = 3
-            uint32_t v09Info = 0;
-            if (!(mLoadFlags & LOAD_INITIAL_DOCUMENT_URI)) {
-                v09Info += 1;
-            }
-            if (mConnectionInfo->OriginPort() != mConnectionInfo->DefaultPort()) {
-                v09Info += 2;
-            }
-            Telemetry::Accumulate(Telemetry::HTTP_09_INFO, v09Info);
-        }
-    }
     return rv;
 }
 

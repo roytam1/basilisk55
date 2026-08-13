@@ -22,6 +22,7 @@ class nsXBLPrototypeBinding;
 
 namespace mozilla {
 
+class CSSStyleSheet;
 class EventChainPreVisitor;
 
 namespace dom {
@@ -60,6 +61,9 @@ public:
   // [deprecated] Shadow DOM v0
   void InsertSheet(StyleSheet* aSheet, nsIContent* aLinkingContent);
   void RemoveSheet(StyleSheet* aSheet);
+  void AdoptedStyleSheetsChanged(
+      const nsTArray<RefPtr<mozilla::CSSStyleSheet>>& aOldSheets,
+      const nsTArray<RefPtr<mozilla::CSSStyleSheet>>& aNewSheets);
   StyleSheetList* StyleSheets()
   {
     return &DocumentOrShadowRoot::EnsureDOMStyleSheets();
@@ -174,4 +178,3 @@ protected:
 } // namespace mozilla
 
 #endif // mozilla_dom_shadowroot_h__
-

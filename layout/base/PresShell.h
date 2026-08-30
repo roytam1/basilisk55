@@ -884,6 +884,8 @@ protected:
 
   bool                      mAsyncResizeTimerIsActive : 1;
   bool                      mInResize : 1;
+  
+  bool                      mHandlingCallbacks : 1;
 
   bool                      mApproximateFrameVisibilityVisited : 1;
 

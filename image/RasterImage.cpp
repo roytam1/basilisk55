@@ -95,8 +95,6 @@ RasterImage::RasterImage(ImageURL* aURI /* = nullptr */) :
 //******************************************************************************
 RasterImage::~RasterImage()
 {
-  mIsBeingDestroyed = true;
-
   // Make sure our SourceBuffer is marked as complete. This will ensure that any
   // outstanding decoders terminate.
   if (!mSourceBuffer->IsComplete()) {
@@ -435,15 +433,17 @@ RasterImage::OnSurfaceDiscarded(const SurfaceKey& aSurfaceKey)
 {
   MOZ_ASSERT(mProgressTracker);
 
-  if (mIsBeingDestroyed) {
-    return;
-  }
-
   bool animatedFramesDiscarded = aSurfaceKey.Playback() == PlaybackType::eAnimated;
 
-  RefPtr<RasterImage> image = this;
-  NS_DispatchToMainThread(NS_NewRunnableFunction([=]() -> void {
-    image->OnSurfaceDiscardedInternal(animatedFramesDiscarded);
+  RefPtr<ProgressTracker> progressTracker = mProgressTracker;
+  NS_DispatchToMainThread(NS_NewRunnableFunction(
+      [progressTracker, animatedFramesDiscarded]() -> void {
+        RefPtr<Image> image = progressTracker->GetImage();
+        if (!image) {
+          return;
+        }
+        static_cast<RasterImage*>(image.get())
+            ->OnSurfaceDiscardedInternal(animatedFramesDiscarded);
   }));
 }
 

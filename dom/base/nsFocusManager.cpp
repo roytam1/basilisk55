@@ -1743,8 +1743,9 @@ nsFocusManager::Blur(nsPIDOMWindowOuter* aWindowToClear,
     if (mActiveWindow)
       window->UpdateCommands(NS_LITERAL_STRING("focus"), nullptr, 0);
 
+    nsCOMPtr<nsIDocument> doc = content->GetComposedDoc();
     SendFocusOrBlurEvent(eBlur, presShell,
-                         content->GetComposedDoc(), content, 1,
+                         doc, content, 1,
                          false, false, aContentToFocus);
   }
 

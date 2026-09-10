@@ -32,6 +32,7 @@ public:
     void
     Unfollow();
 
+    /* Should this be WeakRef? */
     RefPtr<AbortSignal> mFollowingSignal;
   };
 

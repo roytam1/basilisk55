@@ -15,6 +15,7 @@
 #include "mozilla/EventStates.h"
 #include "mozilla/ViewportFrame.h"
 #include "mozilla/css/StyleRule.h" // For nsCSSSelector
+#include "mozilla/dom/ShadowRoot.h"
 #include "nsLayoutUtils.h"
 #include "AnimationCommon.h" // For GetLayerAnimationInfo
 #include "FrameLayerBuilder.h"
@@ -266,6 +267,7 @@ RestyleManager::ContentStateChanged(nsIContent* aContent,
   ContentStateChangedInternal(aElement, aStateMask, &changeHint, &restyleHint);
 
   PostRestyleEvent(aElement, restyleHint, changeHint);
+  RestyleForHasPseudoClassChange(aElement);
 }
 
 // Forwarded nsIMutationObserver method, to handle restyling.
@@ -380,6 +382,30 @@ RestyleManager::AttributeChanged(Element* aElement,
                                            aOldValue,
                                            rsdata);
   PostRestyleEvent(aElement, rshint, hint, &rsdata);
+  RestyleForHasPseudoClassChange(aElement);
+}
+
+bool
+RestyleManager::RestyleForHasPseudoClassChange(nsINode* aNode)
+{
+  Element* affectedRoot = nullptr;
+  for (nsINode* node = aNode; node; node = node->GetParentNode()) {
+    if (!node->GetProperty(nsGkAtoms::hasSelectorDependency)) {
+      continue;
+    }
+    if (node->IsElement()) {
+      affectedRoot = node->AsElement();
+    } else if (ShadowRoot* shadow = ShadowRoot::FromNode(node)) {
+      affectedRoot = shadow->GetHost();
+    }
+  }
+
+  if (!affectedRoot) {
+    return false;
+  }
+
+  PostRestyleEvent(affectedRoot, eRestyle_Subtree, nsChangeHint(0));
+  return true;
 }
 
 /* static */ uint64_t
@@ -408,6 +434,10 @@ RestyleManager::RestyleForAppend(nsIContent* aContainer,
                                  nsIContent* aFirstNewContent)
 {
   // The container cannot be a document, but might be a ShadowRoot.
+  if (RestyleForHasPseudoClassChange(aContainer)) {
+    return;
+  }
+
   if (!aContainer->IsElement()) {
     return;
   }
@@ -497,6 +527,10 @@ RestyleManager::RestyleForInsertOrChange(nsINode* aContainer,
                                          nsIContent* aChild)
 {
   // The container might be a document or a ShadowRoot.
+  if (RestyleForHasPseudoClassChange(aContainer)) {
+    return;
+  }
+
   if (!aContainer->IsElement()) {
     return;
   }
@@ -587,6 +621,10 @@ RestyleManager::ContentRemoved(nsINode* aContainer,
                                nsIContent* aFollowingSibling)
 {
   // The container might be a document or a ShadowRoot.
+  if (RestyleForHasPseudoClassChange(aContainer)) {
+    return;
+  }
+
   if (!aContainer->IsElement()) {
     return;
   }

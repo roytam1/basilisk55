@@ -45,6 +45,7 @@ public:
   // Feature Pack" to be installed. Windows XP doesn't have WMF.
   static bool HasAAC();
   static bool HasH264();
+  static bool HasVP9();
 
 private:
   bool mWMFInitialized;

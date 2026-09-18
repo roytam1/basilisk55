@@ -352,6 +352,24 @@ var dataProviders = {
                    QueryInterface(Ci.nsIInterfaceRequestor).
                    getInterface(Ci.nsIDOMWindowUtils)
 
+    data.supportsHardwareH264 = "Unknown";
+    try {
+      let promise = winUtils.supportsHardwareH264Decoding;
+      promise.then(function(v) {
+        data.supportsHardwareH264 = v;
+      });
+      promises.push(promise);
+    } catch (e) {}
+
+    data.supportsHardwareVP9 = "Unknown";
+    try {
+      let promise = winUtils.supportsHardwareVP9Decoding;
+      promise.then(function(v) {
+        data.supportsHardwareVP9 = v;
+      });
+      promises.push(promise);
+    } catch (e) {}
+
     data.currentAudioBackend = winUtils.currentAudioBackend;
 
     if (!data.numAcceleratedWindows && gfxInfo) {

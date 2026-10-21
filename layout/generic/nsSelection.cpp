@@ -2168,19 +2168,19 @@ nsFrameSelection::CommonPageMove(bool aForward,
   //get the frame from the scrollable view
 
   nsIFrame* scrolledFrame = aScrollableFrame->GetScrolledFrame();
-  if (!scrolledFrame)
+  if MOZ_UNLIKELY(!scrolledFrame)
     return;
 
   // find out where the caret is.
   // we should know mDesiredPos value of nsFrameSelection, but I havent seen that behavior in other windows applications yet.
   nsISelection* domSel = GetSelection(SelectionType::eNormal);
-  if (!domSel) {
+  if MOZ_UNLIKELY(!domSel) {
     return;
   }
 
   nsRect caretPos;
   nsIFrame* caretFrame = nsCaret::GetGeometry(domSel, &caretPos);
-  if (!caretFrame) 
+  if MOZ_UNLIKELY(!caretFrame) 
     return;
   
   //need to adjust caret jump by percentage scroll
@@ -2200,7 +2200,7 @@ nsFrameSelection::CommonPageMove(bool aForward,
   nsIFrame::ContentOffsets offsets =
       scrolledFrame->GetContentOffsetsFromPoint(desiredPoint);
 
-  if (!offsets.content)
+  if MOZ_UNLIKELY(!offsets.content)
     return;
 
   // scroll one page
@@ -2847,7 +2847,12 @@ nsFrameSelection::UnselectCells(nsIContent *aTableContent,
   if (!mDomSelections[index])
     return NS_ERROR_NULL_POINTER;
 
-  nsTableWrapperFrame* tableFrame = do_QueryFrame(aTableContent->GetPrimaryFrame());
+  // This is needed as an nsTableWrapperFrame as we use this to know we can
+  // static cast tableFrame to nsTableWrapperFrame.
+  nsTableWrapperFrame* tableWrapperFrame = do_QueryFrame(aTableContent->GetPrimaryFrame());
+
+  // Declared as weak frame, as the frame may be freed during a call to a listener.
+  nsWeakFrame tableFrame(tableWrapperFrame);
   if (!tableFrame)
     return NS_ERROR_FAILURE;
 
@@ -2879,6 +2884,9 @@ nsFrameSelection::UnselectCells(nsIContent *aTableContent,
             curColIndex < minColIndex || curColIndex > maxColIndex) {
 
           mDomSelections[index]->RemoveRange(range);
+          if (!tableFrame.IsAlive()) {
+            return NS_OK;
+          }
           // Since we've removed the range, decrement pointer to next range
           mSelectedCellIndex--;
         }
@@ -2886,21 +2894,30 @@ nsFrameSelection::UnselectCells(nsIContent *aTableContent,
       } else {
         // Remove cell from selection if it belongs to the given cells range or
         // it is spanned onto the cells range.
+
+        MOZ_ASSERT(tableFrame.IsAlive());
+        // In general, static casting to another table type is not a good idea,
+        // but it is valid here due to the earlier do_QueryFrame() that
+        // established that tableFrame is an nsTableWrapperFrame*.
+        auto tempTableFrame = static_cast<nsTableWrapperFrame*>(tableFrame.GetFrame());
         nsTableCellFrame* cellFrame =
-          tableFrame->GetCellFrameAt(curRowIndex, curColIndex);
+          tempTableFrame->GetCellFrameAt(curRowIndex, curColIndex);
 
         uint32_t origRowIndex = cellFrame->RowIndex();
         uint32_t origColIndex = cellFrame->ColIndex();
         uint32_t actualRowSpan =
-          tableFrame->GetEffectiveRowSpanAt(origRowIndex, origColIndex);
+          tempTableFrame->GetEffectiveRowSpanAt(origRowIndex, origColIndex);
         uint32_t actualColSpan =
-          tableFrame->GetEffectiveColSpanAt(curRowIndex, curColIndex);
+          tempTableFrame->GetEffectiveColSpanAt(curRowIndex, curColIndex);
         if (origRowIndex <= static_cast<uint32_t>(maxRowIndex) && maxRowIndex >= 0 &&
             origRowIndex + actualRowSpan - 1 >= static_cast<uint32_t>(minRowIndex) &&
             origColIndex <= static_cast<uint32_t>(maxColIndex) && maxColIndex >= 0 &&
             origColIndex + actualColSpan - 1 >= static_cast<uint32_t>(minColIndex)) {
 
           mDomSelections[index]->RemoveRange(range);
+          if (!tableFrame.IsAlive()) {
+            return NS_OK;
+          }
           // Since we've removed the range, decrement pointer to next range
           mSelectedCellIndex--;
         }
@@ -2926,7 +2943,12 @@ nsFrameSelection::AddCellsToSelection(nsIContent *aTableContent,
   if (!mDomSelections[index])
     return NS_ERROR_NULL_POINTER;
 
-  nsTableWrapperFrame* tableFrame = do_QueryFrame(aTableContent->GetPrimaryFrame());
+  // This is needed as an nsTableWrapperFrame as we use this to know we can
+  // static cast tableFrame to nsTableWrapperFrame.
+  nsTableWrapperFrame* tableWrapperFrame = do_QueryFrame(aTableContent->GetPrimaryFrame());
+
+  // Declared as weak frame, as the frame may be freed during a call to a listener.
+  nsWeakFrame tableFrame(tableWrapperFrame);
   if (!tableFrame) // Check that |table| is a table.
     return NS_ERROR_FAILURE;
 
@@ -2937,7 +2959,12 @@ nsFrameSelection::AddCellsToSelection(nsIContent *aTableContent,
     uint32_t col = aStartColumnIndex;
     while(true)
     {
-      nsTableCellFrame* cellFrame = tableFrame->GetCellFrameAt(row, col);
+      MOZ_ASSERT(tableFrame.IsAlive());
+      // In general, static casting to another table type is not a good idea,
+      // but it is valid here due to the earlier do_QueryFrame() that
+      // established that tableFrame is an nsTableWrapperFrame*.
+      nsTableCellFrame* cellFrame = 
+          static_cast<nsTableWrapperFrame*>(tableFrame.GetFrame())->GetCellFrameAt(row, col);
 
       // Skip cells that are spanned from previous locations or are already selected
       if (cellFrame) {
@@ -2945,7 +2972,9 @@ nsFrameSelection::AddCellsToSelection(nsIContent *aTableContent,
         uint32_t origCol = cellFrame->ColIndex();
         if (origRow == row && origCol == col && !cellFrame->IsSelected()) {
           result = SelectCellElement(cellFrame->GetContent());
-          if (NS_FAILED(result)) return result;
+          if (NS_FAILED(result) || !tableFrame.IsAlive()) {
+            return result;
+          }
         }
       }
       // Done when we reach end column

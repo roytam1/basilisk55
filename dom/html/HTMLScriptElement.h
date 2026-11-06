@@ -116,6 +116,9 @@ public:
   bool NoModule();
   void SetNoModule(bool aValue, ErrorResult& rv);
 
+  [[nodiscard]] static bool Supports(const GlobalObject& aGlobal,
+                                     const nsAString& aType);
+
 protected:
   virtual ~HTMLScriptElement();
 

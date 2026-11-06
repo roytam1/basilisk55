@@ -227,6 +227,12 @@ public:
     return mImpl.unwrapErr();
   }
 
+
+  GenericErrorResult<E> propagateErr() const {
+    MOZ_ASSERT(isErr());
+    return GenericErrorResult<E>(mImpl.unwrapErr());
+  }
+
   /**
    * Map a function V -> W over this result's success variant. If this result is
    * an error, do not invoke the function and return a copy of the error.
@@ -317,6 +323,13 @@ public:
 template <typename E>
 inline GenericErrorResult<E>
 MakeGenericErrorResult(E&& aErrorValue)
+{
+  return GenericErrorResult<E>(aErrorValue);
+}
+
+
+template <typename E>
+inline GenericErrorResult<E> Err(E&& aErrorValue)
 {
   return GenericErrorResult<E>(aErrorValue);
 }

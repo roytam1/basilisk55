@@ -7,6 +7,7 @@
 #ifndef mozilla_dom_ScriptLoader_h
 #define mozilla_dom_ScriptLoader_h
 
+#include "ImportMap.h"
 #include "nsCOMPtr.h"
 #include "nsRefPtrHashtable.h"
 #include "nsIUnicodeDecoder.h"
@@ -25,6 +26,8 @@
 #include "mozilla/MozPromise.h"
 #include "mozilla/net/ReferrerPolicy.h"
 #include "mozilla/Vector.h"
+#include "mozilla/UniquePtr.h"
+#include "ResolveResult.h"
 
 class nsIURI;
 
@@ -96,6 +99,11 @@ public:
     return mKind == ScriptKind::Module;
   }
 
+  bool IsImportMapRequest() const
+  {
+      return mKind == ScriptKind::ImportMap;
+  }
+ 
   ModuleLoadRequest* AsModuleRequest();
 
   void FireScriptAvailable(nsresult aResult)
@@ -571,6 +579,11 @@ public:
     return mDocument->GetDocGroup();
   }
 
+  nsIURI* GetBaseURI() const {
+    MOZ_ASSERT(mDocument);
+    return mDocument->GetBaseURI().take();
+  }
+
   /*
    * Clear the map of loaded modules. Called when a Document object is reused
    * for a different global.
@@ -606,6 +619,19 @@ public:
   static LoadedScript* GetActiveScript(JSContext* aCx);
 
   nsIDocument* GetDocument() const { return mDocument; }
+
+  // Process <script type="importmap">
+  mozilla::UniquePtr<ImportMap> ParseImportMap(ScriptLoadRequest* aRequest);
+
+  // Implements https://wicg.github.io/import-maps/#register-an-import-map
+  void RegisterImportMap(mozilla::UniquePtr<ImportMap> aImportMap);
+
+  void ReportWarningToConsole(ScriptLoadRequest* aRequest, const char* aMessageName,
+                              const nsTArray<nsString>& aParams = nsTArray<nsString>()) const;
+
+protected:
+
+  mozilla::UniquePtr<ImportMap> mImportMap;
 
 private:
   virtual ~ScriptLoader();

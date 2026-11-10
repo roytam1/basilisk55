@@ -3887,6 +3887,9 @@ template <class ZoneIterT>
 void
 GCRuntime::traceFinalizationRegistryWeakRefs()
 {
+    for (ZoneIterT zone(rt); !zone.done(); zone.next())
+        zone->traceWeakRefs(&marker);
+
     for (ZoneIterT zone(rt); !zone.done(); zone.next()) {
         for (size_t i = 0; i < zone->finalizationRegistries.length(); i++) {
             WeakRef<JSObject*>& registry = zone->finalizationRegistries[i];
@@ -4775,7 +4778,6 @@ GCRuntime::sweepFinalizationRegistries()
             JSObject* obj = zone->finalizationRegistries[i].unbarrieredGet();
             obj->as<FinalizationRegistryObject>().sweepAfterGC(rt);
         }
-        zone->finalizationRegistries.clear();
     }
 }
 

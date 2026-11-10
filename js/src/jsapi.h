@@ -1013,7 +1013,6 @@ class JS_PUBLIC_API(ContextOptions) {
         extraWarnings_(false),
         arrayProtoValues_(true),
         streams_(false),
-        weakRefs_(false),
 #ifdef NIGHTLY_BUILD
         forEachStatement_(false)
 #else
@@ -1169,13 +1168,12 @@ class JS_PUBLIC_API(ContextOptions) {
         return *this;
     }
 
-    bool weakRefs() const { return weakRefs_; }
+    bool weakRefs() const { return true; }
     ContextOptions& setWeakRefs(bool flag) {
-        weakRefs_ = flag;
+        (void) flag;
         return *this;
     }
     ContextOptions& toggleWeakRefs() {
-        weakRefs_ = !weakRefs_;
         return *this;
     }
 
@@ -1197,7 +1195,6 @@ class JS_PUBLIC_API(ContextOptions) {
     bool extraWarnings_ : 1;
     bool arrayProtoValues_ : 1;
     bool streams_ : 1;
-    bool weakRefs_ : 1;
     bool forEachStatement_: 1;
 };
 

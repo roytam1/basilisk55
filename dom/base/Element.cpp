@@ -998,7 +998,7 @@ bool
 Element::CheckVisibility(const CheckVisibilityOptions& aOptions)
 {
   // https://drafts.csswg.org/cssom-view/#dom-element-checkvisibility
-  nsIFrame* frame = GetPrimaryFrame(Flush_Frames);
+  nsIFrame* frame = GetPrimaryFrame(FlushType::Frames);
   if (!frame) {
     // No associated box, e.g. display:none on this element or an ancestor,
     // display:contents, or not in a document.

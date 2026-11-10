@@ -106,9 +106,16 @@ CallbackObject::FinishSlowJSInitIfMoreThanOneOwner(JSContext* aCx)
       }
       mCreationStack = stack;
     }
+    mCallback.exposeToActiveJS();
+    if (mCreationStack) {
+      mCreationStack.exposeToActiveJS();
+    }
     mIncumbentGlobal = GetIncumbentGlobal();
     if (mIncumbentGlobal) {
       mIncumbentJSGlobal = mIncumbentGlobal->GetGlobalJSObject();
+    }
+    if (mIncumbentJSGlobal) {
+      mIncumbentJSGlobal.exposeToActiveJS();
     }
   } else {
     // We can just forget all our stuff.

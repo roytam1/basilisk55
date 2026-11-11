@@ -77,6 +77,7 @@ static bool sControlCharVisibility;
 static bool sLegacyNegationPseudoClassEnabled;
 static bool sMozDocumentEnabledInContent;
 static bool sCascadeLayersEnabled;
+static bool sContainerQueriesEnabled;
 static bool sNestingEnabled;
 
 const uint32_t
@@ -1030,6 +1031,7 @@ protected:
   bool ParseGroupRule(css::GroupRule* aRule, RuleAppendFunc aAppendFunc,
                       void* aProcessData);
   bool ParseMediaRule(RuleAppendFunc aAppendFunc, void* aProcessData);
+  bool ParseContainerRule(RuleAppendFunc aAppendFunc, void* aProcessData);
   bool ParseMozDocumentRule(RuleAppendFunc aAppendFunc, void* aProcessData);
   bool ParseNameSpaceRule(RuleAppendFunc aAppendFunc, void* aProcessData);
   void ProcessNameSpace(const nsString& aPrefix,
@@ -3815,6 +3817,11 @@ CSSParserImpl::ParseAtRule(RuleAppendFunc aAppendFunc,
     parseFunc = &CSSParserImpl::ParseSupportsRule;
     newSection = eCSSSection_General;
 
+  } else if (mToken.mIdent.LowerCaseEqualsLiteral("container") &&
+             sContainerQueriesEnabled) {
+    parseFunc = &CSSParserImpl::ParseContainerRule;
+    newSection = eCSSSection_General;
+
   } else if (mToken.mIdent.LowerCaseEqualsLiteral("layer") &&
              sCascadeLayersEnabled) {
     parseFunc = &CSSParserImpl::ParseLayerRule;
@@ -4456,6 +4463,56 @@ CSSParserImpl::ParseMediaRule(RuleAppendFunc aAppendFunc, void* aData)
     }
   }
 
+  return false;
+}
+
+// Parse a container rule: "@container [<container-name>] <container-condition>
+// { ... }"
+//
+// Stopgap: the condition is parsed as a media query list and the rule is kept
+// as an ordinary css::MediaRule. Containers are not resolved and containment
+// is not established, so the condition is evaluated against the viewport.
+// That is close enough for page-level containers, which is what sites actually
+// gate layout on; per-element containers will be wrong.
+bool
+CSSParserImpl::ParseContainerRule(RuleAppendFunc aAppendFunc, void* aData)
+{
+  if (!GetToken(true)) {
+    return false;
+  }
+
+  // Optional <container-name>. A condition can start with "not"/"and"/"or" or
+  // with a "(" or "style(" token, so only a plain ident that is none of those
+  // keywords can be a name.
+  if (eCSSToken_Ident == mToken.mType &&
+      !mToken.mIdent.LowerCaseEqualsLiteral("not") &&
+      !mToken.mIdent.LowerCaseEqualsLiteral("and") &&
+      !mToken.mIdent.LowerCaseEqualsLiteral("or")) {
+    if (!GetToken(true)) {
+      return false;
+    }
+  }
+  UngetToken();
+
+  uint32_t linenum, colnum;
+  if (!GetNextTokenLocation(true, &linenum, &colnum)) {
+    return false;
+  }
+
+  RefPtr<nsMediaList> media = new nsMediaList();
+  if (!GatherMedia(media, true)) {
+    // Not expressible as a media query list (style() queries, range syntax).
+    // Don't lose the block over it - make the rule unconditional.
+    media = new nsMediaList();
+    SkipUntil('{');
+    UngetToken();
+  }
+
+  RefPtr<css::MediaRule> rule = new css::MediaRule(linenum, colnum);
+  if (ParseGroupRule(rule, aAppendFunc, aData)) {
+    rule->SetMedia(media);
+    return true;
+  }
   return false;
 }
 
@@ -19991,6 +20048,8 @@ nsCSSParser::Startup()
                                "layout.css.moz-document.content.enabled");
   Preferences::AddBoolVarCache(&sCascadeLayersEnabled,
                                "layout.css.cascade-layers.enabled");
+  Preferences::AddBoolVarCache(&sContainerQueriesEnabled,
+                               "layout.css.container-queries.enabled");
   Preferences::AddBoolVarCache(&sNestingEnabled,
                                "layout.css.nesting.enabled");
 }

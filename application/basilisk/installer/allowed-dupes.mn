@@ -222,3 +222,6 @@ res/table-remove-row.gif
 # Aurora branding
 browser/chrome/browser/content/branding/icon64.png
 browser/chrome/devtools/content/framework/dev-edition-promo/dev-edition-logo.png
+# internal user scripts
+browser/internal-userscripts/finalizationregistry-polyfill.user.js
+browser/chrome/internaluserscripts/content/bundled-scripts/finalizationregistry-polyfill.user.js

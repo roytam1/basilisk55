@@ -9,6 +9,8 @@ const Cu = Components.utils;
 
 const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+const PREF_INTERNAL_USERSCRIPTS_ENABLED = "browser.internal-userscripts.enabled";
+
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AsyncPrefs.jsm");
@@ -212,6 +214,7 @@ BrowserGlue.prototype = {
         break;
       case "final-ui-startup":
         this._finalUIStartup();
+        this._syncInternalUserScripts();
         break;
       case "browser-delayed-startup-finished":
         this._onFirstWindowLoaded(subject);
@@ -387,6 +390,11 @@ BrowserGlue.prototype = {
           }
         });
         break;
+      case "nsPref:changed":
+        if (data == PREF_INTERNAL_USERSCRIPTS_ENABLED) {
+          this._syncInternalUserScripts();
+        }
+        break;
       case "test-initialize-sanitizer":
         this._sanitizer.onStartup();
         break;
@@ -431,6 +439,7 @@ BrowserGlue.prototype = {
     os.addObserver(this, "restart-in-safe-mode", false);
     os.addObserver(this, "flash-plugin-hang", false);
     os.addObserver(this, "xpi-signature-changed", false);
+    Services.prefs.addObserver(PREF_INTERNAL_USERSCRIPTS_ENABLED, this);
 
 #ifdef NIGHTLY_BUILD
     os.addObserver(this, AddonWatcher.TOPIC_SLOW_ADDON_DETECTED, false);
@@ -483,6 +492,7 @@ BrowserGlue.prototype = {
     os.removeObserver(this, "browser-search-engine-modified");
     os.removeObserver(this, "flash-plugin-hang");
     os.removeObserver(this, "xpi-signature-changed");
+    Services.prefs.removeObserver(PREF_INTERNAL_USERSCRIPTS_ENABLED, this);
   },
 
   _onAppDefaults: function BG__onAppDefaults() {
@@ -889,6 +899,15 @@ BrowserGlue.prototype = {
         Services.telemetry.getHistogramById(SCALING_PROBE_NAME).add(scaling);
       } catch (ex) {}
     }
+  },
+
+  _syncInternalUserScripts: function () {
+    let enabled = true;
+    try {
+      enabled = Services.prefs.getBoolPref(PREF_INTERNAL_USERSCRIPTS_ENABLED);
+    } catch (ex) {}
+    // Internal userscripts service checks this pref on startup.
+    Services.prefs.setBoolPref(PREF_INTERNAL_USERSCRIPTS_ENABLED, enabled);
   },
 
   // the first browser window has finished initializing

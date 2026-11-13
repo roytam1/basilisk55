@@ -1,5 +1,4 @@
 # -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
-# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,7 +14,7 @@ EXPORTS.brotli += [
     'include/brotli/types.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'common/constants.c',
     'common/context.c',
     'common/dictionary.c',
@@ -46,7 +45,7 @@ FINAL_LIBRARY = 'gkmedias'
 
 HostProgram('brotli')
 
-HOST_SOURCES += UNIFIED_SOURCES
+HOST_SOURCES += SOURCES
 
 HOST_SOURCES += [
     'enc/backward_references.c',

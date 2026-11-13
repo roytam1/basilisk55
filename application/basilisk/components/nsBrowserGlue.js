@@ -421,7 +421,7 @@ BrowserGlue.prototype = {
     os.addObserver(this, "restart-in-safe-mode", false);
     os.addObserver(this, "flash-plugin-hang", false);
     os.addObserver(this, "xpi-signature-changed", false);
-    Services.prefs.addObserver(PREF_INTERNAL_USERSCRIPTS_ENABLED, this);
+    Services.prefs.addObserver(PREF_INTERNAL_USERSCRIPTS_ENABLED, this, false);
 
 #ifdef NIGHTLY_BUILD
     os.addObserver(this, AddonWatcher.TOPIC_SLOW_ADDON_DETECTED, false);

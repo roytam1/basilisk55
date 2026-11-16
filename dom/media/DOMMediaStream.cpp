@@ -318,9 +318,9 @@ public:
   NS_DECL_CYCLE_COLLECTION_CLASS_INHERITED(PlaybackTrackListener,
                                            MediaStreamTrackConsumer)
 
-  void NotifyEnded(MediaStreamTrack* aTrack) override
-  {
-    if (!mStream) {
+  void NotifyEnded(MediaStreamTrack* aTrack) override {
+    RefPtr<DOMMediaStream> stream = mStream.get();
+    if (!stream) {
       MOZ_ASSERT(false);
       return;
     }
@@ -330,8 +330,8 @@ public:
       return;
     }
 
-    MOZ_ASSERT(mStream->HasTrack(*aTrack));
-    mStream->NotifyTrackRemoved(aTrack);
+    MOZ_ASSERT(stream->HasTrack(*aTrack));
+    stream->NotifyTrackRemoved(aTrack);
   }
 
 protected:

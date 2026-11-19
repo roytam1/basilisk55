@@ -1076,6 +1076,8 @@ Http2Session::CleanupStream(Http2Stream *aStream, nsresult aResult,
     return;
   }
 
+  RefPtr<Http2Session> self(this);
+
   // don't reset a stream that has recevied a fin or rst
   if (!aStream->RecvdFin() && !aStream->RecvdReset() && aStream->StreamID() &&
       !(mInputFrameFinal && (aStream == mInputFrameDataStream))) { // !(recvdfin with mark pending)

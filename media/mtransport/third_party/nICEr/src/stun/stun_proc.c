@@ -111,12 +111,6 @@ nr_stun_receive_message(nr_stun_message *req, nr_stun_message *msg)
 
         break;
 
-#ifdef USE_STUND_0_96
-    case NR_STUN_MAGIC_COOKIE2:
-        /* nothing to check in this case */
-        break;
-#endif /* USE_STUND_0_96 */
-
     default:
 #ifdef USE_RFC_3489_BACKWARDS_COMPATIBLE
         /* in RFC 3489 there is no magic cookie, it's part of the transaction ID */
@@ -346,11 +340,6 @@ nr_stun_receive_request_or_indication_short_term_auth(nr_stun_message *msg,
 
         break;
 
-#ifdef USE_STUND_0_96
-    case NR_STUN_MAGIC_COOKIE2:
-        /* nothing to check in this case */
-        break;
-#endif /* USE_STUND_0_96 */
     }
 
     _status=0;
@@ -382,11 +371,6 @@ nr_stun_receive_response_short_term_auth(nr_stun_message *res)
 
         break;
 
-#ifdef USE_STUND_0_96
-    case NR_STUN_MAGIC_COOKIE2:
-        /* nothing to check in this case */
-        break;
-#endif /* USE_STUND_0_96 */
     }
 
    _status=0;
@@ -504,11 +488,6 @@ nr_stun_receive_request_long_term_auth(nr_stun_message *req, nr_stun_server_ctx 
 
         break;
 
-#ifdef USE_STUND_0_96
-    case NR_STUN_MAGIC_COOKIE2:
-        /* nothing to do in this case */
-        break;
-#endif /* USE_STUND_0_96 */
     }
 
     _status=0;
@@ -560,11 +539,6 @@ nr_stun_receive_response_long_term_auth(nr_stun_message *res, nr_stun_client_ctx
 
         break;
 
-#ifdef USE_STUND_0_96
-    case NR_STUN_MAGIC_COOKIE2:
-        /* nothing to check in this case */
-        break;
-#endif /* USE_STUND_0_96 */
     }
 
     _status=0;

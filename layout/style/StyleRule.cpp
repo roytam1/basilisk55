@@ -23,6 +23,7 @@
 #include "nsDOMCSSDeclaration.h"
 #include "nsNameSpaceManager.h"
 #include "nsXMLNameSpaceMap.h"
+#include "nsContainerCondition.h"
 #include "nsCSSParser.h"
 #include "nsCSSRuleUtils.h"
 #include "nsCSSPseudoClasses.h"
@@ -1400,7 +1401,7 @@ StyleRule::SetDeclaration(Declaration* aDecl)
 }
 
 void
-StyleRule::SetContainerCondition(nsMediaList* aCondition, const nsString& aName)
+StyleRule::SetContainerCondition(nsContainerCondition* aCondition, const nsString& aName)
 {
   mContainerCondition = aCondition;
   mContainerName = aName;
@@ -1527,6 +1528,7 @@ StyleRule::SizeOfIncludingThis(mozilla::MallocSizeOf aMallocSizeOf) const
   size_t n = aMallocSizeOf(this);
   n += mSelector ? mSelector->SizeOfIncludingThis(aMallocSizeOf) : 0;
   n += mDeclaration ? mDeclaration->SizeOfIncludingThis(aMallocSizeOf) : 0;
+  n += mContainerCondition ? mContainerCondition->SizeOfIncludingThis(aMallocSizeOf) : 0;
 
   // Measurement of the following members may be added later if DMD finds it is
   // worthwhile:

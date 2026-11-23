@@ -5822,14 +5822,21 @@ nsIFrame::ComputeISizeValue(nsRenderingContext* aRenderingContext,
     // wrapping inside of it should not apply font size inflation.
     AutoMaybeDisableFontInflation an(this);
 
+    // Size containment on the inline axis means the content contributes
+    // nothing, so every intrinsic keyword resolves to zero. Without this a
+    // contained box with 'width: fit-content' keeps its content width.
+    const nsStyleDisplay* disp = StyleDisplay();
+    const bool contentIgnored =
+      disp->IsContainSizeEffective() || disp->IsContainInlineSizeEffective();
+
     int32_t val = aCoord.GetIntValue();
     switch (val) {
       case NS_STYLE_WIDTH_MAX_CONTENT:
-        result = GetPrefISize(aRenderingContext);
+        result = contentIgnored ? 0 : GetPrefISize(aRenderingContext);
         NS_ASSERTION(result >= 0, "inline-size less than zero");
         break;
       case NS_STYLE_WIDTH_MIN_CONTENT:
-        result = GetMinISize(aRenderingContext);
+        result = contentIgnored ? 0 : GetMinISize(aRenderingContext);
         NS_ASSERTION(result >= 0, "inline-size less than zero");
         if (MOZ_UNLIKELY(aFlags & ComputeSizeFlags::eIClampMarginBoxMinSize)) {
           auto available = aContainingBlockISize -
@@ -5839,8 +5846,8 @@ nsIFrame::ComputeISizeValue(nsRenderingContext* aRenderingContext,
         break;
       case NS_STYLE_WIDTH_FIT_CONTENT:
         {
-          nscoord pref = GetPrefISize(aRenderingContext),
-                   min = GetMinISize(aRenderingContext),
+          nscoord pref = contentIgnored ? 0 : GetPrefISize(aRenderingContext),
+                   min = contentIgnored ? 0 : GetMinISize(aRenderingContext),
                   fill = aContainingBlockISize -
                          (aBoxSizingToMarginEdge + aContentEdgeToBoxSizing);
           if (MOZ_UNLIKELY(aFlags & ComputeSizeFlags::eIClampMarginBoxMinSize)) {

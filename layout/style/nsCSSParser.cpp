@@ -1387,6 +1387,7 @@ protected:
   bool ParseRect(nsCSSPropertyID aPropID);
   bool ParseColumns();
   bool ParseContain(nsCSSValue& aValue);
+  bool ParseContainer();
   bool ParseContainerType(nsCSSValue& aValue);
   bool ParseContainerName(nsCSSValue& aValue);
   bool ParseContent();
@@ -4120,12 +4121,11 @@ CSSParserImpl::ParseMediaQueryExpression(nsMediaQuery* aQuery)
     return false;
   }
 
-  nsMediaExpression *expr = aQuery->NewExpression();
-
   // case insensitive from CSS - must be lower cased
   nsContentUtils::ASCIIToLower(mToken.mIdent);
   nsDependentString featureString(mToken.mIdent, 0);
   uint8_t satisfiedReqFlags = 0;
+  nsMediaExpression::Range range = nsMediaExpression::eEqual;
 
   // Strip off "-webkit-" prefix from featureString:
   if (sWebkitPrefixedAliasesEnabled &&
@@ -4139,13 +4139,11 @@ CSSParserImpl::ParseMediaQueryExpression(nsMediaQuery* aQuery)
 
   // Strip off "min-"/"max-" prefix from featureString:
   if (StringBeginsWith(featureString, NS_LITERAL_STRING("min-"))) {
-    expr->mRange = nsMediaExpression::eMin;
+    range = nsMediaExpression::eMin;
     featureString.Rebind(featureString, 4);
   } else if (StringBeginsWith(featureString, NS_LITERAL_STRING("max-"))) {
-    expr->mRange = nsMediaExpression::eMax;
+    range = nsMediaExpression::eMax;
     featureString.Rebind(featureString, 4);
-  } else {
-    expr->mRange = nsMediaExpression::eEqual;
   }
 
   nsCOMPtr<nsIAtom> mediaFeatureAtom = NS_Atomize(featureString);
@@ -4164,6 +4162,10 @@ CSSParserImpl::ParseMediaQueryExpression(nsMediaQuery* aQuery)
     SkipUntil(')');
     return false;
   }
+  // The expression is only worth keeping once the feature resolved; creating
+  // it up front leaves a half-built entry behind on an unknown feature name.
+  nsMediaExpression* expr = aQuery->NewExpression();
+  expr->mRange = range;
   expr->mFeature = feature;
 
   if (!GetToken(true) || mToken.IsSymbol(')')) {
@@ -4542,6 +4544,8 @@ CSSParserImpl::ParseContainerRule(RuleAppendFunc aAppendFunc, void* aData)
   rule->SetContainerQuery(containerName);
 
   if (expressible) {
+    nsAutoString condText;
+    condition->GetText(condText);
     ContainerStampData stamp(condition, containerName);
     rule->EnumerateRulesForwards(StampContainerCondition, &stamp);
   }
@@ -13769,6 +13773,12 @@ CSSParserImpl::ParseSingleValuePropertyByFunction(nsCSSValue& aValue,
       return ParseAspectRatio(aValue);
     case eCSSProperty_contain:
       return ParseContain(aValue);
+    case eCSSProperty_container:
+      return ParseContainer();
+    case eCSSProperty_container_name:
+      return ParseContainerName(aValue);
+    case eCSSProperty_container_type:
+      return ParseContainerType(aValue);
     case eCSSProperty_font_family:
       return ParseFamily(aValue);
     case eCSSProperty_font_synthesis:
@@ -16590,6 +16600,34 @@ CSSParserImpl::ParseContain(nsCSSValue& aValue)
     aValue.SetIntValue(NS_STYLE_CONTAIN_STRICT |
         NS_STYLE_CONTAIN_ALL_BITS, eCSSUnit_Enumerated);
   }
+  return true;
+}
+
+bool
+CSSParserImpl::ParseContainer()
+{
+  nsCSSValue name;
+  if (!ParseContainerName(name)) {
+    return false;
+  }
+
+  nsCSSValue type;
+  nsCSSUnit unit = name.GetUnit();
+  if (unit == eCSSUnit_Inherit || unit == eCSSUnit_Initial ||
+      unit == eCSSUnit_Unset || unit == eCSSUnit_Revert) {
+    // Wide keywords apply to both longhands.
+    type.SetIntValue(0, unit);
+  } else if (ExpectSymbol('/', true)) {
+    if (!ParseContainerType(type)) {
+      return false;
+    }
+  } else {
+    // An omitted longhand resets to its initial value.
+    type.SetIntValue(NS_STYLE_CONTAINER_TYPE_NORMAL, eCSSUnit_Enumerated);
+  }
+
+  AppendValue(eCSSProperty_container_name, name);
+  AppendValue(eCSSProperty_container_type, type);
   return true;
 }
 

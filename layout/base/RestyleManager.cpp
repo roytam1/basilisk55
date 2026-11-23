@@ -399,7 +399,9 @@ RestyleManager::RestyleForHasPseudoClassChange(nsINode* aNode,
                                               nsIAtom* aAttribute,
                                               const nsAttrValue* aNewClasses,
                                               bool aCompareClasses,
-                                              bool aIsTextChange)
+                                              bool aIsTextChange,
+                                              nsIContent* aChangedContent,
+                                              bool aFollowingSiblings)
 {
   MOZ_ASSERT(!aAttribute || aNode->IsElement());
   if (!aNode->OwnerDoc()->GetProperty(nsGkAtoms::hasSelectorDependency)) {
@@ -428,7 +430,8 @@ RestyleManager::RestyleForHasPseudoClassChange(nsINode* aNode,
     }
     if (node->IsElement() && dependency->MightDependOnChange(
           node->AsElement(), aNode, aStateMask, aAttribute, aNewClasses,
-          aCompareClasses, false, false, aIsTextChange)) {
+          aCompareClasses, false, false, aIsTextChange,
+          aChangedContent, aFollowingSiblings)) {
       restyleAnchor(node->AsElement(), dependency);
     }
     if (!dependency->MightAffectSiblingAnchor(
@@ -497,7 +500,7 @@ RestyleManager::RestyleForAppend(nsIContent* aContainer,
     }
   }
   RestyleForHasPseudoClassChange(aContainer, EventStates(), nullptr, nullptr,
-                                false, onlyText);
+                                false, onlyText, aFirstNewContent, true);
 
   if (!aContainer->IsElement()) {
     return;
@@ -591,7 +594,8 @@ RestyleManager::RestyleForInsertOrChange(nsINode* aContainer,
   // Local compounds cannot observe text, but structural pseudo-classes
   // such as :empty must still be invalidated.
   RestyleForHasPseudoClassChange(aContainer, EventStates(), nullptr, nullptr,
-                                false, aChild->IsNodeOfType(nsINode::eTEXT));
+                                false, aChild->IsNodeOfType(nsINode::eTEXT),
+                                aChild);
 
   if (!aContainer->IsElement()) {
     return;
@@ -686,7 +690,8 @@ RestyleManager::ContentRemoved(nsINode* aContainer,
   // Local compounds cannot observe text, but structural pseudo-classes
   // such as :empty must still be invalidated.
   RestyleForHasPseudoClassChange(aContainer, EventStates(), nullptr, nullptr,
-                                false, aOldChild->IsNodeOfType(nsINode::eTEXT));
+                                false, aOldChild->IsNodeOfType(nsINode::eTEXT),
+                                aOldChild);
 
   if (!aContainer->IsElement()) {
     return;

@@ -1101,6 +1101,7 @@ public:
   NS_DECLARE_FRAME_PROPERTY_SMALL_VALUE(BidiDataProperty, mozilla::FrameBidiData)
 
   NS_DECLARE_FRAME_PROPERTY_WITHOUT_DTOR(PlaceholderFrameProperty, nsPlaceholderFrame)
+  NS_DECLARE_FRAME_PROPERTY_WITHOUT_DTOR(ContainerSizeProperty, nsSize)
 
   mozilla::FrameBidiData GetBidiData()
   {

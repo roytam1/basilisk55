@@ -29,10 +29,14 @@
 #include "WorkerRunnable.h"
 #include "WorkerScope.h"
 
+#ifdef DEBUG
 #ifdef MOZ_WIDGET_GONK
 #define PERFLOG(msg, ...)  __android_log_print(ANDROID_LOG_INFO, "PerformanceTiming", msg, ##__VA_ARGS__)
 #else
 #define PERFLOG(msg, ...) printf_stderr(msg, ##__VA_ARGS__)
+#endif
+#else
+#define PERFLOG(...)
 #endif
 
 namespace mozilla {

@@ -3006,6 +3006,14 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleDisplay
     return NS_STYLE_CONTAIN_PAINT & mContain;
   }
 
+  bool IsContainSize() const {
+    return !!(mContain & NS_STYLE_CONTAIN_SIZE);
+  }
+
+  bool IsContainInlineSize() const {
+    return !!(mContain & NS_STYLE_CONTAIN_INLINE_SIZE);
+  }
+
   bool IsContainerForSizeQueries() const {
     switch (mDisplay) {
       case mozilla::StyleDisplay::Table:
@@ -3025,6 +3033,42 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleDisplay
         break;
     }
     return mContainerType != NS_STYLE_CONTAINER_TYPE_NORMAL;
+  }
+
+  // Containment as it actually applies, including what container-type implies.
+  // Everything in layout must consult this rather than mContain, or
+  // container-type: size will not contain anything.
+  uint8_t EffectiveContainment() const {
+    switch (mContainerType) {
+      case NS_STYLE_CONTAINER_TYPE_SIZE:
+        return mContain | NS_STYLE_CONTAIN_SIZE |
+               NS_STYLE_CONTAIN_LAYOUT | NS_STYLE_CONTAIN_STYLE;
+      case NS_STYLE_CONTAINER_TYPE_INLINE_SIZE:
+        return mContain | NS_STYLE_CONTAIN_INLINE_SIZE |
+               NS_STYLE_CONTAIN_LAYOUT | NS_STYLE_CONTAIN_STYLE;
+      default:
+        return mContain;
+    }
+  }
+
+  bool IsContainLayoutEffective() const {
+    return !!(EffectiveContainment() & NS_STYLE_CONTAIN_LAYOUT);
+  }
+
+  bool IsContainStyleEffective() const {
+    return !!(EffectiveContainment() & NS_STYLE_CONTAIN_STYLE);
+  }
+
+  bool IsContainPaintEffective() const {
+    return !!(EffectiveContainment() & NS_STYLE_CONTAIN_PAINT);
+  }
+
+  bool IsContainSizeEffective() const {
+    return !!(EffectiveContainment() & NS_STYLE_CONTAIN_SIZE);
+  }
+
+  bool IsContainInlineSizeEffective() const {
+    return !!(EffectiveContainment() & NS_STYLE_CONTAIN_INLINE_SIZE);
   }
 
   bool HasContainerName(const nsAString& aName) const;

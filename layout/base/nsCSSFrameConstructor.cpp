@@ -4913,6 +4913,7 @@ nsCSSFrameConstructor::ConstructNonScrollableBlockWithConstructor(
   if ((aDisplay->IsAbsolutelyPositionedStyle() ||
        aDisplay->IsFloatingStyle() ||
        StyleDisplay::InlineBlock == aDisplay->mDisplay ||
+       aDisplay->IsContainLayoutEffective() ||
        clipPaginatedOverflow) &&
       !aParentFrame->IsSVGText()) {
     flags = NS_BLOCK_FORMATTING_CONTEXT_STATE_BITS;

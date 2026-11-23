@@ -1874,6 +1874,10 @@ protected:
   // are encountered in a property declaration in the @supports condition.
   bool mInSupportsCondition : 1;
 
+  // True while parsing a @container condition. Container-only features are
+  // rejected elsewhere, in particular in @media.
+  bool mInContainer;
+
   // True if we are somewhere within a @supports rule whose condition is
   // false.
   bool mInFailingSupportsRule : 1;
@@ -1993,6 +1997,7 @@ CSSParserImpl::CSSParserImpl()
     mViewportUnitsEnabled(true),
     mParsingCompoundProperty(false),
     mInSupportsCondition(false),
+    mInContainer(false),
     mInFailingSupportsRule(false),
     mSuppressErrors(false),
     mSheetPrincipalRequired(true),
@@ -4136,6 +4141,9 @@ CSSParserImpl::ParseMediaQueryExpression(nsMediaQuery* aQuery)
   if (sWebkitDevicePixelRatioEnabled) {
     satisfiedReqFlags |= nsMediaFeature::eWebkitDevicePixelRatioPrefEnabled;
   }
+  if (mInContainer) {
+    satisfiedReqFlags |= nsMediaFeature::eContainerQueryOnly;
+  }
 
   // Strip off "min-"/"max-" prefix from featureString:
   if (StringBeginsWith(featureString, NS_LITERAL_STRING("min-"))) {
@@ -4526,7 +4534,12 @@ CSSParserImpl::ParseContainerRule(RuleAppendFunc aAppendFunc, void* aData)
   }
 
   RefPtr<nsMediaList> condition = new nsMediaList();
-  bool expressible = GatherMedia(condition, true);
+  bool expressible;
+  {
+    AutoRestore<bool> autoRestore(mInContainer);
+    mInContainer = true;
+    expressible = GatherMedia(condition, true);
+  }
   if (!expressible) {
     // Not expressible as a media query list (style() queries, range syntax).
     // Don't lose the block over it - leave the rule unconditional.

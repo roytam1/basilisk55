@@ -3221,6 +3221,8 @@ nsStyleDisplay::CalcDifference(const nsStyleDisplay& aNewData) const
       || mPosition != aNewData.mPosition
       || mDisplay != aNewData.mDisplay
       || mContain != aNewData.mContain
+      || mContainerType != aNewData.mContainerType
+      || mContainerNames != aNewData.mContainerNames
       || (mFloat == StyleFloat::None) != (aNewData.mFloat == StyleFloat::None)
       || mScrollBehavior != aNewData.mScrollBehavior
       || mScrollSnapTypeX != aNewData.mScrollSnapTypeX
@@ -3435,6 +3437,17 @@ nsStyleDisplay::CalcDifference(const nsStyleDisplay& aNewData) const
   }
 
   return hint;
+}
+
+bool
+nsStyleDisplay::HasContainerName(const nsAString& aName) const
+{
+  for (const nsString& name : mContainerNames) {
+    if (name.Equals(aName)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // --------------------

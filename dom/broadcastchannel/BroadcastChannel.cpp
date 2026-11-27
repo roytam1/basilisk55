@@ -72,13 +72,12 @@ class InitializeRunnable final : public WorkerMainThreadRunnable
 {
 public:
   InitializeRunnable(WorkerPrivate* aWorkerPrivate, nsACString& aOrigin,
-                     PrincipalInfo& aPrincipalInfo, ErrorResult& aRv)
+                     PrincipalInfo& aPrincipalInfo)
     : WorkerMainThreadRunnable(aWorkerPrivate,
                                NS_LITERAL_CSTRING("BroadcastChannel :: Initialize"))
     , mWorkerPrivate(GetCurrentThreadWorkerPrivate())
     , mOrigin(aOrigin)
     , mPrincipalInfo(aPrincipalInfo)
-    , mRv(aRv)
   {
     MOZ_ASSERT(mWorkerPrivate);
   }
@@ -89,17 +88,24 @@ public:
 
     nsIPrincipal* principal = GetPrincipalFromWorkerPrivate(mWorkerPrivate);
     if (!principal) {
-      mRv.Throw(NS_ERROR_FAILURE);
+      SetMainThreadResult(NS_ERROR_FAILURE);
       return true;
     }
 
-    mRv = PrincipalToPrincipalInfo(principal, &mPrincipalInfo);
-    if (NS_WARN_IF(mRv.Failed())) {
+    if (NS_WARN_IF(principal->GetIsNullPrincipal())) {
+      SetMainThreadResult(NS_ERROR_FAILURE);
       return true;
     }
 
-    mRv = principal->GetOrigin(mOrigin);
-    if (NS_WARN_IF(mRv.Failed())) {
+    nsresult rv = PrincipalToPrincipalInfo(principal, &mPrincipalInfo);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      SetMainThreadResult(rv);
+      return true;
+    }
+
+    rv = principal->GetOrigin(mOrigin);
+    if (NS_WARN_IF(NS_FAILED(rv))) {
+      SetMainThreadResult(rv);
       return true;
     }
 
@@ -122,7 +128,6 @@ private:
   WorkerPrivate* mWorkerPrivate;
   nsACString& mOrigin;
   PrincipalInfo& mPrincipalInfo;
-  ErrorResult& mRv;
 };
 
 class BCPostMessageRunnable final : public nsIRunnable,
@@ -333,7 +338,7 @@ BroadcastChannel::Constructor(const GlobalObject& aGlobal,
     MOZ_ASSERT(workerPrivate);
 
     RefPtr<InitializeRunnable> runnable =
-      new InitializeRunnable(workerPrivate, origin, principalInfo, aRv);
+      new InitializeRunnable(workerPrivate, origin, principalInfo);
     runnable->Dispatch(Closing, aRv);
   }
 

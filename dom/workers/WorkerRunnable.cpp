@@ -585,6 +585,7 @@ WorkerMainThreadRunnable::WorkerMainThreadRunnable(WorkerPrivate* aWorkerPrivate
                                                    const nsACString& aTelemetryKey)
 : mWorkerPrivate(aWorkerPrivate)
 , mTelemetryKey(aTelemetryKey)
+, mMainThreadResult(NS_OK)
 {
   mWorkerPrivate->AssertIsOnWorkerThread();
 }
@@ -593,8 +594,6 @@ void
 WorkerMainThreadRunnable::Dispatch(Status aFailStatus, ErrorResult& aRv)
 {
   mWorkerPrivate->AssertIsOnWorkerThread();
-
-  TimeStamp startTime = TimeStamp::NowLoRes();
 
   AutoSyncLoopHolder syncLoop(mWorkerPrivate, aFailStatus);
 
@@ -614,12 +613,12 @@ WorkerMainThreadRunnable::Dispatch(Status aFailStatus, ErrorResult& aRv)
 
   if (!syncLoop.Run()) {
     aRv.ThrowUncatchableException();
+    return;
   }
 
-  Telemetry::Accumulate(Telemetry::SYNC_WORKER_OPERATION, mTelemetryKey,
-                        static_cast<uint32_t>((TimeStamp::NowLoRes() - startTime)
-                                                .ToMilliseconds()));
-  Unused << startTime; // Shut the compiler up.
+  if (!aRv.Failed() && NS_FAILED(mMainThreadResult)) {
+    aRv.Throw(mMainThreadResult);
+  }
 }
 
 NS_IMETHODIMP

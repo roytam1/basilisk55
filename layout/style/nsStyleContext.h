@@ -615,7 +615,7 @@ private:
   // |mRule| member of |mRuleNode|.
   const RefPtr<nsRuleNode> mRuleNode;
 
-  nsIContent* mContent;
+  nsCOMPtr<nsIContent> mContent;
 
   // mCachedInheritedData and mCachedResetData point to both structs that
   // are owned by this style context and structs that are owned by one of

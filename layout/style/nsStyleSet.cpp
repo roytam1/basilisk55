@@ -1608,7 +1608,7 @@ nsStyleSet::ResolveStyleByAddingRules(nsStyleContext* aBaseContext,
   return GetContext(aBaseContext->GetParent(), ruleNode, visitedRuleNode,
                     aBaseContext->GetPseudo(),
                     aBaseContext->GetPseudoType(),
-                    nullptr, flags);
+                    content ? content->AsElement() : nullptr, flags);
 }
 
 struct RuleNodeInfo {

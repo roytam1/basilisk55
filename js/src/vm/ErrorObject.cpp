@@ -505,7 +505,7 @@ js::ErrorObject::init(JSContext* cx, Handle<ErrorObject*> obj, JSExnType type,
     if (message)
         obj->setSlotWithType(cx, messageShape, StringValue(message));
     if (cause.isSome()) {
-        obj->initReservedSlot(CAUSE_SLOT, *cause.get());
+        obj->setSlotWithType(cx, causeShape, *cause.get());
     } else {
         obj->initReservedSlot(CAUSE_SLOT, MagicValue(JS_ERROR_WITHOUT_CAUSE));
     }
